@@ -14,6 +14,10 @@ class Block : Instruction {
 	this._insts = insts;
     }
 
+    Block block () {
+	assert (false, "TODO");
+    }
+    
     override void print (int nb = 0) {
 	writefln ("%s<Block> : %s(%d, %d) ", rightJustify ("", nb, ' '),
 		this._token.locus.file,

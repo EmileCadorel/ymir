@@ -24,6 +24,10 @@ class Table {
 	}
     }
 
+    void enterFrame (string space) {
+	this._frameTable.insertFront (new FrameScope (space));
+    }
+    
     void quitFrame () {
 	if (!this._frameTable.empty) {
 	    this._frameTable.removeFront ();

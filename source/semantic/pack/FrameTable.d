@@ -15,11 +15,11 @@ class FrameTable {
 	this._finals.insertBack (frame);
     }
 
-    const (Array!PureFrame) pures () {
+    Array!PureFrame pures () {
 	return this._pures;
     }
 
-    const (Array!FinalFrame) finals () {
+    Array!FinalFrame finals () {
 	return this._finals;
     }    
     

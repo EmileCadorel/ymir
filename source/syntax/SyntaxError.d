@@ -6,14 +6,6 @@ import std.file, std.stdio, std.conv;
 import std.stdio;
 
 class SyntaxError : YmirException {
-
-    private string getLine (Location locus) {
-	auto file = File (locus.file, "r");
-	string cline = null;
-	foreach (it ; 0 .. locus.line)
-	    cline = file.readln ();
-	return cline;
-    }
     
     this (Word word) {
 	OutBuffer buf = new OutBuffer();

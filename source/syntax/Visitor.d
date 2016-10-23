@@ -55,6 +55,9 @@ class Visitor {
 			      Keys.FUNCTION, Keys.LET, Keys.IS];
     }
 
+    /**
+     program := function | import | struct | class;
+     */
     Program visit () {
 	Word word = this._lex.next ();
 	Array!Declaration decls;
@@ -67,10 +70,16 @@ class Visitor {
 	return new Program (decls);
     }
 
+    /**
+     import := 'import' (Identifiant ('.' Identifiant)*) (',' Identifiant ('.' Identifiant))* ';'
+     */
     private Import visitImport () {
 	return null;
     }
 
+    /**
+     function := 'def' Identifiant '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
+     */
     private Function visitFunction () {
 	auto ident = visitIdentifiant ();
 	Array!Var exps;
@@ -96,10 +105,16 @@ class Visitor {
 	return new Function (ident, exps, visitBlock ());
     }
 
+    /**
+     var := type; 
+     */
     private Var visitVar () {
 	return visitType ();
     }
-    
+
+    /**
+     vardecl := var (':' type)?
+     */
     private Var visitVarDeclaration () {
 	auto ident = visitIdentifiant ();
 	Word next = _lex.next ();
@@ -110,6 +125,9 @@ class Visitor {
 	return new Var (ident);
     }
     
+    /**
+     type := Identifiant ('!' (('(' expression (',' expression)* ')') | expression ) 
+     */
     private Var visitType () {
 	auto ident = visitIdentifiant ();
 	auto next = _lex.next ();
@@ -256,6 +274,9 @@ class Visitor {
 	return new VarDecl (tok, decls, insts);
     }
 
+    /**
+     expressionult := expression (_ultimeop expression)*
+     */
     private Expression visitExpressionUlt () {
 	auto left = visitExpression ();
 	auto tok = _lex.next ();

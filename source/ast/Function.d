@@ -28,6 +28,18 @@ class Function : Declaration {
 	this._block = block;
     }
 
+    Var type () {
+	return this._type;
+    }
+
+    Array!Var params () {
+	return this._params;
+    }
+    
+    Block block () {
+	return this._block;
+    }
+
     override void declare () {
 	if (this._ident.str == MAIN) {
 	    FrameTable.instance.insert (new PureFrame ("", this));

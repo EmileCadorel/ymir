@@ -1,5 +1,5 @@
 module utils.YmirException;
-
+import syntax.Word, std.stdio;
 
 class YmirException : Exception {
         
@@ -16,4 +16,13 @@ class YmirException : Exception {
 	super (msg);
     }
 
+    protected string getLine (Location locus) {
+	auto file = File (locus.file, "r");
+	string cline = null;
+	foreach (it ; 0 .. locus.line)
+	    cline = file.readln ();
+	return cline;
+    }
+
+    
 }

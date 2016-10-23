@@ -5,7 +5,7 @@ import std.container, std.outbuffer, std.string;
 
 
 struct FrameReturnInfo {
-    InfoType type;        
+    Symbol info;        
 
     static FrameReturnInfo empty () {
 	return _empty;
@@ -24,8 +24,13 @@ class FrameScope {
 
     this (string namespace) {
 	this._namespace = namespace;
+	this.enterBlock ();
     }
 
+    ~this () {
+	this.quitBlock ();
+    }
+    
     void enterBlock () {
 	this._local.insertFront (new Scope ());
     }
