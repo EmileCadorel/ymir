@@ -7,6 +7,7 @@ struct Location {
     ulong column;
     ulong length;
     string file;
+    bool eof;
 }
 
 struct Word {
@@ -37,7 +38,7 @@ struct Word {
     }
 
     bool isEof () const {
-	return this._locus.file == null;
+	return this._locus.eof;
     }
 
     bool opEquals (T2 : Word) (T2 elem) const {
@@ -51,9 +52,14 @@ struct Word {
     static bool checkToken (string token) {
 	return find!"a.descr == b" ([EnumMembers!Tokens], token) != [];
     }
+
+    void setEof () {
+	this._locus.eof = true;
+	this._str = "";
+    }
     
     static Word eof () {
-	return Word (Location (0, 0, 0, null), "");
+	return Word (Location (0, 0, 0, null, false), "");
     }
     
 }

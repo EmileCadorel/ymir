@@ -1,8 +1,9 @@
 module semantic.pack.Frame;
 import ast.Function, semantic.pack.Table;
 import ast.Var, semantic.types.UndefInfo, semantic.pack.Symbol;
-import syntax.Word;
-import std.stdio, std.conv, std.container;
+import syntax.Word, ast.Block, semantic.pack.FrameTable;
+import std.stdio, std.conv, std.container, std.outbuffer;
+import lint.FunctionTree, semantic.types.VoidInfo;
 
 class PureFrame {
 
@@ -17,7 +18,10 @@ class PureFrame {
     }
 
     void validate () {
-	FinalFrame fr = new FinalFrame (this._namespace, this._function);
+	string name = this._name;
+	if (this._namespace != "") {
+	    name = this._namespace ~ to!string (this._name.length) ~ this._name;
+	}
 	Table.instance.enterFrame (this._namespace ~
 				   to!string (this._name.length) ~
 				   this._name);
@@ -34,19 +38,42 @@ class PureFrame {
 	}	
 
 	auto block = this._function.block.block ();
-	Table.instance.quitFrame ();	
+	if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
+	    Table.instance.retInfo.info.type = new VoidInfo ();
+	}
+
+	FrameTable.instance.insert (new FinalFrame (Table.instance.retInfo.info,
+						    name,
+						    finalParams, block));
+	Table.instance.quitFrame ();
     }    
     
 }
 
 class FinalFrame {
 
-    private string _namespace;
-    private Function _function;
+    private Symbol _type;
+    private string _name;
+    private Array!Var _vars;
+    private Block _block;
     
-    this (string namespace, Function func) {
-	this._namespace = namespace;
-	this._function = func;
+    this (Symbol type, string name, Array!Var vars, Block block) {
+	this._type = type;
+	this._vars = vars;
+	this._block = block;
+	this._name = name;
+    }
+
+    void toC (ref OutBuffer buf) {
+	FunctionTree func = new FunctionTree;
+	func.name = this._name;
+	foreach (it ; this._vars) {
+	    func.addParam (it.toLint ());
+	}
+
+	func.setBlock (this._block.toLint ());
+	func.type = this._type.typeString ();
+	func.toC (buf);
     }
     
 }

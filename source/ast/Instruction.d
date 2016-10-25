@@ -1,5 +1,5 @@
 module ast.Instruction;
-import syntax.Word;
+import syntax.Word, lint.tree;
 
 class Instruction {
 
@@ -9,7 +9,18 @@ class Instruction {
 	this._token = word;
     }
 
-    void print (int nb = 0) {}
+    Word token () {
+	return this._token;
+    }
     
+    Instruction instruction () {
+	assert (false, "TODO");
+    }
+    
+    void print (int nb = 0) {}
+
+    Tree toLint () {
+	assert (false, "TODO");
+    }
     
 }

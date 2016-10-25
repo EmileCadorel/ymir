@@ -98,8 +98,8 @@ class Lexer {
     private Lexer get (ref Word word) {
 	do {
 	    if (!getWord (word)) {
-		word = Word.eof;
-		return this;
+		word.setEof ();
+		break;
 	    } else {
 		Tokens com;
 		if (isComment (word, com) && _enableComment) {
@@ -110,11 +110,10 @@ class Lexer {
 		}
 	    }	    
 	} while (isSkip (word) && !word.isEof);
-
-	if (!word.isEof) {
-	    this._current ++;
-	    this._reads.insertBack (word);
-	}
+	
+	this._reads.insertBack (word);	
+	this._current ++;
+	
 	return this;
     }
 

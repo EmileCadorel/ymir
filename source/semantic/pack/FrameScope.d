@@ -7,8 +7,12 @@ import std.container, std.outbuffer, std.string;
 struct FrameReturnInfo {
     Symbol info;        
 
-    static FrameReturnInfo empty () {
+    static ref FrameReturnInfo empty () {
 	return _empty;
+    }
+    
+    bool has (string elem) {
+	return false;
     }
 
     static FrameReturnInfo _empty;

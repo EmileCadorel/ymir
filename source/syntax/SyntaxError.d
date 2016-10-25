@@ -10,8 +10,8 @@ class SyntaxError : YmirException {
     this (Word word) {
 	OutBuffer buf = new OutBuffer();
 	string line;
-	buf.write (RED);
-	buf.write ("Erreur de syntaxe " ~ RESET ~ ":");
+	buf.write (Colors.RED.value);
+	buf.write ("Erreur de syntaxe " ~ Colors.RESET.value ~ ":");
 	buf.write (word.locus.file);
 	buf.write (":(" ~ to!string(word.locus.line) ~ ", " ~ to!string(word.locus.column) ~ ") : ");
 	buf.write ("'" ~ word.str ~ "'\n");
@@ -21,9 +21,9 @@ class SyntaxError : YmirException {
 	    line = this.getLine (word.locus);
 	    int j = 0;
 	    for(; j < word.locus.column - 1 && j < line.length; j++) buf.write (line[j]);
-	    buf.write(GREEN);
+	    buf.write (Colors.YELLOW.value);
 	    for(; j < word.locus.length + word.locus.column - 1  && j < line.length; j++) buf.write (line[j]);
-	    buf.write (RESET);
+	    buf.write (Colors.RESET.value);
 	    for(; j < line.length; j++) buf.write (line[j]);
 	    
 	    for(int i = 0; i < word.locus.column - 1 && i < line.length; i++) {
@@ -39,8 +39,8 @@ class SyntaxError : YmirException {
     this (Word word, string [] expected) {
 	OutBuffer buf = new OutBuffer();
 	string line;
-	buf.write (RED);
-	buf.write ("Erreur de syntaxe " ~ RESET ~ ":");
+	buf.write (Colors.RED.value);
+	buf.write ("Erreur de syntaxe " ~ Colors.RESET.value ~ ":");
 	buf.write (word.locus.file);
 	buf.write (":(" ~ to!string(word.locus.line) ~ ", " ~ to!string(word.locus.column) ~ ") : ");
 	buf.write ("'" ~ word.str ~ "' obtenue quand {");
@@ -57,9 +57,9 @@ class SyntaxError : YmirException {
 	    line = this.getLine (word.locus);
 	    int j = 0;
 	    for(; j < word.locus.column - 1 && j < line.length; j++) buf.write (line[j]);
-	    buf.write(GREEN);
+	    buf.write(Colors.YELLOW.value);
 	    for(; j < word.locus.length + word.locus.column - 1  && j < line.length; j++) buf.write (line[j]);
-	    buf.write (RESET);
+	    buf.write (Colors.RESET.value);
 	    for(; j < line.length; j++) buf.write (line[j]);
 	    
 	    for(int i = 0; i < word.locus.column - 1 && i < line.length; i++) {

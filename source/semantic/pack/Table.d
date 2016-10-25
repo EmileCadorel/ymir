@@ -54,7 +54,7 @@ class Table {
 	return ret;
     }
 
-    FrameReturnInfo retInfo () {
+    ref FrameReturnInfo retInfo () {
 	if (this._frameTable.empty) return FrameReturnInfo.empty;
 	else return this._frameTable.front.retInfo ();
     }

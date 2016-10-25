@@ -2,14 +2,15 @@ module ast.Var;
 import ast.Expression, semantic.pack.Table;
 import syntax.Word, std.container, semantic.types.InfoType;
 import std.stdio, std.string, std.outbuffer, utils.YmirException;
-import semantic.pack.Symbol;
+import semantic.pack.Symbol, ast.VarDecl;
+import lint.tree, lint.VarTree;
 
 class UndefinedVar : YmirException {
 
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sVariable inconnu:%s %s'%s'%s :", RED, RESET, GREEN, token.str, RESET);
+	buf.writefln ("%sErreur%s: Variable inconnu '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	auto line = getLine (token.locus);
 	buf.write (line);
 	foreach (i ; 0 .. token.locus.column - 1) {
@@ -28,7 +29,7 @@ class UseAsType : YmirException {
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur %s: %s'%s'%s n'est pas un type ", RED, RESET, GREEN, token.str, RESET);
+	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas un type ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	auto line = getLine (token.locus);
 	buf.write (line);
 	foreach (i ; 0 .. token.locus.column - 1) {
@@ -43,27 +44,6 @@ class UseAsType : YmirException {
 	msg = buf.toString();        
     }
 }
-
-class ShadowingVar : YmirException {
-    this (Word token, Word token2) {
-	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writef ("%sErreur %s: %s'%s'%s est deja definis a ", RED, RESET, GREEN, token.str, RESET);
-	buf.writefln ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	
-	foreach (it; 0 .. token2.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
-	msg = buf.toString();        
-    }
-}
-
 
 class Var : Expression {
 
@@ -114,6 +94,7 @@ class Var : Expression {
 	return false;
     }
 
+      
     override void print (int nb = 0) {
 	writefln ("%s<Var> %s(%d, %d) %s ",
 		  rightJustify ("", nb, ' '),
@@ -144,6 +125,13 @@ class TypedVar : Var {
 	return aux;
     }
 
+    override Tree toLint () {
+	VarTree tree = new VarTree ();
+	tree.type = this._type.token.str;
+	tree.name = this._token.str;
+	return tree;
+    }
+    
     override void print (int nb = 0) {
 	writef ("%s<TypedVar> %s(%d, %d) %s ",
 		rightJustify ("", nb, ' '),
