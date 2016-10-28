@@ -9,7 +9,7 @@ class NotATemplate : YmirException {
 
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED, Colors.RESET, Colors.GREEN, token.str, Colors.RESET);
+	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value);
 	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
@@ -21,7 +21,7 @@ class NotATemplate : YmirException {
 class UndefinedType : YmirException {
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'existe pas :", Colors.RED, Colors.RESET, Colors.GREEN, token.str, Colors.RESET);
+	buf.writef ("%sErreur%s: Le type %s'%s'%s n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value);
 	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 
 	super.addLine (buf, token.locus);

@@ -16,7 +16,7 @@ class LexerError : Exception {
  */
 class Lexer {
     
-    this (string filename, Tokens [] skips, Tokens[2][] comments) {
+    this (string filename, Token [] skips, Token[2][] comments) {
 	this._line = 1;
 	this._tokens = [EnumMembers!Tokens];
 	foreach (it ; skips) 
@@ -48,7 +48,7 @@ class Lexer {
      elem, le token a passe
      on, active ou non     
      */
-    void skipEnable (Tokens elem, bool on = true) {
+    void skipEnable (Token elem, bool on = true) {
 	this._skips [elem] = on;
     }
 
@@ -101,7 +101,7 @@ class Lexer {
 		word.setEof ();
 		break;
 	    } else {
-		Tokens com;
+		Token com;
 		if (isComment (word, com) && _enableComment) {
 		    do {
 			getWord (word);
@@ -117,7 +117,7 @@ class Lexer {
 	return this;
     }
 
-    private bool isComment (Word elem, ref Tokens retour) {
+    private bool isComment (Word elem, ref Token retour) {
 	foreach (it ; this._comments) {
 	    if (it[0].descr == elem.str) {
 		retour = it [1];
@@ -181,9 +181,9 @@ class Lexer {
 	this._file.close ();
     }
     
-    private Tokens [] _tokens;
-    private bool [Tokens] _skips;
-    private Tokens [2][] _comments;
+    private Token [] _tokens;
+    private bool [Token] _skips;
+    private Token [2][] _comments;
     private string _filename;
     private bool _enableComment;
     private Array!(Word) _reads;

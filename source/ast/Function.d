@@ -52,6 +52,7 @@ class Function : Declaration {
 	auto space = Table.instance.namespace ();
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return;
+	    
 	}
 	FrameTable.instance.insert (new PureFrame (space, this));
     }

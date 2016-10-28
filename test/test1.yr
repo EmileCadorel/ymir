@@ -1,4 +1,9 @@
 
+def s (a : int, bdkhf : float) {
+    let a, bdkhf;
+}
+
 def main (a : int, bdkhfkj : float) {
     let a, bdkhfkj;
 }
+

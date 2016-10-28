@@ -8,9 +8,19 @@ void main (string [] args) {
 	    Visitor visitor = new Visitor (args [1]);
 	    auto prog = visitor.visit ();
 	    prog.declare ();
-	    foreach (it ; FrameTable.instance.pures) {
-		it.validate ();
+	    auto error = 0;
+	    foreach (it ; FrameTable.instance.pures) {		
+		try {
+		    it.validate ();		
+		} catch (YmirException yme) {
+		    yme.print ();
+		    error ++;
+		} catch (ErrorOccurs occurs) {
+		    error += occurs.nbError;
+		}
 	    }
+	    if (error > 0) throw new ErrorOccurs (error);
+	    
 	} catch (YmirException yme) {
 	    yme.print ();
 	} catch (ErrorOccurs occurs) {
