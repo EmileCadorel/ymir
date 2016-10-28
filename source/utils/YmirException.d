@@ -1,6 +1,6 @@
 module utils.YmirException;
 import syntax.Word, std.stdio, std.typecons;
-import std.outbuffer;
+import std.outbuffer, std.string;
 
 alias Color = Tuple!(string, "value");
 
@@ -44,7 +44,7 @@ class YmirException : Exception {
 	super (msg);
     }
 
-    protected string getLine (Location locus) {
+    private string getLine (Location locus) {
 	auto file = File (locus.file, "r");
 	string cline = null;
 	foreach (it ; 0 .. locus.line)
@@ -52,6 +52,22 @@ class YmirException : Exception {
 	return cline;
     }
 
+    protected void addLine (ref OutBuffer buf, Location locus) {
+	auto line = getLine (locus);
+	if (line.length > 0) {
+	    auto j = 0;
+	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column - 1],
+			Colors.YELLOW.value,
+			line[locus.column - 1 .. locus.column + locus.length - 1],
+			Colors.RESET.value,
+			line[locus.column + locus.length - 1 .. $]);
+	    if (line[$-1] != '\n') buf.write ("\n");
+	    buf.writefln ("%s%s", rightJustify ("", locus.column - 1, ' '),
+			  rightJustify ("", locus.length, '^'));
+	} else {
+	    buf.writeln ("Fin de fichier inattendue");
+	}
+    } 
     void print () {
 	writeln (this.msg);
     }

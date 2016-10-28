@@ -10,30 +10,12 @@ class ShadowingVar : YmirException {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' est déjâ definis ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	
-	foreach (it; 0 .. token.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
+	super.addLine (buf, token.locus);
 	
 	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
-	line = getLine (token2.locus);	
-	buf.write (line);
-	foreach (i ; 0 .. token2.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
 	
-	foreach (it; 0 .. token2.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
-	
+	super.addLine (buf, token2.locus);
 	msg = buf.toString();        
     }
 }
@@ -56,15 +38,23 @@ class VarDecl : Instruction {
     
     override Instruction instruction () {
 	auto auxDecl = new VarDecl (this._token);
-	foreach (it ; this._decls) {
-	    auto aux = new Var (it.token);
-	    auto info = Table.instance.get (it.token.str);
-	    if (info !is null) throw new ShadowingVar (it.token, info.sym);
-	    aux.info = new Symbol (aux.token, new UndefInfo ());
-	    Table.instance.insert (aux.info);
-	    auxDecl._decls.insertBack (aux);
-	}
 	auto error = 0;
+	foreach (it ; this._decls) {
+	    try {
+		auto aux = new Var (it.token);
+		auto info = Table.instance.get (it.token.str);
+		if (info !is null) throw new ShadowingVar (it.token, info.sym);
+		aux.info = new Symbol (aux.token, new UndefInfo ());
+		Table.instance.insert (aux.info);
+		auxDecl._decls.insertBack (aux);
+	    } catch (YmirException exp) {
+		exp.print ();
+		error ++;
+	    } catch (ErrorOccurs err) {
+		error += err.nbError;
+	    }
+	}
+
 	foreach (it ; this._insts) {
 	    try {
 		auxDecl._insts.insertBack (it.expression ());

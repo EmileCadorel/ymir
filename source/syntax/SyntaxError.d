@@ -9,7 +9,6 @@ class SyntaxError : YmirException {
     
     this (Word word) {
 	OutBuffer buf = new OutBuffer();
-	string line;
 	buf.write (Colors.RED.value);
 	buf.write ("Erreur de syntaxe " ~ Colors.RESET.value ~ ":");
 	buf.write (word.locus.file);
@@ -18,27 +17,13 @@ class SyntaxError : YmirException {
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
 	} else {
-	    line = this.getLine (word.locus);
-	    int j = 0;
-	    for(; j < word.locus.column - 1 && j < line.length; j++) buf.write (line[j]);
-	    buf.write (Colors.YELLOW.value);
-	    for(; j < word.locus.length + word.locus.column - 1  && j < line.length; j++) buf.write (line[j]);
-	    buf.write (Colors.RESET.value);
-	    for(; j < line.length; j++) buf.write (line[j]);
-	    
-	    for(int i = 0; i < word.locus.column - 1 && i < line.length; i++) {
-		if (line [i] == '\t') buf.write ('\t');
-		else buf.write (" ");
-	    }
-	    for(int i = 0; i < word.locus.length; i++) buf.write ("^");
-	    buf.write ("\n");
+	    super.addLine (buf, word.locus);
 	}
 	msg = buf.toString();
     }
 
     this (Word word, string [] expected) {
 	OutBuffer buf = new OutBuffer();
-	string line;
 	buf.write (Colors.RED.value);
 	buf.write ("Erreur de syntaxe " ~ Colors.RESET.value ~ ":");
 	buf.write (word.locus.file);
@@ -54,27 +39,13 @@ class SyntaxError : YmirException {
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
 	} else {
-	    line = this.getLine (word.locus);
-	    int j = 0;
-	    for(; j < word.locus.column - 1 && j < line.length; j++) buf.write (line[j]);
-	    buf.write(Colors.YELLOW.value);
-	    for(; j < word.locus.length + word.locus.column - 1  && j < line.length; j++) buf.write (line[j]);
-	    buf.write (Colors.RESET.value);
-	    for(; j < line.length; j++) buf.write (line[j]);
-	    
-	    for(int i = 0; i < word.locus.column - 1 && i < line.length; i++) {
-		if (line [i] == '\t') buf.write ('\t');
-		else buf.write (" ");
-	    }
-	    for(int i = 0; i < word.locus.length; i++) buf.write ("^");
-	    buf.write ("\n");
+	    super.addLine (buf, word.locus);
 	}
 	msg = buf.toString();
     }
     
 
 }
-
 
 class Warning {
 

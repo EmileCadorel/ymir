@@ -10,15 +10,8 @@ class UninitVar : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Variable non initialisé '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	foreach (it ; 0 .. token.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
+	
+	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
 
@@ -34,15 +27,7 @@ class UndefinedOp : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	foreach (it ; 0 .. token.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
+	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
     
@@ -57,15 +42,7 @@ class NotLValue : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString (), Colors.RESET.value);
 	
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	foreach (it ; 0 .. token.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
+	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
     

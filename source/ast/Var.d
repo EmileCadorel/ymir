@@ -11,15 +11,8 @@ class UndefinedVar : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Variable inconnu '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	foreach (it ; 0 .. token.locus.length)
-	    buf.write ("^");		
-	buf.write ("\n");
+	
+	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
     
@@ -30,17 +23,7 @@ class UseAsType : YmirException {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas un type ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	auto line = getLine (token.locus);
-	buf.write (line);
-	foreach (i ; 0 .. token.locus.column - 1) {
-	    if (line[i] == '\t') buf.write ("\t");
-	    else buf.write (" ");
-	}
-	
-	foreach (it; 0 .. token.locus.length)
-	    buf.write ("^");		
-
-	buf.write ("\n");
+	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
 }

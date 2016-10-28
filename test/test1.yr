@@ -1,4 +1,4 @@
 
-def main (a : int, b : float) {
-    a = 1;
+def main (a : int, bdkhfkj : float) {
+    let a, bdkhfkj;
 }
