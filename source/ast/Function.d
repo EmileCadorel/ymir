@@ -4,7 +4,7 @@ import syntax.Word;
 import ast.Var, ast.Block;
 import semantic.pack.FrameTable, semantic.pack.Table;
 import semantic.pack.Frame;
-import std.container, std.stdio, std.string, lint.tree;
+import std.container, std.stdio, std.string;
 
 
 class Function : Declaration {
@@ -58,10 +58,6 @@ class Function : Declaration {
     
     Word ident () const {
 	return this._ident;
-    }
-
-    Tree toLint () {
-	assert (false, "TODO");
     }
     
     override void print (int nb = 0) {

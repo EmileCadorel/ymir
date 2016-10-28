@@ -3,7 +3,6 @@ import ast.Expression, semantic.pack.Table;
 import syntax.Word, std.container, semantic.types.InfoType;
 import std.stdio, std.string, std.outbuffer, utils.YmirException;
 import semantic.pack.Symbol, ast.VarDecl;
-import lint.tree, lint.VarTree;
 
 class UndefinedVar : YmirException {
 
@@ -106,13 +105,6 @@ class TypedVar : Var {
 	aux.info = new Symbol (this._token, aux._type.info.type);
 	Table.instance.insert (aux.info);
 	return aux;
-    }
-
-    override Tree toLint () {
-	VarTree tree = new VarTree ();
-	tree.type = this._type.token.str;
-	tree.name = this._token.str;
-	return tree;
     }
     
     override void print (int nb = 0) {

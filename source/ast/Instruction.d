@@ -1,5 +1,5 @@
 module ast.Instruction;
-import syntax.Word, lint.tree;
+import syntax.Word;
 
 class Instruction {
 
@@ -18,9 +18,5 @@ class Instruction {
     }
     
     void print (int nb = 0) {}
-
-    Tree toLint () {
-	assert (false, "TODO");
-    }
     
 }

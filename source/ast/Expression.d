@@ -1,7 +1,6 @@
 module ast.Expression;
 import ast.Instruction;
 import syntax.Word, semantic.pack.Symbol;
-import lint.tree;
 
 class Expression : Instruction {
 
@@ -24,10 +23,6 @@ class Expression : Instruction {
     }
     
     override void print (int nb = 0) {}
-    
-    override Tree toLint () {
-	assert (false, "TODO");
-    }
     
 }
 

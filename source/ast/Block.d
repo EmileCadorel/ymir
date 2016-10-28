@@ -2,7 +2,6 @@ module ast.Block;
 import ast.Instruction, ast.Declaration;
 import syntax.Word, utils.YmirException, semantic.pack.Table;
 import std.container, std.stdio, std.string, std.outbuffer;
-import lint.tree, lint.BlockTree;
 
 class UnreachableStmt : YmirException {
     this (Word token) {
@@ -53,10 +52,6 @@ class Block : Instruction {
 	Table.instance.quitBlock ();
 	if (error > 0) throw new ErrorOccurs (error);
 	return new Block (this._token, decls, insts);
-    }
-
-    override Tree toLint () {
-	return new BlockTree ();
     }
     
     override void print (int nb = 0) {

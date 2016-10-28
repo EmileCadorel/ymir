@@ -3,7 +3,7 @@ import ast.Function, semantic.pack.Table;
 import ast.Var, semantic.types.UndefInfo, semantic.pack.Symbol;
 import syntax.Word, ast.Block, semantic.pack.FrameTable;
 import std.stdio, std.conv, std.container, std.outbuffer;
-import lint.FunctionTree, semantic.types.VoidInfo;
+import semantic.types.VoidInfo;
 
 class PureFrame {
 
@@ -62,18 +62,6 @@ class FinalFrame {
 	this._vars = vars;
 	this._block = block;
 	this._name = name;
-    }
-
-    void toC (ref OutBuffer buf) {
-	FunctionTree func = new FunctionTree;
-	func.name = this._name;
-	foreach (it ; this._vars) {
-	    func.addParam (it.toLint ());
-	}
-
-	func.setBlock (this._block.toLint ());
-	func.type = this._type.typeString ();
-	func.toC (buf);
     }
     
 }

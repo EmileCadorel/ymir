@@ -11,11 +11,6 @@ void main (string [] args) {
 	    foreach (it ; FrameTable.instance.pures) {
 		it.validate ();
 	    }
-	    OutBuffer buf = new OutBuffer;
-	    foreach (it ; FrameTable.instance.finals) {
-		it.toC (buf);
-	    }
-	    writeln (buf.toString);
 	} catch (YmirException yme) {
 	    yme.print ();
 	} catch (ErrorOccurs occurs) {
