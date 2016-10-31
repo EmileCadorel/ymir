@@ -42,14 +42,15 @@ class LVisitor {
     private LInstList visitInstruction (Instruction elem) {
 	if (auto exp = cast(Expression)elem) return visitExpression (exp);
 	else if (auto decl = cast(VarDecl)elem) return visitVarDecl (decl);
-	return new LInstList ();
+	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
     private LInstList visitExpression (Expression elem) {
 	if (auto bin = cast(Binary) elem) return visitBinary (bin);
 	if (auto var = cast(Var)elem) return visitVar (var);
 	else if (auto _int = cast(Int)elem) return visitInt (_int);
-	return new LInstList ();
+	else if (auto _float = cast(Float)elem) return visitFloat (_float);
+	else assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
     private LInstList visitVar (Var elem) {
@@ -60,6 +61,10 @@ class LVisitor {
 	return new LInstList (new LConstDWord (to!int (elem.token.str)));
     }
     
+    private LInstList visitFloat (Float elem) {
+	return new LInstList (new LConstFloat (to!float (elem.totale)));
+    }
+
     private LInstList visitVarDecl (VarDecl elem) {
 	LInstList inst = new LInstList;
 	foreach (it ; elem.insts) {

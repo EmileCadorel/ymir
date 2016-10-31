@@ -57,39 +57,42 @@ class Char : Expression {
 class Float : Expression {
     
     private string _suite;
+    private string _totale;
     
     this (Word word, string suite) {
 	super (word);
 	this._suite = suite;
+	this._totale = this._token.str ~ "." ~ this._suite;
     }
     
     this (Word word) {
 	super (word);
+	this._totale = "." ~ this._token.str;
     }
 
+    this (string totale, Word word) {
+	super (word);
+	this._totale = totale;
+    }
+    
     override Expression expression () {
-	auto aux = new Float (this._token);
+	auto aux = new Float (this._totale, this._token);
 	aux.info = new Symbol (this._token, new FloatInfo (), true);
 	return aux;
     }
     
+    string totale () const {
+	return this._totale;
+    }
+
     override void print (int nb = 0) {
-	if (this._suite !is null) {
-	    writefln ("%s<Float> %s(%d, %d) %s.%s"
-		      , rightJustify ("", nb, ' '),
-		      this._token.locus.file,
-		      this._token.locus.line,
-		      this._token.locus.column,
-		      this._token.str,
-		      this._suite);
-	} else {
-	    writefln ("%s<Float> %s(%d, %d) 0.%s"
-		      , rightJustify ("", nb, ' '),
-		      this._token.locus.file,
-		      this._token.locus.line,
-		      this._token.locus.column,
-		      this._token.str);
-	}
+	writefln ("%s<Float> %s(%d, %d) %s"
+		  , rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column,
+		  this._totale);
+	
    }
     
 }

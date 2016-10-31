@@ -41,6 +41,11 @@ class LConstFloat : LConst {
     this (float value) {
 	this._value = value;
     }
+
+    override string toString () {
+	return "SP[" ~ to!string (this._value) ~ "]";
+    }
+    
 }
 
 class LConstDouble : LConst {

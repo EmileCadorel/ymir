@@ -1,5 +1,6 @@
 
-def main () {
-    let b = 10, a = 0, e = 89;
+def main () : bool{
+    let b = 10, a = 0, e = 1.9;
+    return false;
 }
 

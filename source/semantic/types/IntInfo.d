@@ -16,7 +16,7 @@ class IntInfo : InfoType {
 	return null;
     }
 
-    InfoType Affect (Expression right) {
+    private InfoType Affect (Expression right) {
 	if (cast(IntInfo)right.info.type !is null) {
 	    auto i = new IntInfo ();
 	    i.lintInst = &IntUtils.InstAffect;
