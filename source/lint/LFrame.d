@@ -42,12 +42,12 @@ class LFrame {
 		    this._return_lbl.toString (),
 		    to!string (this._return_reg));
 	buf.write ("[");
-	foreach (it ; this._args) {
+	foreach (it ; this._args) {	    
 	    buf.write (it.toString ());
-	    if (it != this._args[$ - 1]) buf.write (",");
+	    if (it != this._args[$ - 1]) buf.write (", ");
 	}
 	
-	buf.writefln ("]){\n%s\n}", this._inst.toString ());
+	buf.writefln ("]) {%s}", this._inst.toString ());
 	
 	return buf.toString ();
     }

@@ -4,9 +4,17 @@ import std.outbuffer, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.CharInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo, utils.exception;
+import lint.LInstList;
+
+alias LInstList function (LInstList, LInstList) InstComp;
+alias Expression function (Expression) InstPreTreatment;
 
 class InfoType {
-   
+
+    private InstPreTreatment _leftTreatment = null;
+    private InstPreTreatment _rightTreatment = null;
+    private InstComp _lintInst = null;
+    
     static InfoType function (Word, Expression[]) [string] creators;
 
     static this () {
@@ -45,6 +53,31 @@ class InfoType {
 
     InfoType clone () {
 	return null;
+    }
+
+    ref InstPreTreatment leftTreatment () {
+	return this._leftTreatment;
+    }
+
+    Expression leftTreatment (Expression elem) {
+	return this._leftTreatment (elem);
+    }
+    
+    ref InstPreTreatment rightTreatment () {
+	return this._rightTreatment;
+    }
+
+    Expression rightTreatment (Expression elem) {
+	return this._rightTreatment (elem);
+    }
+
+    ref InstComp lintInst () {
+	return this._lintInst;
+    }
+
+    
+    LInstList lintInst (LInstList left, LInstList right) {
+	return this._lintInst (left, right);
     }
     
 }

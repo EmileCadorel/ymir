@@ -27,6 +27,10 @@ class LReg : LData {
 	return ret;
     }
 
+    override int size () {
+	return this._size;
+    }
+    
     override string toString () {
 	return "reg(" ~ to!string (this._id) ~ ":" ~ to!string (this._size) ~ ")";
     }

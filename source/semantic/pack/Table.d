@@ -40,6 +40,7 @@ class Table {
     }
 
     void insert (Symbol info) {
+	if (info !is null) info.setId ();
 	if (this._frameTable.empty) {
 	    _globalScope [info.sym.str] = info;
 	} else {

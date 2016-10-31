@@ -2,10 +2,11 @@ module lint.LVisitor;
 import semantic.pack.FrameTable, semantic.pack.Frame;
 import lint.LFrame, lint.LInstList, lint.LLabel, lint.LReg;
 import semantic.types.VoidInfo;
-import ast.all, std.container;
+import lint.LConst, lint.LRegRead;
+import ast.all, std.container, std.conv;
 
 class LVisitor {
-
+    
     Array!LFrame visit () {
 	Array!LFrame frames;
 	foreach (it ; FrameTable.instance.finals) {
@@ -23,14 +24,44 @@ class LVisitor {
 
 	Array!LReg args;
 	foreach (it ; semFrame.vars) {
-	    args.insertBack (new LReg (it.info.type.size));
+	    args.insertBack (new LReg (it.info.id, it.info.type.size));
 	}
 	
 	return new LFrame (semFrame.name, entry, end, retReg, args, visit(semFrame.block));
     }
 
     private LInstList visit (Block block) {
+	LInstList inst = new LInstList;
+	foreach (it ; block.insts) {
+	    if (auto bin = cast(Binary)it) {
+		inst += visitBinary (bin);
+	    }
+	}
+	inst.clean ();
+	return inst;
+    }
+
+    private LInstList visitExpression (Expression elem) {
+	if (auto var = cast(Var)elem) return visitVar (var);
+	else if (auto _int = cast(Int)elem) return visitInt (_int);
 	return new LInstList ();
+    }
+
+    private LInstList visitVar (Var elem) {
+	return new LInstList (new LRegRead (new LReg (elem.info.id, elem.info.type.size)));
+    }
+
+    private LInstList visitInt (Int elem) {
+	return new LInstList (new LConstDWord (to!int (elem.token.str)));
+    }
+    
+    private LInstList visitBinary (Binary bin) {
+	Expression left = bin.left, right = bin.right;
+	if (bin.info.type.leftTreatment !is null) 
+	    left = bin.info.type.leftTreatment (left);
+	if (bin.info.type.rightTreatment !is null)
+	    right = bin.info.type.rightTreatment (right);
+	return bin.info.type.lintInst (visitExpression (left), visitExpression (right));
     }
 
 }

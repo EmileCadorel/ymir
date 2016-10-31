@@ -1,5 +1,5 @@
 module lint.LLabel;
-import lint.LInst;
+import lint.LInst, lint.LExp;
 import std.conv : to;
 
 class LLabel : LInst {
@@ -18,7 +18,11 @@ class LLabel : LInst {
     this (ulong id) {
 	this._id = __rename__ (id);
     }
-       
+
+    override LExp getFirst () {
+	return null;
+    }
+    
     private static ulong __rename__ (ulong id) {
 	auto elem = (id in __renamed__);
 	if (elem !is null) {

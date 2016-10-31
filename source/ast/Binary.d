@@ -63,6 +63,14 @@ class Binary : Expression {
 	return aux;	
     }
     
+    ref Expression left () {
+	return this._left;
+    }
+
+    ref Expression right () {
+	return this._right;
+    }
+
     override void print (int nb = 0) {
 	writefln ("%s<Binary> : %s(%d, %d) %s  ", rightJustify("", nb, ' '),
 		this._token.locus.file,

@@ -1,5 +1,6 @@
 module lint.LConst;
 import lint.LExp, std.container;
+import std.conv;
 
 abstract class LConst : LExp {}
 
@@ -18,6 +19,10 @@ class LConstDWord : LConst {
 
     this (int value) {
 	this._value = value;
+    }
+
+    override string toString () {
+	return "DW[" ~ to!string (this._value) ~ "]";
     }
     
 }

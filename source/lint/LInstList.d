@@ -19,7 +19,13 @@ class LInstList {
     this (LInstList other) {
 	this._inst = other._inst;
     }
-        
+
+    LExp getFirst () {
+	if (!this._inst.empty) {
+	    return this._inst.back ().getFirst ();
+	} else return null;
+    }
+    
     LInstList opBinary(string op : "+") (LInstList other) {
 	Array!LInst ret;
 	foreach (it; this._inst) ret.insertBack (it);	
@@ -34,7 +40,7 @@ class LInstList {
     
     LInstList opOpAssign(string op : "+")(LInstList other) {
 	foreach (it ; other._inst) {
-	    inst.insertBack (it);		
+	    this._inst.insertBack (it);		
 	}
 	return this;
     }
@@ -50,8 +56,9 @@ class LInstList {
 
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
+	if (!this._inst.empty) buf.write ("\n");
 	foreach (it ; this._inst) {
-	    buf.writefln ("%s", it.toString());
+	    buf.writef ("\t%s", it.toString());
 	}
 	return buf.toString ();
     }

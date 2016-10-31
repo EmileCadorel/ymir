@@ -1,3 +1,5 @@
 module lint.LData;
 
-class LData {}
+class LData {
+    abstract int size ();
+}

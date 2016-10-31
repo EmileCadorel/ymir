@@ -1,6 +1,6 @@
 module semantic.types.IntInfo;
 import syntax.Word, ast.Expression;
-import semantic.types.InfoType;
+import semantic.types.InfoType, semantic.types.IntUtils;
 import syntax.Tokens, utils.exception;
 
 class IntInfo : InfoType {
@@ -17,7 +17,11 @@ class IntInfo : InfoType {
     }
 
     InfoType Affect (Expression right) {
-	if (cast(IntInfo)right.info.type !is null) return new IntInfo ();
+	if (cast(IntInfo)right.info.type !is null) {
+	    auto i = new IntInfo ();
+	    i.lintInst = &IntUtils.InstAffect;
+	    return i;
+	}
 	return null;
     }
     

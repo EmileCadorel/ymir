@@ -41,6 +41,10 @@ class Block : Instruction {
 	if (error > 0) throw new ErrorOccurs (error);
 	return new Block (this._token, decls, insts);
     }
+
+    Array!Instruction insts () {
+	return this._insts;
+    }
     
     override void print (int nb = 0) {
 	writefln ("%s<Block> : %s(%d, %d) ", rightJustify ("", nb, ' '),
