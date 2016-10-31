@@ -1,7 +1,7 @@
 module semantic.types.IntInfo;
 import syntax.Word, ast.Expression;
 import semantic.types.InfoType;
-import syntax.Tokens;
+import syntax.Tokens, utils.exception;
 
 class IntInfo : InfoType {
 
@@ -28,5 +28,9 @@ class IntInfo : InfoType {
     override InfoType clone () {
 	return new IntInfo ();
     }    
+
+    override int size () {
+	return 4;
+    }
     
 }

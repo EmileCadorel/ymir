@@ -1,53 +1,9 @@
 module ast.Binary;
 import ast.Expression;
-import syntax.Word, ast.Var, utils.YmirException, semantic.pack.Symbol;
+import syntax.Word, ast.Var, semantic.pack.Symbol;
 import semantic.types.InfoType, semantic.types.UndefInfo, syntax.Tokens;
+import utils.exception;
 import std.stdio, std.string, std.outbuffer;
-
-class UninitVar : YmirException {
-    
-    this (Word token) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: Variable non initialisé '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-
-}
-
-class UndefinedOp : YmirException {
-
-    this (Word token, Symbol left, Symbol right) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
-		      Colors.YELLOW.value, token.str, Colors.RESET.value,
-		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
-		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
-	
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-    
-}
-
-class NotLValue : YmirException {
-
-    this (Word token, Symbol type) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: L'element '%s%s%s' de type '%s%s%s' n'est pas une lvalue :", Colors.RED.value, Colors.RESET.value,
-		      Colors.YELLOW.value, token.str, Colors.RESET.value,
-		      Colors.YELLOW.value, type.typeString (), Colors.RESET.value);
-	
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-    
-}
-
 
 class Binary : Expression {
 
@@ -106,7 +62,6 @@ class Binary : Expression {
 	aux.info = new Symbol (aux._token, type, true);
 	return aux;	
     }
-
     
     override void print (int nb = 0) {
 	writefln ("%s<Binary> : %s(%d, %d) %s  ", rightJustify("", nb, ' '),

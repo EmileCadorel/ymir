@@ -1,6 +1,6 @@
 module semantic.types.BoolInfo;
 import syntax.Word, ast.Expression;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class BoolInfo : InfoType {
 
@@ -16,6 +16,10 @@ class BoolInfo : InfoType {
 
     override InfoType clone () {
 	return new BoolInfo ();
+    }
+
+    override int size () {
+	return 1;
     }
     
 }

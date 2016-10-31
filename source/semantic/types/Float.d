@@ -1,6 +1,6 @@
 module semantic.types.FloatInfo;
 import syntax.Word, ast.Expression;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class FloatInfo : InfoType {
 
@@ -16,6 +16,10 @@ class FloatInfo : InfoType {
 
     override InfoType clone () {
 	return new FloatInfo ();
+    }
+
+    override int size () {
+	return -4;
     }
     
 }

@@ -1,6 +1,6 @@
 module semantic.types.CharInfo;
 import syntax.Word, ast.Expression;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class CharInfo : InfoType {
 
@@ -16,6 +16,10 @@ class CharInfo : InfoType {
 
     override InfoType clone () {
 	return new CharInfo ();
+    }
+
+    override int size () {
+	return 1;
     }
     
 }

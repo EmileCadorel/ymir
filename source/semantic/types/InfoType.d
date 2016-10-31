@@ -1,33 +1,9 @@
 module semantic.types.InfoType;
 import syntax.Word, ast.Expression, utils.YmirException;
-import std.outbuffer;
+import std.outbuffer, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.CharInfo, semantic.types.StringInfo;
-import semantic.types.FloatInfo;
-
-class NotATemplate : YmirException {
-
-    this (Word token) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value);
-	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-
-    }
-    
-}
-
-class UndefinedType : YmirException {
-    this (Word token) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value);
-	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-}
+import semantic.types.FloatInfo, utils.exception;
 
 class InfoType {
    
@@ -45,6 +21,10 @@ class InfoType {
 	auto it = (word.str in creators);
 	if (it !is null) return (*it) (word, templates);
 	throw new UndefinedType (word);
+    }
+    
+    int size () {
+	return 0;
     }
     
     static bool exist (string name) {

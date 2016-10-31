@@ -64,4 +64,19 @@ class FinalFrame {
 	this._name = name;
     }
     
+    string name () {
+	return this._name;
+    }
+
+    Symbol type () {
+	return this._type;
+    }
+
+    Array!Var vars () {
+	return this._vars;
+    }
+
+    Block block () {
+	return this._block;
+    }
 }

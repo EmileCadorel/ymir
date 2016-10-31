@@ -3,22 +3,7 @@ import ast.Instruction, ast.Var, ast.Expression;
 import std.container, syntax.Word, utils.YmirException;
 import semantic.pack.Table, semantic.pack.Symbol;
 import std.stdio, std.string, std.outbuffer;
-import semantic.types.UndefInfo;
-
-class ShadowingVar : YmirException {
-    this (Word token, Word token2) {
-	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s : '%s%s%s' est déjâ definis ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
-	
-	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
-	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
-	
-	super.addLine (buf, token2.locus);
-	msg = buf.toString();        
-    }
-}
+import semantic.types.UndefInfo, utils.exception;
 
 
 class VarDecl : Instruction {

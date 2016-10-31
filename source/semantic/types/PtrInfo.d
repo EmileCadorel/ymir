@@ -1,5 +1,5 @@
 module semantic.types.PtrInfo;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class PtrInfo : InfoType {
 
@@ -22,4 +22,9 @@ class PtrInfo : InfoType {
 	    return "ptr!void";
 	} else return "ptr!" ~ this._content.typeString ();
     }
+
+    override int size () {
+	return 8;
+    }
+    
 }

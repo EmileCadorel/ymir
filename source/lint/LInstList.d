@@ -48,4 +48,12 @@ class LInstList {
 	return this;
     }
 
+    override string toString () {
+	OutBuffer buf = new OutBuffer ();
+	foreach (it ; this._inst) {
+	    buf.writefln ("%s", it.toString());
+	}
+	return buf.toString ();
+    }
+    
 }

@@ -1,5 +1,5 @@
 module semantic.types.VoidInfo;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 
 class VoidInfo : InfoType {

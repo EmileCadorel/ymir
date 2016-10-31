@@ -1,7 +1,7 @@
 module lint.LFrame;
 import lint.LReg, lint.LLabel, lint.LInstList;
 import std.container, std.outbuffer, std.math;
-import std.stdio, std.conv;
+import std.conv, std.stdio;
 
 class LFrame {
     
@@ -34,6 +34,24 @@ class LFrame {
 	this._inst = inst;
     }
     
-    
+    override string toString () {
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("%s : (el: %s, rl: %s, rr: %s, pr:",
+		    this._name,
+		    this._entry_lbl.toString (),
+		    this._return_lbl.toString (),
+		    to!string (this._return_reg));
+	buf.write ("[");
+	foreach (it ; this._args) {
+	    buf.write (it.toString ());
+	    if (it != this._args[$ - 1]) buf.write (",");
+	}
+	
+	buf.writefln ("]){\n%s\n}", this._inst.toString ());
+	
+	return buf.toString ();
+    }
+   
 
 }
+

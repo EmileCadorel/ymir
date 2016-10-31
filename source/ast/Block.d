@@ -1,20 +1,8 @@
 module ast.Block;
 import ast.Instruction, ast.Declaration;
-import syntax.Word, utils.YmirException, semantic.pack.Table;
+import syntax.Word, semantic.pack.Table;
 import std.container, std.stdio, std.string, std.outbuffer;
-
-class UnreachableStmt : YmirException {
-    this (Word token) {
-	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s : L'instruction '%s%s%s' n'est pas atteignable ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-
-    }
-}
-
+import utils.exception;
 
 class Block : Instruction {
 

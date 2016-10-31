@@ -38,5 +38,9 @@ class LLabel : LInst {
 	__last__ ++;
 	return ret;
     }
+
+    override string toString () {
+	return "lbl:" ~ to!string (this._id);
+    }
     
 }

@@ -1,5 +1,5 @@
 module semantic.types.FunctionInfo;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class FunctionInfo : InfoType {
 

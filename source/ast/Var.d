@@ -2,30 +2,8 @@ module ast.Var;
 import ast.Expression, semantic.pack.Table;
 import syntax.Word, std.container, semantic.types.InfoType;
 import std.stdio, std.string, std.outbuffer, utils.YmirException;
-import semantic.pack.Symbol, ast.VarDecl;
-
-class UndefinedVar : YmirException {
-
-    this (Word token) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: Variable inconnu '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-    
-}
-
-class UseAsType : YmirException {
-    this (Word token) {
-	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas un type ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-    }
-}
+import semantic.pack.Symbol;
+import utils.exception;
 
 class Var : Expression {
 

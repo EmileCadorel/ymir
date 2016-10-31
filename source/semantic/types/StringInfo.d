@@ -1,6 +1,6 @@
 module semantic.types.StringInfo;
 import syntax.Word, ast.Expression;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 
 class StringInfo : InfoType {
 
@@ -16,6 +16,10 @@ class StringInfo : InfoType {
 
     override InfoType clone () {
 	return new StringInfo ();
+    }
+
+    override int size () {
+	return 8;
     }
     
 }
