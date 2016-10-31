@@ -5,6 +5,12 @@ import semantic.types.InfoType, semantic.types.UndefInfo, syntax.Tokens;
 import utils.exception;
 import std.stdio, std.string, std.outbuffer;
 
+
+/***
+ * Une operation entre deux expression
+ * Example:
+ * a op b
+*/
 class Binary : Expression {
 
     private Expression _left;
@@ -20,13 +26,19 @@ class Binary : Expression {
     this (Word word) {
 	super (word);
     }
-    
+
+    /**
+     * Verification semantique        
+     */
     override Expression expression () {
 	if (this._token == Tokens.EQUAL)
 	    return affect ();
 	else return normal ();
     }    
 
+    /**
+     * Verification particuliere pour l'operateur d'affectation qui peut affecter un type a une variable
+     */
     private Expression affect () {
 	auto aux = new Binary (this._token);
 	aux._right = this._right.expression ();
@@ -43,7 +55,10 @@ class Binary : Expression {
 	aux.info = new Symbol (aux._token, type);
 	return aux;
     }
-    
+
+    /**
+     * Operation normale ou les types des deux operande doivent etre connu
+     */
     private Expression normal () {
 	auto aux = new Binary (this._token);
 	aux._right = this._right.expression ();

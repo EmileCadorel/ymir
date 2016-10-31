@@ -1,4 +1,5 @@
 
-def main (a : int, c : float) {
+def main () {
+    let b = 10, a = 0, e = 89;
 }
 

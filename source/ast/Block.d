@@ -4,6 +4,12 @@ import syntax.Word, semantic.pack.Table;
 import std.container, std.stdio, std.string, std.outbuffer;
 import utils.exception;
 
+
+/**
+ * Suite d'instruction, ces instructions sont lu a la syntaxe
+ * Example:
+ * { (instruction | declaration)* }
+*/
 class Block : Instruction {
 
     private Array!Declaration _decls;
@@ -15,11 +21,16 @@ class Block : Instruction {
 	this._insts = insts;
     }
 
+    /**
+     * Verification de la semantique
+     */
     Block block () {
 	Table.instance.enterBlock ();
 	Array!Instruction insts;
 	Array!Declaration decls;
 	auto error = 0;
+	
+	//On declare tous les elements internes au block
 	foreach (it ; this._decls) {
 	    it.declare ();
 	}

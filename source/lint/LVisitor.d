@@ -33,15 +33,20 @@ class LVisitor {
     private LInstList visit (Block block) {
 	LInstList inst = new LInstList;
 	foreach (it ; block.insts) {
-	    if (auto bin = cast(Binary)it) {
-		inst += visitBinary (bin);
-	    }
+	    inst += visitInstruction (it);
 	}
 	inst.clean ();
 	return inst;
     }
 
+    private LInstList visitInstruction (Instruction elem) {
+	if (auto exp = cast(Expression)elem) return visitExpression (exp);
+	else if (auto decl = cast(VarDecl)elem) return visitVarDecl (decl);
+	return new LInstList ();
+    }
+    
     private LInstList visitExpression (Expression elem) {
+	if (auto bin = cast(Binary) elem) return visitBinary (bin);
 	if (auto var = cast(Var)elem) return visitVar (var);
 	else if (auto _int = cast(Int)elem) return visitInt (_int);
 	return new LInstList ();
@@ -55,6 +60,14 @@ class LVisitor {
 	return new LInstList (new LConstDWord (to!int (elem.token.str)));
     }
     
+    private LInstList visitVarDecl (VarDecl elem) {
+	LInstList inst = new LInstList;
+	foreach (it ; elem.insts) {
+	    inst += visitExpression (it);
+	}
+	return inst;
+    }
+
     private LInstList visitBinary (Binary bin) {
 	Expression left = bin.left, right = bin.right;
 	if (bin.info.type.leftTreatment !is null) 

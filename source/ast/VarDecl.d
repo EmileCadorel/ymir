@@ -54,6 +54,10 @@ class VarDecl : Instruction {
 	if (error > 0) throw new ErrorOccurs (error);	
 	return auxDecl;
     }
+
+    Array!Expression insts () {
+	return this._insts;
+    }
     
     override void print (int nb = 0) {
 	writefln ("%s<VarDecl> %s(%d, %d)",
