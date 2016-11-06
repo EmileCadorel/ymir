@@ -1,6 +1,6 @@
 module lint.LLabel;
-import lint.LInst, lint.LExp;
-import std.conv : to;
+import lint.LInst, lint.LExp, lint.LInstList;
+import std.conv, std.outbuffer;
 
 class LLabel : LInst {
 
@@ -9,7 +9,8 @@ class LLabel : LInst {
 
     private ulong _id;
     private string _name;
-
+    private LInstList _insts;
+    
     this () {
 	this._id = __last__;
 	__last__ ++;
@@ -43,8 +44,23 @@ class LLabel : LInst {
 	return ret;
     }
 
+    ulong id () {
+	return this._id;
+    }
+
+    ref LInstList insts () {
+	return this._insts;
+    }
+
+    string toSimpleString () {
+	return "lbl" ~ to!string (this._id);
+    }
+    
     override string toString () {
-	return "lbl:" ~ to!string (this._id);
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("lbl%s:", this._id);
+	buf.write (this._insts.toString ());	
+	return buf.toString ();
     }
     
 }

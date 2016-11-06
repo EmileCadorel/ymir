@@ -20,6 +20,10 @@ class LInstList {
 	this._inst = other._inst;
     }
 
+    ulong length () {
+	return this._inst.length;
+    }
+    
     LExp getFirst () {
 	if (!this._inst.empty) {
 	    return this._inst.back ().getFirst ();

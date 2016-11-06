@@ -27,6 +27,14 @@ class LReg : LData {
 	return ret;
     }
 
+    static void lastId (ulong last) {
+	__last__ = last;
+    }
+
+    ulong id () {
+	return this._id;
+    }
+    
     override int size () {
 	return this._size;
     }

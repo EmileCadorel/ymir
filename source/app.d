@@ -1,5 +1,6 @@
 import std.stdio, utils.YmirException;
 import syntax.Visitor, semantic.pack.FrameTable;
+import target.TFrame, target.TVisitor;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container;
 
@@ -26,6 +27,12 @@ Array!LFrame lintTime () {
     return visitor.visit ();
 }
 
+Array!TFrame targetTime (Array!LFrame frames) {
+    auto visitor = new TVisitor ();
+    return visitor.visit (frames);
+}
+
+
 
 void main (string [] args) {
     if (args.length > 1) {
@@ -33,6 +40,10 @@ void main (string [] args) {
 	    semanticTime (args[1]);
 	    auto list = lintTime ();
 	    foreach (it ; list) {
+		writeln (it);
+	    }
+	    auto target = targetTime (list);
+	    foreach (it ; target) {
 		writeln (it);
 	    }
 	} catch (YmirException yme) {

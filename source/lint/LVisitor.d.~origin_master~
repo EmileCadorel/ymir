@@ -3,7 +3,6 @@ import semantic.pack.FrameTable, semantic.pack.Frame;
 import lint.LFrame, lint.LInstList, lint.LLabel, lint.LReg;
 import semantic.types.VoidInfo;
 import lint.LConst, lint.LRegRead;
-import semantic.pack.Symbol, lint.LGoto, lint.LWrite;
 import ast.all, std.container, std.conv;
 
 class LVisitor {
@@ -19,7 +18,6 @@ class LVisitor {
     private LFrame visit (FinalFrame semFrame) {
 	LLabel entry = new LLabel, end = new LLabel;
 	LReg retReg = null;
-	LReg.lastId = Symbol.lastId;
 	if (semFrame.type !is null && cast(VoidInfo)semFrame.type.type is null) {
 	    retReg = new LReg (semFrame.type.type.size);
 	}
@@ -28,37 +26,23 @@ class LVisitor {
 	foreach (it ; semFrame.vars) {
 	    args.insertBack (new LReg (it.info.id, it.info.type.size));
 	}
-
-	visit (entry, end, retReg, semFrame.block);
-	return new LFrame (semFrame.name, entry, end, retReg, args);
+	
+	return new LFrame (semFrame.name, entry, end, retReg, args, visit(semFrame.block));
     }
 
-    private void visit (ref LLabel begin, ref LLabel end, ref LReg retReg, Block block) {
-	begin.insts = new LInstList ();
-	end.insts = new LInstList ();
+    private LInstList visit (Block block) {
+	LInstList inst = new LInstList;
 	foreach (it ; block.insts) {
-	    visitInstruction (begin, end, retReg, it);
+	    inst += visitInstruction (it);
 	}
-	begin.insts.clean ();	
-	end.insts.clean ();
-    }
-    
-    private void visitInstruction (ref LLabel begin, ref LLabel end, ref LReg retReg, Instruction elem) {
-	if (auto exp = cast(Expression)elem) begin.insts += visitExpression (exp);
-	else if (auto decl = cast(VarDecl)elem) begin.insts += visitVarDecl (decl);
-	else if (auto ret = cast(Return)elem) begin.insts += visitReturn (end, retReg, ret);
-	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
+	inst.clean ();
+	return inst;
     }
 
-    private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
-	LInstList list = new LInstList ();
-	if (ret.elem !is null) {
-	    auto rlist = visitExpression (ret.elem);
-	    list += rlist;
-	    list += (new LWrite (new LRegRead (retReg),  rlist.getFirst ()));
-	}
-	list += new LGoto (end);
-	return list;
+    private LInstList visitInstruction (Instruction elem) {
+	if (auto exp = cast(Expression)elem) return visitExpression (exp);
+	else if (auto decl = cast(VarDecl)elem) return visitVarDecl (decl);
+	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
     private LInstList visitExpression (Expression elem) {

@@ -41,7 +41,11 @@ class Symbol {
 	return this._sym;
     }
 
-    ulong id () const {
+    static ulong lastId () {
+	return __last__;
+    }
+    
+    ref ulong id () {
 	return this._id;
     }	
 

@@ -123,3 +123,19 @@ class UndefinedType : YmirException {
 	msg = buf.toString();        
     }
 }
+
+class NoValueNonVoidFunction : YmirException {
+
+    this (Word token) {
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("%sErreur%s: La fonction ne retourne pas void :",
+		    Colors.RED.value,
+		    Colors.RESET.value);
+	buf.writefln ("%s:(%d,%d): ",
+		      token.locus.file, token.locus.line, token.locus.column);
+
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+
+}

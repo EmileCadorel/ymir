@@ -1,5 +1,5 @@
 module lint.LGoto;
-import lint.LInst, lint.LLabel;
+import lint.LInst, lint.LLabel, lint.LExp;
 import std.outbuffer;
 
 class LGoto : LInst {
@@ -8,4 +8,15 @@ class LGoto : LInst {
     this (LLabel lbl) {
 	this._lbl = lbl;
     }
+
+    override LExp getFirst () {
+	assert (false, "fatal error");
+    }
+
+    override string toString () {
+	OutBuffer buf = new OutBuffer ();
+	buf.writefln ("goto %s", this._lbl.toSimpleString ());
+	return buf.toString ();
+    }
+    
 }
