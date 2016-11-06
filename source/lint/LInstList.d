@@ -23,6 +23,10 @@ class LInstList {
     ulong length () {
 	return this._inst.length;
     }
+
+    ref Array!LInst insts () {
+	return this._inst;
+    }
     
     LExp getFirst () {
 	if (!this._inst.empty) {

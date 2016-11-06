@@ -5,13 +5,15 @@ import std.outbuffer;
 class TFrame {
 
     private ulong _id;
+    private string _name;
     private TLabel _entryLbl;
     private TLabel _returnLbl;
     private Array!TReg _paramRegs;
     private TReg _returnReg;
 
-    this (ulong id) {
+    this (ulong id, string name) {
 	this._id = id;
+	this._name = name;
     }
 
     ref TLabel entryLbl () {
@@ -32,7 +34,7 @@ class TFrame {
 
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("#%d(", this._id);
+	buf.writef ("#%s(", this._name);
 	foreach (it ; this._paramRegs) {
 	    buf.writef ("%s", it.toString ());
 	    if (it !is this._paramRegs [$ - 1])

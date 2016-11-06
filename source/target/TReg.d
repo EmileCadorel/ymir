@@ -1,7 +1,7 @@
 module target.TReg;
-import std.conv;
+import std.conv, target.TExp;
 
-class TReg {
+class TReg : TExp {  
 
     private ulong _id;
     private int _size;

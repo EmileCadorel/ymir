@@ -35,6 +35,10 @@ class LFrame {
 	return this._number;
     }
 
+    string name () {
+	return this._name;
+    }
+    
     LLabel entryLbl () {
 	return this._entry_lbl;
     }

@@ -20,6 +20,18 @@ class LRegRead : LExp {
 	this._size = size;
     }
 
+    ref LData data () {
+	return this._data;
+    }
+
+    ref ulong begin () {
+	return this._begin;
+    }
+
+    ref int size () {
+	return this._size;
+    }
+    
     override string toString () {
 	return '{' ~ this._data.toString () ~ "}["
 	    ~ to!string (this._begin) ~ ":" ~ to!string (this._size) ~ "]";

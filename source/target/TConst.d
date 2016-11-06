@@ -1,22 +1,19 @@
-module lint.LConst;
-import lint.LExp, std.container;
-import std.conv;
+module target.TConst;
+import target.TExp, std.container, std.conv;
 
-abstract class LConst : LExp {}
+class TConst : TExp {
+}
 
-
-class LConstByte : LConst {
+class TConstByte : TConst {
     private short _value;
 
     this (short value) {
 	this._value = value;
     }
 
-    short value () { return this._value; }
-    
 }
 
-class LConstDWord : LConst {
+class TConstDWord : TConst {
     private int _value;
 
     this (int value) {
@@ -31,25 +28,26 @@ class LConstDWord : LConst {
     
 }
 
-class LConstQWord : LConst {
+class TConstQWord : TConst {
     private long _value;
-    
+
     this (long value) {
 	this._value = value;
     }
 
     long value () { return this._value; }
-    
 }
 
-class LConstFloat : LConst {
+class TConstFloat : TConst {
     private float _value;
     
     this (float value) {
 	this._value = value;
     }
 
-    float value () { return this._value; }
+    float value () {
+	return this._value;
+    }	
     
     override string toString () {
 	return "SP[" ~ to!string (this._value) ~ "]";
@@ -57,7 +55,7 @@ class LConstFloat : LConst {
     
 }
 
-class LConstDouble : LConst {
+class TConstDouble : TConst {
     private double _value;
 
     this (double value) {
@@ -67,10 +65,9 @@ class LConstDouble : LConst {
     double value () {
 	return this._value;
     }
-    
 }
 
-class LConstString : LConst {
+class TConstString : TConst {
     private string _value;
 
     this (string value) {
@@ -79,7 +76,7 @@ class LConstString : LConst {
 
 }
 
-class LConstFunc : LConst {
+class TConstFunc : TConst {
     private string _value;
 
     this (string value) {
@@ -88,11 +85,11 @@ class LConstFunc : LConst {
 
 }
 
-class LConstArray : LConst {
+class TConstArray : TConst {
         
-    private Array!LExp _exp;
+    private Array!TExp _exp;
 
-    this (Array!LExp exp) {
+    this (Array!TExp exp) {
 	this._exp = exp;
     }
 
@@ -100,7 +97,7 @@ class LConstArray : LConst {
 	return this._exp.length;
     }
         
-    LExp opIndex (ulong i) {
+    TExp opIndex (ulong i) {
 	return this._exp[i];
     }    
 

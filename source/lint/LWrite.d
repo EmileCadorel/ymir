@@ -22,6 +22,14 @@ class LWrite : LInst {
 	return this._left;
     }
 
+    ref LExp left () {
+	return this._left;
+    }
+
+    ref LExp right () {
+	return this._right;
+    }    
+    
     override string toString () {
 	auto buf = new OutBuffer;
 	buf.writefln ("%s := %s", this._left.toString (), this._right.toString ());

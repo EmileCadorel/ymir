@@ -1,6 +1,5 @@
 
 def main (a : int) {
-    let c = a;
-    return 9.;
+    let c = 9;
 }
 
