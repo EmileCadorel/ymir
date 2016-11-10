@@ -19,5 +19,17 @@ class LJump : LInst {
 	this._lbl1 = lbl1;
 	this._lbl2 = null;
     }
+
+    LExp test () {
+	return this._test;
+    }
+
+    ulong id () {
+	return this._lbl1.id;
+    }
+    
+    override LExp getFirst () {
+	assert (false);
+    }
     
 }

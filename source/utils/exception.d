@@ -31,6 +31,7 @@ class UndefinedOp : YmirException {
     
 }
 
+
 class NotLValue : YmirException {
 
     this (Word token, Symbol type) {

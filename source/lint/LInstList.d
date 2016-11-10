@@ -55,9 +55,11 @@ class LInstList {
     
     LInstList clean () {
 	Array!LInst aux;
-	foreach (it ; this._inst)
-	    if (cast(LExp)it is null)
+	foreach (it ; this._inst) {
+	    auto exp = cast(LExp) it;
+	    if (exp is null || exp.isInst())
 		aux.insertBack (it);
+	}
 	this._inst = aux;
 	return this;
     }

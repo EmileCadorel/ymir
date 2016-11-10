@@ -18,7 +18,7 @@ class TLabel : TInst {
     
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("lbl%d :", this._id);
+	buf.writef ("lbl[%d] :", this._id);
 	buf.writefln ("%s", this._insts.toString ());
 	return buf.toString ();
     }

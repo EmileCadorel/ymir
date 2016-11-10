@@ -7,6 +7,7 @@ import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList;
 
 alias LInstList function (LInstList, LInstList) InstComp;
+alias LInstList function (LInstList) InstCompS;
 alias Expression function (Expression) InstPreTreatment;
 
 class InfoType {
@@ -14,6 +15,7 @@ class InfoType {
     private InstPreTreatment _leftTreatment = null;
     private InstPreTreatment _rightTreatment = null;
     private InstComp _lintInst = null;
+    private InstCompS _lintInstS = null;
     
     static InfoType function (Word, Expression[]) [string] creators;
 
@@ -51,6 +53,11 @@ class InfoType {
 	return null;
     }
 
+    InfoType CastOp (Type) (Type) {
+	if (cast(Type) this) return this;
+	else return null;
+    }
+    
     InfoType clone () {
 	return null;
     }
@@ -78,6 +85,10 @@ class InfoType {
     
     LInstList lintInst (LInstList left, LInstList right) {
 	return this._lintInst (left, right);
+    }
+
+    LInstList lintInst (LInstList left) {
+	return this._lintInstS (left);
     }
     
 }

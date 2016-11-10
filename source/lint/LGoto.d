@@ -9,6 +9,10 @@ class LGoto : LInst {
 	this._lbl = lbl;
     }
 
+    LLabel lbl () {
+	return this._lbl;
+    }
+    
     override LExp getFirst () {
 	assert (false, "fatal error");
     }

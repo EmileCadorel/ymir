@@ -30,13 +30,17 @@ class Int : Expression {
 
 class Char : Expression {
 
-    private short _code;
+    private ubyte _code;
     
-    this (Word word, short code) {
+    this (Word word, ubyte code) {
 	super (word);
 	this._code = code;
     }
-
+    
+    ubyte code () {
+	return this._code;
+    }
+    
     override Expression expression () {
 	auto aux = new Char (this._token, this._code);
 	aux.info = new Symbol (this._token, new CharInfo (), true);

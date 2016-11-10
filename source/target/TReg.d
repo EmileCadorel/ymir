@@ -10,6 +10,10 @@ class TReg : TExp {
 	this._id = id;
 	this._size = size;
     }
+
+    override int size () {
+	return this._size;
+    }
     
     override string toString () {
 	return "$("

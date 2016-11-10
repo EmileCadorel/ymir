@@ -11,6 +11,14 @@ class TConstByte : TConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 1;
+    }
+
+    override string toString () {
+	return "B[" ~ to!string (this._value) ~ "]";
+    }
+    
 }
 
 class TConstDWord : TConst {
@@ -21,6 +29,10 @@ class TConstDWord : TConst {
     }
 
     int value () { return this._value; }
+
+    override int size () {
+	return 4;
+    }
     
     override string toString () {
 	return "DW[" ~ to!string (this._value) ~ "]";
@@ -35,6 +47,10 @@ class TConstQWord : TConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 8;
+    }
+    
     long value () { return this._value; }
 }
 
@@ -48,6 +64,10 @@ class TConstFloat : TConst {
     float value () {
 	return this._value;
     }	
+
+    override int size () {
+	return -4;
+    }
     
     override string toString () {
 	return "SP[" ~ to!string (this._value) ~ "]";
@@ -62,6 +82,10 @@ class TConstDouble : TConst {
 	this._value = value;
     }
 
+    override int size () {
+	return -8;
+    }
+    
     double value () {
 	return this._value;
     }
@@ -73,7 +97,7 @@ class TConstString : TConst {
     this (string value) {
 	this._value = value;
     }
-
+    
 }
 
 class TConstFunc : TConst {
@@ -83,6 +107,10 @@ class TConstFunc : TConst {
 	this._value = value;
     }
 
+    override int size () {
+	return -8;
+    }
+    
 }
 
 class TConstArray : TConst {
@@ -92,7 +120,7 @@ class TConstArray : TConst {
     this (Array!TExp exp) {
 	this._exp = exp;
     }
-
+       
     ulong length () const {
 	return this._exp.length;
     }

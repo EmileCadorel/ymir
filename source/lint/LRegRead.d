@@ -31,6 +31,10 @@ class LRegRead : LExp {
     ref int size () {
 	return this._size;
     }
+
+    override bool isInst () {
+	return false;
+    }
     
     override string toString () {
 	return '{' ~ this._data.toString () ~ "}["

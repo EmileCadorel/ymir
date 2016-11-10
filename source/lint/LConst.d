@@ -2,7 +2,11 @@ module lint.LConst;
 import lint.LExp, std.container;
 import std.conv;
 
-abstract class LConst : LExp {}
+abstract class LConst : LExp {
+    final override bool isInst () {
+	return false;
+    }
+}
 
 
 class LConstByte : LConst {

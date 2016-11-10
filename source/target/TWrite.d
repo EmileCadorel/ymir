@@ -14,7 +14,7 @@ class TWrite : TInst {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("\tmove %s, %s",
+	buf.writefln ("\tmove\t%s, %s",
 		    this._left.toString (),
 		    this._right.toString ());
 	return buf.toString ();

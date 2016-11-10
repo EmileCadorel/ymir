@@ -4,6 +4,8 @@ import std.stdio;
 
 class LExp : LInst {
 
+    abstract bool isInst ();
+    
     override final LExp getFirst () {
 	return this;
     }

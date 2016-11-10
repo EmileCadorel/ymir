@@ -68,6 +68,7 @@ class YmirException : Exception {
 	    buf.writeln ("Fin de fichier inattendue");
 	}
     } 
+
     void print () {
 	writeln (this.msg);
     }

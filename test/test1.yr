@@ -1,5 +1,16 @@
 
-def main (a : int) {
-    let c = 9;
+def main () {
+    let a = 190;
+    if (a == 0) {
+	system (print_i, a);
+    } else if (a == 10) {
+	system (print_i, 10);
+    } else if(a == 190) {
+	system (print_c, 'i');
+    } else {
+	system (print_i, 120);
+    }
+    
+    system(print_c, '\n');
 }
 

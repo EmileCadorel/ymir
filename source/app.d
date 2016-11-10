@@ -7,6 +7,7 @@ import std.container;
 void semanticTime (string args) {
     Visitor visitor = new Visitor (args);
     auto prog = visitor.visit ();
+
     prog.declare ();
     auto error = 0;
     foreach (it ; FrameTable.instance.pures) {		
@@ -39,9 +40,9 @@ void main (string [] args) {
 	try {
 	    semanticTime (args[1]);
 	    auto list = lintTime ();
-	    foreach (it ; list) {
+	    /**	    foreach (it ; list) {
 		writeln (it);
-	    }
+		}*/
 	    auto target = targetTime (list);
 	    foreach (it ; target) {
 		writeln (it);

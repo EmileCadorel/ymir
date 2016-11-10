@@ -12,6 +12,10 @@ class TInstList {
 	this._inst = inst;
     }
 
+    this (TInst inst) {
+	this._inst.insertBack (inst);
+    }
+    
     Array!TInst inst () {
 	return this._inst;
     }

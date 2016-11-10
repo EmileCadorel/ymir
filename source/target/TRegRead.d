@@ -22,13 +22,13 @@ class TRegRead : TExp {
 	return this._begin;
     }
 
-    ref int size () {
+    override int size () {
 	return this._size;
     }
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("r%d(%s):%d",
+	buf.writef ("%d(%s):%d",
 		    this._begin,
 		    this._where.toString (),
 		    this._size);

@@ -4,7 +4,7 @@ import syntax.Word, syntax.Keys;
 import syntax.Tokens, syntax.SyntaxError;
 import std.stdio, std.outbuffer;
 import ast.all, std.container;
-import std.algorithm;
+import std.algorithm, std.conv;
 
 class Visitor {
 
@@ -25,6 +25,7 @@ class Visitor {
 			       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
 			      [[Tokens.LCOMM1, Tokens.RCOMM1],
 			       [Tokens.LCOMM2, Tokens.RETOUR]]);
+
 	this._ultimeOp = [Tokens.DIV_AFF, Tokens.AND_AFF, Tokens.PIPE_EQUAL,
 			  Tokens.MINUS_AFF, Tokens.PLUS_AFF, Tokens.LEFTD_AFF,
 			  Tokens.RIGHTD_AFF, Tokens.EQUAL, Tokens.STAR_EQUAL,
@@ -32,10 +33,12 @@ class Visitor {
 			  Tokens.DXOR_EQUAL, Tokens.TILDE_EQUAL];
 
 	this._expOp = [Tokens.DPIPE, Tokens.DAND];
+	
 	this._ulowOp = [Tokens.INF, Tokens.SUP, Tokens.INF_EQUAL,
 			Tokens.SUP_EQUAL, Tokens.NOT_EQUAL, Tokens.NOT_INF,
 			Tokens.NOT_INF_EQUAL, Tokens.NOT_SUP,
 			Tokens.NOT_SUP_EQUAL, Tokens.DEQUAL];
+
 	this._lowOp = [Tokens.PLUS, Tokens.PIPE, Tokens.LEFTD,
 		       Tokens.XOR, Tokens.TILDE, Tokens.MINUS,
 		       Tokens.RIGHTD];
@@ -281,7 +284,7 @@ class Visitor {
 	auto left = visitExpression ();
 	auto tok = _lex.next ();
 	if (find!"b == a"(_ultimeOp, tok) != []) {
-	    auto right = visitExpression ();
+	    auto right = visitExpressionUlt ();
 	    return visitExpressionUlt (new Binary (tok, left, right));
 	} else _lex.rewind ();
 	return left;
@@ -290,7 +293,7 @@ class Visitor {
     private Expression visitExpressionUlt (Expression left) {
 	auto tok = _lex.next ();
 	if (find!"b == a" (_ultimeOp, tok) != []) {
-	    auto right = visitExpression ();
+	    auto right = visitExpressionUlt ();
 	    return visitExpressionUlt (new Binary (tok, left, right));
 	} else _lex.rewind ();
 	return left;
@@ -503,7 +506,7 @@ class Visitor {
 	_lex.commentEnable ();
 	if (word == Tokens.APOS) {
 	    auto c = isChar (val);
-	    if (c >= 0) return new Char (word, c);
+	    if (c >= 0) return new Char (word, to!ubyte (c));
 	}
 	return new String (word, val);
     }
@@ -522,6 +525,10 @@ class Visitor {
     }
 
     private Expression visitLeftOp () {
+	auto word = this._lex.next ();
+	if (word == Keys.SYSTEM) {
+	    return visitSystem ();
+	} else this._lex.rewind ();
 	auto var = visitVar ();
 	auto next = _lex.next ();
 	if (find!"b == a" (_suiteElem, next) != []) 
@@ -530,6 +537,26 @@ class Visitor {
 	return var;
     }
 
+    private Expression visitSystem () {
+	auto word = this._lex.next ();
+	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	auto id = visitIdentifiant ();
+	word = this._lex.next ();
+	Array!Expression exprs;
+	if (word != Tokens.RPAR) {
+	    if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+	    while (true) {
+		exprs.insertBack (visitExpression ());
+		word = this._lex.next ();
+		if (word == Tokens.RPAR) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word,
+								     [Tokens.RPAR.descr,
+								      Tokens.COMA.descr]);
+	    }
+	}
+	return new System (id, exprs);
+    }
+    
     private Expression visitSuite (Word token, Expression left) {
 	if (token == Tokens.LPAR) return visitPar (left);
 	else if (token == Tokens.LCRO) return visitAccess (left);

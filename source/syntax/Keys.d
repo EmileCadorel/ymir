@@ -30,5 +30,6 @@ enum Keys : Token {
     LET = Token ("let", 25),
     IS = Token ("is", 26),
     ANTI = Token ("\\", 27),
-    LX = Token ("x", 28)    
+    LX = Token ("x", 28),
+    SYSTEM = Token ("system", 29)
 }
