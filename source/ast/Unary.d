@@ -33,7 +33,7 @@ class AfUnary : Expression {
 	super (word);
 	this._elem = elem;
     }
-
+    
     override void print (int nb = 0) {
 	writefln ("%s<AfUnary> %s(%d, %d) %s",
 		  rightJustify ("", nb, ' '),

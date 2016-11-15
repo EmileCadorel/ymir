@@ -5,6 +5,7 @@ import lint.LInst, lint.LWrite, target.TInstPaire, lint.LExp, target.TWrite;
 import lint.LRegRead, target.TRegRead, lint.LData, lint.LConst;
 import target.TConst, lint.LBinop, target.TBinop, lint.LGoto, target.TGoto;
 import lint.LSysCall, target.TSysCall, target.TExp, lint.LJump, target.TJump;
+import target.TRet;
 import std.container;
 
 class TVisitor {
@@ -22,9 +23,11 @@ class TVisitor {
 	retour.entryLbl = visit (frame.entryLbl);
 	retour.returnLbl = visit (frame.returnLbl);
 	foreach (it ; frame.args) {
-	    retour.paramRegs.insertBack (visit (it));
+	    retour.paramRegs.insertBack (visitReg (it));
 	}	
-	retour.returnReg = visit (frame.returnReg);
+	retour.returnReg = visitReg (frame.returnReg);
+	retour.returnLbl.insts += new TRet (retour.returnReg);
+	
 	return retour;
     }
        
@@ -92,6 +95,7 @@ class TVisitor {
 
     private TInstPaire visitExpression (LExp elem) {
 	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg);
+	else if (auto reg = cast(LReg) elem) return visit (reg);
 	else if (auto co = cast (LConst) elem) return visitConst (co);
 	else if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
 	else if (auto bin = cast (LBinop) elem) return visitBinop (bin);
@@ -99,9 +103,14 @@ class TVisitor {
     }
 
     private TInstPaire visitRegRead (LRegRead reg) {
-	return new TInstPaire (new TRegRead (visit (reg.data), reg.begin, reg.size), new TInstList);
+	return new TInstPaire (new TRegRead (visitReg (reg.data), reg.begin, reg.size), new TInstList);
     }
 
+    private TReg visitReg (LReg reg) {
+	if (reg !is null) return new TReg (reg.id, reg.size);
+	else return null;
+    }
+    
     private TInstPaire visitBinop (LBinop bin) {
 	auto op = bin.op;
 	auto right = visitExpression (bin.right);
@@ -113,7 +122,7 @@ class TVisitor {
 	    inst += new TBinop (op, left.where, right.where, res.where);
 	    return new TInstPaire (res.where, inst);
 	} else {
-	    auto aux = new TRegRead (new TReg (LReg.lastId, left.where.size), 0, left.where.size);
+	    auto aux = (new TReg (LReg.lastId, left.where.size));
 	    auto inst = new TInstList;
 	    inst += right.what + left.what;
 	    inst += new TBinop (op, left.where, right.where, aux);
@@ -125,17 +134,12 @@ class TVisitor {
 	auto op = bin.op;
 	auto right = visitExpression (bin.right);
 	auto left = visitExpression (bin.left);
-	auto res = new TRegRead (new TReg (LReg.lastId, bin.size), 0, bin.size);
+	auto res = new TReg (LReg.lastId, bin.size);
 	auto inst = new TInstList;
 	inst += right.what + left.what;
 	inst += new TBinop (op, left.where, right.where, res);
 	return new TInstPaire (res, inst);
     }
-
-    private TReg visit (LData data) {	
-	if (auto reg = cast(LReg) data) return visit (reg);
-	assert (false, "TODO, visit (LData)");
-    }			       
 			       
     private TInstPaire visitConst (LConst co) {
 	if (auto by = cast(LConstByte) (co))
@@ -151,9 +155,9 @@ class TVisitor {
 	assert (false, "TODO, visitConst (LConst co)");
     }
 
-    private TReg visit (LReg reg) {
+    private TInstPaire visit (LReg reg) {
 	if (reg !is null) {
-	    return new TReg (reg.id, reg.size);
+	    return new TInstPaire (new TReg (reg.id, reg.size), new TInstList);
 	} else return null;
     }
     

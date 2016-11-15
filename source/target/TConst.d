@@ -52,6 +52,10 @@ class TConstQWord : TConst {
     }
     
     long value () { return this._value; }
+
+    override string toString () {
+	return "QW[" ~ to!string (this._value) ~ "]";
+    }
 }
 
 class TConstFloat : TConst {

@@ -1,16 +1,15 @@
 
+
 def main () {
-    let a = 190;
-    if (a == 0) {
-	system (print_i, a);
-    } else if (a == 10) {
-	system (print_i, 10);
-    } else if(a == 190) {
-	system (print_c, 'i');
-    } else {
-	system (print_i, 120);
+    let n = 25, a = 1, b = 1, c, i = 0;
+
+    while (i < n - 2) {
+	c = a + b;
+	b = a;
+	a = c;
+	i = i + 1;
     }
     
-    system(print_c, '\n');
+    system (print_l, a);
+    system (print_c, '\n');
 }
-

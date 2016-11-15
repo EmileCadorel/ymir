@@ -1,6 +1,6 @@
 module target.TJump;
 import target.TInst, target.TExp;
-import std.conv;
+import std.conv, target.TSize;
 
 class TJump : TInst {
 
@@ -13,7 +13,10 @@ class TJump : TInst {
     }
 
     override string toString () {
-	return "\tif\t" ~ this._test.toString () ~ " " ~ to!string (this._id) ~ "\n";
+	return "\tif:"
+	    ~ getSize (this._test.size).id
+	    ~ "\t" ~ this._test.toString ()
+	    ~ ", l_" ~ to!string (this._id) ~ "\n";
     }
     
 }

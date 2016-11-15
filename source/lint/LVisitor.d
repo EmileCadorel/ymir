@@ -58,6 +58,7 @@ class LVisitor {
 	else if (auto decl = cast(VarDecl)elem) begin += visitVarDecl (decl);
 	else if (auto ret = cast(Return)elem) begin += visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin += visitIf (end, retReg, _if);
+	else if (auto _while = cast(While) elem) begin += visitWhile (end, retReg, _while);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
@@ -66,6 +67,7 @@ class LVisitor {
 	else if (auto decl = cast(VarDecl)elem) begin.insts += visitVarDecl (decl);
 	else if (auto ret = cast(Return)elem) begin.insts += visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin.insts += visitIf (end, retReg, _if);
+	else if (auto _while = cast(While)elem) begin.insts += visitWhile (end, retReg, _while);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
@@ -100,6 +102,33 @@ class LVisitor {
 	insts += fin;
 	return insts;
     }
+
+    private LInstList visitWhile (ref LLabel end, ref LReg retReg, While _while) {
+	auto inst = new LInstList;
+	LLabel faux = new LLabel (), vrai = new LLabel, debut = new LLabel;
+	auto left = _while.test;
+	inst += debut;
+	if (_while.info !is _while.test.info.type) {
+	    if (_while.info.leftTreatment !is null)
+		left = _while.info.leftTreatment (left);
+	    auto tlist = _while.info.lintInst (visitExpression (left));
+	    inst += tlist;	    
+	    inst += new LJump (tlist.getFirst (), vrai);
+	    inst += new LGoto (faux);
+	} else {
+	    auto tlist = visitExpression (left);
+	    inst += tlist;
+	    inst += new LJump (tlist.getFirst, vrai);
+	    inst += new LGoto (faux);
+	}
+	vrai.insts = visitBlock (end, retReg, _while.block);
+	vrai.insts += new LGoto (debut);
+	vrai.insts.clean ();
+	inst += vrai;
+	inst += faux;
+	return inst;
+    }
+    
 
     private LInstList visitElse (ref LLabel end, ref LLabel fin, ref LReg retReg, Else _else) {	
 	if (cast(ElseIf) _else is null) {
@@ -140,7 +169,7 @@ class LVisitor {
 	if (ret.elem !is null) {
 	    auto rlist = visitExpression (ret.elem);
 	    list += rlist;
-	    list += (new LWrite (new LRegRead (retReg),  rlist.getFirst ()));
+	    list += (new LWrite (retReg,  rlist.getFirst ()));
 	}
 	list += new LGoto (end);
 	return list;
@@ -157,7 +186,7 @@ class LVisitor {
     }
 
     private LInstList visitVar (Var elem) {
-	return new LInstList (new LRegRead (new LReg (elem.info.id, elem.info.type.size)));
+	return new LInstList (new LReg (elem.info.id, elem.info.type.size));
     }
 
     private LInstList visitChar (Char elem) {

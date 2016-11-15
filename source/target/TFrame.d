@@ -34,21 +34,11 @@ class TFrame {
 
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("#%s(", this._name);
-	foreach (it ; this._paramRegs) {
-	    buf.writef ("%s", it.toString ());
-	    if (it !is this._paramRegs [$ - 1])
-		buf.write (", ");	    
-	}
-	buf.write (")");
-	if (this._returnReg !is null) 
-	    buf.writef (": %s",
-			  this._returnReg.toString ());
-	
-	buf.writefln (" {\n%s\n%s\n}",
+	buf.writefln ("lbl [%s]:", this._name);
+	buf.writefln ("\tenter_frame");
+	buf.writefln (" \n%s\n%s\n",
 		      this._entryLbl.toString (),
 		      this._returnLbl.toString ());
-	
 	return buf.toString ();
     }
     

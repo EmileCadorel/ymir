@@ -1,7 +1,7 @@
 module target.TBinop;
 import target.TExp, target.TInst;
 import syntax.Tokens, std.outbuffer, std.string;
-import std.conv;
+import std.conv, target.TSize, std.stdio;
 
 class TBinop : TInst {
 
@@ -19,8 +19,9 @@ class TBinop : TInst {
 
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writefln ("\t%s\t%s, %s, %s",
+	buf.writefln ("\t%s:%s\t%s, %s, %s",
 		      toLower (to!string (this._op)),
+		      getSize (this._left.size).id,
 		      this._left.toString (),
 		      this._right.toString (),
 		      this._res.toString ());

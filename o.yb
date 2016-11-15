@@ -1,37 +1,33 @@
-#main() {
-lbl[0] :
-	move	DW[190], 0($(0:4)):4
-	dequal	0($(0:4)):4, DW[0], 0($(1:1)):1
-	if	0($(1:1)):1 3
-lbl[2] :
-	dequal	0($(0:4)):4, DW[10], 0($(2:1)):1
-	if	0($(2:1)):1 6
-lbl[5] :
-	dequal	0($(0:4)):4, DW[190], 0($(3:1)):1
-	if	0($(3:1)):1 8
-lbl[7] :
-	system	print_i [DW[120]]
-	goto	4
+lbl [main]:
+	enter_frame
+ 
+lbl[l_0] :
+	move:d	DW[25], $0
+	move:d	DW[1], $1
+	move:d	DW[1], $2
+	move:d	DW[0], $4
+lbl[l_4] :
+	minus:d	$0, DW[2], $5
+	inf:d	$4, $5, $6
+	if:b	$6, l_3
+	goto	l_2
+lbl[l_3] :
+	plus:d	$1, $2, $7
+	move:d	$7, $3
+	move:d	$1, $2
+	move:d	$3, $1
+	plus:d	$4, DW[1], $8
+	move:d	$8, $4
+	goto	l_4
 
-lbl[8] :
-	system	print_c [B[105]]
-	goto	4
-
-
-lbl[6] :
-	system	print_i [DW[10]]
-	goto	4
-
-
-lbl[3] :
-	system	print_i [0($(0:4)):4]
-	goto	4
-
-lbl[4] :
+lbl[l_2] :
+	system	print_l [$1]
 	system	print_c [B[10]]
 
 
-lbl[1] :
+lbl[l_1] :
+	ret
 
-}
+
+
 

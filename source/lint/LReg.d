@@ -1,8 +1,8 @@
 module lint.LReg;
-import lint.LData;
+import lint.LExp;
 import std.conv;
 
-class LReg : LData {
+class LReg : LExp {
     
     private static ulong __last__ = 0;
     private ulong _id;
@@ -33,6 +33,10 @@ class LReg : LData {
 
     ulong id () {
 	return this._id;
+    }
+
+    override bool isInst () {
+	return false;
     }
     
     override int size () {

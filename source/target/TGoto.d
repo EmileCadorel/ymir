@@ -11,7 +11,7 @@ class TGoto : TInst {
     }
 
     override string toString () {
-	return "\tgoto\t" ~ to!string (this._id) ~ "\n";
+	return "\tgoto\tl_" ~ to!string (this._id) ~ "\n";
     }
     
 }

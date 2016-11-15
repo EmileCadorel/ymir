@@ -10,4 +10,8 @@ class LExp : LInst {
 	return this;
     }
 
+    int size () {
+	assert (false);
+    }
+    
 }

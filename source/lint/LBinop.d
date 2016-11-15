@@ -69,7 +69,7 @@ class LBinopSized : LBinop {
 	this._size = size;
     }
 
-    int size () {
+    override int size () {
 	return this._size;
     }
     

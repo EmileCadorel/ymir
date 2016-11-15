@@ -19,7 +19,7 @@ class Expression : Instruction {
     }
     
     Expression expression () {
-	assert (false, "TODO");
+	assert (false, "TODO " ~ this.toString());
     }
     
     override void print (int nb = 0) {}

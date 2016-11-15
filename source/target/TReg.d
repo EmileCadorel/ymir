@@ -16,11 +16,7 @@ class TReg : TExp {
     }
     
     override string toString () {
-	return "$("
-	    ~ to!string (this._id)
-	    ~ ":"
-	    ~ to!string (this._size)
-	    ~ ")";
+	return "$" ~ to!string (this._id);
     }
 
 }

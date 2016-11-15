@@ -1,6 +1,6 @@
 module target.TWrite;
 import target.TInst, target.TExp;
-import std.outbuffer;
+import std.outbuffer, target.TSize;
 
 class TWrite : TInst {
 
@@ -14,9 +14,10 @@ class TWrite : TInst {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writefln ("\tmove\t%s, %s",
-		    this._left.toString (),
-		    this._right.toString ());
+	buf.writefln ("\tmove:%s\t%s, %s",
+		      getSize (this._left.size).id,
+		      this._left.toString (),
+		      this._right.toString ());
 	return buf.toString ();
     }
     
