@@ -12,6 +12,22 @@ class ParamList : Expression {
 	this._params = params;
     }
 
+    this (Word word) {
+	super (word);
+    }
+
+    override Expression expression () {
+	auto aux = new ParamList (this._token);
+	foreach (it ; this._params) {
+	    aux._params.insertBack (it.expression ());
+	}
+	return aux;
+    }
+    
+    Array!Expression params () {
+	return this._params;
+    }
+    
     override void print (int nb = 0) {
 	writefln ("%s<ParamList> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

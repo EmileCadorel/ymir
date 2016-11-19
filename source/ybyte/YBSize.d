@@ -1,10 +1,10 @@
-module target.TSize;
+module ybyte.YBSize;
 import std.typecons, std.algorithm, std.traits;
 import std.container;
 
 alias SizeTuple = Tuple!(string, "id", int, "size");
 
-enum TSize : SizeTuple {
+enum YBSize : SizeTuple {
     BYTE = SizeTuple ("b", 1),
     WORD = SizeTuple ("w", 2),
     DWORD = SizeTuple ("d", 4),
@@ -14,8 +14,8 @@ enum TSize : SizeTuple {
 	NONE = SizeTuple ("", 0)
 }
 
-TSize getSize (int size) {
-    auto elem = find !"a.size == b" ([EnumMembers!TSize], size);
+YBSize getSize (int size) {
+    auto elem = find !"a.size == b" ([EnumMembers!YBSize], size);
     if (elem != []) return elem[0];
-    return TSize.NONE;
+    return YBSize.NONE;
 }

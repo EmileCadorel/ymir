@@ -1,16 +1,49 @@
 module ast.Par;
 import ast.Expression, ast.ParamList;
 import syntax.Word, std.stdio, std.string;
+import semantic.types.InfoType;
+import ast.Var, utils.exception, semantic.types.UndefInfo;
+import semantic.pack.Symbol, std.container;
 
 class Par : Expression {
 
     private ParamList _params;
     private Expression _left;
+    private ApplicationScore _score;
     
     this (Word word, Expression left, ParamList params) {
 	super (word);
+	this._token.str = "()";
 	this._params = params;
 	this._left = left;
+    }
+
+    this (Word word) {
+	super (word);
+    }
+    
+    override Expression expression () {
+	auto aux = new Par (this._token);
+	aux._params = (cast(ParamList)this._params.expression ());
+	aux._left = this._left.expression ();
+	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token);
+	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
+	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
+	if (type is null) {
+	    throw new UndefinedOp (this._token, aux._left.info, aux._params);
+	}
+	
+	aux._score = type;
+	aux._info = new Symbol (this._token, type.ret, true);
+	return aux;
+    }
+    
+    ApplicationScore score () {
+	return this._score;
+    }
+
+    Array!Expression params () {
+	return this._params.params;
     }
     
     override void print (int nb = 0) {

@@ -1,15 +1,10 @@
 
+def print (a : int) {
+    system(print_l, a);
+}
 
 def main () {
-    let n = 25, a = 1, b = 1, c, i = 0;
-
-    while (i < n - 2) {
-	c = a + b;
-	b = a;
-	a = c;
-	i = i + 1;
-    }
-    
-    system (print_l, a);
-    system (print_c, '\n');
+    let a = 1;
+    let b = cast:float (a);
+    print (b);
 }

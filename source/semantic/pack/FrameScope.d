@@ -56,7 +56,7 @@ class FrameScope {
 	return null;
     }
 
-    string namespace () const {
+    ref string namespace () {
 	return this._namespace;
     }
     

@@ -51,6 +51,11 @@ class IntInfo : InfoType {
 	}
     }
 
+    override InfoType CastOp (InfoType other) {
+	if (cast(IntInfo)other !is null) return this;
+	return null;
+    }
+    
     private InfoType Affect (Expression right) {
 	if (cast(IntInfo)right.info.type !is null) {
 	    auto i = new IntInfo ();
@@ -115,7 +120,7 @@ class IntInfo : InfoType {
     }    
 
     override int size () {
-	return 4;
+	return 8;
     }
     
 }

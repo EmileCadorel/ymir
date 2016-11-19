@@ -62,8 +62,11 @@ class YmirException : Exception {
 			Colors.RESET.value,
 			line[locus.column + locus.length - 1 .. $]);
 	    if (line[$-1] != '\n') buf.write ("\n");
-	    buf.writefln ("%s%s", rightJustify ("", locus.column - 1, ' '),
-			  rightJustify ("", locus.length, '^'));
+	    foreach (it ; 0 .. locus.column - 1) {
+		if (line[it] == '\t') buf.write ('\t');
+		else buf.write (' ');
+	    }
+	    buf.writefln ("%s", rightJustify ("", locus.length, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}

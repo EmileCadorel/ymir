@@ -3,7 +3,8 @@ import ast.Declaration;
 import syntax.Word;
 import ast.Var, ast.Block;
 import semantic.pack.FrameTable, semantic.pack.Table;
-import semantic.pack.Frame;
+import semantic.pack.Frame, semantic.pack.UnPureFrame;
+import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 
 
@@ -44,17 +45,33 @@ class Function : Declaration {
 	if (this._ident.str == MAIN) {
 	    FrameTable.instance.insert (new PureFrame ("", this));
 	} else {
-	    verifyPure ();
+	    Frame fr = verifyPure ();
+	    auto space = Table.instance.namespace ();
+	    if (fr is null) {
+		fr = new UnPureFrame (space, this);
+	    }
+
+	    auto it = Table.instance.get (this._ident.str);
+	    if (it !is null) {
+		auto fun = cast (FunctionInfo) it.type;
+		fun.insert (fr);
+	    } else {
+		auto fun = new FunctionInfo (this._ident.str, space);
+		fun.insert (fr);
+		Table.instance.insert (new Symbol (this._ident, fun, true));
+	    }
 	}
     }
 
-    void verifyPure () {
+    Frame verifyPure () {
 	auto space = Table.instance.namespace ();
 	foreach (it ; this._params) {
-	    if (cast(TypedVar) (it) is null) return;
+	    if (cast(TypedVar) (it) is null) return null;
 	    
 	}
-	FrameTable.instance.insert (new PureFrame (space, this));
+	auto fr = new PureFrame (space, this);
+	FrameTable.instance.insert (fr);
+	return fr;
     }
     
     Word ident () const {

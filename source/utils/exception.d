@@ -1,6 +1,6 @@
 module utils.exception;
 public import utils.YmirException;
-import syntax.Word, semantic.pack.Symbol, std.outbuffer;
+import syntax.Word, semantic.pack.Symbol, std.outbuffer, ast.ParamList;
 
 class UninitVar : YmirException {
     
@@ -28,6 +28,25 @@ class UndefinedOp : YmirException {
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
+
+    this (Word token, Symbol left, ParamList right) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writef ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
+	
+	foreach (it ; right.params) {
+	    buf.writef ("%s%s%s",
+			Colors.YELLOW.value, it.info.type.typeString (), Colors.RESET.value);
+	    if (it !is right.params [$ - 1]) buf.writef (", ");
+	}
+	
+	buf.writefln ("):");	
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+
     
 }
 
@@ -137,6 +156,39 @@ class NoValueNonVoidFunction : YmirException {
 
 	super.addLine (buf, token.locus);
 	msg = buf.toString ();
+    }
+
+}
+
+class TemplateSpecialisation : YmirException {
+
+    this (Word first, Word second) {
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("%s(%d,%d): ", first.locus.file, first.locus.line, first.locus.column);
+	buf.writefln ("%sErreur%s : la specialisation de template fonctionne avec '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, first.str, Colors.RESET.value);
+
+	super.addLine (buf, first.locus);
+	buf.writef ("%s:(%d,%d): ", second.locus.file, second.locus.line, second.locus.column);
+	buf.writefln ("%sErreur%s : et '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, second.str, Colors.RESET.value);
+	super.addLine (buf, second.locus);
+	msg = buf.toString ();
+    }
+    
+}
+
+
+class TemplateCreation : YmirException {
+
+    this (Word token) {
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sNote%s : Création de template : ", Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+
     }
 
 }

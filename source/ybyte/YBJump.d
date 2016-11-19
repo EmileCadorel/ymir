@@ -1,8 +1,8 @@
-module target.TJump;
+module ybyte.YBJump;
 import target.TInst, target.TExp;
-import std.conv, target.TSize;
+import std.conv, ybyte.YBSize;
 
-class TJump : TInst {
+class YBJump : TInst {
 
     private TExp _test;
     private ulong _id;

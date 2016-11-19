@@ -53,6 +53,10 @@ class Block : Instruction {
 	return new Block (this._token, decls, insts);
     }
 
+    override Instruction instruction () {
+	return this.block ();
+    }
+    
     Array!Instruction insts () {
 	return this._insts;
     }

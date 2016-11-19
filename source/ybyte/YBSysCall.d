@@ -1,8 +1,8 @@
-module target.TSysCall;
+module ybyte.YBSysCall;
 import target.TExp, target.TInst, std.container;
 import std.conv, std.outbuffer;
 
-class TSysCall : TInst {
+class YBSysCall : TInst {
 
     private Array!TExp _exps;
     private string _name;

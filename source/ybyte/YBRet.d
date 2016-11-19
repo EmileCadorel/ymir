@@ -1,8 +1,8 @@
-module target.TRet;
+module ybyte.YBRet;
 import target.TInst, target.TExp;
-import std.outbuffer, target.TSize;
+import std.outbuffer, ybyte.YBSize;
 
-class TRet : TInst {
+class YBRet : TInst {
 
     private TExp _exp;
     

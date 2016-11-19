@@ -33,6 +33,11 @@ class Var : Expression {
 	} else return asType ();
     }
 
+    TypedVar setType (Symbol info) {
+	auto type = new Type (info.sym, info.type);
+	return new TypedVar (this._token, type);
+    }
+    
     Type asType () {
 	auto info = Table.instance.get (this._token.str);
 	if (info !is null) throw new UseAsType (this._token);
@@ -84,6 +89,11 @@ class TypedVar : Var {
 	Table.instance.insert (aux.info);
 	return aux;
     }
+
+    InfoType getType () {
+	auto type = this._type.asType ();
+	return type.info.type;
+    }
     
     override void print (int nb = 0) {
 	writef ("%s<TypedVar> %s(%d, %d) %s ",
@@ -104,6 +114,10 @@ class Type : Var {
 	super (word);
 	this._info = new Symbol (word, info);
     }
+
     
+    override Type asType () {
+	return this;
+    }
 
 }

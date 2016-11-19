@@ -3,49 +3,118 @@ import ast.Function, semantic.pack.Table;
 import ast.Var, semantic.types.UndefInfo, semantic.pack.Symbol;
 import syntax.Word, ast.Block, semantic.pack.FrameTable;
 import std.stdio, std.conv, std.container, std.outbuffer;
-import semantic.types.VoidInfo;
+import semantic.types.VoidInfo, ast.ParamList;
+import semantic.types.InfoType;
 
-class PureFrame {
+class Frame {
 
-    private string _name;
-    private string _namespace;
-    private Function _function;
+    protected Function _function;
+
+    private static long SAME = 10;
+    private static long AFF = 5;
+
     
-    this (string namespace, Function func) {
-	this._name = func.ident.str;
-	this._namespace = namespace;
+    this (Function func) {
 	this._function = func;
     }
 
-    void validate () {
-	string name = this._name;
-	if (this._namespace != "") {
-	    name = this._namespace ~ to!string (this._name.length) ~ this._name;
-	}
-	Table.instance.enterFrame (this._namespace ~
-				   to!string (this._name.length) ~
-				   this._name);
+    FinalFrame validate () {
+	assert (false);
+    }
 
-	Array!Var finalParams;
-	foreach (it ; this._function.params) {
-	    finalParams.insertBack (it.expression);
+    FinalFrame validate (ParamList params) {
+	assert (false);
+    }
+
+    ApplicationScore isApplicable (ParamList params) {
+	auto score = new ApplicationScore ();
+	if (params.params.length == 0 && this._function.params.length == 0) {
+	    score.score = 10; return score;
+	} else if (params.params.length == this._function.params.length) {
+	    foreach (it ; 0 .. params.params.length) {
+		auto param = this._function.params [it];
+		InfoType info = null;
+		if (cast (TypedVar) param !is null) {
+		    info = (cast(TypedVar)param).getType ();
+		    auto type = info.CastOp (params.params [it].info.type);
+		    if (type is info) score.score += SAME;
+		    else if (type !is null) score.score += AFF;
+		    else return null;
+		    score.treat.insertBack (type.leftTreatment);					    
+		} else {
+		    score.score += AFF;
+		    score.treat.insertBack (null);
+		}
+	    }
+	    return score;
 	}
+	return null;
+    }
+
+    Function func () {
+	return this._function;
+    }
+    
+}
+
+class PureFrame : Frame {
+
+    private string _name;
+    private string _namespace;
+    private FinalFrame _fr;
+    private bool valid = false;
+    
+    this (string namespace, Function func) {
+	super (func);
+	this._name = func.ident.str;
+	this._namespace = namespace;
+    }
+
+    override FinalFrame validate (ParamList) {
+	return this.validate ();
+    }
+    
+    override FinalFrame validate () {
+	if (!valid) {
+	    string name = this._name;
+	    if (this._name != "main") {
+		name = this._namespace ~ to!string (this._name.length) ~ this._name;
+		name = "_YN" ~ to!string (name.length) ~ name;
+	    }
+	    
+	    Table.instance.enterFrame (name);
+
+	    Array!Var finalParams;
+	    foreach (it ; this._function.params) {
+		finalParams.insertBack (it.expression);
+		auto t = finalParams.back ().info.type.typeString ();
+		if (name != "main")
+		    name ~= to!string (t.length) ~ t[0];
+	    }
+
+	    Table.instance.setCurrentSpace (name);
 	
-	if (this._function.type is null) {
-	    Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
-	} else {
-	    Table.instance.retInfo.info = this._function.type.asType ().info;
-	}	
+	    if (this._function.type is null) {
+		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
+	    } else {
+		Table.instance.retInfo.info = this._function.type.asType ().info;
+	    }	
 
-	auto block = this._function.block.block ();
-	if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-	    Table.instance.retInfo.info.type = new VoidInfo ();
+	    auto block = this._function.block.block ();
+	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
+		Table.instance.retInfo.info.type = new VoidInfo ();
+	    }
+
+	    this._fr =  new FinalFrame (Table.instance.retInfo.info,
+				       name,
+				       finalParams, block);
+	
+	    FrameTable.instance.insert (this._fr);	
+	    this._fr.last = Table.instance.quitFrame ();
+	    valid = true;	    
+	    return this._fr;
 	}
-
-	FrameTable.instance.insert (new FinalFrame (Table.instance.retInfo.info,
-						    name,
-						    finalParams, block));
-	Table.instance.quitFrame ();
+	return this._fr;
     }    
     
 }
@@ -56,12 +125,14 @@ class FinalFrame {
     private string _name;
     private Array!Var _vars;
     private Block _block;
+    private ulong _last;
     
     this (Symbol type, string name, Array!Var vars, Block block) {
 	this._type = type;
 	this._vars = vars;
 	this._block = block;
 	this._name = name;
+	this._last = last;
     }
     
     string name () {
@@ -72,6 +143,10 @@ class FinalFrame {
 	return this._type;
     }
 
+    ref ulong last () {
+	return this._last;
+    }
+    
     Array!Var vars () {
 	return this._vars;
     }

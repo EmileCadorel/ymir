@@ -3,4 +3,9 @@ import semantic.types.InfoType, utils.exception;
 
 
 class UndefInfo : InfoType {
+
+    override string typeString () {
+	return "undef";
+    }
+
 }

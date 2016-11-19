@@ -1,14 +1,14 @@
 import std.stdio, utils.YmirException;
 import syntax.Visitor, semantic.pack.FrameTable;
-import target.TFrame, target.TVisitor;
+import target.TFrame, ybyte.YBVisitor;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container;
 
 void semanticTime (string args) {
     Visitor visitor = new Visitor (args);
     auto prog = visitor.visit ();
-
     prog.declare ();
+    
     auto error = 0;
     foreach (it ; FrameTable.instance.pures) {		
 	try {
@@ -24,13 +24,13 @@ void semanticTime (string args) {
 }
 
 Array!LFrame lintTime () {
-    LVisitor visitor = new LVisitor ();
+    LVisitor visitor = new LVisitor ();    
     return visitor.visit ();
 }
 
 Array!TFrame targetTime (Array!LFrame frames) {
-    auto visitor = new TVisitor ();
-    return visitor.visit (frames);
+    TVisitor visitor = new YBVisitor ();
+    return visitor.target (frames);
 }
 
 
@@ -40,9 +40,11 @@ void main (string [] args) {
 	try {
 	    semanticTime (args[1]);
 	    auto list = lintTime ();
-	    /**	    foreach (it ; list) {
-		writeln (it);
-		}*/
+
+	    // foreach (it ; list) {
+	    // 	writeln (it);
+	    // }
+
 	    auto target = targetTime (list);
 	    foreach (it ; target) {
 		writeln (it);

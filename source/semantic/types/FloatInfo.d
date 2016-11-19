@@ -25,6 +25,11 @@ class FloatInfo : InfoType {
 	return null;
     }
     
+    override InfoType CastOp (InfoType other) {
+	if (cast(FloatInfo)other !is null) return this;
+	return null;
+    }
+
     override string typeString () {
 	return "float";
     }

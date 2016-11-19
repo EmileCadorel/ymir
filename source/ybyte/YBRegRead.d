@@ -1,8 +1,8 @@
-module target.TRegRead;
+module ybyte.YBRegRead;
 import target.TExp, target.TReg;
 import std.outbuffer;
 
-class TRegRead : TExp {
+class YBRegRead : TExp {
 
     private TReg _where;
     private ulong _begin;

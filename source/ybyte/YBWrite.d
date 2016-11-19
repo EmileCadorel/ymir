@@ -1,8 +1,8 @@
-module target.TWrite;
+module ybyte.YBWrite;
 import target.TInst, target.TExp;
-import std.outbuffer, target.TSize;
+import std.outbuffer, ybyte.YBSize;
 
-class TWrite : TInst {
+class YBWrite : TInst {
 
     private TExp _left;
     private TExp _right;

@@ -46,30 +46,3 @@ class SyntaxError : YmirException {
     
 
 }
-
-class Warning {
-
-    string RESET = "\u001B[0m";
-    string PURPLE = "\u001B[46m";
-    
-    void warning_at (TArgs...) (Location locus, string msg, TArgs params) {
-	OutBuffer buf = new OutBuffer();
-	string line;
-	buf.write (PURPLE);
-	buf.write ("Attention " ~ RESET ~ ":");
-	buf.write (locus.file);
-	buf.write (":(" ~ to!string(locus.line) ~ ", " ~ to!string(locus.column) ~ ") : ");
-	buf.writefln (msg, params);
-	write (buf.toString);
-    }
-
-    private string getLine (Location locus) {
-	auto file = File (locus.file, "r");
-	string cline = null;
-	foreach (it ; 1 .. locus.line)
-	    cline = file.readln ();
-	return cline;
-    }
-    
-    mixin Singleton!Warning;
-}

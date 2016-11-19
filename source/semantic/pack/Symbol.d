@@ -1,6 +1,7 @@
 module semantic.pack.Symbol;
 import syntax.Word;
 import semantic.types.InfoType;
+import std.container;
 
 class Symbol {
 
@@ -8,8 +9,7 @@ class Symbol {
     private Word _sym;
     private InfoType _type;
     private bool _isConst;
-    private static ulong __last__;
-
+    private static SList!ulong __last__;
     
     this (Word word, InfoType type) {
 	this._sym = word;
@@ -42,16 +42,31 @@ class Symbol {
     }
 
     static ulong lastId () {
-	return __last__;
+	if (__last__.empty) __last__.insertFront (1);
+	return __last__.front();
     }
     
     ref ulong id () {
 	return this._id;
     }	
 
+    static void insertLast () {
+	__last__.insertFront (1);
+    }
+
+    static ulong removeLast () {
+	if (!__last__.empty) {
+	    auto last = __last__.front ();
+	    __last__.removeFront ();
+	    return last;
+	}
+	return 0;
+    }
+    
     void setId () {
-	this._id = __last__;
-	__last__++;
+	if (__last__.empty) __last__.insertFront (1);
+	this._id = __last__.front ();
+	__last__.front ()++;
     }
     
 }

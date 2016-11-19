@@ -1,8 +1,8 @@
-module target.TGoto;
+module ybyte.YBGoto;
 import target.TInst;
 import std.conv;
 
-class TGoto : TInst {
+class YBGoto : TInst {
 
     private ulong _id;
     

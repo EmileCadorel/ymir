@@ -18,6 +18,11 @@ class CharInfo : InfoType {
 	return new CharInfo ();
     }
 
+    override InfoType CastOp (InfoType other) {
+	if (cast(CharInfo) other) return this;
+	return null;
+    }
+    
     override int size () {
 	return 1;
     }

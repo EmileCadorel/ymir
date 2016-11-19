@@ -8,8 +8,18 @@ abstract class LConst : LExp {
     }
 }
 
-
 class LConstByte : LConst {
+    private byte _value;
+
+    this (byte value) {
+	this._value = value;
+    }
+
+    byte value () { return this._value; }
+    
+}
+
+class LConstWord : LConst {
     private short _value;
 
     this (short value) {
@@ -17,7 +27,6 @@ class LConstByte : LConst {
     }
 
     short value () { return this._value; }
-    
 }
 
 class LConstDWord : LConst {

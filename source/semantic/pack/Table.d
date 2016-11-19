@@ -24,14 +24,21 @@ class Table {
 	}
     }
 
+    void setCurrentSpace (string space) {
+	this._frameTable.front ().namespace = space;
+    }
+    
     void enterFrame (string space) {
+	Symbol.insertLast ();
 	this._frameTable.insertFront (new FrameScope (space));
     }
     
-    void quitFrame () {
+    ulong quitFrame () {
 	if (!this._frameTable.empty) {
 	    this._frameTable.removeFront ();
+	    return Symbol.removeLast ();
 	}
+	return 0;
     }
 
     string namespace() {

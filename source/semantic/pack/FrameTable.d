@@ -1,6 +1,6 @@
 module semantic.pack.FrameTable;
 import utils.Singleton, semantic.pack.Frame;
-import std.container;
+import std.container, std.algorithm;
 
 class FrameTable {
 
@@ -15,6 +15,13 @@ class FrameTable {
 	this._finals.insertBack (frame);
     }
 
+    FinalFrame existFinal (string name) {
+	foreach (it ; _finals) {
+	    if (it.name == name) return it;
+	}
+	return null;
+    }
+    
     Array!PureFrame pures () {
 	return this._pures;
     }

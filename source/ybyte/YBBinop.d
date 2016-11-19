@@ -1,9 +1,9 @@
-module target.TBinop;
+module ybyte.YBBinop;
 import target.TExp, target.TInst;
 import syntax.Tokens, std.outbuffer, std.string;
-import std.conv, target.TSize, std.stdio;
+import std.conv, ybyte.YBSize, std.stdio;
 
-class TBinop : TInst {
+class YBBinop : TInst {
 
     private TExp _left;
     private TExp _right;
@@ -27,6 +27,5 @@ class TBinop : TInst {
 		      this._res.toString ());
 	return buf.toString ();
     }
-    
     
 }

@@ -14,6 +14,11 @@ class BoolInfo : InfoType {
 	return "bool";
     }
 
+    override InfoType CastOp (InfoType other) {
+	if (cast(BoolInfo)other) return this;
+	return null;
+    }
+    
     override InfoType clone () {
 	return new BoolInfo ();
     }

@@ -14,7 +14,8 @@ class LFrame {
     private LReg _return_reg;
     private int stack = 0;
     private bool _is_main = false;
-
+    private ulong _lastId;
+    
     private static LFrame[ulong] __table__;
     
     this (ulong number, string name) {
@@ -35,6 +36,10 @@ class LFrame {
 	return this._number;
     }
 
+    ref ulong lastId () {
+	return this._lastId;
+    }
+    
     string name () {
 	return this._name;
     }

@@ -2,6 +2,7 @@ module syntax.Visitor;
 import syntax.Lexer;
 import syntax.Word, syntax.Keys;
 import syntax.Tokens, syntax.SyntaxError;
+import utils.Warning;
 import std.stdio, std.outbuffer;
 import ast.all, std.container;
 import std.algorithm, std.conv;
@@ -200,8 +201,10 @@ class Visitor {
 		auto next = _lex.next ();
 		if (next == Keys.DEF) decls.insertBack (visitFunction ());
 		else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
-		else if (next == Tokens.LACC) insts.insertBack (visitBlock ());
-		else if (next == Tokens.SEMI_COLON) {}
+		else if (next == Tokens.LACC) {
+		    this._lex.rewind ();
+		    insts.insertBack (visitBlock ());		
+		} else if (next == Tokens.SEMI_COLON) {}
 		else if (next == Tokens.RACC) break;
 		else {
 		    _lex.rewind ();
@@ -528,6 +531,8 @@ class Visitor {
 	auto word = this._lex.next ();
 	if (word == Keys.SYSTEM) {
 	    return visitSystem ();
+	} else if (word == Keys.CAST) {
+	    return visitCast ();
 	} else this._lex.rewind ();
 	auto var = visitVar ();
 	auto next = _lex.next ();
@@ -537,6 +542,20 @@ class Visitor {
 	return var;
     }
 
+    private Expression visitCast () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto type = visitType ();
+	word = this._lex.next ();
+	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	word = this._lex.next ();
+	if (word !=  Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+	return new Cast (begin, type, expr);
+    }
+    
     private Expression visitSystem () {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
