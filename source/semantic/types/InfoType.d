@@ -58,6 +58,9 @@ class InfoType {
 	return "";
     }
 
+    void quit (string namespace) {
+    }
+    
     InfoType BinaryOp (Word token, Expression right) {
 	return null;
     }

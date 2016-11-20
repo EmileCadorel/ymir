@@ -1,9 +1,9 @@
-
 lbl [_YN65print3i]:
 	enter_frame
  
 lbl[l_0] :
 	system	print_l [$1]
+	system	print_c [B[10]]
 
 
 lbl[l_1] :
@@ -12,17 +12,57 @@ lbl[l_1] :
 
 
 
-lbl [main]:
+lbl [_YN43add3i3i3i]:
 	enter_frame
  
 lbl[l_2] :
-	move:q	QW[1], $1
-	move:q	$1, $2
-	param:q	$2
-	call	_YN65print3i
+	plus:q	$1, $2, $5
+	plus:q	$5, $3, $6
+	move:q	$6, $4
+	goto	l_3
 
 
 lbl[l_3] :
+	ret:q $4
+
+
+
+
+lbl [_YN43add3i3i]:
+	enter_frame
+ 
+lbl[l_4] :
+	plus:q	$1, $2, $4
+	move:q	$4, $3
+	goto	l_5
+
+
+lbl[l_5] :
+	ret:q $3
+
+
+
+
+lbl [main]:
+	enter_frame
+ 
+lbl[l_6] :
+	param:q	QW[10]
+	param:q	QW[12]
+	param:q	QW[12]
+	call	_YN43add3i3i3i
+	move:q	$0, $2
+	param:q	$2
+	call	_YN65print3i
+	param:q	QW[10]
+	param:q	QW[11]
+	call	_YN43add3i3i
+	move:q	$0, $3
+	param:q	$3
+	call	_YN65print3i
+
+
+lbl[l_7] :
 	ret
 
 

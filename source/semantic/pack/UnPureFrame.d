@@ -13,8 +13,7 @@ class UnPureFrame : Frame {
     
     
     this (string namespace, Function func) {
-	super (func);
-	this._namespace = namespace;
+	super (namespace, func);
 	this._name = func.ident.str;
     }
 

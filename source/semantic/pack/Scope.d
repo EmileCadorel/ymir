@@ -21,4 +21,10 @@ class Scope {
     }
     
     
+    void quit (string namespace) {
+	foreach (key, value; this._local) {
+	    value.quit (namespace);
+	}
+    }
+
 }

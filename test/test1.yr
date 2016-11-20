@@ -1,10 +1,23 @@
-
-def print (a : int) {
-    system(print_l, a);
+def add (a, b) {
+    return a + b;
 }
 
+
+def print (a : int) {
+    system (print_l, a);
+    system (print_c, '\n');
+}
+
+
 def main () {
-    let a = 1;
-    let b = cast:float (a);
-    print (b);
+    {
+	def add (a, b, c) {
+	    return a + b + c;
+	}
+	
+	print (add (10, 12, 12));	
+    }
+
+    print (add (10, 11));
+    
 }

@@ -40,8 +40,10 @@ class FrameScope {
     }
 
     void quitBlock () {
-	if (!this._local.empty)
+	if (!this._local.empty) {
+	    this._local.front ().quit (this._namespace);
 	    this._local.removeFront ();
+	}
     }
 
     void insert (string name, Symbol info) {

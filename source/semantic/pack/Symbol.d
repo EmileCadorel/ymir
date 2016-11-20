@@ -30,6 +30,10 @@ class Symbol {
 	return this._isConst;
     }
 
+    void quit (string namespace) {
+	this._type.quit (namespace);
+    }
+    
     string typeString () {
 	if (this._isConst) {
 	    return "const(" ~ this._type.typeString ~ ")";

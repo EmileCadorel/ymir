@@ -9,13 +9,15 @@ import semantic.types.InfoType;
 class Frame {
 
     protected Function _function;
-
+    protected string _namespace;
+    
     private static long SAME = 10;
     private static long AFF = 5;
 
     
-    this (Function func) {
+    this (string namespace, Function func) {
 	this._function = func;
+	this._namespace = namespace;
     }
 
     FinalFrame validate () {
@@ -26,6 +28,10 @@ class Frame {
 	assert (false);
     }
 
+    string namespace () {
+	return this._namespace;
+    }
+    
     ApplicationScore isApplicable (ParamList params) {
 	auto score = new ApplicationScore ();
 	if (params.params.length == 0 && this._function.params.length == 0) {
@@ -65,9 +71,8 @@ class PureFrame : Frame {
     private bool valid = false;
     
     this (string namespace, Function func) {
-	super (func);
+	super (namespace, func);
 	this._name = func.ident.str;
-	this._namespace = namespace;
     }
 
     override FinalFrame validate (ParamList) {

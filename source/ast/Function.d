@@ -55,6 +55,7 @@ class Function : Declaration {
 	    if (it !is null) {
 		auto fun = cast (FunctionInfo) it.type;
 		fun.insert (fr);
+		Table.instance.insert (it);
 	    } else {
 		auto fun = new FunctionInfo (this._ident.str, space);
 		fun.insert (fr);

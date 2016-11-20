@@ -64,6 +64,14 @@ class FunctionInfo : InfoType {
 	}
 	
     }
+
+    override void quit (string namespace) {
+	foreach (it; 0 .. this._infos.length) {
+	    if (this._infos [it].namespace == namespace) {		
+		this._infos.linearRemove (this._infos[it .. it + 1]);
+	    }
+	}
+    }
     
     override string typeString () {
 	return "function <" ~ this._namespace ~ "." ~ this._name ~ ">";
