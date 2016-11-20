@@ -638,7 +638,7 @@ class Visitor {
 	_lex.rewind ();
 	auto begin = _lex.next ();
 	auto right = visitVar ();
-	auto retour = new Binary (begin, left, right);
+	auto retour = new Dot (begin, left, right);
 	auto next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
 	    return visitSuite (next, retour);

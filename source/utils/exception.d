@@ -1,6 +1,7 @@
 module utils.exception;
 public import utils.YmirException;
 import syntax.Word, semantic.pack.Symbol, std.outbuffer, ast.ParamList;
+import ast.Var;
 
 class UninitVar : YmirException {
     
@@ -12,6 +13,20 @@ class UninitVar : YmirException {
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
+
+}
+
+class UndefinedAttribute : YmirException {
+
+    this (Word token, Symbol left, Var right) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Attribut '%s%s%s' non définis pour le type '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, right.token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }    
 
 }
 

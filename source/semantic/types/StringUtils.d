@@ -36,6 +36,21 @@ class StringUtils {
 	return inst;
     }
     
-    
+    static LInstList InstLength (LInstList list) {
+	auto inst = new LInstList;
+	auto leftExp = list.getFirst ();
+	if (auto str = (cast(LConstString) leftExp)) {
+	    inst += new LConstQWord (str.value.length);
+	} else {
+	    inst += new LRegRead (cast (LReg) leftExp, 0, 8);
+	}
+	return inst;
+    }
 
+    static LInstList InstDup (LInstList list) {
+	assert (false, "TODO, dup string ");
+    }
+
+
+    
 }

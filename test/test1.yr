@@ -1,20 +1,10 @@
 
-def println (a : string) {
-    system (print_s, a);
-    system (print_c, '\n');
-}
-
-
-def println (a : char) {
-    system (print_c, a);
-    system (print_c, '\n');
-}
-
 def main () {
-
-    {
-	let a = "salut", b = a;	
-	println (b [2]);
+    let a = "salut9", b =0;
+    while (b < a.length) {
+	system (print_c, a [b]);	
+	b = b + 1;
     }
+    system (print_c, '\n');
     
 }

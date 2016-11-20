@@ -3,6 +3,7 @@ import syntax.Word, ast.Expression, syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
+import ast.Var;
 
 class StringInfo : InfoType {
 
@@ -39,6 +40,24 @@ class StringInfo : InfoType {
 	}
     }
 
+    override InfoType DotOp (Var var) {       
+	if (var.token.str == "length") return Length ();
+	else if (var.token.str == "dup") return Dup ();
+	return null;
+    }
+
+    private InfoType Length () {
+	auto _int = new IntInfo ();
+	_int.lintInstS = &StringUtils.InstLength ;
+	return _int;
+    }
+
+    private InfoType Dup () {
+	auto str = new StringInfo ();
+	str.lintInstS = &StringUtils.InstDup;
+	return str;
+    }
+    
     private InfoType Access (Expression expr) {
 	if (cast(IntInfo) expr.info.type) {
 	    auto ch = new CharInfo;

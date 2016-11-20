@@ -6,6 +6,7 @@ import semantic.types.CharInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
+import ast.Var;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -82,6 +83,10 @@ class InfoType {
     InfoType CastOp (InfoType) {
 	return null;
     }
+
+    InfoType DotOp (Var) {
+	return null;
+    }
     
     InfoType clone () {
 	return null;
@@ -107,6 +112,10 @@ class InfoType {
 	return this._lintInst;
     }
 
+    ref InstCompS lintInstS () {
+	return this._lintInstS;
+    }
+    
     ref InstCompMult lintInstMult () {
 	return this._lintInstMult;
     }

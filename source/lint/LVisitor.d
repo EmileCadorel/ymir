@@ -191,6 +191,7 @@ class LVisitor {
 	else if (auto _cast = cast(Cast) elem) return visitCast (_cast);
 	else if (auto _str = cast(String) elem) return visitStr (_str);
 	else if (auto _access = cast (Access) elem) return visitAccess (_access);
+	else if (auto _dot = cast (Dot) elem) return visitDot (_dot);
 	else assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -257,6 +258,10 @@ class LVisitor {
 	auto type = access.info.type;
 	inst += type.lintInst (visitExpression (access.left), exprs);
 	return inst;
+    }
+    
+    private LInstList visitDot (Dot dot) {
+	return dot.info.type.lintInst (visitExpression (dot.left));
     }
     
     private LInstList visitCast (Cast elem) {

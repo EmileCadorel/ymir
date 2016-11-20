@@ -81,6 +81,7 @@ class PureFrame : Frame {
     
     override FinalFrame validate () {
 	if (!valid) {
+	    valid = true;
 	    string name = this._name;
 	    if (this._name != "main") {
 		name = this._namespace ~ to!string (this._name.length) ~ this._name;
@@ -116,7 +117,6 @@ class PureFrame : Frame {
 	
 	    FrameTable.instance.insert (this._fr);	
 	    this._fr.last = Table.instance.quitFrame ();
-	    valid = true;	    
 	    return this._fr;
 	}
 	return this._fr;
