@@ -115,6 +115,10 @@ class String : Expression {
 	aux.info = new Symbol (this._token, new StringInfo (), true);
 	return aux;
     }
+
+    string content () {
+	return this._content;
+    }
     
     override void print (int nb = 0) {
 	writefln ("%s<String> %s(%d, %d) %s"

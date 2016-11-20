@@ -90,6 +90,10 @@ class LConstString : LConst {
 	this._value = value;
     }
 
+    string value () {
+	return this._value;
+    }
+    
 }
 
 class LConstFunc : LConst {

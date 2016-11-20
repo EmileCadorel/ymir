@@ -28,10 +28,9 @@ class YBRegRead : TExp {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("%d(%s):%d",
+	buf.writef ("%d(%s)",
 		    this._begin,
-		    this._where.toString (),
-		    this._size);
+		    this._where.toString ());
 	return buf.toString ();
     }
        

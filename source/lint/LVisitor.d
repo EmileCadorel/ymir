@@ -189,9 +189,15 @@ class LVisitor {
 	else if (auto _sys = cast (System)elem) return visitSystem (_sys);
 	else if (auto _par = cast (Par) elem) return visitPar (_par);
 	else if (auto _cast = cast(Cast) elem) return visitCast (_cast);
+	else if (auto _str = cast(String) elem) return visitStr (_str);
+	else if (auto _access = cast (Access) elem) return visitAccess (_access);
 	else assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitStr (String elem) {
+	return new LInstList (new LConstString (elem.content));
+    }
+    
     private LInstList visitVar (Var elem) {
 	return new LInstList (new LReg (elem.info.id, elem.info.type.size));
     }
@@ -242,6 +248,17 @@ class LVisitor {
 	return list;
     }
 
+    private LInstList visitAccess (Access access) {
+	Array!LInstList exprs;
+	auto inst = new LInstList;
+	foreach (it ; 0 .. access.params.length) {
+	    exprs.insertBack (visitExpression (access.params [it]));
+	}
+	auto type = access.info.type;
+	inst += type.lintInst (visitExpression (access.left), exprs);
+	return inst;
+    }
+    
     private LInstList visitCast (Cast elem) {
 	auto left = elem.info.type;
 	if (left is elem.expr.info.type) {

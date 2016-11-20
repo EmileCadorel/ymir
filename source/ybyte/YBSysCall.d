@@ -5,8 +5,14 @@ import std.conv, std.outbuffer;
 class YBSysCall : TInst {
 
     private Array!TExp _exps;
+    private TExp _ret;
     private string _name;
 
+    this (string name, Array!TExp exps, TExp ret) {
+	this (name, exps);
+	this._ret = ret;
+    }
+    
     this (string name, Array!TExp exps) {
 	this._name = name;
 	this._exps = exps;
@@ -21,7 +27,10 @@ class YBSysCall : TInst {
 	    if (it != this._exps[$ - 1])
 		buf.write (", ");
 	}
-	buf.writefln ("]");
+	buf.write ("]");
+	if (this._ret)
+	    buf.writefln (", %s", this._ret.toString ());
+	else buf.writefln ("");
 	return buf.toString ();
     }
 

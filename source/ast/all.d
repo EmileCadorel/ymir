@@ -18,3 +18,4 @@ public import ast.Return;
 public import ast.While;
 public import ast.System;
 public import ast.Cast;
+public import ast.Access;

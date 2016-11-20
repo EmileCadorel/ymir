@@ -47,7 +47,14 @@ class YBVisitor : TVisitor {
 	    list += instPaire.what;
 	    params.insertBack (instPaire.where);
 	}
-	list += new YBSysCall (sys.name, params);
+	if (sys.ret is null)
+	    list += new YBSysCall (sys.name, params);
+	else {
+	    auto paire = visitExpression (sys.ret);
+	    list += paire.what;
+	    list += new YBSysCall (sys.name, params, paire.where);
+	}
+
 	return list;
     }
         

@@ -624,7 +624,7 @@ class Visitor {
 		    throw new SyntaxError (next, [Tokens.RCRO.descr, Tokens.COMA.descr]);
 	    }
 	}
-	auto retour = new Par (beg, left, new ParamList (suite, params));
+	auto retour = new Access (beg, left, new ParamList (suite, params));
 	next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
 	    return visitSuite (next, retour);

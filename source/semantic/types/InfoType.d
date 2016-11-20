@@ -8,6 +8,7 @@ import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
 
 alias LInstList function (LInstList, LInstList) InstComp;
+alias LInstList function (LInstList, Array!LInstList) InstCompMult;
 alias LInstList function (LInstList) InstCompS;
 alias Expression function (Expression) InstPreTreatment;
 
@@ -29,6 +30,7 @@ class InfoType {
     private InstPreTreatment _rightTreatment = null;
     private InstComp _lintInst = null;
     private InstCompS _lintInstS = null;
+    private InstCompMult _lintInstMult = null;
     
     static InfoType function (Word, Expression[]) [string] creators;
 
@@ -73,6 +75,10 @@ class InfoType {
 	return null;
     }
     
+    InfoType AccessOp (Word, ParamList) {
+	return null;
+    }
+
     InfoType CastOp (InfoType) {
 	return null;
     }
@@ -100,11 +106,19 @@ class InfoType {
     ref InstComp lintInst () {
 	return this._lintInst;
     }
-       
+
+    ref InstCompMult lintInstMult () {
+	return this._lintInstMult;
+    }
+
+    LInstList lintInst (LInstList left, Array!LInstList rights) {
+	return this._lintInstMult (left, rights);
+    }
+    
     LInstList lintInst (LInstList left, LInstList right) {
 	return this._lintInst (left, right);
     }
-
+    
     LInstList lintInst (LInstList left) {
 	return this._lintInstS (left);
     }
