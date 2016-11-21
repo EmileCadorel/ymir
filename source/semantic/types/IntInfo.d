@@ -32,10 +32,10 @@ class IntInfo : InfoType {
 	case Tokens.INF_EQUAL.descr: return opTest!(Tokens.INF_EQUAL) (right);
 	case Tokens.SUP_EQUAL.descr: return opTest!(Tokens.SUP_EQUAL) (right);
 	case Tokens.NOT_EQUAL.descr: return opTest!(Tokens.NOT_EQUAL) (right);
-	case Tokens.NOT_INF.descr: return opTest!(Tokens.NOT_INF) (right);
-	case Tokens.NOT_INF_EQUAL.descr: return opTest!(Tokens.NOT_INF_EQUAL) (right);
-	case Tokens.NOT_SUP.descr: return opTest!(Tokens.NOT_SUP) (right);
-	case Tokens.NOT_SUP_EQUAL.descr: return opTest!(Tokens.NOT_SUP_EQUAL) (right);
+	case Tokens.NOT_INF.descr: return opTest!(Tokens.SUP_EQUAL) (right);
+	case Tokens.NOT_INF_EQUAL.descr: return opTest!(Tokens.SUP) (right);
+	case Tokens.NOT_SUP.descr: return opTest!(Tokens.INF_EQUAL) (right);
+	case Tokens.NOT_SUP_EQUAL.descr: return opTest!(Tokens.INF) (right);
 	case Tokens.DEQUAL.descr: return opTest!(Tokens.DEQUAL) (right);
 	case Tokens.PLUS.descr: return opNorm !(Tokens.PLUS) (right);
 	case Tokens.MINUS.descr: return opNorm !(Tokens.MINUS) (right);

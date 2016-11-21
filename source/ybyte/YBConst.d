@@ -107,6 +107,11 @@ class YBConstDouble : TConst {
     double value () {
 	return this._value;
     }
+
+    override string toString () {
+	return "DP[" ~ to!string (this._value) ~ "]";
+    }
+    
 }
 
 class YBConstString : TConst {

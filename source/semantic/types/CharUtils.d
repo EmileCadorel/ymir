@@ -25,7 +25,6 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto aux = new LReg (1);
 	inst += (new LBinop (leftExp, new LCast (rightExp, 1), op));
 	return inst;
     }
@@ -34,7 +33,6 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto aux = new LReg (1);
 	inst += (new LBinop (new LCast (leftExp, 1), rightExp, op));
 	return inst;
     }

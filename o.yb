@@ -2,19 +2,11 @@ lbl [main]:
 	enter_frame
  
 lbl[l_0] :
-	move:b	B[97], $1
-lbl[l_4] :
-	inf:b	$1, B[122], $4
-	if:b	$4, l_3
-	goto	l_2
-lbl[l_3] :
-	system	print_c [$1]
-	cast:q:b	QW[1], $5
-	plus:b	B[116], $5, $3
-	move:b	$3, $1
-	goto	l_4
-
-lbl[l_2] :
+	move:dp	DP[0], $1
+	cast:q:dp	QW[3], $3
+	star:dp	$3, DP[3.2], $2
+	move:dp	$2, $1
+	system	print_f [$1]
 
 
 lbl[l_1] :

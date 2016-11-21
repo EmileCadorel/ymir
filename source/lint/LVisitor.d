@@ -231,7 +231,7 @@ class LVisitor {
     }
     
     private LInstList visitFloat (Float elem) {
-	return new LInstList (new LConstFloat (to!float (elem.totale)));
+	return new LInstList (new LConstDouble (to!double (elem.totale)));
     }
 
     private LInstList visitSystem (System sys) {
