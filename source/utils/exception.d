@@ -27,8 +27,24 @@ class UndefinedAttribute : YmirException {
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }    
-
+    
 }
+
+class UndefinedEscapeChar : YmirException {
+
+    this (Word token, ulong index, string elem) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Escpae char '%s%s%s' inconnu :", Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, elem, Colors.RESET.value);
+	
+	token.locus.column += index;
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+    
+}
+
 
 class UndefinedOp : YmirException {
 

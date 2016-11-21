@@ -2,29 +2,30 @@ lbl [main]:
 	enter_frame
  
 lbl[l_0] :
-	system	alloc [QW[14]], $1
-	move:q	QW[6], 0($1)
-	move:b	B[115], 8($1)
-	move:b	B[97], 9($1)
-	move:b	B[108], 10($1)
-	move:b	B[117], 11($1)
-	move:b	B[116], 12($1)
-	move:b	B[57], 13($1)
-	move:q	QW[0], $2
-lbl[l_4] :
-	inf:q	$2, 0($1), $5
+	move:b	B[1], $1
+	dequal:b	B[1], B[0], $4
+	dand:b	$1, $4, $5
 	if:b	$5, l_3
-	goto	l_2
-lbl[l_3] :
-	plus:q	$1, $2, $3
-	plus:q	QW[8], $3, $3
-	system	print_c [0($3)]
-	plus:q	$2, QW[1], $4
-	move:q	$4, $2
+lbl[l_2] :
+	system	alloc [QW[11]], $3
+	move:q	QW[3], 0($3)
+	move:b	B[108], 8($3)
+	move:b	B[97], 9($3)
+	move:b	B[10], 10($3)
+	system	print_s [$3]
 	goto	l_4
 
-lbl[l_2] :
-	system	print_c [B[10]]
+lbl[l_3] :
+	system	alloc [QW[12]], $2
+	move:q	QW[4], 0($2)
+	move:b	B[105], 8($2)
+	move:b	B[99], 9($2)
+	move:b	B[105], 10($2)
+	move:b	B[10], 11($2)
+	system	print_s [$2]
+	goto	l_4
+
+lbl[l_4] :
 
 
 lbl[l_1] :

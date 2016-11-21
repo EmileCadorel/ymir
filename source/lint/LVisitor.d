@@ -183,26 +183,45 @@ class LVisitor {
     private LInstList visitExpression (Expression elem) {
 	if (auto bin = cast(Binary) elem) return visitBinary (bin);
 	if (auto var = cast(Var)elem) return visitVar (var);
-	else if (auto _int = cast(Int)elem) return visitInt (_int);
-	else if (auto _float = cast(Float)elem) return visitFloat (_float);
-	else if (auto _char = cast(Char) elem) return visitChar (_char);
-	else if (auto _sys = cast (System)elem) return visitSystem (_sys);
-	else if (auto _par = cast (Par) elem) return visitPar (_par);
-	else if (auto _cast = cast(Cast) elem) return visitCast (_cast);
-	else if (auto _str = cast(String) elem) return visitStr (_str);
-	else if (auto _access = cast (Access) elem) return visitAccess (_access);
-	else if (auto _dot = cast (Dot) elem) return visitDot (_dot);
-	else assert (false, "TODO, visitExpression ! " ~ elem.toString);
+	if (auto _int = cast(Int)elem) return visitInt (_int);
+	if (auto _float = cast(Float)elem) return visitFloat (_float);
+	if (auto _char = cast(Char) elem) return visitChar (_char);
+	if (auto _sys = cast (System)elem) return visitSystem (_sys);
+	if (auto _par = cast (Par) elem) return visitPar (_par);
+	if (auto _cast = cast(Cast) elem) return visitCast (_cast);
+	if (auto _str = cast(String) elem) return visitStr (_str);
+	if (auto _access = cast (Access) elem) return visitAccess (_access);
+	if (auto _dot = cast (Dot) elem) return visitDot (_dot);
+	if (auto _bool = cast (Bool) elem) return visitBool (_bool);
+	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
     private LInstList visitStr (String elem) {
-	return new LInstList (new LConstString (elem.content));
+	auto inst = new LInstList;
+	auto left = new LReg (8);
+	auto size = elem.content.length;
+	inst += (new LSysCall ("alloc", make!(Array!LExp) (new LConstQWord (size + 8)),
+			       left));
+	inst += (new LWrite (new LRegRead (left, 0, 8),
+			     new LConstQWord (size)));
+	
+	foreach (it ; 0 .. size) {
+	    inst += (new LWrite (new LRegRead (cast (LReg) left, it + 8, 1),
+				 new LConstByte (elem.content [it])));
+	}
+	inst += left;
+	return inst;
     }
     
     private LInstList visitVar (Var elem) {
 	return new LInstList (new LReg (elem.info.id, elem.info.type.size));
     }
 
+    private LInstList visitBool (Bool elem) {
+	if (elem.value) return new LInstList (new LConstByte (1));
+	else return new LInstList (new LConstByte (0));
+    }
+    
     private LInstList visitChar (Char elem) {
 	return new LInstList (new LConstByte (to!byte (elem.code)));
     }

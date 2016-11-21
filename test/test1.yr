@@ -1,10 +1,9 @@
 
 def main () {
-    let a = "salut9", b =0;
-    while (b < a.length) {
-	system (print_c, a [b]);	
-	b = b + 1;
+    let a = true;
+    if (a && true == false) {
+	system (print_s, "ici\n");
+    } else {
+	system (print_s, "la\n");
     }
-    system (print_c, '\n');
-    
 }

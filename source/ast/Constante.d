@@ -1,9 +1,9 @@
 module ast.Constante;
 import ast.Expression;
-import syntax.Word, semantic.pack.Symbol;
+import syntax.Word, semantic.pack.Symbol, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.CharInfo, semantic.types.BoolInfo;
 import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrInfo;
-import std.stdio, std.string;
+import std.stdio, std.string, utils.exception, std.conv;
 
 class Int : Expression {
     this (Word word) {
@@ -103,15 +103,48 @@ class Float : Expression {
 
 class String : Expression {
 
-    private string _content;
-
+    private string _content;    
+    private char [string] _escape;
+    
     this (Word word, string  content) {
 	super (word);
 	this._content = content;
+	this._escape = ["\\a": '\a', "\\b" : '\b', "\\f" : '\f',
+			    "\\n" : '\n', "\\r" : '\r', "\\t" : '\t',
+			    "\\v" : '\v', "\\" : '\\',  "\'" : '\'',
+			    "\"" : '\"', "\?": '\?'];   
     }
 
+    private short isChar (ref string elem, ref ulong index) {
+	if (elem.length == 1) {
+	    char c = elem [0];
+	    elem = "";
+	    return c;
+	}
+	auto val = elem [0 .. 2] in this._escape;
+	if (val !is null) {
+	    elem = elem [2 .. $];
+	    index += 2;
+	    return *val; 
+	} else if (elem [0] != Keys.ANTI.descr[0]) {
+	    char c = elem [0];
+	    elem = elem [1 .. $];
+	    index += 1;
+	    return c;
+	} else return -1;
+    }
+    
     override Expression expression () {
 	auto aux = new String (this._token, this._content);
+	ulong index = 0;
+	string begin = this._content, end = "";
+	while (begin != "") {
+	    short s = isChar (begin, index);
+	    if (s == -1) throw new UndefinedEscapeChar (this._token, index, begin [0 .. 2]);
+	    end ~= to!char (s);
+	}
+
+	aux._content = end;
 	aux.info = new Symbol (this._token, new StringInfo (), true);
 	return aux;
     }
@@ -140,6 +173,10 @@ class Bool : Expression {
 	auto aux = new Bool (this._token);
 	aux.info = new Symbol (this._token, new BoolInfo (), true);
 	return aux;
+    }
+    
+    bool value () {
+	return this._token.str == "true";
     }
     
     override void print (int nb = 0) {
