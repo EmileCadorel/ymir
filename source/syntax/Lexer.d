@@ -143,7 +143,7 @@ class Lexer {
 	foreach (it ; this._tokens) {
 	    auto id = indexOf (line, it.descr);
 	    if (id != -1) {
-		if (id == beg && it.length > max) max = it.length;
+		if (id == beg && it.descr.length > max)  max = it.descr.length;
 		else if (id < beg) {
 		    beg = id;
 		    max = it.descr.length;

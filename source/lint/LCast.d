@@ -4,14 +4,26 @@ import lint.LExp;
 class LCast : LExp {
     
     private LExp _what;
-    private ushort _from;
-    private ushort _to;
-
-    this (LExp what, ushort from, ushort to) {
+    private int _size;
+    
+    this (LExp what, int size) {
 	this._what = what;
-	this._from = from;
-	this._to = to;
+	this._size = size;
+    }
+
+    LExp what () {
+	return this._what;
+    }
+
+    override int size () {
+	return this._size;
+    }
+    
+    override bool isInst () {
+	return false;
     }
     
 }
+
+
 

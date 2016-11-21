@@ -8,6 +8,7 @@ public import lint.LSysCall, lint.LJump;
 public import lint.LCall, lint.LInstList;
 public import target.TInstList, target.TFrame, target.TInstPaire;
 public import target.TReg, target.TLabel, target.TExp;
+public import lint.LCast;
 import std.container;
 
 abstract class TVisitor {
@@ -44,33 +45,36 @@ abstract class TVisitor {
 	assert (false, "TODO, visit (" ~ inst.toString () ~ ")");
     }
 
-    abstract protected TInstList visitJump (LJump jump);
+    abstract protected TInstList visitJump (LJump);
     
-    abstract protected TInstList visitSys (LSysCall sys);
+    abstract protected TInstList visitSys (LSysCall);
         
-    abstract protected TInstList visitGoto (LGoto elem);
+    abstract protected TInstList visitGoto (LGoto);
     
-    abstract protected TInstList visitWrite (LWrite write);
+    abstract protected TInstList visitWrite (LWrite);
 
     final protected TInstPaire visitExpression (LExp elem) {
 	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg);
-	else if (auto reg = cast(LReg) elem) return visit (reg);
-	else if (auto co = cast (LConst) elem) return visitConst (co);
-	else if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
-	else if (auto bin = cast (LBinop) elem) return visitBinop (bin);
-	else if (auto call = cast (LCall) elem) return visitCall (call);
+	if (auto reg = cast(LReg) elem) return visit (reg);
+	if (auto co = cast (LConst) elem) return visitConst (co);
+	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
+	if (auto bin = cast (LBinop) elem) return visitBinop (bin);
+	if (auto call = cast (LCall) elem) return visitCall (call);
+	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
 	assert (false, "TODO, visitExpression (LExp)");
     }
 
-    abstract protected TInstPaire visitRegRead (LRegRead reg);
+    abstract protected TInstPaire visitRegRead (LRegRead);
     
-    abstract protected TReg visitReg (LReg reg);
+    abstract protected TReg visitReg (LReg);
     
-    abstract protected TInstPaire visitBinop (LBinop bin);
+    abstract protected TInstPaire visitBinop (LBinop);
     
-    abstract protected TInstPaire visitBinopSized (LBinopSized bin);
+    abstract protected TInstPaire visitBinopSized (LBinopSized);
     
-    abstract protected  TInstPaire visitCall (LCall call);
+    abstract protected  TInstPaire visitCall (LCall);
+
+    abstract protected TInstPaire visitCast (LCast);
     
     final protected TInstPaire visitConst (LConst co) {
 	if (auto by = cast(LConstByte) (co))

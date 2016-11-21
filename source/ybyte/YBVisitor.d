@@ -4,7 +4,7 @@ import ybyte.YBBinop, ybyte.YBCall, ybyte.YBConst;
 import ybyte.YBFrame, ybyte.YBGoto, ybyte.YBJump;
 import ybyte.YBLabel, ybyte.YBParams, ybyte.YBReg;
 import ybyte.YBRegRead, ybyte.YBRet, ybyte.YBSize;
-import ybyte.YBSysCall, ybyte.YBWrite;
+import ybyte.YBSysCall, ybyte.YBWrite, ybyte.YBCast;
 import std.container;
 
 
@@ -122,6 +122,15 @@ class YBVisitor : TVisitor {
 	}
 	list += new YBCall (call.name);
 	return new TInstPaire (new YBReg (0, 8), list);
+    }
+
+    override protected TInstPaire visitCast (LCast _cast) {
+	auto list = new TInstList;
+	auto aux = new YBReg (LReg.lastId, _cast.size);
+	auto rlist = visitExpression (_cast.what);
+	list += rlist.what;
+	list += new YBCast (rlist.where, aux);
+	return new TInstPaire (aux, list);	
     }
     
     override protected TInstPaire visitConstByte (LConstByte by) {

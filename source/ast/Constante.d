@@ -37,7 +37,7 @@ class Char : Expression {
 	this._code = code;
     }
     
-    ubyte code () {
+    ref ubyte code () {
 	return this._code;
     }
     
@@ -135,7 +135,6 @@ class String : Expression {
     }
     
     override Expression expression () {
-	auto aux = new String (this._token, this._content);
 	ulong index = 0;
 	string begin = this._content, end = "";
 	while (begin != "") {
@@ -143,10 +142,11 @@ class String : Expression {
 	    if (s == -1) throw new UndefinedEscapeChar (this._token, index, begin [0 .. 2]);
 	    end ~= to!char (s);
 	}
-
+	
+	auto aux = new String (this._token, this._content);
 	aux._content = end;
 	aux.info = new Symbol (this._token, new StringInfo (), true);
-	return aux;
+	return aux;       
     }
 
     string content () {

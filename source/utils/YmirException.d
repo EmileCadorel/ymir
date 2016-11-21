@@ -72,6 +72,27 @@ class YmirException : Exception {
 	}
     } 
 
+    protected void addLine (ref OutBuffer buf, Location locus, ulong index, ulong length) {
+	auto line = getLine (locus);
+	if (line.length > 0) {
+	    auto j = 0;
+	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column + index],
+			Colors.YELLOW.value,
+			line[locus.column + index .. locus.column + index + length],
+			Colors.RESET.value,
+			line[locus.column + index + length .. $]);
+	    if (line[$-1] != '\n') buf.write ("\n");
+	    foreach (it ; 0 .. locus.column + index) {
+		if (line[it] == '\t') buf.write ('\t');
+		else buf.write (' ');
+	    }
+	    buf.writefln ("%s", rightJustify ("", length, '^'));
+	} else {
+	    buf.writeln ("Fin de fichier inattendue");
+	}
+    } 
+
+    
     void print () {
 	writeln (this.msg);
     }

@@ -1,9 +1,8 @@
 
 def main () {
-    let a = true;
-    if (a && true == false) {
-	system (print_s, "ici\n");
-    } else {
-	system (print_s, "la\n");
+    let a = 'a';
+    while (a < 'z') {
+	system (print_c, a);
+	let d = 1 !>= 'a';
     }
 }
