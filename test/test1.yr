@@ -1,10 +1,13 @@
 def print (str : string) {
-    let b = "Test\n";
-    system (print_s, str);
+    let i = 0;
+    while i < str.length {
+	    system (print_c, str [i]);
+	    i += 1;
+    }
 }
 
 
 def main () {
     print ("salut\n");
-    system (print_i, 90);
+    print ("comment\n");
 }

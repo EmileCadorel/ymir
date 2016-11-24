@@ -109,7 +109,7 @@ class YBVisitor : TVisitor {
 	auto op = bin.op;
 	auto right = visitExpression (bin.right);
 	auto left = visitExpression (bin.left);
-	auto res = new YBReg (LReg.lastId, bin.size);
+	auto res = new YBReg (TReg.lastId, bin.size);
 	auto inst = new TInstList;
 	inst += right.what + left.what;
 	inst += new YBBinop (op, left.where, right.where, res);
