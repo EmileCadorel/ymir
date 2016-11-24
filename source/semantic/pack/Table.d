@@ -28,8 +28,8 @@ class Table {
 	this._frameTable.front ().namespace = space;
     }
     
-    void enterFrame (string space) {
-	Symbol.insertLast ();
+    void enterFrame (string space, ulong nbParam) {
+	Symbol.insertLast (nbParam);
 	this._frameTable.insertFront (new FrameScope (space));
     }
     

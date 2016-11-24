@@ -73,8 +73,8 @@ class Symbol {
 	return this._id;
     }	
 
-    static void insertLast () {
-	__last__.insertFront (1);
+    static void insertLast (ulong nbParam) {
+	__last__.insertFront (nbParam + 1);
     }
 
     static ulong removeLast () {

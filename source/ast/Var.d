@@ -85,7 +85,7 @@ class TypedVar : Var {
 	auto aux = new TypedVar (this._token, this._type.asType ());
 	auto info = Table.instance.get (this._token.str);
 	if (info !is null) throw new ShadowingVar (this._token, info.sym);
-	aux.info = new Symbol (this._token, aux._type.info.type);
+	aux.info = new Symbol (false, this._token, aux._type.info.type, false);
 	Table.instance.insert (aux.info);
 	return aux;
     }
@@ -112,7 +112,7 @@ class Type : Var {
     
     this (Word word, InfoType info) {
 	super (word);
-	this._info = new Symbol (word, info);
+	this._info = new Symbol (false, word, info, true);
     }
 
     

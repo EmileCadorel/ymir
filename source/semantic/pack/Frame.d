@@ -88,11 +88,13 @@ class PureFrame : Frame {
 		name = "_YN" ~ to!string (name.length) ~ name;
 	    }
 	    
-	    Table.instance.enterFrame (name);
+	    Table.instance.enterFrame (name, this._function.params.length);
 
 	    Array!Var finalParams;
-	    foreach (it ; this._function.params) {
-		finalParams.insertBack (it.expression);
+	    foreach (it ; 0 .. this._function.params.length) {
+		auto info = this._function.params [it].expression;
+		finalParams.insertBack (info);
+		finalParams.back ().info.id = it + 1;
 		auto t = finalParams.back ().info.type.typeString ();
 		if (name != "main")
 		    name ~= to!string (t.length) ~ t[0];

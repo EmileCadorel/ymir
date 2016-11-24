@@ -21,7 +21,7 @@ class UnPureFrame : Frame {
 	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	    
-	Table.instance.enterFrame (name);
+	Table.instance.enterFrame (name, this._function.params.length);
 
 	Array!Var finalParams;
 	foreach (it; 0 .. this._function.params.length) {
@@ -30,6 +30,7 @@ class UnPureFrame : Frame {
 		finalParams.insertBack (var.expression);
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.typeString ();
+	    finalParams.back ().info.id = it + 1;
 	    name ~= to!string(t.length) ~ t[0];
 	}
 	
