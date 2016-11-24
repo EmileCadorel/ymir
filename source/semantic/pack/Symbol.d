@@ -1,7 +1,7 @@
 module semantic.pack.Symbol;
 import syntax.Word;
-import semantic.types.InfoType;
-import std.container;
+import semantic.types.InfoType, semantic.pack.Table;
+import std.container, lint.LInstList, lint.LReg;
 
 class Symbol {
 
@@ -14,14 +14,27 @@ class Symbol {
     this (Word word, InfoType type) {
 	this._sym = word;
 	this._type = type;
+	Table.instance.garbage (this);
     }
 
     this (Word word, InfoType type, bool isConst) {
 	this._sym = word;
 	this._type = type;
 	this._isConst = isConst;
+	Table.instance.garbage (this);
     }
-    
+
+    this (bool garbage, Word word, InfoType type, bool isConst) {
+	this._sym = word;
+	this._type = type;
+	this._isConst = isConst;
+    }
+   
+    bool isDestructible () {
+	if (this._type !is null) return this._type.isDestructible ();
+	return false;
+    }
+
     ref InfoType type () {
 	return this._type;
     }
@@ -32,6 +45,12 @@ class Symbol {
 
     void quit (string namespace) {
 	this._type.quit (namespace);
+    }
+
+    LInstList destruct () {
+	if (this._type.destruct !is null) {
+	    return this._type.destruct (new LInstList (new LReg (this._id, this._type.size)));
+	} else return new LInstList ();
     }
     
     string typeString () {

@@ -7,6 +7,10 @@ import ast.Var;
 
 class StringInfo : InfoType {
 
+    this () {
+	this._destruct = &StringUtils.InstDestruct;
+    }
+    
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);

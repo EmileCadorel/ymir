@@ -58,7 +58,7 @@ class Binary : Expression {
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) 
 	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-	aux.info = new Symbol (aux._token, type, false);
+	aux.info = new Symbol (false, aux._token, type, false);
 	return aux;
     }
 
@@ -82,7 +82,7 @@ class Binary : Expression {
 	    aux._isRight = true;
 	}
 	
-	aux.info = new Symbol (aux._token, type, true);
+	aux.info = new Symbol (false, aux._token, type, true);
 	return aux;	
     }
     

@@ -1,6 +1,7 @@
 module semantic.types.IntUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
+import lint.LSysCall, std.container, lint.LExp, lint.LConst;
 
 class IntUtils {
 
@@ -43,7 +44,5 @@ class IntUtils {
     static LInstList InstDXor (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXor int");
     }
-    
-    
-    
+        
 }

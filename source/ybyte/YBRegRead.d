@@ -4,17 +4,17 @@ import std.outbuffer;
 
 class YBRegRead : TExp {
 
-    private TReg _where;
+    private TExp _where;
     private ulong _begin;
     private int _size;
     
-    this (TReg where, ulong begin, int size) {
+    this (TExp where, ulong begin, int size) {
 	this._where = where;
 	this._begin = begin;
 	this._size = size;
     }
 
-    ref TReg where () {
+    ref TExp where () {
 	return this._where;
     }
 

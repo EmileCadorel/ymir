@@ -4,5 +4,6 @@
 docs.json
 __dummy.html
 *.o
+*.yb
 *.obj
 ymir

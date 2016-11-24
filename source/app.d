@@ -40,8 +40,8 @@ void main (string [] args) {
 	try {
 	    semanticTime (args[1]);
 	    auto list = lintTime ();
-
-	    // foreach (it ; list) {
+	    
+	    // 	    foreach (it ; list) {
 	    // 	writeln (it);
 	    // }
 

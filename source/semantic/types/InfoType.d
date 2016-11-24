@@ -31,6 +31,7 @@ class InfoType {
     private InstPreTreatment _rightTreatment = null;
     private InstComp _lintInst = null;
     private InstCompS _lintInstS = null;
+    protected InstCompS _destruct = null;
     private InstCompMult _lintInstMult = null;
     
     static InfoType function (Word, Expression[]) [string] creators;
@@ -91,7 +92,7 @@ class InfoType {
     InfoType clone () {
 	return null;
     }
-
+       
     ref InstPreTreatment leftTreatment () {
 	return this._leftTreatment;
     }
@@ -115,11 +116,19 @@ class InfoType {
     ref InstCompS lintInstS () {
 	return this._lintInstS;
     }
+
+    ref InstCompS destruct () {
+	return this._destruct;
+    }
+
+    bool isDestructible () {
+	return this._destruct != null;
+    }
     
     ref InstCompMult lintInstMult () {
 	return this._lintInstMult;
     }
-
+    
     LInstList lintInst (LInstList left, Array!LInstList rights) {
 	return this._lintInstMult (left, rights);
     }
@@ -130,6 +139,10 @@ class InfoType {
     
     LInstList lintInst (LInstList left) {
 	return this._lintInstS (left);
+    }
+    
+    LInstList destruct (LInstList elem) {
+	return this._destruct (elem);
     }
     
 }

@@ -75,7 +75,10 @@ class YBVisitor : TVisitor {
     }
 
     override protected TInstPaire visitRegRead (LRegRead reg) {
-	return new TInstPaire (new YBRegRead (visitReg (reg.data), reg.begin, reg.size), new TInstList);
+	auto inst = new TInstList;
+	auto paire = visitExpression (reg.data);
+	inst += paire.what;
+	return new TInstPaire (new YBRegRead (paire.where, reg.begin, reg.size), inst);
     }
 
     override protected TReg visitReg (LReg reg) {

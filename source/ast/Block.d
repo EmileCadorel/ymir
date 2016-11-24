@@ -2,7 +2,7 @@ module ast.Block;
 import ast.Instruction, ast.Declaration;
 import syntax.Word, semantic.pack.Table;
 import std.container, std.stdio, std.string, std.outbuffer;
-import utils.exception;
+import utils.exception, semantic.pack.Symbol;
 
 
 /**
@@ -14,6 +14,7 @@ class Block : Instruction {
 
     private Array!Declaration _decls;
     private Array!Instruction _insts;
+    private Array!Symbol _dest;
     
     this (Word word, Array!Declaration decls, Array!Instruction insts) {
 	super (word);
@@ -48,13 +49,19 @@ class Block : Instruction {
 	    }
 	}
 	
-	Table.instance.quitBlock ();
-	if (error > 0) throw new ErrorOccurs (error);
-	return new Block (this._token, decls, insts);
+	auto dest = Table.instance.quitBlock ();
+	if (error > 0) throw new ErrorOccurs (error);	
+	auto block = new Block (this._token, decls, insts);
+	block._dest = dest;
+	return block;	
     }
 
     override Instruction instruction () {
 	return this.block ();
+    }
+
+    Array!Symbol dest () {
+	return this._dest;
     }
     
     Array!Instruction insts () {

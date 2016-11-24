@@ -4,23 +4,23 @@ import std.outbuffer, std.conv;
 
 class LRegRead : LExp {
 
-    private LReg _data;
+    private LExp _data;
     private ulong _begin;
     private int _size;
 
-    this (LReg reg) {
+    this (LExp reg) {
 	this._data = reg;
 	this._begin = 0;
 	this._size = reg.size;
     }
     
-    this (LReg str, ulong begin, int size) {
+    this (LExp str, ulong begin, int size) {
 	this._data = str;
 	this._begin = begin;
 	this._size = size;
     }
 
-    ref LReg data () {
+    ref LExp data () {
 	return this._data;
     }
 

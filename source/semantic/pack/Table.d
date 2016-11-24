@@ -18,10 +18,10 @@ class Table {
 	}
     }
 
-    void quitBlock () {
+    Array!Symbol quitBlock () {
 	if (!this._frameTable.empty) {
-	    this._frameTable.front.quitBlock ();
-	}
+	    return this._frameTable.front.quitBlock ();
+	} return make!(Array!Symbol);
     }
 
     void setCurrentSpace (string space) {
@@ -53,6 +53,13 @@ class Table {
 	} else {
 	    this._frameTable.front.insert (info.sym.str, info);
 	}
+    }
+
+    void garbage (Symbol info) {
+	if (info !is null && info.isDestructible) info.setId ();
+	if (!this._frameTable.empty)
+	    this._frameTable.front.garbage (info);
+	else this._globalScope.garbage (info);
     }
 
     Symbol get (string name) {

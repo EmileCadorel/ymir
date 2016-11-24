@@ -39,17 +39,23 @@ class FrameScope {
 	this._local.insertFront (new Scope ());
     }
 
-    void quitBlock () {
+    Array!Symbol quitBlock () {
 	if (!this._local.empty) {
-	    this._local.front ().quit (this._namespace);
+	    auto ret = this._local.front ().quit (this._namespace);
 	    this._local.removeFront ();
+	    return ret;
 	}
+	return make!(Array!Symbol);
     }
 
     void insert (string name, Symbol info) {
 	this._local.front [name] = info;
     }
 
+    void garbage (Symbol info) {
+	this._local.front.garbage (info);
+    }
+    
     Symbol opIndex (string name) {
 	foreach (it ; this._local) {
 	    auto t = it [name];

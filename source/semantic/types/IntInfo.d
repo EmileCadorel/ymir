@@ -5,6 +5,9 @@ import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 
 class IntInfo : InfoType {
 
+    this () {
+    }
+    
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0) 
 	    throw new NotATemplate (token);

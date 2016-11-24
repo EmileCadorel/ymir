@@ -42,6 +42,11 @@ class LVisitor {
 	foreach (it ; block.insts) {
 	    visitInstruction (begin, end, retReg, it);
 	}
+	
+	foreach (it ; block.dest) {
+	    begin.insts += it.destruct ();
+	}
+	
 	begin.insts.clean ();	
 	end.insts.clean ();
     }
@@ -51,6 +56,10 @@ class LVisitor {
 	foreach (it ; block.insts) {
 	    visitInstruction (inst, end, retReg, it);
 	}
+	foreach (it ; block.dest) {
+	    inst += it.destruct ();
+	}
+	
 	inst.clean ();	
 	end.insts.clean ();
 	return inst;
@@ -198,15 +207,19 @@ class LVisitor {
 
     private LInstList visitStr (String elem) {
 	auto inst = new LInstList;
-	auto left = new LReg (8);
+	auto left = new LReg (elem.info.id, 8);
 	auto size = elem.content.length;
-	inst += (new LSysCall ("alloc", make!(Array!LExp) (new LConstQWord (size + 8)),
+	inst += (new LSysCall ("alloc", make!(Array!LExp) (new LConstQWord (size + 16)),
 			       left));
+
 	inst += (new LWrite (new LRegRead (left, 0, 8),
+			     new LConstQWord (1)));
+	
+	inst += (new LWrite (new LRegRead (left, 8, 8),
 			     new LConstQWord (size)));
 	
 	foreach (it ; 0 .. size) {
-	    inst += (new LWrite (new LRegRead (cast (LReg) left, it + 8, 1),
+	    inst += (new LWrite (new LRegRead (cast (LReg) left, it + 16, 1),
 				 new LConstByte (elem.content [it])));
 	}
 	inst += left;
@@ -280,7 +293,12 @@ class LVisitor {
     }
     
     private LInstList visitDot (Dot dot) {
-	return dot.info.type.lintInst (visitExpression (dot.left));
+	auto sym = new LReg (dot.info.id, dot.info.type.size);
+	auto inst = new LInstList;
+	auto right = dot.info.type.lintInst (visitExpression (dot.left));
+	inst += right;
+	inst += new LWrite (sym, right.getFirst ());
+	return inst;
     }
     
     private LInstList visitCast (Cast elem) {
