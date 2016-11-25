@@ -52,13 +52,13 @@ class StringInfo : InfoType {
 
     private InfoType Length () {
 	auto _int = new IntInfo ();
-	_int.lintInstS = &StringUtils.InstLength ;
+	_int.lintInst = &StringUtils.InstLength ;
 	return _int;
     }
 
     private InfoType Dup () {
 	auto str = new StringInfo ();
-	str.lintInstS = &StringUtils.InstDup;
+	str.lintInst = &StringUtils.InstDup;
 	return str;
     }
     

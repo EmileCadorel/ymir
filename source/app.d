@@ -2,7 +2,15 @@ import std.stdio, utils.YmirException;
 import syntax.Visitor, semantic.pack.FrameTable;
 import target.TFrame, ybyte.YBVisitor;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
-import std.container;
+import std.container, amd64.AMDVisitor, std.path;
+import syntax.Lexer;
+
+string file (string [] args) {
+    foreach (it ; args) {
+	if (extension (it) == ".yr") return it;
+    }
+    return null;
+}
 
 void semanticTime (string args) {
     Visitor visitor = new Visitor (args);
@@ -28,33 +36,40 @@ Array!LFrame lintTime () {
     return visitor.visit ();
 }
 
-Array!TFrame targetTime (Array!LFrame frames) {
-    TVisitor visitor = new YBVisitor ();
-    return visitor.target (frames);
+Array!TFrame targetTime (Array!LFrame frames, string [] args) {
+    TVisitor visitor;
+    foreach (it ; args) {
+	if (it == "-x64")  {
+	    visitor = new AMDVisitor ();
+	} else if (it == "-yb") {
+	    visitor = new YBVisitor ();
+	}
+    }
+    if (visitor !is null) 
+	return visitor.target (frames);
+    else return new AMDVisitor ().target (frames);    
 }
 
-
+void toFile (Array!TFrame frames, string [] args) {
+    auto file = File ("out.s", "w");
+    foreach (it ; frames) {
+	file.write (it.toString ());
+    }
+}
 
 void main (string [] args) {
-    if (args.length > 1) {
-	try {
-	    semanticTime (args[1]);
-	    auto list = lintTime ();
-	    
-	    // 	    foreach (it ; list) {
-	    // 	writeln (it);
-	    // }
-
-	    auto target = targetTime (list);
-	    foreach (it ; target) {
-		writeln (it);
-	    }
-	} catch (YmirException yme) {
-	    yme.print ();
-	} catch (ErrorOccurs occurs) {
-	    occurs.print ();
+    auto file = file (args);
+    try {
+	if (file is null) {
+	    throw new Exception ("Pas de fichier d'entree");
 	}
-    } else {
-	writeln ("Pas de fichier d'entree");
+	semanticTime (file);
+	auto list = lintTime ();
+	auto target = targetTime (list, args);
+	toFile (target, args);
+    } catch (YmirException yme) {
+	yme.print ();
+    } catch (ErrorOccurs occurs) {
+	occurs.print ();
     }
 }

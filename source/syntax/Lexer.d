@@ -1,12 +1,12 @@
 module syntax.Lexer;
 import syntax.Word;
-import syntax.Tokens;
+import syntax.Tokens, utils.YmirException;
 import std.container, std.traits;
 import std.stdio, std.file, std.string;
 
-class LexerError : Exception {
+class LexerError : YmirException {
     this (string filename) {
-	super (filename, " n'est pas un fichier");
+	super (filename ~ " n'est pas un fichier");
     }
 }
 

@@ -295,9 +295,9 @@ class LVisitor {
     private LInstList visitDot (Dot dot) {
 	auto sym = new LReg (dot.info.id, dot.info.type.size);
 	auto inst = new LInstList;
-	auto right = dot.info.type.lintInst (visitExpression (dot.left));
+	auto left = new LInstList (sym);
+	auto right = dot.info.type.lintInst (left, visitExpression (dot.left));
 	inst += right;
-	inst += new LWrite (sym, right.getFirst ());
 	return inst;
     }
     

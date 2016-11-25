@@ -59,7 +59,9 @@ class LLabel : LInst {
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
 	buf.writef ("lbl%s:", this._id);
-	buf.write (this._insts.toString ());	
+	if (this._insts !is null)
+	    buf.write (this._insts.toString ());
+	else buf.writefln ("");
 	return buf.toString ();
     }
     

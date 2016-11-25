@@ -60,7 +60,7 @@ abstract class TVisitor {
 	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
 	if (auto bin = cast (LBinop) elem) return visitBinop (bin);
 	if (auto call = cast (LCall) elem) return visitCall (call);
-	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
+	if (auto _cast = cast(LCast) elem) return visitCast (_cast);	
 	assert (false, "TODO, visitExpression (LExp)");
     }
 

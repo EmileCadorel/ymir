@@ -1,5 +1,5 @@
 module target.TExp;
 
 class TExp {
-    abstract int size ();
+    int size () { assert (false); }
 }

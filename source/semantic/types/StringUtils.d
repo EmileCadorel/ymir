@@ -26,7 +26,7 @@ class StringUtils {
 	return inst;
     }
     
-    static LInstList InstLength (LInstList list) {
+    static LInstList InstLength (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
 	inst += list;
@@ -51,7 +51,8 @@ class StringUtils {
 	LLabel fin = new LLabel ();
 	inst += new LJump (new LRegRead (cast (LReg) leftExp, 0, 8), faux);
 	inst += new LGoto (vrai);
-	vrai.insts = new LInstList (new LSysCall ("free", make!(Array!LExp) (leftExp)));	
+	vrai.insts = new LInstList ();
+	vrai.insts += new LSysCall ("free", make!(Array!LExp) (leftExp));	
 	vrai.insts += new LGoto (fin);
 	faux.insts = new LInstList (new LGoto (fin));
 	inst += vrai;
@@ -60,14 +61,14 @@ class StringUtils {
 	return inst;
     }
     
-    static LInstList InstDup (LInstList llist) {
+    static LInstList InstDup (LInstList left, LInstList llist) {
 	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
+	auto aux = left.getFirst (), leftExp = llist.getFirst ();
 	inst += llist;
 	auto size = new LReg (8);
 	inst += new LBinop (new LRegRead (leftExp, 8, 8),
 			    new LConstQWord (16), size, Tokens.PLUS);
-	auto aux = new LReg (8);
+	
 	inst += new LSysCall ("alloc", make!(Array!LExp) (size), aux);
 	inst += (new LWrite (new LRegRead (aux, 0, 8),  new LConstQWord (1)));
 	
