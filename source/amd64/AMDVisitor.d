@@ -127,13 +127,15 @@ class AMDVisitor : TVisitor {
     }
     
     override protected TInstPaire visitBinop  (LBinop lbin) {
+	if (lbin.op == Tokens.DIV) return visitBinopDiv (lbin);
+	else if (lbin.op == Tokens.PERCENT) return visitBinopMod (lbin);
 	auto inst = new TInstList;
 	auto left = visitExpression (lbin.left);
 	auto right = visitExpression (lbin.right);
 	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj)right.where).sizeAmd));
 	inst += right.what;
-	inst += new AMDMove (cast (AMDObj)right.where, auxr);
 	inst += left.what;
+	inst += new AMDMove (cast (AMDObj)right.where, auxr);
 	auto auxl = new AMDReg (REG.getReg ("r10", (cast(AMDObj)left.where).sizeAmd));
 	inst += new AMDMove (cast (AMDObj)left.where, auxl);
 	inst += new AMDBinop (auxl, auxr, lbin.op);	    
@@ -149,6 +151,55 @@ class AMDVisitor : TVisitor {
 	}
     }
 
+    private TInstPaire visitBinopDiv (LBinop lbin) {
+	auto rax = new AMDReg (REG.getReg ("rax"));
+	auto inst = new TInstList;
+	auto left = visitExpression (lbin.left);
+	auto right = visitExpression (lbin.right);
+	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj) right.where).sizeAmd));
+	inst += right.what;
+	inst += left.what;
+	inst += new AMDMove (cast (AMDObj) right.where, auxr);
+	inst += new AMDMove (cast (AMDObj) left.where, rax);
+	inst += new AMDCqto;
+	inst += new AMDUnop (auxr, lbin.op);
+	if (lbin.res !is null) {	       
+	    auto fin = visitExpression (lbin.res);
+	    inst += fin.what;
+	    inst += new AMDMove (rax, cast (AMDObj) fin.where);
+	    return new TInstPaire (fin.where, inst);
+	} else {
+	    AMDObj fin = new AMDReg (auxr.sizeAmd);
+	    inst += new AMDMove (rax, fin);
+	    return new TInstPaire (fin, inst);
+	}
+    }
+
+    private TInstPaire visitBinopMod (LBinop lbin) {
+	auto rax = new AMDReg (REG.getReg ("rax"));
+	auto inst = new TInstList;
+	auto left = visitExpression (lbin.left);
+	auto right = visitExpression (lbin.right);
+	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj) right.where).sizeAmd));
+	inst += right.what;
+	inst += left.what;
+	inst += new AMDMove (cast (AMDObj) right.where, auxr);
+	inst += new AMDMove (cast (AMDObj) left.where, rax);
+	inst += new AMDCqto;
+	inst += new AMDUnop (auxr, Tokens.DIV);
+	auto rdx = new AMDReg (REG.getReg ("rdx"));
+	if (lbin.res !is null) {	       
+	    auto fin = visitExpression (lbin.res);
+	    inst += fin.what;
+	    inst += new AMDMove (rdx, cast (AMDObj) fin.where);
+	    return new TInstPaire (fin.where, inst);
+	} else {
+	    AMDObj fin = new AMDReg (auxr.sizeAmd);
+	    inst += new AMDMove (rdx, fin);
+	    return new TInstPaire (fin, inst);
+	}	
+    }
+    
     override protected TInstPaire visitBinopSized (LBinopSized lbin) {
 	auto inst = new TInstList;
 	auto right = visitExpression (lbin.left);
@@ -156,8 +207,8 @@ class AMDVisitor : TVisitor {
 	auto auxl = new AMDReg (REG.getReg ("r10", (cast(AMDObj)left.where).sizeAmd));
 	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj)right.where).sizeAmd));
 	inst += right.what;
-	inst += new AMDMove (cast (AMDObj)right.where, auxr);
 	inst += left.what;
+	inst += new AMDMove (cast (AMDObj)right.where, auxr);
 	inst += new AMDMove (cast (AMDObj)left.where, auxl);
 	inst += new AMDBinop (auxl, auxr, Tokens.DEQUAL);	
 	auto fin = new AMDReg (getSize (lbin.size));

@@ -14,6 +14,7 @@ class AMDGlobal : TInst {
     }    
 }
 
+
 enum AMDTypes : string {
     FUNCTION = "@function"
 }
@@ -143,5 +144,11 @@ class AMDInstSize : TInst {
 class AMDRet : TInst {
     override string toString () {
 	return "\tret";
+    }
+}
+
+class AMDCqto : TInst {
+    override string toString () {
+	return "\tcqto";
     }
 }

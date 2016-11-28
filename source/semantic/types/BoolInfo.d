@@ -1,5 +1,6 @@
 module semantic.types.BoolInfo;
 import syntax.Word, ast.Expression;
+import semantic.types.CharInfo;
 import semantic.types.InfoType, utils.exception;
 import syntax.Tokens, semantic.types.BoolUtils;
 
@@ -44,6 +45,11 @@ class BoolInfo : InfoType {
 
     override InfoType CastOp (InfoType other) {
 	if (cast(BoolInfo)other) return this;
+	else if (cast (CharInfo) other) {
+	    auto aux = new CharInfo;
+	    aux.lintInstS = &BoolUtils.InstCastChar ;
+	    return aux;
+	}
 	return null;
     }
     

@@ -1,6 +1,7 @@
 module semantic.types.IntInfo;
 import syntax.Word, ast.Expression;
 import semantic.types.InfoType, semantic.types.IntUtils;
+import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 
 class IntInfo : InfoType {
@@ -56,6 +57,15 @@ class IntInfo : InfoType {
 
     override InfoType CastOp (InfoType other) {
 	if (cast(IntInfo)other !is null) return this;
+	else if (cast(BoolInfo) other !is null) {
+	    auto aux = new BoolInfo;
+	    aux.lintInstS = &IntUtils.InstCastBool;
+	    return aux;
+	} else if (cast (CharInfo) other !is null) {
+	    auto aux = new CharInfo;
+	    aux.lintInstS = &IntUtils.InstCastChar;
+	    return aux;
+	}
 	return null;
     }
     

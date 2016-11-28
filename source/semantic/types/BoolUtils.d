@@ -19,5 +19,9 @@ class BoolUtils {
 	inst += (new LBinop (leftExp, rightExp, op));
 	return inst;
     }
-        
+
+    static LInstList InstCastChar (LInstList llist) {
+	return llist;
+    }
+    
 }

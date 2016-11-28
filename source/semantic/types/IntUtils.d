@@ -2,6 +2,7 @@ module semantic.types.IntUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
 import lint.LSysCall, std.container, lint.LExp, lint.LConst;
+import lint.LCast;
 
 class IntUtils {
 
@@ -54,6 +55,22 @@ class IntUtils {
 	return inst;
     }
 
+    static LInstList InstCastChar (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += left;
+	inst += new LCast (left, 1);
+	return inst;
+    }
+    
+    static LInstList InstCastBool (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += left;
+	inst += new LCast (left, 1);
+	return inst;
+    }
+    
     static LInstList InstDXorAff (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXorAff int");
     }

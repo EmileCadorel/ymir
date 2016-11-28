@@ -17,6 +17,8 @@ class AMDUnop : TInst {
 	else if (this._op == Tokens.NOT_EQUAL) return "setne";
 	else if (this._op == Tokens.SUP) return "setg";
 	else if (this._op == Tokens.SUP_EQUAL) return "setge";
+	else if (this._op == Tokens.DEQUAL) return "sete";
+	else if (this._op == Tokens.DIV) return "idiv";
 	assert (false, "TODO " ~ this._op.descr);
     }
 
