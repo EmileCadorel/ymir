@@ -89,6 +89,8 @@ abstract class TVisitor {
 	    return visitConstFloat (lf);
 	else if (auto ld = cast(LConstDouble) (co))
 	    return visitConstDouble (ld);
+	else if (auto cstr = cast (LConstString) (co))
+	    return visitConstString (cstr);
 	assert (false, "TODO, visitConst (LConst co)");
     }
 
@@ -103,6 +105,8 @@ abstract class TVisitor {
     abstract protected TInstPaire visitConstFloat (LConstFloat);
 
     abstract protected TInstPaire visitConstDouble (LConstDouble);
+
+    abstract protected TInstPaire visitConstString (LConstString);
     
     abstract protected TInstPaire visit (LReg reg);    
     

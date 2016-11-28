@@ -10,11 +10,42 @@ class StringUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
+	if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
 	inst += new LWrite (leftExp, rightExp);
 	inst += new LBinop (new LRegRead (cast (LReg)leftExp, 0, 8), new LConstQWord (1), new LRegRead (cast (LReg)leftExp, 0, 8), Tokens.PLUS); // Nb ref	
 	return inst;
     }
 
+    private static LInstList affectConstString (LInstList inst, LExp leftExp, LConstString rightExp) {
+	auto aux = leftExp;
+	auto size = new LReg (8);
+	inst += new LBinop (new LConstQWord (rightExp.value.length),
+			    new LConstQWord (16), size, Tokens.PLUS);
+	inst += new LSysCall ("alloc", make!(Array!LExp) (size), aux);
+	inst += (new LWrite (new LRegRead (aux, 0, 8), new LConstQWord (1)));
+	inst += (new LWrite (new LRegRead (aux, 8, 8), new LConstQWord (rightExp.value.length)));
+	auto i = new LReg (8);
+	auto cst = new LReg (8);
+	inst += new LWrite (cst, rightExp);
+	inst += new LWrite (i, new LConstQWord (rightExp.value.length));
+	auto faux = new LLabel, vrai = new LLabel, debut = new LLabel ();
+	faux.insts = new LInstList;
+	vrai.insts = new LInstList;
+	debut.insts = new LInstList;
+	inst += debut;
+	inst += new LJump (i, vrai);
+	inst += new LGoto (faux);
+	vrai.insts += new LWrite (new LRegRead (new LBinop (aux, new LBinop (i, new LConstQWord (15), Tokens.PLUS), Tokens.PLUS), 0, 8),
+				  new LRegRead (new LBinop (leftExp, i, Tokens.PLUS), 0, 8));
+
+	vrai.insts += new LBinop (i, new LConstQWord (1), i, Tokens.MINUS);
+	vrai.insts += new LGoto (debut);
+	inst += vrai;
+	inst += faux;
+	inst += aux;
+	return inst;
+    }
+    
     static LInstList InstAccessS (LInstList llist, Array!LInstList rlists) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();

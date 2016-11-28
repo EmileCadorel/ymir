@@ -7,3 +7,5 @@ __dummy.html
 *.yb
 *.obj
 ymir
+*.s
+a.out

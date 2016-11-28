@@ -206,24 +206,7 @@ class LVisitor {
     }
 
     private LInstList visitStr (String elem) {
-	auto inst = new LInstList;
-	auto left = new LReg (elem.info.id, 8);
-	auto size = elem.content.length;
-	inst += (new LSysCall ("alloc", make!(Array!LExp) (new LConstQWord (size + 16)),
-			       left));
-
-	inst += (new LWrite (new LRegRead (left, 0, 8),
-			     new LConstQWord (1)));
-	
-	inst += (new LWrite (new LRegRead (left, 8, 8),
-			     new LConstQWord (size)));
-	
-	foreach (it ; 0 .. size) {
-	    inst += (new LWrite (new LRegRead (cast (LReg) left, it + 16, 1),
-				 new LConstByte (elem.content [it])));
-	}
-	inst += left;
-	return inst;
+	return new LInstList (new LConstString (elem.content));
     }
     
     private LInstList visitVar (Var elem) {

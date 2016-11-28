@@ -1,16 +1,9 @@
 
 def main () {
-    let str = "comment\n", i = 0;
-    let a = "salut\n", b = 0;
-    while (b < a.length) {
-    	system (putchar, a[b]);
-    	b += 1;
+    let b = 9;
+    while (b >= 0) {
+	system (print_c, b + '0');
+	system (print_c, '\n');
+	b -= 1;
     }
-
-    while (i < str.length) {
-    	system (putchar, str [i]);
-    	i += 1;
-    }
-
-    
 }

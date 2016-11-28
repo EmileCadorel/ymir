@@ -159,6 +159,10 @@ class YBVisitor : TVisitor {
     override protected TInstPaire visitConstDouble (LConstDouble ld) {
 	return new TInstPaire (new YBConstDouble (ld.value), new TInstList);
     }
+
+    override protected TInstPaire visitConstString (LConstString ls) {
+	assert (false, "TODO");
+    }
     
     override protected TInstPaire visit (LReg reg) {
 	if (reg !is null) {

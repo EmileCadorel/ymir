@@ -145,7 +145,7 @@ class String : Expression {
 	
 	auto aux = new String (this._token, this._content);
 	aux._content = end;
-	aux.info = new Symbol (this._token, new StringInfo (), true);
+	aux.info = new Symbol (false, this._token, new StringInfo (), true);
 	return aux;       
     }
 

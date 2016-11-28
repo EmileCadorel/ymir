@@ -3,7 +3,7 @@ import syntax.Visitor, semantic.pack.FrameTable;
 import target.TFrame, ybyte.YBVisitor;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
-import syntax.Lexer;
+import syntax.Lexer, target.TRodata;
 
 string file (string [] args) {
     foreach (it ; args) {
@@ -52,6 +52,12 @@ Array!TFrame targetTime (Array!LFrame frames, string [] args) {
 
 void toFile (Array!TFrame frames, string [] args) {
     auto file = File ("out.s", "w");
+    file.write ("\t.section .rodata\n");
+    foreach (it ; TRodata.insts.inst) {
+	file.write (it);
+    }
+    
+    file.write ("\t.text\n");
     foreach (it ; frames) {
 	file.write (it.toString ());
     }

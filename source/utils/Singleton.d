@@ -4,8 +4,9 @@ mixin template Singleton (T) {
     static ref T instance () {
 	if (inst is null) inst = new T;
 	return inst;
-    }   
-private:
+    }
+    
+protected:
 
     this () {}    
     static T inst = null;

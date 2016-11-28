@@ -13,6 +13,10 @@ class AMDUnop : TInst {
 
     private string opInt () {
 	if (this._op == Tokens.INF) return "setl";
+	else if (this._op == Tokens.INF_EQUAL) return "setle";
+	else if (this._op == Tokens.NOT_EQUAL) return "setne";
+	else if (this._op == Tokens.SUP) return "setg";
+	else if (this._op == Tokens.SUP_EQUAL) return "setge";
 	assert (false, "TODO " ~ this._op.descr);
     }
 
@@ -40,7 +44,8 @@ class AMDBinop : TInst {
     private string opInt () {
 	if (this._op == Tokens.MINUS) return "sub";
 	else if (this._op == Tokens.PLUS) return "add";
-	else if (this._op == Tokens.DEQUAL) return "cmp";	
+	else if (this._op == Tokens.DEQUAL) return "cmp";
+	else if (this._op == Tokens.STAR) return "imul";
 	assert (false, "TODO " ~ this._op.descr);
     }
 
