@@ -64,6 +64,17 @@ abstract class TVisitor {
 	assert (false, "TODO, visitExpression (LExp)");
     }
 
+    final protected TInstPaire visitExpression (LExp elem, TExp where) {
+	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg, where);
+	if (auto reg = cast(LReg) elem) return visit (reg, where);
+	if (auto co = cast (LConst) elem) return visitConst (co, where);
+	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin, where);
+	if (auto bin = cast (LBinop) elem) return visitBinop (bin, where);
+	if (auto call = cast (LCall) elem) return visitCall (call, where);
+	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);	
+	assert (false, "TODO, visitExpression (LExp)");
+    }
+    
     abstract protected TInstPaire visitRegRead (LRegRead);
     
     abstract protected TReg visitReg (LReg);
@@ -75,6 +86,30 @@ abstract class TVisitor {
     abstract protected  TInstPaire visitCall (LCall);
 
     abstract protected TInstPaire visitCast (LCast);
+
+    protected TInstPaire visitRegRead (LRegRead, TExp) {
+	assert (false);
+    }
+    
+    protected TReg visitReg (LReg, TExp) {
+	assert (false);
+    }
+    
+    protected TInstPaire visitBinop (LBinop, TExp) {
+	assert (false);
+    }
+    
+    protected TInstPaire visitBinopSized (LBinopSized, TExp) {
+	assert (false);
+    }
+    
+    protected  TInstPaire visitCall (LCall, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitCast (LCast, TExp) {
+	assert (false);
+    }
     
     final protected TInstPaire visitConst (LConst co) {
 	if (auto by = cast(LConstByte) (co))
@@ -93,7 +128,7 @@ abstract class TVisitor {
 	    return visitConstString (cstr);
 	assert (false, "TODO, visitConst (LConst co)");
     }
-
+    
     abstract protected TInstPaire visitConstByte (LConstByte);
 
     abstract protected TInstPaire visitConstWord (LConstWord);
@@ -109,5 +144,55 @@ abstract class TVisitor {
     abstract protected TInstPaire visitConstString (LConstString);
     
     abstract protected TInstPaire visit (LReg reg);    
+
+    final protected TInstPaire visitConst (LConst co, TExp where) {
+	if (auto by = cast(LConstByte) (co))
+	    return visitConstByte (by, where);
+	else if (auto w = cast (LConstWord) (co)) 
+	    return visitConstWord (w, where);
+	else if (auto dw = cast(LConstDWord) (co))
+	    return visitConstDWord (dw, where);
+	else if (auto qw = cast(LConstQWord) (co))
+	    return visitConstQWord (qw, where);
+	else if (auto lf = cast(LConstFloat) (co))
+	    return visitConstFloat (lf, where);
+	else if (auto ld = cast(LConstDouble) (co))
+	    return visitConstDouble (ld, where);
+	else if (auto cstr = cast (LConstString) (co))
+	    return visitConstString (cstr, where);
+	assert (false, "TODO, visitConst (LConst co)");
+    }
+    
+    protected TInstPaire visitConstByte (LConstByte, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstWord (LConstWord, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstDWord (LConstDWord, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstQWord (LConstQWord, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstFloat (LConstFloat, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstDouble (LConstDouble, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitConstString (LConstString, TExp) {
+	assert (false);
+    }
+    
+    protected TInstPaire visit (LReg reg, TExp) {
+	assert (false);
+    }
     
 }

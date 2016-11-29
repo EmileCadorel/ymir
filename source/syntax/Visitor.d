@@ -25,7 +25,8 @@ class Visitor {
 	this._lex = new Lexer (file,
 			       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
 			      [[Tokens.LCOMM1, Tokens.RCOMM1],
-			       [Tokens.LCOMM2, Tokens.RETOUR]]);
+			       [Tokens.LCOMM2, Tokens.RETOUR],
+			        [Tokens.LCOMM3, Tokens.RCOMM3]]);
 
 	this._ultimeOp = [Tokens.DIV_AFF, Tokens.AND_AFF, Tokens.PIPE_EQUAL,
 			  Tokens.MINUS_AFF, Tokens.PLUS_AFF, Tokens.LEFTD_AFF,

@@ -21,6 +21,10 @@ class AMDRegInfo {
 	this._reg = reg;
     }
 
+    string name () {
+	return this._subs [0].name;
+    }
+    
     R* opBinaryRight (string op : "in") (AMDSize size) {
 	foreach (ref it ; this._subs) {
 	    if (it.size == size) return &it;
@@ -42,7 +46,11 @@ class AMDRegInfo {
 	    else if (other.name == name) return true;
 	}
 	return false;
-    }    
+    }
+    
+    static R empty (AMDSize size) {
+	return R (size, "");
+    }	
 }
 
 alias REG = AMDRegTable.instance;
@@ -51,6 +59,7 @@ alias REG = AMDRegTable.instance;
 class AMDRegTable {
 
     private static AMDRegInfo [string] __table__;
+    private static bool [string] __free__;
     private static AMDRegInfo [] __params__;
     private static Array!AMDRegInfo __aux__;
     private static Array!AMDReg __auxFlaot__;
@@ -85,6 +94,10 @@ class AMDRegTable {
 		      __table__ ["r8"],
 		      __table__ ["r9"]];
 
+	__aux__.insertBack (__table__["rbx"]);
+	__aux__.insertBack (__table__["rcx"]);
+	__aux__.insertBack (__table__["r8"]);
+	__aux__.insertBack (__table__["r9"]);
 	__aux__.insertBack (__table__["r10"]);
 	__aux__.insertBack (__table__["r11"]);
 	__aux__.insertBack (__table__["r12"]);
@@ -95,7 +108,16 @@ class AMDRegTable {
 
     static R getReg (string name, AMDSize size = AMDSize.QWORD) {
 	auto elem = (name in __table__);
-	if (elem is null) assert (false, "Pas de registre " ~ name);
+	if (elem is null) {
+	    foreach (key, value ; __table__) {
+		if (name in value) {
+		    auto reg = (size in value);
+		    if (reg is null) assert (false, "Pas de registre " ~ name);
+		    return *reg;
+		}
+	    }
+	    assert (false, "Pas de registre " ~ name);
+	}
 	else {
 	    auto reg = (size in *elem);
 	    if (reg is null) assert (false, "Pas de registre " ~ name);
@@ -108,13 +130,45 @@ class AMDRegTable {
 	    auto reg = (size in (__params__ [nb]));
 	    if (reg is null) assert (false);
 	    return *reg;
-	} assert (false, "TODO");
+	} return AMDRegInfo.empty (size);
     }
 
+    static R getSwap (AMDSize size = AMDSize.QWORD) {
+	auto elem = (size in __table__ ["r14"]);
+	if (elem !is null) return *elem;
+	else assert (false);
+    }
+    
+    static R aux (AMDSize size = AMDSize.QWORD) {
+	if (size == AMDSize.SPREC || size == AMDSize.DPREC) assert (false, "TODO");
+	foreach (reg ; __aux__) {
+	    auto inside = (reg.name in __free__);	    
+	    if (inside is null || *inside) {
+		__free__ [reg.name] = false;
+		auto it = (size in reg);
+		return *it;
+	    }
+	}
+	return AMDRegInfo.empty (size);
+    }
+
+    static void free (AMDReg elem) {
+	if (elem.isStd) {
+	    __free__ [elem.name] = true;
+	}
+    }
+    
+    static void free (string name) {
+	__free__ [name] = true;
+    }
+
+    static void freeAll () {
+	__free__.clear ();
+    }
+    
     mixin Singleton!AMDRegTable;
     
 }
-
 
 class AMDReg : AMDObj {
 
@@ -129,9 +183,16 @@ class AMDReg : AMDObj {
     static ulong __lastId__;
     
     this (R info) {
-	this._isStd = true;
-	this._name = info.name;
-	this._size = info.size;
+	if (info.name !is null) {
+	    this._isStd = true;
+	    this._name = info.name;
+	    this._size = info.size;
+	} else {
+	    this._isStd = false;
+	    this._id = lastId ();
+	    this._size = info.size;
+	    this.toAsm ();
+	}
     }
     
     this (ulong id, AMDSize size) {
@@ -208,6 +269,24 @@ class AMDReg : AMDObj {
     static void resetOff () {
 	__offsets__.clear ();
 	__globalOffset__ = 0;
+    }
+    
+    void resize (AMDSize size) {
+	if (this._isStd) {
+	    auto info = REG.getReg (this._name, size);
+	    this._name = info.name;
+	    this._size = info.size;	    
+	} else {
+	    this._size = size;
+	}
+    }
+
+    AMDReg clone (AMDSize size) {
+	if (this._isStd) {	    
+	    return new AMDReg (REG.getReg (this._name, size));
+	} else {
+	    return new AMDReg (this._id, size);
+	}
     }
     
     override AMDSize sizeAmd () {

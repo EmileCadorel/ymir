@@ -31,6 +31,10 @@ class LBinop : LExp {
     LExp res () {
 	return this._res;
     }
+
+    override int size () {
+	return this._left.size;
+    }
     
     Tokens op () {
 	return this._op;

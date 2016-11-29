@@ -69,7 +69,9 @@ enum Tokens : Token {
     LCOMM2 = Token ("//", 62),
     GUILL = Token ("\"", 63),
     APOS = Token ("'", 64),
-    TAB = Token ("\t", 65)
+	TAB = Token ("\t", 65),
+	LCOMM3 = Token ("/*", 66),
+	RCOMM3 = Token ("*/", 67)
 }    
 
 

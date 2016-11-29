@@ -1,9 +1,5 @@
 
 def main () {
-    let a = 1234;
-    while (a > 0) {
-	let b = a % 10;
-	system (print_c, b + '0');
-	a /= 10;
-    } 
+    let a = 3 - 2;
+    system (print_c, a + '0');
 }

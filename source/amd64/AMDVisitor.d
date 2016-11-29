@@ -125,95 +125,72 @@ class AMDVisitor : TVisitor {
     override protected TReg visitReg (LReg) {
 	assert (false, "TODO");
     }
+
+    override protected TInstPaire visitBinop (LBinop lbin) {
+	auto size = getSize (lbin.left.size);
+	auto where = new AMDReg (REG.aux (size));
+	if (size == AMDSize.BYTE) return visitBinopByte (lbin, where);
+	else if (size == AMDSize.WORD) return visitBinopWord (lbin, where);
+	else if (size == AMDSize.DWORD) return visitBinopDWord (lbin, where);
+	else if (size == AMDSize.QWORD) return visitBinopQWord (lbin, where);
+	else assert (false, "TODO");	
+    }
     
-    override protected TInstPaire visitBinop  (LBinop lbin) {
-	if (lbin.op == Tokens.DIV) return visitBinopDiv (lbin);
-	else if (lbin.op == Tokens.PERCENT) return visitBinopMod (lbin);
-	auto inst = new TInstList;
-	auto left = visitExpression (lbin.left);
-	auto right = visitExpression (lbin.right);
-	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj)right.where).sizeAmd));
-	inst += right.what;
-	inst += left.what;
-	inst += new AMDMove (cast (AMDObj)right.where, auxr);
-	auto auxl = new AMDReg (REG.getReg ("r10", (cast(AMDObj)left.where).sizeAmd));
-	inst += new AMDMove (cast (AMDObj)left.where, auxl);
-	inst += new AMDBinop (auxl, auxr, lbin.op);	    
-	if (lbin.res !is null) {	       
-	    auto fin = visitExpression (lbin.res);
-	    inst += fin.what;
-	    inst += new AMDMove (auxr, cast (AMDObj) fin.where);
-	    return new TInstPaire (fin.where, inst);
-	} else {
-	    AMDObj fin = new AMDReg (auxr.sizeAmd);
-	    inst += new AMDMove (auxr, fin);
-	    return new TInstPaire (fin, inst);
-	}
+    override protected TInstPaire visitBinop  (LBinop lbin, TExp where) {
+	auto size = getSize (lbin.left.size);
+	if (size == AMDSize.BYTE) return visitBinopByte (lbin, where);
+	else if (size == AMDSize.WORD) return visitBinopWord (lbin, where);
+	else if (size == AMDSize.DWORD) return visitBinopDWord (lbin, where);
+	else if (size == AMDSize.QWORD) return visitBinopQWord (lbin, where);
+	else assert (false, "TODO");
     }
 
-    private TInstPaire visitBinopDiv (LBinop lbin) {
-	auto rax = new AMDReg (REG.getReg ("rax"));
-	auto inst = new TInstList;
-	auto left = visitExpression (lbin.left);
-	auto right = visitExpression (lbin.right);
-	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj) right.where).sizeAmd));
-	inst += right.what;
-	inst += left.what;
-	inst += new AMDMove (cast (AMDObj) right.where, auxr);
-	inst += new AMDMove (cast (AMDObj) left.where, rax);
-	inst += new AMDCqto;
-	inst += new AMDUnop (auxr, lbin.op);
-	if (lbin.res !is null) {	       
-	    auto fin = visitExpression (lbin.res);
-	    inst += fin.what;
-	    inst += new AMDMove (rax, cast (AMDObj) fin.where);
-	    return new TInstPaire (fin.where, inst);
-	} else {
-	    AMDObj fin = new AMDReg (auxr.sizeAmd);
-	    inst += new AMDMove (rax, fin);
-	    return new TInstPaire (fin, inst);
+    private TInstPaire visitBinopByte (LBinop lbin, TExp twhere) {
+	auto ret = new TInstList;
+	bool free = false;
+	auto where = cast (AMDReg) twhere;
+	where.resize (AMDSize.BYTE);
+	auto laux = new AMDReg (REG.aux (AMDSize.BYTE));
+	auto lpaire = visitExpression (lbin.left, laux);
+	if (laux != lpaire.where) {
+	    free = true;
+	    REG.free (laux);
 	}
+	auto rpaire = visitExpression (lbin.right, where);
+	ret += lpaire.what + rpaire.what;
+	if (!free) REG.free (laux);
+	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	return new TInstPaire (where, ret);
     }
 
-    private TInstPaire visitBinopMod (LBinop lbin) {
-	auto rax = new AMDReg (REG.getReg ("rax"));
-	auto inst = new TInstList;
-	auto left = visitExpression (lbin.left);
-	auto right = visitExpression (lbin.right);
-	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj) right.where).sizeAmd));
-	inst += right.what;
-	inst += left.what;
-	inst += new AMDMove (cast (AMDObj) right.where, auxr);
-	inst += new AMDMove (cast (AMDObj) left.where, rax);
-	inst += new AMDCqto;
-	inst += new AMDUnop (auxr, Tokens.DIV);
-	auto rdx = new AMDReg (REG.getReg ("rdx"));
-	if (lbin.res !is null) {	       
-	    auto fin = visitExpression (lbin.res);
-	    inst += fin.what;
-	    inst += new AMDMove (rdx, cast (AMDObj) fin.where);
-	    return new TInstPaire (fin.where, inst);
-	} else {
-	    AMDObj fin = new AMDReg (auxr.sizeAmd);
-	    inst += new AMDMove (rdx, fin);
-	    return new TInstPaire (fin, inst);
-	}	
+    private TInstPaire visitBinopWord (LBinop lbin, TExp where) {
+	assert (false, "TODO");
+    }
+
+    private TInstPaire visitBinopDWord (LBinop lbin, TExp where) {
+	assert (false, "TODO");
+    }
+
+    private TInstPaire visitBinopQWord (LBinop lbin, TExp twhere) {
+	auto ret = new TInstList;
+	bool free = false;
+	auto where = cast (AMDReg) twhere;
+	where.resize (AMDSize.QWORD);
+	auto laux = new AMDReg (REG.aux ());
+	auto lpaire = visitExpression (lbin.left, laux);
+	if (laux != lpaire.where) {
+	    free = true;
+	    REG.free (laux);
+	}
+	auto rpaire = visitExpression (lbin.right, where);
+	ret += lpaire.what + rpaire.what;
+	if (!free) REG.free (laux);
+	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	return new TInstPaire (where, ret);
     }
     
     override protected TInstPaire visitBinopSized (LBinopSized lbin) {
-	auto inst = new TInstList;
-	auto right = visitExpression (lbin.left);
-	auto left = visitExpression (lbin.right);
-	auto auxl = new AMDReg (REG.getReg ("r10", (cast(AMDObj)left.where).sizeAmd));
-	auto auxr = new AMDReg (REG.getReg ("r11", (cast(AMDObj)right.where).sizeAmd));
-	inst += right.what;
-	inst += left.what;
-	inst += new AMDMove (cast (AMDObj)right.where, auxr);
-	inst += new AMDMove (cast (AMDObj)left.where, auxl);
-	inst += new AMDBinop (auxl, auxr, Tokens.DEQUAL);	
-	auto fin = new AMDReg (getSize (lbin.size));
-	inst += new AMDUnop (fin, lbin.op);
-	return new TInstPaire (fin, inst);
+	assert (false, "TODO");
     }
 
     override protected TInstPaire visitCall (LCall) {
@@ -230,10 +207,26 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (res, inst);
     }
 
+    override protected TInstPaire visitCast (LCast cst, TExp texp) {
+	auto reg = cast (AMDReg) texp;
+	auto inst = new TInstList;
+	reg.resize (getSize (cst.what.size));
+	auto exp = visitExpression (cst.what, reg);
+	inst += exp.what;
+	if (exp.where != reg)
+	    inst += new AMDMove (cast (AMDObj) exp.where, reg);
+	auto aux = reg.clone (getSize (cst.size));
+	return new TInstPaire (aux, inst);
+    }
+    
     override protected TInstPaire visitConstByte (LConstByte val) {
 	return new TInstPaire (new AMDConstByte (val.value), new TInstList);
     }
 
+    override protected TInstPaire visitConstByte (LConstByte val, TExp) {
+	return visitConstByte (val);
+    }
+    
     override protected TInstPaire visitConstWord (LConstWord) {
 	assert (false, "TODO");
     }
@@ -246,6 +239,10 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
     }
 
+    override protected TInstPaire visitConstQWord (LConstQWord val, TExp) {
+	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
+    }
+    
     override protected TInstPaire visitConstFloat (LConstFloat) {
 	assert (false, "TODO");
     }
@@ -263,4 +260,8 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (new AMDReg (reg.id, getSize (reg.size)), new TInstList);
     }
 
+    override protected TInstPaire  visit (LReg reg, TExp) {
+	return visit (reg);
+    }
+    
 }

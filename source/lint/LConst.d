@@ -51,6 +51,10 @@ class LConstQWord : LConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 8;
+    }
+    
     long value () { return this._value; }
     
 }

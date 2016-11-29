@@ -11,7 +11,7 @@ class LExp : LInst {
     }
 
     int size () {
-	assert (false);
+	assert (false, typeid (this).toString());
     }
     
 }
