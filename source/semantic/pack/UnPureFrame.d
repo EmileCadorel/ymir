@@ -17,12 +17,12 @@ class UnPureFrame : Frame {
 	this._name = func.ident.str;
     }
 
-    override FinalFrame validate (ParamList params) {
+    override FrameProto validate (ParamList params) {
 	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
-	    
+	
 	Table.instance.enterFrame (name, this._function.params.length);
-
+	
 	Array!Var finalParams;
 	foreach (it; 0 .. this._function.params.length) {
 	    if (cast(TypedVar)this._function.params [it] is null) {
@@ -35,30 +35,39 @@ class UnPureFrame : Frame {
 	}
 	
 	Table.instance.setCurrentSpace (name);
-	auto fr = FrameTable.instance.existFinal (name);
-	if (fr is null) {	
+	
+	auto proto = FrameTable.instance.existProto (name);
+	    
+	if (proto is null) {
+	    
 	    if (this._function.type is null) {
 		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
-	    }	
-
+	    }
+	    
+	    proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+		
 	    auto block = this._function.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    }
 
-	    fr =  new FinalFrame (Table.instance.retInfo.info,
+	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
 				       name,
 				       finalParams, block);
-	
-	    FrameTable.instance.insert (fr);	
+
+	    proto.type = Table.instance.retInfo.info;
+	    
+	    FrameTable.instance.insert (fr);
+	    FrameTable.instance.insert (proto);
+	    
 	    fr.last = Table.instance.quitFrame ();
-	    return fr;
+	    return proto;
 	}
 	
 	Table.instance.quitFrame ();
-	return fr;
+	return proto;
     }
     
 }

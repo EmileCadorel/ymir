@@ -1,11 +1,14 @@
 
-def test () {
-    system (print_c, 'i');
-    return '0';
+def fibo (n : int) {
+    if (n < 2) return n;
+    else return fibo (n - 1) + fibo (n - 2);
 }
 
 def main () {
-    let a = '1';
-    a = test ();
-    system (print_c, a);
+    let a = fibo (7);
+    while (a > 0) {
+	let b = a % 10;
+	system (print_c, b + '0');
+	a /= 10;
+    }
 }

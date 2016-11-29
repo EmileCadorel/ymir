@@ -20,11 +20,11 @@ class Frame {
 	this._namespace = namespace;
     }
 
-    FinalFrame validate () {
+    FrameProto validate () {
 	assert (false);
     }
 
-    FinalFrame validate (ParamList params) {
+    FrameProto validate (ParamList params) {
 	assert (false);
     }
 
@@ -67,7 +67,7 @@ class PureFrame : Frame {
 
     private string _name;
     private string _namespace;
-    private FinalFrame _fr;
+    private FrameProto _fr;
     private bool valid = false;
     
     this (string namespace, Function func) {
@@ -75,11 +75,11 @@ class PureFrame : Frame {
 	this._name = func.ident.str;
     }
 
-    override FinalFrame validate (ParamList) {
+    override FrameProto validate (ParamList) {
 	return this.validate ();
     }
     
-    override FinalFrame validate () {
+    override FrameProto validate () {
 	if (!valid) {
 	    valid = true;
 	    string name = this._name;
@@ -99,26 +99,33 @@ class PureFrame : Frame {
 		if (name != "main")
 		    name ~= to!string (t.length) ~ t[0];
 	    }
-
+	    
+	    
 	    Table.instance.setCurrentSpace (name);
 	
 	    if (this._function.type is null) {
 		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
-	    }	
-
+	    }
+	    
+	    this._fr = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+					  
 	    auto block = this._function.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    }
 
-	    this._fr =  new FinalFrame (Table.instance.retInfo.info,
+	    auto finFrame =  new FinalFrame (Table.instance.retInfo.info,
 				       name,
 				       finalParams, block);
-	
-	    FrameTable.instance.insert (this._fr);	
-	    this._fr.last = Table.instance.quitFrame ();
+	    
+	    this._fr.type = Table.instance.retInfo.info;
+	    
+	    FrameTable.instance.insert (finFrame);	
+	    FrameTable.instance.insert (this._fr);
+	    
+	    finFrame.last = Table.instance.quitFrame ();
 	    return this._fr;
 	}
 	return this._fr;
@@ -162,3 +169,29 @@ class FinalFrame {
 	return this._block;
     }
 }
+
+
+class FrameProto {
+    private string _name;
+    private Symbol _type;
+    private Array!Var _vars;
+
+    this (string name, Symbol type, Array!Var params) {
+	this._name = name;
+	this._type = type;
+	this._vars = params;
+    }
+
+    ref string name () {
+	return this._name;	
+    }
+
+    ref Symbol type () {
+	return this._type;
+    }
+
+    ref Array!Var vars () {
+	return this._vars;
+    }       
+}
+

@@ -135,12 +135,15 @@ class AMDVisitor : TVisitor {
 
     override protected TInstPaire visitBinop (LBinop lbin) {
 	auto size = getSize (lbin.left.size);
+	TInstPaire ret;
 	auto where = new AMDReg (REG.aux (size));
-	if (size == AMDSize.BYTE) return visitBinopByte (lbin, where);
-	else if (size == AMDSize.WORD) return visitBinopWord (lbin, where);
-	else if (size == AMDSize.DWORD) return visitBinopDWord (lbin, where);
-	else if (size == AMDSize.QWORD) return visitBinopQWord (lbin, where);
-	else assert (false, "TODO");	
+	if (size == AMDSize.BYTE) ret = visitBinopByte (lbin, where);
+	else if (size == AMDSize.WORD) ret = visitBinopWord (lbin, where);
+	else if (size == AMDSize.DWORD) ret = visitBinopDWord (lbin, where);
+	else if (size == AMDSize.QWORD) ret = visitBinopQWord (lbin, where);
+	else assert (false, "TODO");
+	REG.freeAll ();
+	return ret;
     }
     
     override protected TInstPaire visitBinop  (LBinop lbin, TExp where) {
@@ -181,8 +184,15 @@ class AMDVisitor : TVisitor {
     private TInstPaire visitBinopQWord (LBinop lbin, TExp twhere) {
 	auto ret = new TInstList;
 	bool free = false;
-	auto where = cast (AMDReg) twhere;
-	where.resize (AMDSize.QWORD);
+	AMDReg where; 
+	if (lbin.res is null) {
+	    where = cast (AMDReg) twhere;
+	    where.resize (AMDSize.QWORD);
+	} else {
+	    auto wh = visitExpression (lbin.res);
+	    ret += wh.what;
+	    where = cast (AMDReg) wh.where;
+	}
 	auto laux = new AMDReg (REG.aux ());
 	auto lpaire = visitExpression (lbin.left, laux);
 	if (laux != lpaire.where) {
@@ -197,7 +207,22 @@ class AMDVisitor : TVisitor {
     }
     
     override protected TInstPaire visitBinopSized (LBinopSized lbin) {
-	assert (false, "TODO");
+	auto ret = new TInstList;
+	bool free = false;
+	auto where = new AMDReg (REG.aux (getSize (lbin.size)));
+	where.resize (AMDSize.QWORD);
+	auto laux = new AMDReg (REG.aux ());
+	auto lpaire = visitExpression (lbin.left, laux);
+	if (laux != lpaire.where) {
+	    free = true;
+	    REG.free (laux);
+	}
+	auto rpaire = visitExpression (lbin.right, where);
+	ret += lpaire.what + rpaire.what;
+	if (!free) REG.free (laux);
+	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	REG.free (where);
+	return new TInstPaire (where, ret);
     }
 
     override protected TInstPaire visitCall (LCall lcall) {
