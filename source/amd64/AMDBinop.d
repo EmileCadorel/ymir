@@ -145,7 +145,7 @@ class AMDBinop : TInst {
 	    this._insts += new AMDCqto;
 	    if (ret != rreg)
 		this._insts += new AMDMove (this._right, ret);
-	    this._insts += new AMDUnop (this._res, Tokens.DIV);
+	    this._insts += new AMDUnop (ret, Tokens.DIV);
 	}
 	this._insts += new AMDMove (rax, this._res);	
     }

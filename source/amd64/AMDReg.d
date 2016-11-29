@@ -49,7 +49,7 @@ class AMDRegInfo {
     }
     
     static R empty (AMDSize size) {
-	return R (size, "");
+	return R (size, null);
     }	
 }
 
@@ -271,8 +271,8 @@ class AMDReg : AMDObj {
 	__globalOffset__ = 0;
     }
     
-    void resize (AMDSize size) {
-	if (this._isStd) {
+    void resize (AMDSize size) {	
+	if (this._isStd && !this._isOff) {
 	    auto info = REG.getReg (this._name, size);
 	    this._name = info.name;
 	    this._size = info.size;	    
