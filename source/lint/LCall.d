@@ -6,10 +6,12 @@ class LCall : LExp {
 
     private string _frame;
     private Array!LExp _params;
+    private int _size;
     
-    this (string frame, Array!LExp params) {
+    this (string frame, Array!LExp params, int size) {
 	this._frame = frame;
 	this._params = params;
+	this._size = size;
     }
 
     Array!LExp params () {
@@ -18,6 +20,10 @@ class LCall : LExp {
 
     string name () {
 	return this._frame;
+    }
+
+    override int size () {
+	return this._size;
     }
     
     override bool isInst () {

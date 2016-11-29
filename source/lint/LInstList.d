@@ -30,7 +30,10 @@ class LInstList {
     
     LExp getFirst () {
 	if (!this._inst.empty) {
-	    return this._inst.back ().getFirst ();
+	    auto ret = this._inst.back ().getFirst ();
+	    if (cast (LExp) this._inst.back ()) 
+		this._inst.removeBack ();
+	    return ret;
 	} else return null;
     }
     

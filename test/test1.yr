@@ -1,5 +1,11 @@
 
+def test () {
+    system (print_c, 'i');
+    return '0';
+}
+
 def main () {
-    let a = 7 / 2;
-    system (print_c, a + '0');
+    let a = '1';
+    a = test ();
+    system (print_c, a);
 }

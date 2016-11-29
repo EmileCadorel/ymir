@@ -253,14 +253,8 @@ class LVisitor {
 	    list += elist;
 	}
 	
-	auto call = new LCall (par.score.name, exprs);
-	if (cast (VoidInfo) par.score.ret is null) {
-	    auto res = new LReg (8);
-	    list += new LWrite (res, call);
-	}
-	else 
-	    list += call;
-	
+	auto call = new LCall (par.score.name, exprs, par.score.ret.size);
+	list += call;	
 	return list;
     }
 
