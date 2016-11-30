@@ -33,7 +33,7 @@ class Frame {
     }
     
     ApplicationScore isApplicable (ParamList params) {
-	auto score = new ApplicationScore ();
+	auto score = new ApplicationScore (this._function.ident);
 	if (params.params.length == 0 && this._function.params.length == 0) {
 	    score.score = 10; return score;
 	} else if (params.params.length == this._function.params.length) {

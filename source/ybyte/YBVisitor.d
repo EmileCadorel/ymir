@@ -135,6 +135,10 @@ class YBVisitor : TVisitor {
 	list += new YBCast (rlist.where, aux);
 	return new TInstPaire (aux, list);	
     }
+
+    override protected TInstPaire visitUnop (LUnop op) {
+	assert (false, "TODO");
+    }
     
     override protected TInstPaire visitConstByte (LConstByte by) {
 	return new TInstPaire (new YBConstByte (by.value), new TInstList);

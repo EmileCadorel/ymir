@@ -2,7 +2,7 @@ module semantic.types.IntUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
 import lint.LSysCall, std.container, lint.LExp, lint.LConst;
-import lint.LCast;
+import lint.LCast, lint.LUnop;
 
 class IntUtils {
 
@@ -58,7 +58,7 @@ class IntUtils {
     static LInstList InstCastChar (LInstList llist) {
 	auto inst = new LInstList;
 	auto left = llist.getFirst;
-	inst += left;
+	inst += llist;
 	inst += new LCast (left, 1);
 	return inst;
     }
@@ -66,8 +66,16 @@ class IntUtils {
     static LInstList InstCastBool (LInstList llist) {
 	auto inst = new LInstList;
 	auto left = llist.getFirst;
-	inst += left;
+	inst += llist;
 	inst += new LCast (left, 1);
+	return inst;
+    }
+    
+    static LInstList InstUnop (Tokens op) (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst ();
+	inst += llist;
+	inst += new LUnop (left, op);
 	return inst;
     }
     

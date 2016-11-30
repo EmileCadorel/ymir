@@ -8,4 +8,8 @@ class UndefInfo : InfoType {
 	return "undef";
     }
 
+    override InfoType clone () {
+	return new UndefInfo ();
+    }
+    
 }

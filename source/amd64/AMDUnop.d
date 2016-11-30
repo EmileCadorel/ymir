@@ -12,9 +12,10 @@ class AMDUnop : TInst {
 	this._obj = obj;
 	this._op = op;
     }
-
+    
     private string opInt () {
-	if (this._op == Tokens.DIV) return "div";
+	if (this._op == Tokens.DIV) return "idiv";
+	else if (this._op == Tokens.MINUS) return "neg";
 	else assert (false);
     }
 
@@ -33,3 +34,4 @@ class AMDUnop : TInst {
     
     
 }
+

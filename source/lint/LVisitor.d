@@ -202,9 +202,14 @@ class LVisitor {
 	if (auto _access = cast (Access) elem) return visitAccess (_access);
 	if (auto _dot = cast (Dot) elem) return visitDot (_dot);
 	if (auto _bool = cast (Bool) elem) return visitBool (_bool);
+	if (auto _unop = cast (BefUnary) elem) return visitBefUnary (_unop);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitBefUnary (BefUnary unary) {
+	return unary.info.type.lintInst (visitExpression (unary.elem));
+    }
+    
     private LInstList visitStr (String elem) {
 	return new LInstList (new LConstString (elem.content));
     }

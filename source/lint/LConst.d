@@ -15,6 +15,10 @@ class LConstByte : LConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 1;
+    }
+    
     byte value () { return this._value; }
     
 }

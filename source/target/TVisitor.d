@@ -8,7 +8,7 @@ public import lint.LSysCall, lint.LJump;
 public import lint.LCall, lint.LInstList;
 public import target.TInstList, target.TFrame, target.TInstPaire;
 public import target.TReg, target.TLabel, target.TExp;
-public import lint.LCast;
+public import lint.LCast, lint.LUnop;
 import std.container;
 
 abstract class TVisitor {
@@ -60,7 +60,8 @@ abstract class TVisitor {
 	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
 	if (auto bin = cast (LBinop) elem) return visitBinop (bin);
 	if (auto call = cast (LCall) elem) return visitCall (call);
-	if (auto _cast = cast(LCast) elem) return visitCast (_cast);	
+	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
+	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop);
 	assert (false, "TODO, visitExpression (LExp)");
     }
 
@@ -71,7 +72,8 @@ abstract class TVisitor {
 	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin, where);
 	if (auto bin = cast (LBinop) elem) return visitBinop (bin, where);
 	if (auto call = cast (LCall) elem) return visitCall (call, where);
-	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);	
+	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);
+	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop, where);
 	assert (false, "TODO, visitExpression (LExp)");
     }
     
@@ -86,6 +88,8 @@ abstract class TVisitor {
     abstract protected  TInstPaire visitCall (LCall);
 
     abstract protected TInstPaire visitCast (LCast);
+
+    abstract protected TInstPaire visitUnop (LUnop);
 
     protected TInstPaire visitRegRead (LRegRead, TExp) {
 	assert (false);
@@ -108,6 +112,10 @@ abstract class TVisitor {
     }
 
     protected TInstPaire visitCast (LCast, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitUnop (LUnop, TExp) {
 	assert (false);
     }
     

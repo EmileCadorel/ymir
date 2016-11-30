@@ -55,6 +55,15 @@ class IntInfo : InfoType {
 	}
     }
 
+    override InfoType UnaryOp (Word op) {
+	if (op == Tokens.MINUS) {
+	    auto ret = new IntInfo ();
+	    ret.lintInstS = &IntUtils.InstUnop !(Tokens.MINUS);
+	    return ret;
+	}
+	return null;
+    }
+    
     override InfoType CastOp (InfoType other) {
 	if (cast(IntInfo)other !is null) return this;
 	else if (cast(BoolInfo) other !is null) {

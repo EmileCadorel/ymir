@@ -6,7 +6,7 @@ import semantic.types.CharInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
-import ast.Var;
+import ast.Var, semantic.types.VoidInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -19,7 +19,13 @@ class ApplicationScore {
 	this.score = 0;
     }
 
+    this (Word token) {
+	this.score = 0;
+	this.token = token;
+    }
+    
     long score;
+    Word token;
     string name;
     InfoType ret;
     Array!InstPreTreatment treat;	
@@ -41,7 +47,8 @@ class InfoType {
 		    "bool" : &BoolInfo.create,
 		    "string" : &StringInfo.create,
 		    "float" : &FloatInfo.create,
-		    "char" : &CharInfo.create];
+		    "char" : &CharInfo.create,
+		    "void" : &VoidInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {
@@ -77,6 +84,10 @@ class InfoType {
 	return null;
     }
     
+    InfoType UnaryOp (Word token) {
+	return null;
+    }
+
     InfoType AccessOp (Word, ParamList) {
 	return null;
     }

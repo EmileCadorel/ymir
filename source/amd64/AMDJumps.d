@@ -26,3 +26,19 @@ class AMDJe : TInst {
     }
     
 }
+
+
+class AMDJne : TInst {
+
+    private ulong _id;
+
+    this (ulong id) {
+	this._id = id;
+    }
+
+    override string toString () {
+	return "\tjne\tLBL" ~ to!string (this._id);
+    }
+    
+}
+

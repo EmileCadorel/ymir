@@ -1,14 +1,17 @@
 
-def fibo (n : int) {
-    if (n < 2) return n;
-    else return fibo (n - 1) + fibo (n - 2);
+def print_int(num) : void {
+    let a = num;
+    if (num < 0) {
+	system (print_c, '-');	
+	print_int (- num);
+    } else {  
+	if (num > 9)
+	    print_int (num / 10);
+       	system (print_c, ((a % 10) + '0'));
+    }
 }
 
 def main () {
-    let a = fibo (7);
-    while (a > 0) {
-	let b = a % 10;
-	system (print_c, b + '0');
-	a /= 10;
-    }
+    let a = -1030;
+    print_int (a);
 }

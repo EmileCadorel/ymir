@@ -4,7 +4,7 @@ import amd64.AMDStd, amd64.AMDConst, amd64.AMDLabel;
 import amd64.AMDMove, amd64.AMDBinop;
 import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
-import amd64.AMDCast, amd64.AMDCall;
+import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
 
 class AMDVisitor : TVisitor {
 
@@ -66,11 +66,9 @@ class AMDVisitor : TVisitor {
 	auto inst = new TInstList;
 	auto exp = visitExpression (lj.test);
 	inst += exp.what;
-	if ((cast (AMDObj)exp.where).sizeAmd == AMDSize.BYTE) 
-	    inst += new AMDBinop (new AMDConstByte (1), cast (AMDObj)exp.where, Tokens.DEQUAL);
-	else if ((cast (AMDObj)exp.where).sizeAmd == AMDSize.QWORD) 
-	    inst += new AMDBinop (new AMDConstQWord (1), cast (AMDObj)exp.where, Tokens.DEQUAL);
-	inst += new AMDJe (lj.id);
+	auto reg = (cast (AMDReg) exp.where).clone (AMDSize.BYTE);
+	inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);	
+	inst += new AMDJne (lj.id);
 	return inst;
     }
 
@@ -280,6 +278,30 @@ class AMDVisitor : TVisitor {
 	    inst += new AMDMove (cast (AMDObj) exp.where, reg);
 	auto aux = reg.clone (getSize (cst.size));
 	return new TInstPaire (aux, inst);
+    }
+
+
+    override protected TInstPaire visitUnop (LUnop unop) {
+	auto inst = new TInstList;
+	auto res = new AMDReg (REG.getReg ("r14", getSize (unop.size)));
+	auto exp = visitExpression (unop.elem, res);
+	inst += exp.what;
+	if (res != exp.where)
+	    inst += new AMDMove (cast (AMDObj) exp.where, res);
+	inst += new AMDUnop (res, unop.op);
+	return new TInstPaire (res, inst);
+    }
+
+    override protected TInstPaire visitUnop (LUnop unop, TExp where) {
+	auto inst = new TInstList;
+	auto res = cast (AMDReg) where;
+	res.resize (getSize (unop.size));
+	auto exp = visitExpression (unop.elem, res);
+	inst += exp.what;
+	if (res != exp.where)
+	    inst += new AMDMove (cast (AMDObj) exp.where, res);
+	inst += new AMDUnop (res, unop.op);
+	return new TInstPaire (res, inst);
     }
     
     override protected TInstPaire visitConstByte (LConstByte val) {

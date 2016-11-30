@@ -32,7 +32,7 @@ class FrameScope {
     }
 
     ~this () {
-	this.quitBlock ();
+	//	this.quitBlock ();
     }
     
     void enterBlock () {
@@ -53,7 +53,8 @@ class FrameScope {
     }
 
     void garbage (Symbol info) {
-	this._local.front.garbage (info);
+	if (!this._local.empty)
+	    this._local.front.garbage (info);
     }
     
     Symbol opIndex (string name) {

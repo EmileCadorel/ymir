@@ -35,6 +35,10 @@ class Par : Expression {
 	
 	aux._score = type;
 	aux._info = new Symbol (this._token, type.ret, true);
+	if (cast (UndefInfo) type.ret) {
+	    throw new TemplateInferType (aux._left.token, aux._score.token);
+	}
+	
 	return aux;
     }
     

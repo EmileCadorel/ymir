@@ -60,6 +60,19 @@ class UndefinedOp : YmirException {
 	msg = buf.toString();        
     }
 
+    this (Word token, Symbol left) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis pour le types '%s%s%s' :",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
+	
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+
+    
     this (Word token, Symbol left, ParamList right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -232,4 +245,21 @@ class TemplateCreation : YmirException {
 
     }
 
+}
+
+class TemplateInferType : YmirException {
+    this (Word token, Word func) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sError%s : Reference vers un type de retour deduis pour l'appel : ",
+		   Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+
+	buf.writef ("%s:(%d,%d): ", func.locus.file, func.locus.line, func.locus.column);
+	buf.writefln ("%sNote%s : type deduis de la fonction :",
+		      Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, func.locus);	
+	msg = buf.toString ();
+    }
 }
