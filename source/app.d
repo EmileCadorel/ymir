@@ -3,7 +3,8 @@ import syntax.Visitor, semantic.pack.FrameTable;
 import target.TFrame, ybyte.YBVisitor;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
-import syntax.Lexer, target.TRodata;
+import syntax.Lexer, target.TRodata, std.process;
+import std.algorithm;
 
 string file (string [] args) {
     foreach (it ; args) {
@@ -51,15 +52,18 @@ Array!TFrame targetTime (Array!LFrame frames, string [] args) {
 }
 
 void toFile (Array!TFrame frames, string [] args) {
-    auto file = File ("out.s", "w");
-    file.write ("\t.section .rodata\n");
-    foreach (it ; TRodata.insts.inst) {
-	file.write (it);
-    }
+    if (find (args, "-yb") == []) {
+	auto file = File ("out.s", "w");
+	file.write ("\t.section .rodata\n");
+	foreach (it ; TRodata.insts.inst) {
+	    file.write (it);
+	}
     
-    file.write ("\t.text\n");
-    foreach (it ; frames) {
-	file.write (it.toString ());
+	file.write ("\t.text\n");
+	foreach (it ; frames) {
+	    file.write (it.toString ());
+	}
+	spawnProcess (["gcc", "out.s"]);
     }
 }
 
@@ -70,7 +74,7 @@ void main (string [] args) {
 	    throw new Exception ("Pas de fichier d'entree");
 	}
 	semanticTime (file);
-	auto list = lintTime ();
+	auto list = lintTime ();	
 	auto target = targetTime (list, args);
 	toFile (target, args);
     } catch (YmirException yme) {

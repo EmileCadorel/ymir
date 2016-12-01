@@ -1,0 +1,12 @@
+
+def printInt (num : int) : void {
+    let a = num;
+    if (num < 0) {
+	system (print_c, '-');	
+	printInt (- num);
+    } else {  
+	if (num > 9)
+	    printInt (num / 10);
+       	system (print_c, ((a % 10) + '0'));
+    }
+}

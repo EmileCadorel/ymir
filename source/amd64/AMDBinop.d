@@ -122,8 +122,9 @@ class AMDBinop : TInst {
 	    this._insts += new AMDCmp (this._right, ret);
 	    this._insts += new AMDSet (fin, type);
 	}
-	if (this._res == ret)
-	    this._insts += new AMDMove (ret, this._res); 
+	auto aux = fin.clone (this._res.sizeAmd);
+	if (this._res != aux)
+	    this._insts += new AMDMove (aux, this._res); 
     }
 
     private void opDiv () {	

@@ -51,7 +51,7 @@ class IntUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (leftExp, rightExp, op, 1));
+	inst += (new LBinop (leftExp, rightExp, op));
 	return inst;
     }
 

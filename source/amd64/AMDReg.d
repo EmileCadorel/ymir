@@ -257,7 +257,7 @@ class AMDReg : AMDObj {
 	    }
 	    o = __globalOffset__ + abs (this._size.size);
 	    __offsets__ [this._id] = o;
-	    __globalOffset__ += o;
+	    __globalOffset__ = o;
 	} else o = *off;
 	auto r = REG.getReg ("rbp");
 	this._isStd = true;

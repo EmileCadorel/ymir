@@ -1,17 +1,39 @@
 
-def print_int(num) : void {
+def print (a : bool) {
+    if (a) {
+	print ('t');
+	print ('r');
+	print ('u');
+	print ('e');
+    } else {
+    	print ('f');
+	print ('a');
+	print ('l');
+	print ('s');
+	print ('e');
+    }
+}
+
+def print (a : char) {
+    system (print_c, a);
+}
+
+def print (num : int) : void {
     let a = num;
     if (num < 0) {
 	system (print_c, '-');	
-	print_int (- num);
+	print (- num);
     } else {  
 	if (num > 9)
-	    print_int (num / 10);
+	    print (num / 10);
        	system (print_c, ((a % 10) + '0'));
     }
 }
 
 def main () {
-    let a = -1030;
-    print_int (a);
+    let  a = 1 + 1 == 2;
+    if (a) {
+	print (a);
+    }
+    print ('\n');
 }

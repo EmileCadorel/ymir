@@ -9,6 +9,7 @@ import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
 class AMDVisitor : TVisitor {
 
     override protected TFrame visit (LFrame frame) {
+	AMDReg.resetOff ();
 	auto rbp = new AMDReg (REG.getReg ("rbp")), rsp = new AMDReg (REG.getReg ("rsp"));
 	AMDReg.lastId = frame.lastId;
 	auto stack = new AMDConstQWord (0);
@@ -182,10 +183,10 @@ class AMDVisitor : TVisitor {
     private TInstPaire visitBinopQWord (LBinop lbin, TExp twhere) {
 	auto ret = new TInstList;
 	bool free = false;
-	AMDReg where; 
+	AMDReg where;
 	if (lbin.res is null) {
 	    where = cast (AMDReg) twhere;
-	    where.resize (AMDSize.QWORD);
+	    //where.resize (AMDSize.QWORD);
 	} else {
 	    auto wh = visitExpression (lbin.res);
 	    ret += wh.what;
@@ -223,6 +224,24 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (where, ret);
     }
 
+    override protected TInstPaire visitBinopSized (LBinopSized lbin, TExp twhere) {
+	auto ret = new TInstList;
+	bool free = false;	
+	auto where = (cast (AMDReg) twhere);
+	where.resize (AMDSize.QWORD);
+	auto laux = new AMDReg (REG.aux ());
+	auto lpaire = visitExpression (lbin.left, laux);
+	if (laux != lpaire.where) {
+	    free = true;
+	    REG.free (laux);
+	}
+	auto rpaire = visitExpression (lbin.right, where);
+	ret += lpaire.what + rpaire.what;
+	if (!free) REG.free (laux);
+	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	return new TInstPaire (where, ret);
+    }
+    
     override protected TInstPaire visitCall (LCall lcall) {
 	auto inst = new TInstList;
 	auto call = new AMDCall (lcall.name);
