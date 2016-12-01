@@ -1,39 +1,18 @@
-
-def print (a : bool) {
-    if (a) {
-	print ('t');
-	print ('r');
-	print ('u');
-	print ('e');
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
     } else {
-    	print ('f');
-	print ('a');
-	print ('l');
-	print ('s');
-	print ('e');
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
     }
 }
 
-def print (a : char) {
-    system (print_c, a);
-}
-
-def print (num : int) : void {
-    let a = num;
-    if (num < 0) {
-	system (print_c, '-');	
-	print (- num);
-    } else {  
-	if (num > 9)
-	    print (num / 10);
-       	system (print_c, ((a % 10) + '0'));
-    }
+def fibo (n) {
+    if (n < 2) return n;
+    else return fibo (n - 1) + fibo (n - 2);
 }
 
 def main () {
-    let  a = 1 + 1 == 2;
-    if (a) {
-	print (a);
-    }
-    print ('\n');
+    print (fibo (13));
 }

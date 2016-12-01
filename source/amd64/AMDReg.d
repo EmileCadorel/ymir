@@ -231,6 +231,21 @@ class AMDReg : AMDObj {
 	return this._name;
     }
 
+    override bool opEquals (Object other) {
+	auto reg = cast (AMDReg) other;
+	if (!reg) return false;
+	else {
+	    if (this._isOff) {
+		if (!reg._isOff || reg._offset != this._offset || this._name != reg._name)
+		    return false;
+		return true;
+	    } else if (this._isStd) {
+		if (!reg._isStd || reg._name != this._name) return false;
+		return true;	
+	    } else return reg._id == this._id;
+	}
+    }
+    
     static ulong globalOff () {
 	return __globalOffset__;
     }

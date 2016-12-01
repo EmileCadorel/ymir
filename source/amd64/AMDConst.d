@@ -19,6 +19,27 @@ class AMDConstByte : AMDObj {
     
 }
 
+class AMDConstDWord : AMDObj {
+    private long _value;
+
+    this (long value) {
+	this._value = value;
+    }
+
+    ref long value () {
+	return this._value;
+    }
+    
+    override AMDSize sizeAmd () {
+	return AMDSize.DWORD;
+    }
+
+    override string toString () {
+	return "$" ~ to!string (this._value);
+    }    
+}
+
+
 class AMDConstQWord : AMDObj {
     private long _value;
 

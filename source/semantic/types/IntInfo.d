@@ -161,7 +161,7 @@ class IntInfo : InfoType {
     }    
 
     override int size () {
-	return 8;
+	return 4;
     }
     
 }

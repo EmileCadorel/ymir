@@ -7,6 +7,8 @@ final:
 clean:
 	dub clean
 	rm ymir
+	rm a.out
+	rm out.s
 
 install: all
 	mv ymir ${HOME}/libs/ymir

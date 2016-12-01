@@ -228,7 +228,7 @@ class LVisitor {
     }
     
     private LInstList visitInt (Int elem) {
-	return new LInstList (new LConstQWord (to!int (elem.token.str)));
+	return new LInstList (new LConstDWord (to!int (elem.token.str)));
     }
     
     private LInstList visitFloat (Float elem) {

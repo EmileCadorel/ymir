@@ -7,7 +7,7 @@ alias SizeTuple = Tuple!(string, "id", int, "size");
 enum AMDSize : SizeTuple {
     BYTE = SizeTuple ("b", 1),
     WORD = SizeTuple ("w", 2),
-    DWORD = SizeTuple ("d", 4),
+    DWORD = SizeTuple ("l", 4),
     QWORD = SizeTuple ("q", 8),
     SPREC = SizeTuple ("sp", -4),
 	DPREC = SizeTuple ("dp", -8),

@@ -122,6 +122,7 @@ class AMDBinop : TInst {
 	    this._insts += new AMDCmp (this._right, ret);
 	    this._insts += new AMDSet (fin, type);
 	}
+
 	auto aux = fin.clone (this._res.sizeAmd);
 	if (this._res != aux)
 	    this._insts += new AMDMove (aux, this._res); 
@@ -130,7 +131,7 @@ class AMDBinop : TInst {
     private void opDiv () {	
 	AMDReg lreg, rreg;
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
-	auto rax = new AMDReg (REG.getReg ("rax"));
+	auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
 	if (rax == lreg) {
 	    this._insts += new AMDCqto;
 	    if (ret != rreg)
@@ -154,8 +155,8 @@ class AMDBinop : TInst {
     private void opMod () {
 	AMDReg lreg, rreg;
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
-	auto rax = new AMDReg (REG.getReg ("rax"));
-	auto rdx = new AMDReg (REG.getReg ("rdx"));
+	auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
+	auto rdx = new AMDReg (REG.getReg ("rdx", this._left.sizeAmd));
 	if (rax == lreg) {
 	    this._insts += new AMDCqto ();
 	    if (ret != rreg)

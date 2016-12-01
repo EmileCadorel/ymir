@@ -40,6 +40,10 @@ class LConstDWord : LConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 4;
+    }
+    
     int value () { return this._value; }
     
     override string toString () {
@@ -98,6 +102,10 @@ class LConstString : LConst {
 	this._value = value;
     }
 
+    override int size () {
+	return 8;
+    }
+    
     string value () {
 	return this._value;
     }

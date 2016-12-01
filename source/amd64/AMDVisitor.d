@@ -128,6 +128,19 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (fin, inst);
     }
 
+    override protected TInstPaire visitRegRead (LRegRead lread, TExp) {
+	auto exp = visitExpression (lread.data);
+	auto inst = new TInstList;
+	inst += exp.what;
+	auto aux = new AMDReg (REG.getReg ("r13", (cast(AMDObj)exp.where).sizeAmd));
+	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
+	auto fin = new AMDReg (aux.name, aux.sizeAmd);
+	fin.isOff = true;
+	fin.offset = - cast (long) lread.begin;
+	return new TInstPaire (fin, inst);
+    }
+
+    
     override protected TReg visitReg (LReg) {
 	assert (false, "TODO");
     }
@@ -176,8 +189,29 @@ class AMDVisitor : TVisitor {
 	assert (false, "TODO");
     }
 
-    private TInstPaire visitBinopDWord (LBinop lbin, TExp where) {
-	assert (false, "TODO");
+    private TInstPaire visitBinopDWord (LBinop lbin, TExp twhere) {
+	auto ret = new TInstList;
+	bool free = false;
+	AMDReg where;
+	if (lbin.res is null) {
+	    where = cast (AMDReg) twhere;
+	    //where.resize (AMDSize.QWORD);
+	} else {
+	    auto wh = visitExpression (lbin.res);
+	    ret += wh.what;
+	    where = cast (AMDReg) wh.where;
+	}
+	auto laux = new AMDReg (REG.aux (AMDSize.DWORD));
+	auto lpaire = visitExpression (lbin.left, laux);
+	if (laux != lpaire.where) {
+	    free = true;
+	    REG.free (laux);
+	}
+	auto rpaire = visitExpression (lbin.right, where);
+	ret += lpaire.what + rpaire.what;
+	if (!free) REG.free (laux);
+	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	return new TInstPaire (where, ret);
     }
 
     private TInstPaire visitBinopQWord (LBinop lbin, TExp twhere) {
@@ -335,8 +369,12 @@ class AMDVisitor : TVisitor {
 	assert (false, "TODO");
     }
 
-    override protected TInstPaire visitConstDWord (LConstDWord) {
-	assert (false, "TODO");
+    override protected TInstPaire visitConstDWord (LConstDWord val, TExp) {
+	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
+    }
+
+    override protected TInstPaire visitConstDWord (LConstDWord val) {
+	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
     }
 
     override protected TInstPaire visitConstQWord (LConstQWord val) {
@@ -356,6 +394,11 @@ class AMDVisitor : TVisitor {
     }
 
     override protected TInstPaire visitConstString (LConstString lstr) {
+	auto str = new AMDConstString (lstr.value);
+	return new TInstPaire (str, new TInstList);
+    }
+
+    override protected TInstPaire visitConstString (LConstString lstr, TExp) {
 	auto str = new AMDConstString (lstr.value);
 	return new TInstPaire (str, new TInstList);
     }
