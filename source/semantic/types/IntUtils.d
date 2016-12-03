@@ -79,6 +79,24 @@ class IntUtils {
 	return inst;
     }
     
+    static LInstList IntInit (LInstList, LInstList) {
+	auto inst = new LInstList ();
+	inst += new LConstDWord (0);
+	return inst;
+    }
+
+    static LInstList IntMax (LInstList, LInstList) {
+	auto inst = new LInstList ();
+	inst += new LConstDWord (int.max);
+	return inst;
+    }
+    
+    static LInstList IntMin (LInstList, LInstList) {
+	auto inst = new LInstList ();
+	inst += new LConstDWord (int.min);
+	return inst;
+    }
+    
     static LInstList InstDXorAff (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXorAff int");
     }

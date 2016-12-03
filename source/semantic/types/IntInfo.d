@@ -3,6 +3,7 @@ import syntax.Word, ast.Expression;
 import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
+import ast.Var;
 
 class IntInfo : InfoType {
 
@@ -151,6 +152,31 @@ class IntInfo : InfoType {
 	return null;
     }
 
+
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "init") return Init ();
+	else if (var.token.str == "max") return Max ();
+	else if (var.token.str == "min") return Min ();
+	return null;
+    }
+
+    private InfoType Init () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &IntUtils.IntInit;
+	return _int;
+    }
+
+    private InfoType Max () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &IntUtils.IntMax;
+	return _int;
+    }
+
+    private InfoType Min () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &IntUtils.IntMin;
+	return _int;
+    }
     
     override string typeString () {
 	return "int";
