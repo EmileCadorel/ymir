@@ -10,7 +10,7 @@ class Warning {
     void warning_at (TArgs...) (Location locus, string msg, TArgs params) {
 	OutBuffer buf = new OutBuffer();
 	string line;
-	buf.write (Colors.BLUE.value);
+	buf.write (Colors.YELLOW.value);
 	buf.write ("Attention " ~ Colors.RESET.value ~ ":");
 	buf.write (locus.file);
 	buf.write (":(" ~ to!string(locus.line) ~ ", " ~ to!string(locus.column) ~ ") : ");

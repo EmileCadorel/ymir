@@ -10,6 +10,10 @@ class StringInfo : InfoType {
     this () {
 	this._destruct = &StringUtils.InstDestruct;
     }
+
+    override bool isSame (InfoType other) {
+	return (cast (StringInfo) other) !is null;
+    }
     
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)

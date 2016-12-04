@@ -9,6 +9,8 @@ def print (i : int) : void {
 }
 
 def main () {
-    let a = int.min + 1;
-    print (a);
+    let b = 10;
+    let a = &b;
+    *a =  *a + 34;
+    print (b);
 }

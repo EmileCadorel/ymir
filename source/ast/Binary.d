@@ -52,13 +52,15 @@ class Binary : Expression {
 	if (cast(Type)aux._left !is null) throw new UndefinedVar (aux._left.token);
 	else if (aux._left.info.isConst) throw new NotLValue (aux._left.token, aux._left.info);
 	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
-	if (cast(UndefInfo)(aux._left.info.type) !is null) 
+	if (cast(UndefInfo)(aux._left.info.type) !is null) {
 	    aux._left.info.type = aux._right.info.type.clone;
+	    aux._left.info.isConst = false;
+	}
 	
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) 
 	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-	aux.info = new Symbol (false, aux._token, type, false);
+	aux.info = new Symbol (false, aux._token, type);
 	return aux;
     }
 
@@ -82,7 +84,7 @@ class Binary : Expression {
 	    aux._isRight = true;
 	}
 	
-	aux.info = new Symbol (false, aux._token, type, true);
+	aux.info = new Symbol (false, aux._token, type);
 	return aux;	
     }
     
@@ -105,7 +107,7 @@ class Binary : Expression {
 	    aux._isRight = true;
 	}
 	
-	aux.info = new Symbol (aux._token, type, true);
+	aux.info = new Symbol (aux._token, type);
 	return aux;	
     }
     

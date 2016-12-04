@@ -12,6 +12,10 @@ class FloatInfo : InfoType {
 	return new FloatInfo ();
     }
 
+    override bool isSame (InfoType other) {
+	return (cast (FloatInfo) other) !is null;
+    }
+    
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
 	if (token == Tokens.DIV_AFF) return opAff! (Tokens.DIV) (right);

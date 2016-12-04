@@ -97,24 +97,51 @@ class AMDVisitor : TVisitor {
     }
 
     override protected TInstList visitWrite (LWrite write) {
+	if (cast (LRegRead) write.left) return visitWriteRegRead (write);
 	auto left = visitExpression (write.left);
 	auto right = visitExpression (write.right, left.where);
 	auto inst = new TInstList;
-	inst += right.what + left.what;
 	if (right.where != left.where) {
+	    inst += right.what;
 	    auto lreg = (cast (AMDReg) right.where), rreg = (cast(AMDReg) right.where);
 	    if (lreg !is null && rreg !is null) {
 		if (!lreg.isStd || lreg.isOff || !rreg.isStd || rreg.isOff) {
 		    auto aux = new AMDReg (REG.getReg ("r14", lreg.sizeAmd));
 		    inst += new AMDMove (cast (AMDObj)right.where, aux);
+		    inst += left.what;
 		    inst += new AMDMove (aux, cast (AMDObj) left.where);
-		} else inst += new AMDMove (cast (AMDObj)right.where, cast (AMDObj) left.where);
+		} else {
+		    inst += left.what;
+		    inst += new AMDMove (cast (AMDObj)right.where, cast (AMDObj) left.where);
+		}
 	    } else {
+		inst += left.what;
 		inst += new AMDMove (cast (AMDObj)right.where, cast (AMDObj) left.where);
 	    }
+	} else {
+	    inst += left.what + right.what;
 	}
 	return inst;
     }
+
+    private TInstList visitWriteRegRead (LWrite write) {
+	auto inst = new TInstList;
+	auto left = visitExpression (write.left);
+	auto right = visitExpression (write.right);
+	auto rreg = cast (AMDReg) right.where;
+	if (rreg !is null && rreg.isOff) {
+	    inst += right.what;
+	    auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
+	    inst += new AMDMove (cast (AMDObj) right.where, aux);
+	    inst += left.what;
+	    inst += new AMDMove (aux, cast (AMDObj) left.where);
+	} else {
+	    inst += right.what + left.what;
+	    inst += new AMDMove (cast (AMDObj) right.where, cast (AMDObj) left.where);
+	}
+	return inst;
+    }
+    
 
     override protected TInstPaire visitRegRead (LRegRead lread) {
 	auto exp = visitExpression (lread.data);
@@ -125,6 +152,7 @@ class AMDVisitor : TVisitor {
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
 	fin.offset = - cast (long) lread.begin;
+	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }
 
@@ -137,6 +165,7 @@ class AMDVisitor : TVisitor {
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
 	fin.offset = - cast (long) lread.begin;
+	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }
 
@@ -195,7 +224,6 @@ class AMDVisitor : TVisitor {
 	AMDReg where;
 	if (lbin.res is null) {
 	    where = cast (AMDReg) twhere;
-	    //where.resize (AMDSize.QWORD);
 	} else {
 	    auto wh = visitExpression (lbin.res);
 	    ret += wh.what;
@@ -356,7 +384,28 @@ class AMDVisitor : TVisitor {
 	inst += new AMDUnop (res, unop.op);
 	return new TInstPaire (res, inst);
     }
+
+    override protected TInstPaire visitAddr (LAddr addr) {
+	auto aux = new AMDReg (REG.aux ());
+	auto ret = visitAddr (addr, aux);
+	REG.free (aux);
+	return ret;
+    }
     
+    override protected TInstPaire visitAddr (LAddr addr, TExp where) {
+	auto inst = new TInstList;
+	auto aux = new AMDReg (REG.aux (getSize (addr.exp.size)));
+	auto exp = visitExpression (addr.exp, aux);
+	auto reg = cast (AMDReg) exp.where;
+	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
+	inst += exp.what;
+	inst += new AMDMove (new AMDReg (REG.getReg ("rbp")), cast (AMDObj) where);
+	inst += new AMDBinop (new AMDConstQWord (-reg.offset), cast (AMDObj) where, Tokens.PLUS);
+	REG.free (aux);
+	return new TInstPaire (where, inst);
+    }
+
+
     override protected TInstPaire visitConstByte (LConstByte val) {
 	return new TInstPaire (new AMDConstByte (val.value), new TInstList);
     }

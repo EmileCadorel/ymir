@@ -2,7 +2,8 @@ module semantic.types.IntUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
 import lint.LSysCall, std.container, lint.LExp, lint.LConst;
-import lint.LCast, lint.LUnop;
+import lint.LCast, lint.LUnop, semantic.types.IntInfo;
+import lint.LAddr;
 
 class IntUtils {
 
@@ -96,7 +97,21 @@ class IntUtils {
 	inst += new LConstDWord (int.min);
 	return inst;
     }
+
+    static LInstList IntSizeOf (LInstList, LInstList) {
+	auto inst = new LInstList ();
+	inst += new LConstDWord (IntInfo.sizeOf);
+	return inst;
+    }    
     
+    static LInstList InstAddr (LInstList llist) {
+	auto inst = new LInstList ();
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LAddr (exp);
+	return inst;
+    }
+
     static LInstList InstDXorAff (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXorAff int");
     }

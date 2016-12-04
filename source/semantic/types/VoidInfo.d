@@ -10,6 +10,10 @@ class VoidInfo : InfoType {
 	return new VoidInfo ();
     }
 
+    override bool isSame (InfoType other) {
+	return (cast (VoidInfo) other) !is null;
+    }
+    
     override InfoType clone () {
 	return new VoidInfo ();
     }

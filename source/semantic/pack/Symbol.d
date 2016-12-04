@@ -8,7 +8,7 @@ class Symbol {
     private ulong _id;
     private Word _sym;
     private InfoType _type;
-    private bool _isConst;
+    //    private bool _isConst;
     private static SList!ulong __last__;
     
     this (Word word, InfoType type) {
@@ -20,16 +20,21 @@ class Symbol {
     this (Word word, InfoType type, bool isConst) {
 	this._sym = word;
 	this._type = type;
-	this._isConst = isConst;
+	this._type.isConst = isConst;
 	Table.instance.garbage (this);
     }
 
     this (bool garbage, Word word, InfoType type, bool isConst) {
 	this._sym = word;
 	this._type = type;
-	this._isConst = isConst;
+	this._type.isConst = isConst;
     }
-   
+
+    this (bool garbage, Word word, InfoType type) {
+	this._sym = word;
+	this._type = type;
+    }
+    
     bool isDestructible () {
 	if (this._type !is null) return this._type.isDestructible ();
 	return false;
@@ -40,7 +45,7 @@ class Symbol {
     }
 
     ref bool isConst () {
-	return this._isConst;
+	return this._type.isConst;
     }
 
     void quit (string namespace) {
@@ -54,7 +59,7 @@ class Symbol {
     }
     
     string typeString () {
-	if (this._isConst) {
+	if (this._type.isConst) {
 	    return "const(" ~ this._type.typeString ~ ")";
 	} else return this._type.typeString;
 	    

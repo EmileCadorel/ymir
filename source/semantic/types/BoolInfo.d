@@ -12,6 +12,10 @@ class BoolInfo : InfoType {
 	return new BoolInfo ();
     }
 
+    override bool isSame (InfoType other) {
+	return cast (BoolInfo) other !is null;
+    }
+    
     override InfoType BinaryOp (Word op, Expression right) {
 	if (op == Tokens.EQUAL) return Affect (right);
 	if (op == Tokens.DAND) return opNorm !(Tokens.DAND) (right);

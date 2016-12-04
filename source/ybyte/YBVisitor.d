@@ -81,6 +81,10 @@ class YBVisitor : TVisitor {
 	return new TInstPaire (new YBRegRead (paire.where, reg.begin, reg.size), inst);
     }
 
+    override protected TInstPaire visitAddr (LAddr) {
+	assert (false);
+    }
+    
     override protected TReg visitReg (LReg reg) {
 	if (reg !is null) return new YBReg (reg.id, reg.size);
 	else return null;

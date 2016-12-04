@@ -8,5 +8,17 @@ class LAddr : LExp {
     this (LExp what) {
 	this._exp = what;
     }
-        
+
+    LExp exp () {
+	return this._exp;
+    }
+
+    override int size () {
+	return this._exp.size ();
+    }
+    
+    override bool isInst () {
+	return false;
+    }
+    
 }

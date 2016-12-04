@@ -12,6 +12,10 @@ class CharInfo : InfoType {
 	return new CharInfo ();
     }
 
+    override bool isSame (InfoType other) {
+	return cast (CharInfo) other !is null;
+    }
+    
     override InfoType BinaryOp (Word op, Expression right) {
 	if (op == Tokens.EQUAL) return Affect (right);
 	if (op == Tokens.MINUS_AFF) return opAff !(Tokens.MINUS) (right);

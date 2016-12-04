@@ -39,6 +39,7 @@ class InfoType {
     private InstCompS _lintInstS = null;
     protected InstCompS _destruct = null;
     private InstCompMult _lintInstMult = null;
+    private bool _isConst = true;
     
     static InfoType function (Word, Expression[]) [string] creators;
 
@@ -57,6 +58,10 @@ class InfoType {
 	throw new UndefinedType (word);
     }
     
+    ref bool isConst () {
+	return this._isConst;
+    }
+
     int size () {
 	return 0;
     }
@@ -71,6 +76,8 @@ class InfoType {
 
     void quit (string namespace) {
     }
+
+    abstract bool isSame (InfoType) ;    
     
     InfoType BinaryOp (Word token, Expression right) {
 	return null;

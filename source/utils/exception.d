@@ -63,7 +63,7 @@ class UndefinedOp : YmirException {
     this (Word token, Symbol left) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis pour le types '%s%s%s' :",
+	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis pour le type '%s%s%s' :",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
@@ -168,7 +168,7 @@ class NotATemplate : YmirException {
 
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value);
+	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        

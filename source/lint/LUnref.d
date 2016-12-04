@@ -18,5 +18,9 @@ class LUnref : LExp {
 	this._padd = padd;
 	this._size = size;
     }
-        
+    
+    override bool isInst () {
+	return false;
+    }
+    
 }

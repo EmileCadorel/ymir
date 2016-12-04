@@ -4,6 +4,10 @@ import semantic.types.InfoType, utils.exception;
 
 class UndefInfo : InfoType {
 
+    override bool isSame (InfoType) {
+	return false;
+    }
+    
     override string typeString () {
 	return "undef";
     }

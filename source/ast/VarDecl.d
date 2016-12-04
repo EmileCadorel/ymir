@@ -30,6 +30,7 @@ class VarDecl : Instruction {
 		auto info = Table.instance.get (it.token.str);
 		if (info !is null) throw new ShadowingVar (it.token, info.sym);
 		aux.info = new Symbol (aux.token, new UndefInfo ());
+		aux.info.isConst = false;
 		Table.instance.insert (aux.info);
 		auxDecl._decls.insertBack (aux);
 	    } catch (YmirException exp) {

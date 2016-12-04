@@ -15,6 +15,10 @@ class FunctionInfo : InfoType {
 	this._namespace = namespace;
     }
 
+    override bool isSame (InfoType) {
+	return false;
+    }
+    
     void insert (Frame fr) {
 	this._infos.insertBack (fr);
     }

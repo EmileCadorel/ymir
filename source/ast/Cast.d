@@ -34,7 +34,7 @@ class Cast : Expression {
 	    throw new UndefinedOp (this._token, expr.info, type.info);
 	}
 	auto aux = new Cast (this._token, type, expr);
-	aux.info = new Symbol (this._token, info, true);
+	aux.info = new Symbol (this._token, info);
 	return aux;
     }
 

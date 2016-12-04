@@ -3,11 +3,15 @@ import syntax.Word, ast.Expression;
 import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
-import ast.Var;
+import ast.Var, semantic.types.PtrInfo;
 
 class IntInfo : InfoType {
 
     this () {
+    }
+
+    override bool isSame (InfoType other) {
+	return (cast (IntInfo) other) !is null;
     }
     
     static InfoType create (Word token, Expression [] templates) {
@@ -61,7 +65,7 @@ class IntInfo : InfoType {
 	    auto ret = new IntInfo ();
 	    ret.lintInstS = &IntUtils.InstUnop !(Tokens.MINUS);
 	    return ret;
-	}
+	} else if (op == Tokens.AND) return toPtr ();	
 	return null;
     }
     
@@ -77,6 +81,13 @@ class IntInfo : InfoType {
 	    return aux;
 	}
 	return null;
+    }
+
+    private InfoType toPtr () {
+	auto other = new PtrInfo ();
+	other.content = new IntInfo ();
+	other.lintInstS = &IntUtils.InstAddr;
+	return other;
     }
     
     private InfoType Affect (Expression right) {
@@ -157,6 +168,7 @@ class IntInfo : InfoType {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "max") return Max ();
 	else if (var.token.str == "min") return Min ();
+	else if (var.token.str == "sizeof") return SizeOf ();
 	return null;
     }
 
@@ -177,6 +189,12 @@ class IntInfo : InfoType {
 	_int.lintInst = &IntUtils.IntMin;
 	return _int;
     }
+
+    private InfoType SizeOf () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &IntUtils.IntSizeOf ;
+	return _int;
+    }
     
     override string typeString () {
 	return "int";
@@ -187,6 +205,10 @@ class IntInfo : InfoType {
     }    
 
     override int size () {
+	return 4;
+    }
+
+    static int sizeOf () {
 	return 4;
     }
     

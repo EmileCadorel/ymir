@@ -22,7 +22,8 @@ class BefUnary : Expression {
 	if (type is null) {
 	    throw new UndefinedOp (this._token, aux._elem.info);
 	}
-	aux._info = new Symbol (aux._token, type, true);
+	
+	aux._info = new Symbol (aux._token, type);
 	return aux;
     }
     
