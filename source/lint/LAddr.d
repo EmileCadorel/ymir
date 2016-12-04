@@ -14,7 +14,7 @@ class LAddr : LExp {
     }
 
     override int size () {
-	return this._exp.size ();
+	return 8;
     }
     
     override bool isInst () {

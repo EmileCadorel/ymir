@@ -8,9 +8,13 @@ def print (i : int) : void {
     }
 }
 
+def test (a) {
+    *a = *a + 78;
+}
+
+
 def main () {
     let b = 10;
-    let a = &b;
-    *a =  *a + 34;
+    test (&b);
     print (b);
 }
