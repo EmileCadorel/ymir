@@ -1,32 +1,10 @@
-def printIntNeg (i : int) : void {
-    if (i < -9) print (i / 10);
-    system (print_c, (i % 10) + '0');
-}
+extern (C) malloc (a : int) : ptr!int;
+extern (C) free (a : ptr!int) : void;
 
-def print (i : int) : void {
-    if (i < 0) {
-	let j = -i;
-	system (print_c, '-');
-	printIntNeg (j);	
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
 
-def test (a) {
-    *a = *a + 79;
-}
 
 
 def main () {
-    let a = null, b = 12;
-
-    if (a is null) {
-	system (print_c, '0');
-    }
-    
-    a = &b;
-    print (*a);
-    a = null;
+    let a = malloc (10);
+    free (a);
 }

@@ -263,3 +263,15 @@ class TemplateInferType : YmirException {
 	msg = buf.toString ();
     }
 }
+
+class NeedAllType : YmirException {
+    this (Word token) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sError%s : Tous les types sont requis dans une prototype de fonction : ",
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	
+	msg = buf.toString ();
+    }
+}

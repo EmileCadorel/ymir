@@ -5,7 +5,7 @@ import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 
 class StringUtils {
-
+    
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();

@@ -30,8 +30,7 @@ class PtrInfo : InfoType {
 	else {
 	    auto ptr = new PtrInfo (templates [0].info.type);
 	    return ptr;
-	}
-	
+	}	
     }
 
     override InfoType BinaryOp (Word token, Expression right) {

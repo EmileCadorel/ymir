@@ -11,8 +11,8 @@ class Frame {
     protected Function _function;
     protected string _namespace;
     
-    private static long SAME = 10;
-    private static long AFF = 5;
+    protected static long SAME = 10;
+    protected static long AFF = 5;
 
     
     this (string namespace, Function func) {

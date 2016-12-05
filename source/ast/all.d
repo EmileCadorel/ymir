@@ -20,3 +20,4 @@ public import ast.System;
 public import ast.Cast;
 public import ast.Access;
 public import ast.Dot;
+public import ast.Proto;
