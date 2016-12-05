@@ -30,6 +30,7 @@ struct Word {
 
     void str (string other) {
 	this._str = other;
+	this._locus.length = other.length;
 	this._is_token = checkToken (this._str);
     }
     

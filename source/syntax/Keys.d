@@ -29,7 +29,8 @@ enum Keys : Token {
     FUNCTION = Token ("function", 24),
     LET = Token ("let", 25),
     IS = Token ("is", 26),
-    ANTI = Token ("\\", 27),
-    LX = Token ("x", 28),
-    SYSTEM = Token ("system", 29)
+	NOT_IS = Tokens ("!is", 27),
+    ANTI = Token ("\\", 28),
+    LX = Token ("x", 29),
+    SYSTEM = Token ("system", 30)
 }

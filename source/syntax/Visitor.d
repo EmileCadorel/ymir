@@ -147,10 +147,10 @@ class Visitor {
 		    else if (next != Tokens.COMA)
 			throw new SyntaxError (next, [Tokens.RPAR.descr, Tokens.COMA.descr]);
 		}
-	    } else {
+	    } else if (next != Keys.IS) {
 		_lex.rewind ();
 		params.insertBack (visitExpression ());
-	    }
+	    } else _lex.rewind (2);
 	    return new Var (ident, params);
 	} else _lex.rewind ();
 	return new Var (ident);
@@ -332,9 +332,9 @@ class Visitor {
 	    if (tok == Tokens.NOT) {
 		auto suite = _lex.next ();
 		if (suite == Keys.IS) {
-		    suite.str = Tokens.NOT.descr ~ Keys.IS.descr;
 		    auto right = visitLow ();
-		    return visitUlow (new Binary (suite, left, right));
+		    tok.str = Keys.NOT_IS.descr;
+		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
 	    }
 	    _lex.rewind ();
@@ -351,9 +351,9 @@ class Visitor {
 	    if (tok == Tokens.NOT) {
 		auto suite = _lex.next ();
 		if (suite == Keys.IS) {
-		    suite.str = Tokens.NOT.descr ~ Keys.IS.descr;
 		    auto right = visitLow ();
-		    return visitUlow (new Binary (suite, left, right));
+		    tok.str = Keys.NOT_IS.descr;
+		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
 	    }
 	    _lex.rewind ();

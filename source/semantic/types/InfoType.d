@@ -6,7 +6,7 @@ import semantic.types.CharInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
-import ast.Var, semantic.types.VoidInfo;
+import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -49,7 +49,8 @@ class InfoType {
 		    "string" : &StringInfo.create,
 		    "float" : &FloatInfo.create,
 		    "char" : &CharInfo.create,
-		    "void" : &VoidInfo.create];
+		    "void" : &VoidInfo.create,
+		    "ptr" : &PtrInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {

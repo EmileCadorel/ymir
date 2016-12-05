@@ -1,7 +1,13 @@
+def printIntNeg (i : int) : void {
+    if (i < -9) print (i / 10);
+    system (print_c, (i % 10) + '0');
+}
+
 def print (i : int) : void {
     if (i < 0) {
+	let j = -i;
 	system (print_c, '-');
-	print (- i);
+	printIntNeg (j);	
     } else {
 	if (i > 9) print (i / 10);
 	system (print_c, (i%10) + '0');
@@ -9,12 +15,21 @@ def print (i : int) : void {
 }
 
 def test (a) {
-    *a = *a + 78;
+    *a = *a + 79;
 }
 
 
 def main () {
-    let b = 10;
-    test (&b);
-    print (b);
+
+    def test (a : ptr!int) {
+	*a = *a + 67;
+    }
+    
+    let b = 89;
+    let a = &b;
+    if (a !is null) {
+	system (print_c, 'n');
+    } else {
+	print (*a);
+    }
 }
