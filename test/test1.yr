@@ -20,16 +20,13 @@ def test (a) {
 
 
 def main () {
+    let a = null, b = 12;
 
-    def test (a : ptr!int) {
-	*a = *a + 67;
+    if (a is null) {
+	system (print_c, '0');
     }
     
-    let b = 89;
-    let a = &b;
-    if (a !is null) {
-	system (print_c, 'n');
-    } else {
-	print (*a);
-    }
+    a = &b;
+    print (*a);
+    a = null;
 }

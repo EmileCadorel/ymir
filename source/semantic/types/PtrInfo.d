@@ -60,6 +60,15 @@ class PtrInfo : InfoType {
 	    auto ret = new PtrInfo (this._content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect ;
 	    return ret;
+	} else if (type && cast (VoidInfo) this._content) {
+	    this._content = type.content.clone ();
+	    auto ret = new PtrInfo (this._content.clone ());
+	    ret.lintInst = &PtrUtils.InstAffect;
+	    return ret;
+	} else if (type && cast (VoidInfo) type.content) {
+	    auto ret = new PtrInfo (type.content.clone ());
+	    ret.lintInst = &PtrUtils.InstAffect;
+	    return ret;
 	}
 	return null;
     }

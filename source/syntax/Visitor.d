@@ -325,7 +325,7 @@ class Visitor {
     private Expression visitUlow () {
 	auto left = visitLow ();
 	auto tok = _lex.next ();
-	if (find!"b == a" (_ulowOp, tok) != []) {
+	if (find!"b == a" (_ulowOp, tok) != [] || tok == Keys.IS) {
 	    auto right = visitLow ();
 	    return visitUlow (new Binary (tok, left, right));
 	} else {
@@ -344,7 +344,7 @@ class Visitor {
 
     private Expression visitUlow (Expression left) {
 	auto tok = _lex.next ();
-	if (find!"b == a" (_ulowOp, tok) != []) {
+	if (find!"b == a" (_ulowOp, tok) != [] || tok == Keys.IS) {
 	    auto right = visitLow ();
 	    return visitUlow (new Binary (tok, left, right));
 	} else {
