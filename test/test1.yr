@@ -2,9 +2,23 @@ extern (C) malloc (a : int) : ptr!int;
 extern (C) free (a : ptr!int) : void;
 
 
+def str (c1 : int, c2 : int) {
+    let a = malloc (2);
+    * (a) = c1;
+    * (a + 1) = c2;
+    return a;
+}
 
+def print (s) {
+    let i = 0;
+    while (i < 2) {
+	system (print_c, *(s + i));
+	i = i + 1;
+    }
+}
 
 def main () {
-    let a = malloc (10);
-    free (a);
+    let s = str ('a', 'b');
+    print (s);
+    free (s);
 }

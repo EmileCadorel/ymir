@@ -340,25 +340,25 @@ class AMDVisitor : TVisitor {
     
 
     override protected TInstPaire visitCast (LCast cst) {
+	auto reg = new AMDReg (REG.aux (getSize (cst.size)));
 	auto inst = new TInstList;
-	auto exp  = visitExpression (cst.what);
-	auto aux = new AMDReg (REG.getReg ("r14", (cast(AMDObj)exp.where).sizeAmd));	
+	auto aux = reg.clone (getSize (cst.what.size));
+	auto exp = visitExpression (cst.what, aux);
 	inst += exp.what;
-	inst += new AMDMove (cast(AMDObj) exp.where, aux);
-	auto res = new AMDReg (REG.getReg ("r14", getSize (cst.size)));
-	return new TInstPaire (res, inst);
+	if (exp.where != aux)
+	    inst += new AMDMove (cast (AMDObj) exp.where, aux);
+	return new TInstPaire (reg, inst);
     }
 
-    override protected TInstPaire visitCast (LCast cst, TExp texp) {
-	auto reg = cast (AMDReg) texp;
+    override protected TInstPaire visitCast (LCast cst, TExp) {
+	auto reg = new AMDReg (REG.aux (getSize (cst.size)));
 	auto inst = new TInstList;
-	reg.resize (getSize (cst.what.size));
-	auto exp = visitExpression (cst.what, reg);
+	auto aux = reg.clone (getSize (cst.what.size));
+	auto exp = visitExpression (cst.what, aux);
 	inst += exp.what;
-	if (exp.where != reg)
-	    inst += new AMDMove (cast (AMDObj) exp.where, reg);
-	auto aux = reg.clone (getSize (cst.size));
-	return new TInstPaire (aux, inst);
+	if (exp.where != aux)
+	    inst += new AMDMove (cast (AMDObj) exp.where, aux);
+	return new TInstPaire (reg, inst);
     }
 
 
