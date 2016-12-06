@@ -6,6 +6,7 @@ import utils.Warning;
 import std.stdio, std.outbuffer;
 import ast.all, std.container;
 import std.algorithm, std.conv;
+import std.math;
 
 class Visitor {
 
@@ -512,7 +513,47 @@ class Visitor {
 	}
 	return new Float (next);
     }
-    
+
+
+
+    private short fromHexa (string elem) {
+	short total = 0;
+	ulong size = elem.length - 1;
+	foreach (it ; elem [0 .. $]) {
+	    if (it >= 'a') {
+		total += pow (16, size) * (it - 'a' + 10);
+	    } else
+		total += pow (16, size) * (it - '0');
+	    size -= 1;
+	}
+	return total;
+    }
+
+    private short fromOctal (string elem) {
+	short total = 0;
+	ulong size = elem.length - 1;
+	foreach (it ; elem [0 .. $]) {
+		total += pow (8, size) * (it - '0');
+	    size -= 1;
+	}
+	return total;
+    }
+
+    private short getFromLX (string elem) {
+	foreach (it ; elem [2 .. $])
+	    if ((it < 'a' || it > 'f') && (it < '0' || it > '9'))
+		return -1;
+	auto escape = elem [2 .. $];
+	return fromHexa (escape);
+    }
+
+    private short getFromOc (string elem) {
+	foreach (it ; elem [1 .. $])
+	    if (it < '0' || it > '7') return -1;
+	auto escape = elem [1 .. $];	
+	return fromOctal (escape);
+    }    
+        
     private short isChar (string value) {
 	auto escape = ["\\a": '\a', "\\b" : '\b', "\\f" : '\f',
 		       "\\n" : '\n', "\\r" : '\r', "\\t" : '\t',
@@ -522,16 +563,11 @@ class Visitor {
 	if (value.length == 1) return cast(short) (value[0]);
 	auto val = (value in escape);
 	if (val !is null) return cast(short) *val;
-	if (value[0] == Keys.ANTI.descr [0] && value.length == 4) {
-	    if (value[1] == Keys.LX.descr [0]) {
-		foreach (it ; value [1 .. $]) 
-		    if ((it < 'a' || it > 'f') && (it < '0' || it > '9'))
-			return -1;
-		
-	    } else if (value[0] == Keys.ANTI.descr [0] && value.length > 1 && value.length < 5) {
-		foreach (it ; value [1 .. $]) 
-		    if (it < '0' || it > '7') return -1;
-		return -1;
+	if (value[0] == Keys.ANTI.descr [0]) {
+	    if (value.length == 4 && value[1] == Keys.LX.descr [0]) {
+		return getFromLX (value);
+	    } else if (value.length > 1 && value.length < 5) {
+		return getFromOc (value);
 	    }
 	}
 	return -1;
@@ -552,7 +588,7 @@ class Visitor {
 	_lex.commentEnable ();
 	if (word == Tokens.APOS) {
 	    auto c = isChar (val);
-	    if (c >= 0) return new Char (word, to!ubyte (c));
+	    if (c >= 0) return new Char (word, cast(ubyte) (c));
 	}
 	return new String (word, val);
     }

@@ -1,24 +1,21 @@
 extern (C) malloc (a : int) : ptr!int;
 extern (C) free (a : ptr!int) : void;
 
-
-def str (c1 : int, c2 : int) {
-    let a = malloc (2);
-    * (a) = c1;
-    * (a + 1) = c2;
-    return a;
-}
-
-def print (s) {
-    let i = 0;
-    while (i < 2) {
-	system (print_c, *(s + i));
-	i = i + 1;
+def string (size : int, p : ptr!char) {
+    let c = cast:ptr!(char) (malloc (size + 9));
+    c.int = 0;
+    (c + 4).int = size;
+    let i = 8;
+    while (*p != 0) {
+	*(c + i) = *p;
+	p = p+1;
     }
+    *(c + i) = '\0';
+    return c;
 }
+
 
 def main () {
-    let s = str ('a', 'b');
-    print (s);
-    free (s);
+    let a = 'r';
+
 }

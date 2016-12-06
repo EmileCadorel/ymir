@@ -9,6 +9,10 @@ class AMDConstByte : AMDObj {
 	this._value = value;
     }
 
+    ubyte value () {
+	return this._value;
+    }
+    
     override AMDSize sizeAmd () {
 	return AMDSize.BYTE;
     }

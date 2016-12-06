@@ -9,9 +9,9 @@ abstract class LConst : LExp {
 }
 
 class LConstByte : LConst {
-    private byte _value;
+    private ubyte _value;
 
-    this (byte value) {
+    this (ubyte value) {
 	this._value = value;
     }
 
@@ -19,7 +19,7 @@ class LConstByte : LConst {
 	return 1;
     }
     
-    byte value () { return this._value; }
+    ubyte value () { return this._value; }
     
 }
 

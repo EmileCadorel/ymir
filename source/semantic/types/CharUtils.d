@@ -57,7 +57,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (leftExp, rightExp, op, 1));
+	inst += (new LBinop (leftExp, rightExp, op));
 	return inst;
     }
 
@@ -65,7 +65,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (leftExp, new LCast (rightExp, 1), op, 1));
+	inst += (new LBinop (new LCast (leftExp, 4), rightExp, op));
 	return inst;
     }
     
@@ -73,7 +73,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (new LCast (leftExp, 1), rightExp, op, 1));
+	inst += (new LBinop (leftExp, new LCast (rightExp, 4), op));
 	return inst;
     }
 

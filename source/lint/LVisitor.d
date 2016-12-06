@@ -229,7 +229,7 @@ class LVisitor {
     }
     
     private LInstList visitChar (Char elem) {
-	return new LInstList (new LConstByte (to!byte (elem.code)));
+	return new LInstList (new LConstByte (to!ubyte (elem.code)));
     }
     
     private LInstList visitInt (Int elem) {

@@ -4,6 +4,7 @@ import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.PtrUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.UndefInfo;
 
 class PtrInfo : InfoType {
 
@@ -127,6 +128,8 @@ class PtrInfo : InfoType {
     }    
     
     private InfoType Unref () {
+	if (cast (UndefInfo) this._content) return null;
+	else if (cast (VoidInfo) this._content) return null;
 	auto ret = this._content.clone ();
 	if (this._content.size == 1)  ret.lintInstS = &PtrUtils.InstUnref!(1);
 	if (this._content.size == 2)  ret.lintInstS = &PtrUtils.InstUnref!(2);
@@ -136,6 +139,22 @@ class PtrInfo : InfoType {
 	if (this._content.size == -4)  ret.lintInstS = &PtrUtils.InstUnref!(-4);
 	ret.isConst = false;
 	return ret;
+    }
+
+    override InfoType DotOp (Var var) {
+	if (!var.isType) return null;
+	else {
+	    auto type = var.asType ();
+	    auto ret = type.info.type;
+	    if (ret.size == 1)  ret.lintInst = &PtrUtils.InstUnrefDot!(1);
+	    if (ret.size == 2)  ret.lintInst = &PtrUtils.InstUnrefDot!(2);
+	    if (ret.size == 4)  ret.lintInst = &PtrUtils.InstUnrefDot!(4);
+	    if (ret.size == 8)  ret.lintInst = &PtrUtils.InstUnrefDot!(8);
+	    if (ret.size == -8)  ret.lintInst = &PtrUtils.InstUnrefDot!(-8);
+	    if (ret.size == -4)  ret.lintInst = &PtrUtils.InstUnrefDot!(-4);
+	    ret.isConst = false;
+	    return ret;
+	}
     }
     
     ref InfoType content () {
@@ -158,6 +177,7 @@ class PtrInfo : InfoType {
 	    return this;
 	} else if (type) {
 	    auto ptr = new PtrInfo (type.content.clone ());
+	    ptr.lintInstS = &PtrUtils.InstCast;
 	    return ptr;
 	}
 	return null;

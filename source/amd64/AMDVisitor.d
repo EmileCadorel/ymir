@@ -5,9 +5,14 @@ import amd64.AMDMove, amd64.AMDBinop;
 import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
+import std.math;
 
 class AMDVisitor : TVisitor {
 
+    private int max (int a, int b) {
+	return (abs (a) > abs (b)) ? a : b;
+    }
+    
     override protected TFrame visit (LFrame frame) {
 	AMDReg.resetOff ();
 	auto rbp = new AMDReg (REG.getReg ("rbp")), rsp = new AMDReg (REG.getReg ("rsp"));
@@ -338,27 +343,47 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (where, inst);
     }    
     
-
+    
     override protected TInstPaire visitCast (LCast cst) {
-	auto reg = new AMDReg (REG.aux (getSize (cst.size)));
-	auto inst = new TInstList;
-	auto aux = reg.clone (getSize (cst.what.size));
-	auto exp = visitExpression (cst.what, aux);
-	inst += exp.what;
-	if (exp.where != aux)
-	    inst += new AMDMove (cast (AMDObj) exp.where, aux);
-	return new TInstPaire (reg, inst);
+	if (cst.size < cst.what.size) {
+	    auto reg = new AMDReg (REG.aux (getSize (cst.what.size)));
+	    auto inst = new TInstList;
+	    auto aux = reg.clone (getSize (cst.what.size));
+	    auto exp = visitExpression (cst.what, aux);
+	    inst += exp.what;
+	    if (exp.where != aux)
+		inst += new AMDMove (cast (AMDObj) exp.where, aux);
+	    auto ret = reg.clone (getSize (cst.size));
+	    return new TInstPaire (ret, inst);
+	} else {
+	    auto reg = new AMDReg (REG.aux (getSize (cst.size)));
+	    auto inst = new TInstList;
+	    auto aux = reg.clone (getSize (cst.what.size));
+	    auto exp = visitExpression (cst.what, aux);
+	    inst += exp.what;
+	    if (cast (LConst) cst.what is null)
+		inst += new AMDMoveCast (cast (AMDObj) exp.where, reg);
+	    else if (exp.where != aux)
+		inst += new AMDMove (convToSize (reg.sizeAmd, cast (AMDObj) exp.where), reg);
+	    return new TInstPaire (reg, inst);
+	}
     }
 
+    private AMDObj convToSize (AMDSize size, AMDObj elem) {
+	ulong value;
+	if (elem.sizeAmd == AMDSize.BYTE) value = to!ulong ((cast (AMDConstByte)elem).value);
+	else if (elem.sizeAmd == AMDSize.DWORD) value = to!ulong ((cast (AMDConstDWord)elem).value);
+	else if (elem.sizeAmd == AMDSize.QWORD) value = to!ulong ((cast (AMDConstQWord)elem).value);
+	else assert (false);
+	
+	if (size == AMDSize.BYTE) return new AMDConstByte (cast (ubyte) value);
+	if (size == AMDSize.DWORD) return new AMDConstDWord (cast (long) value);
+	if (size == AMDSize.QWORD) return new AMDConstQWord (cast (long) value);
+	assert (false);
+    }
+    
     override protected TInstPaire visitCast (LCast cst, TExp) {
-	auto reg = new AMDReg (REG.aux (getSize (cst.size)));
-	auto inst = new TInstList;
-	auto aux = reg.clone (getSize (cst.what.size));
-	auto exp = visitExpression (cst.what, aux);
-	inst += exp.what;
-	if (exp.where != aux)
-	    inst += new AMDMove (cast (AMDObj) exp.where, aux);
-	return new TInstPaire (reg, inst);
+	return visitCast (cst);
     }
 
 

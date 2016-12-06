@@ -39,6 +39,14 @@ class PtrUtils {
 	return inst;
     }
 
+    static LInstList InstUnrefDot (int size) (LInstList, LInstList llist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LRegRead (leftExp, 0, size);
+	return inst;
+    }
+    
     static LInstList InstIs (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -55,5 +63,11 @@ class PtrUtils {
 	return inst;
     }
 
+
+    static LInstList InstCast (LInstList llist) {
+	return llist;
+    }
     
 }
+
+
