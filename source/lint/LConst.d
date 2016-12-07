@@ -21,6 +21,9 @@ class LConstByte : LConst {
     
     ubyte value () { return this._value; }
     
+    override string toString () {
+	return "$(" ~ to!string (this._value) ~ ")";
+    }
 }
 
 class LConstWord : LConst {

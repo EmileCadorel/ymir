@@ -204,7 +204,15 @@ class AMDVisitor : TVisitor {
     private TInstPaire visitBinopByte (LBinop lbin, TExp twhere) {
 	auto ret = new TInstList;
 	bool free = false;
-	auto where = cast (AMDReg) twhere;
+	AMDReg where;
+	if (lbin.res is null)
+	    where = cast (AMDReg) twhere;
+	else {
+	    auto wh = visitExpression (lbin.res);
+	    ret += wh.what;
+	    where = cast (AMDReg) wh.where;
+	}
+	
 	where.resize (AMDSize.BYTE);
 	auto laux = new AMDReg (REG.aux (AMDSize.BYTE));
 	auto lpaire = visitExpression (lbin.left, laux);
@@ -212,6 +220,7 @@ class AMDVisitor : TVisitor {
 	    free = true;
 	    REG.free (laux);
 	}
+	
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += lpaire.what + rpaire.what;
 	if (!free) REG.free (laux);

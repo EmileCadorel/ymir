@@ -2,15 +2,11 @@ extern (C) malloc (a : int) : ptr!int;
 extern (C) free (a : ptr!int) : void;
 extern (C) putchar (a : char);
 
-def print (str : string) {
-    let i = 0;
-    while (i < str.length) {
-	putchar (str [i]);
+def main () {
+    let a = "sa", i = 0;    
+    while (i < a.length) {
+	a [i] += '\1';
 	i += 1;
     }
-}
-
-
-def main () {
-    print ("comment\n");    
+    putchar (a [1]);
 }

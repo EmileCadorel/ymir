@@ -44,6 +44,7 @@ class PtrInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word token, Expression right) {
+	if (token == Tokens.EQUAL) return AffectRight (right);
 	if (token == Tokens.PLUS) return PlusRight (right);
 	else if (token == Tokens.MINUS) return SubRight (right);
 	return null;
@@ -73,6 +74,15 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    private InfoType AffectRight (Expression left) {
+	if (cast (UndefInfo) left.info.type) {
+	    auto ret = new PtrInfo (this._content.clone ());
+	    ret.lintInst = &PtrUtils.InstAffect;
+	    return ret;
+	}
+	return null;
+    }
+    
     private InfoType Plus (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());

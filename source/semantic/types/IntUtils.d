@@ -24,27 +24,11 @@ class IntUtils {
 	return inst;
     }
 
-    static LInstList InstOpInv (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList ;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (rightExp, leftExp, op));
-	return inst;
-    }    
-    
     static LInstList InstOpAff (Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
 	inst += (new LBinop (leftExp, rightExp, leftExp, op));
-	return inst;
-    }
-
-    static LInstList InstOpAffInv (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (rightExp, leftExp, leftExp, op));
 	return inst;
     }
 

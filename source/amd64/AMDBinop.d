@@ -95,12 +95,12 @@ class AMDBinop : TInst {
 	    this._insts += new AMDBinop (this._left, ret, this._op);
 	} else if (ret == lreg) {
 	    auto aux = new AMDReg (REG.getSwap (this._left.sizeAmd));
-	    this._insts += new AMDMove (this._left, aux);
-	    this._insts += new AMDMove (this._right, ret);
+	    this._insts += new AMDMove (this._right, aux);
+	    this._insts += new AMDMove (this._left, ret);
 	    this._insts += new AMDBinop (aux, ret, this._op);
 	} else {
-	    this._insts += new AMDMove (this._right, ret);
-	    this._insts += new AMDBinop (this._left, ret, this._op);
+	    this._insts += new AMDMove (this._left, ret);
+	    this._insts += new AMDBinop (this._right, ret, this._op);
 	}
 	if (this._res != ret) {
 	    this._insts += new AMDMove (ret, this._res);
