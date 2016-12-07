@@ -1,21 +1,16 @@
 extern (C) malloc (a : int) : ptr!int;
 extern (C) free (a : ptr!int) : void;
+extern (C) putchar (a : char);
 
-def string (size : int, p : ptr!char) {
-    let c = cast:ptr!(char) (malloc (size + 9));
-    c.int = 0;
-    (c + 4).int = size;
-    let i = 8;
-    while (*p != 0) {
-	*(c + i) = *p;
-	p = p+1;
+def print (str : string) {
+    let i = 0;
+    while (i < str.length) {
+	putchar (str [i]);
+	i += 1;
     }
-    *(c + i) = '\0';
-    return c;
 }
 
 
 def main () {
-    let a = 'r';
-
+    print ("comment\n");    
 }

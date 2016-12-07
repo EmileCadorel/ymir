@@ -13,6 +13,7 @@ class AMDSysCall : TInst {
     private string toReal (string elem) {
 	if (elem == "alloc") return "malloc";
 	else if (elem == "print_c") return "putchar";
+	else if (elem == "free") return "free";
 	else return elem;
     }
     

@@ -63,7 +63,7 @@ abstract class TVisitor {
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
 	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop);
 	if (auto _addr = cast (LAddr) elem) return visitAddr (_addr);
-	assert (false, "TODO, visitExpression (LExp)");
+	assert (false, "TODO, visitExpression " ~ typeid (elem).toString);
     }
 
     final protected TInstPaire visitExpression (LExp elem, TExp where) {
@@ -76,7 +76,7 @@ abstract class TVisitor {
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);
 	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop, where);
 	if (auto _addr = cast (LAddr) elem) return visitAddr (_addr, where);
-	assert (false, "TODO, visitExpression (LExp)");
+	assert (false, "TODO, visitExpression " ~ typeid (elem).toString);
     }
     
     abstract protected TInstPaire visitRegRead (LRegRead);

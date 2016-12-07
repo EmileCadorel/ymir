@@ -89,7 +89,8 @@ class PureFrame : Frame {
 	    }
 	    
 	    Table.instance.enterFrame (name, this._function.params.length);
-
+	    Table.instance.enterBlock ();
+	    
 	    Array!Var finalParams;
 	    foreach (it ; 0 .. this._function.params.length) {
 		auto info = this._function.params [it].expression;
@@ -99,8 +100,7 @@ class PureFrame : Frame {
 		if (name != "main")
 		    name ~= to!string (t.length) ~ t[0];
 	    }
-	    
-	    
+	    	    
 	    Table.instance.setCurrentSpace (name);
 	
 	    if (this._function.type is null) {
@@ -125,6 +125,7 @@ class PureFrame : Frame {
 	    FrameTable.instance.insert (finFrame);	
 	    FrameTable.instance.insert (this._fr);
 	    
+	    finFrame.dest = Table.instance.quitBlock ();
 	    finFrame.last = Table.instance.quitFrame ();
 	    return this._fr;
 	}
@@ -138,6 +139,7 @@ class FinalFrame {
     private Symbol _type;
     private string _name;
     private Array!Var _vars;
+    private Array!Symbol _dest;
     private Block _block;
     private ulong _last;
     
@@ -159,6 +161,10 @@ class FinalFrame {
 
     ref ulong last () {
 	return this._last;
+    }
+    
+    ref Array!Symbol dest () {
+	return this._dest;
     }
     
     Array!Var vars () {

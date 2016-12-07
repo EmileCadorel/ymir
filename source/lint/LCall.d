@@ -29,5 +29,18 @@ class LCall : LExp {
     override bool isInst () {
 	return true;
     }
+
+    override string toString () {
+	auto buf = new OutBuffer ();
+	buf.writef ("Call(%s, [", this._frame);
+	foreach (it ; this._params) {
+	    if (it !is this._params [$ - 1])
+		buf.writef ("%s, ", it);
+	    else  buf.writef ("%s", it);
+	}
+	buf.writef("])\n");
+	return buf.toString ();
+    }
+
     
 }

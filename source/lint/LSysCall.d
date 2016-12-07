@@ -1,5 +1,6 @@
 module lint.LSysCall;
 import lint.LExp, std.container;
+import std.outbuffer;
 
 class LSysCall : LExp {
 
@@ -31,6 +32,18 @@ class LSysCall : LExp {
     
     override bool isInst () {
 	return true;
+    }
+
+    override string toString () {
+	auto buf = new OutBuffer ();
+	buf.writef ("sysCall(%s, [", this._name);
+	foreach (it ; this._params) {
+	    if (it !is this._params [$ - 1])
+		buf.writef ("%s, ", it);
+	    else  buf.writef ("%s", it);
+	}
+	buf.writef("]) -> %s\n", this._ret);
+	return buf.toString ();
     }
     
 }

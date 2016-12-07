@@ -21,4 +21,8 @@ class LAddr : LExp {
 	return false;
     }
     
+    override string toString () {
+	return "&(" ~ this._exp.toString ~ ")";
+    }
+
 }

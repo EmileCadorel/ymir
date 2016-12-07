@@ -4,7 +4,8 @@ import std.container, std.outbuffer, std.math;
 import std.conv, std.stdio;
 
 class LFrame {
-    
+
+    private static LFrame [string] __preCompiled__;
     private ulong _number;
     private static ulong __lastNum__ = 0;
     private string _name;
@@ -30,6 +31,10 @@ class LFrame {
 	this._return_reg = return_reg;
 	this._return_lbl = return_lbl;
 	this._args = args;
+    }
+    
+    static ref LFrame [string] preCompiled () {
+	return __preCompiled__;
     }
 
     ulong number () {

@@ -3,7 +3,7 @@ import syntax.Word, ast.Expression, syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
-import ast.Var;
+import ast.Var, semantic.types.UndefInfo;
 
 class StringInfo : InfoType {
 
@@ -26,6 +26,11 @@ class StringInfo : InfoType {
 	else return null;
     }
 
+    override InfoType BinaryOpRight (Word token, Expression left) {
+	if (token == Tokens.EQUAL) return AffectRight (left);
+	else return null;
+    }
+
     private InfoType Affect (Expression right) {
 	if (cast(StringInfo)right.info.type) {
 	    auto str = new StringInfo ();
@@ -34,6 +39,15 @@ class StringInfo : InfoType {
 	}
 	return null;
     }    
+
+    private InfoType AffectRight (Expression left) {
+	if (cast (UndefInfo) left.info.type) {
+	    auto str = new StringInfo ();
+	    str.lintInst = &StringUtils.InstAffectRight;
+	    return str;
+	}
+	return null;
+    }
     
     override InfoType CastOp (InfoType info) {
 	if (cast (StringInfo)info) return this;
@@ -49,11 +63,22 @@ class StringInfo : InfoType {
     }
 
     override InfoType DotOp (Var var) {       
+	if (var.token.str == "nbRef") return NbRef ();
 	if (var.token.str == "length") return Length ();
 	else if (var.token.str == "dup") return Dup ();
 	return null;
     }
 
+    override InstCompS ParamOp () {
+	return &StringUtils.InstParam;
+    }
+    
+    private InfoType NbRef () {
+	auto _int = new IntInfo;
+	_int.lintInst = &StringUtils.InstNbRef;
+	return _int;
+    }
+    
     private InfoType Length () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &StringUtils.InstLength ;

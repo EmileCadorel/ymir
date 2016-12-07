@@ -74,7 +74,10 @@ void main (string [] args) {
 	    throw new Exception ("Pas de fichier d'entree");
 	}
 	semanticTime (file);
-	auto list = lintTime ();	
+	auto list = lintTime ();		
+	foreach ( it ; list) {
+	    writeln (it.toString);
+	}
 	auto target = targetTime (list, args);
 	toFile (target, args);
     } catch (YmirException yme) {

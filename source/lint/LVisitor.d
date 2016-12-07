@@ -5,6 +5,7 @@ import semantic.types.VoidInfo;
 import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
+import semantic.types.StringUtils;
 
 class LVisitor {
     
@@ -13,6 +14,11 @@ class LVisitor {
 	foreach (it ; FrameTable.instance.finals) {
 	    frames.insertBack (this.visit (it));
 	}
+	
+	foreach (key, value ; LFrame.preCompiled) {
+	    frames.insertBack (value);
+	}
+	
 	return frames;
     }
 
@@ -24,21 +30,31 @@ class LVisitor {
 	if (semFrame.type !is null && cast(VoidInfo)semFrame.type.type is null) {
 	    retReg = new LReg (semFrame.type.type.size);
 	}
-	
+
+	entry.insts = new LInstList;
 	Array!LReg args;
 	foreach (it ; semFrame.vars) {
-	    args.insertBack (new LReg (it.info.id, it.info.type.size));
+	    auto ret = new LReg (it.info.id, it.info.type.size);
+	    args.insertBack (ret);
+	    auto compS = it.info.type.ParamOp ();
+	    if (compS)
+		entry.insts += compS (new LInstList (ret));
 	}
-
+	
 	visit (entry, end, retReg, semFrame.block);
+
+	foreach (it ; semFrame.dest) {	    
+	    end.insts += it.destruct ();
+	}
+	
 	auto fr = new LFrame (semFrame.name, entry, end, retReg, args);
 	fr.lastId = LReg.lastId;
 	return fr;
     }
 
     private void visit (ref LLabel begin, ref LLabel end, ref LReg retReg, Block block) {
-	begin.insts = new LInstList ();
-	end.insts = new LInstList ();
+	if (begin.insts is null) begin.insts = new LInstList ();
+	if (end.insts is null) end.insts = new LInstList ();
 	foreach (it ; block.insts) {
 	    visitInstruction (begin, end, retReg, it);
 	}
@@ -182,7 +198,9 @@ class LVisitor {
 	LInstList list = new LInstList ();
 	if (ret.elem !is null) {
 	    auto rlist = visitExpression (ret.elem);
-	    list += rlist;
+	    if (ret.instComp !is null) {
+		list += ret.instComp(rlist);
+	    } else list += rlist;
 	    list += (new LWrite (retReg,  rlist.getFirst ()));
 	}
 	list += new LGoto (end);
@@ -216,7 +234,18 @@ class LVisitor {
     }
     
     private LInstList visitStr (String elem) {
-	return new LInstList (new LConstString (elem.content));
+	Array!LExp exps;
+	exps.insertBack (new LConstQWord (elem.content.length));
+	exps.insertBack (new LConstString (elem.content));
+	auto inst = new LInstList;
+	auto it = (StringUtils.__CstName__ in LFrame.preCompiled);
+	if (it is null) {
+	    StringUtils.createCstString ();
+	}
+	auto aux = new LReg (elem.info.id, elem.info.type.size);
+	inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, 8));
+	inst += aux;
+	return inst;
     }
     
     private LInstList visitVar (Var elem) {
@@ -314,7 +343,8 @@ class LVisitor {
 	    left = bin.info.type.leftTreatment (left);
 	if (bin.info.type.rightTreatment !is null)
 	    right = bin.info.type.rightTreatment (right);
-	return bin.info.type.lintInst (visitExpression (left), visitExpression (right));
+	return bin.info.type.lintInst (visitExpression (left),
+				       visitExpression (right));
     }
 
 }

@@ -3,7 +3,7 @@ import syntax.Word, ast.Expression;
 import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
-import ast.Var, semantic.types.PtrInfo;
+import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
 
 class IntInfo : InfoType {
 
@@ -60,6 +60,11 @@ class IntInfo : InfoType {
 	}
     }
 
+    override InfoType BinaryOpRight (Word op, Expression left) {
+	if (op == Tokens.EQUAL) return AffectRight (left);
+	return null;
+    }
+    
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.MINUS) {
 	    auto ret = new IntInfo ();
@@ -99,6 +104,15 @@ class IntInfo : InfoType {
 	return null;
     }
 
+    private InfoType AffectRight (Expression right) {
+	if (cast(UndefInfo) right.info.type !is null) {
+	    auto i = new IntInfo ();
+	    i.lintInst = &IntUtils.InstAffect;
+	    return i;
+	}
+	return null;
+    }
+    
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast(IntInfo) right.info.type) {
 	    auto i = new IntInfo ();

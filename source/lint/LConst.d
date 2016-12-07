@@ -64,6 +64,10 @@ class LConstQWord : LConst {
     }
     
     long value () { return this._value; }
+
+    override string toString () {
+	return "$(" ~ to!string (this._value) ~ ")";
+    }
     
 }
 

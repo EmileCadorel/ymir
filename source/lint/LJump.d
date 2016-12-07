@@ -31,5 +31,12 @@ class LJump : LInst {
     override LExp getFirst () {
 	assert (false);
     }
+
+    override string toString () {
+	auto buf = new OutBuffer ();
+	buf.writef ("Je %s %s\n", this._test.toString(),
+		    this._lbl1.toSimpleString ());
+	return buf.toString ();
+    }
     
 }

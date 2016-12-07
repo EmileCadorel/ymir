@@ -107,6 +107,14 @@ class InfoType {
     InfoType DotOp (Var) {
 	return null;
     }
+
+    InstCompS ParamOp () {
+	return null;
+    }
+    
+    InstCompS ReturnOp () {
+	return null;
+    }
     
     InfoType clone () {
 	return null;
