@@ -31,22 +31,41 @@ class StringUtils {
 	LFrame.preCompiled [__AddRef__] = fr;
 	LReg.lastId = last;
     }
-    
+
+
+
+    /**
+     def DstString (str : string) {
+         if (str !is null) {
+	     str.nbRef --;
+	     if (str.nbRef <= 0) free (str);
+	 }
+     }
+     */
     static void createDstString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
 	auto addr = new LReg (8);
 	auto entry = new LLabel, end = new LLabel;
 	entry.insts = new LInstList;
-	entry.insts += new LWrite (new LRegRead (addr, 0, 4), new LBinop (new LConstDWord (1), new LRegRead (addr, 0, 4), Tokens.MINUS));
 	auto test = new LBinop (new LRegRead (addr, 0, 4), new LConstDWord (0), Tokens.INF_EQUAL);
-	auto vrai = new LLabel, faux = new LLabel;
-	entry.insts += new LJump (test, vrai);
+	auto test1 = new LBinop (addr, new LConstQWord (0), Tokens.NOT_EQUAL);
+	auto vrai1 = new LLabel, vrai = new LLabel, faux = new LLabel;
+
+	entry.insts += new LJump (test1, vrai1);
 	entry.insts += new LGoto (faux);
+	
+	vrai1.insts = new LInstList;
+	vrai1.insts += new LWrite (new LRegRead (addr, 0, 4), new LBinop (new LConstDWord (1), new LRegRead (addr, 0, 4), Tokens.MINUS));
+	entry.insts += vrai1;
+	vrai1.insts += new LJump (test, vrai);
+	vrai1.insts += new LGoto (faux);
+	
 	vrai.insts = new LInstList;
 	vrai.insts += new LSysCall ("free", make!(Array!LExp) ([addr]));
 	vrai.insts += new LGoto (faux);
 	entry.insts += vrai;
+
 	entry.insts += faux;
 	auto fr = new LFrame (__DstName__, entry, end, null, make!(Array!LReg) ([addr]));
 	LFrame.preCompiled [__DstName__] = fr;
