@@ -221,10 +221,18 @@ class AMDVisitor : TVisitor {
 	    REG.free (laux);
 	}
 	
-	auto rpaire = visitExpression (lbin.right, where);
-	ret += lpaire.what + rpaire.what;
+	auto rpaire = visitExpression (lbin.right, where);	
+	ret += rpaire.what;
 	if (!free) REG.free (laux);
-	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	if (cast (LRegRead) lbin.right && rpaire.where != where) {
+	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	} else {
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
+	}
+
 	return new TInstPaire (where, ret);
     }
 
@@ -250,9 +258,16 @@ class AMDVisitor : TVisitor {
 	    REG.free (laux);
 	}
 	auto rpaire = visitExpression (lbin.right, where);
-	ret += lpaire.what + rpaire.what;
+	ret += rpaire.what;
 	if (!free) REG.free (laux);
-	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	if (cast (LRegRead) lbin.right && rpaire.where != where) {
+	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	} else {
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
+	} 
 	return new TInstPaire (where, ret);
     }
 
@@ -275,9 +290,16 @@ class AMDVisitor : TVisitor {
 	    REG.free (laux);
 	}
 	auto rpaire = visitExpression (lbin.right, where);
-	ret += lpaire.what + rpaire.what;
+	ret += rpaire.what;
 	if (!free) REG.free (laux);
-	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
+	if (cast (LRegRead) lbin.right && rpaire.where != where) {
+	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	} else {
+	    ret += lpaire.what;
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
+	} 
 	return new TInstPaire (where, ret);
     }
     

@@ -22,6 +22,7 @@ class UnPureFrame : Frame {
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterBlock ();
 	
 	Array!Var finalParams;
 	foreach (it; 0 .. this._function.params.length) {
@@ -61,11 +62,11 @@ class UnPureFrame : Frame {
 	    proto.type = Table.instance.retInfo.info;
 	    
 	    FrameTable.instance.insert (fr);
-	    
+	    fr.dest = Table.instance.quitBlock ();
 	    fr.last = Table.instance.quitFrame ();
 	    return proto;
 	}
-	
+	Table.instance.quitBlock ();
 	Table.instance.quitFrame ();
 	return proto;
     }

@@ -312,11 +312,16 @@ class LVisitor {
     }
     
     private LInstList visitDot (Dot dot) {
-	auto sym = new LReg (dot.info.id, dot.info.type.size);
+	//auto sym = new LReg (dot.info.id, dot.info.type.size);
 	auto inst = new LInstList;
-	auto left = new LInstList (sym);
-	auto right = dot.info.type.lintInst (left, visitExpression (dot.left));
+	//auto left = new LInstList (sym);
+	auto right = dot.info.type.lintInst (null, visitExpression (dot.left));
 	inst += right;
+	if (dot.info.isDestructible) {
+	    auto sym = new LReg (dot.info.id, dot.info.type.size);
+	    auto last = right.getFirst ();	    
+	    inst += new LWrite (sym, last);
+	}
 	return inst;
     }
     
@@ -343,8 +348,14 @@ class LVisitor {
 	    left = bin.info.type.leftTreatment (left);
 	if (bin.info.type.rightTreatment !is null)
 	    right = bin.info.type.rightTreatment (right);
-	return bin.info.type.lintInst (visitExpression (left),
-				       visitExpression (right));
+	auto ret = bin.info.type.lintInst (visitExpression (left),
+					   visitExpression (right));
+	if (bin.info.isDestructible) {
+	    auto last = ret.getFirst ();
+	    auto reg = new LReg (bin.info.id, bin.info.type.size);
+	    ret += new LWrite (reg, last);
+	}
+	return ret;
     }
 
 }

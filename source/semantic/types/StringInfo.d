@@ -23,6 +23,7 @@ class StringInfo : InfoType {
 
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
+	else if (token == Tokens.PLUS) return Plus (right);
 	else return null;
     }
 
@@ -40,6 +41,15 @@ class StringInfo : InfoType {
 	return null;
     }    
 
+    private InfoType Plus (Expression right) {
+	if (cast (StringInfo) right.info.type) {
+	    auto str = new StringInfo ();
+	    str.lintInst = &StringUtils.InstPlus;
+	    return str;
+	}
+	return null;
+    }
+    
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto str = new StringInfo ();

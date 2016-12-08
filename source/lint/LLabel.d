@@ -16,6 +16,12 @@ class LLabel : LInst {
 	__last__ ++;
     }
 
+    this (LInstList list) {
+	this._insts = list;
+	this._id = __last__;
+	__last__++;
+    }
+    
     this (ulong id) {
 	this._id = __rename__ (id);
     }

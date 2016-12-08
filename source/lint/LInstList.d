@@ -1,5 +1,5 @@
 module lint.LInstList;
-import lint.LInst, lint.LExp;
+import lint.LInst, lint.LExp, lint.LLabel;
 import std.container, std.outbuffer;
 
 class LInstList {
@@ -71,7 +71,10 @@ class LInstList {
 	OutBuffer buf = new OutBuffer ();
 	if (!this._inst.empty) buf.write ("\n");
 	foreach (it ; this._inst) {
-	    buf.writef ("\t%s", it.toString());
+	    if (cast (LLabel) it is null)
+		buf.writef ("\t%s", it.toString());
+	    else
+		buf.writef ("%s", it.toString());
 	}
 	return buf.toString ();
     }
