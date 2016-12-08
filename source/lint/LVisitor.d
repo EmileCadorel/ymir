@@ -201,11 +201,7 @@ class LVisitor {
 	    if (ret.instComp !is null) {
 		list += ret.instComp(rlist);
 	    } else list += rlist;
-	    auto instCompS = ret.elem.info.type.ReturnOp ();
 	    list += (new LWrite (retReg,  rlist.getFirst ()));
-	    /*	    if (instCompS) {
-		list = instCompS (list);
-		}*/
 	}
 	list += new LGoto (end);
 	return list;
@@ -290,8 +286,11 @@ class LVisitor {
 	LInstList list = new LInstList;
 	foreach (it ; 0 .. par.params.length) {
 	    Expression exp = par.params [it];
-	    if (par.score.treat [it] !is null) exp = par.score.treat [it] (exp);
-	    auto elist = visitExpression (exp);
+	    LInstList elist;
+	    if (par.score.treat [it] && par.score.treat [it].lintInstS) 
+		elist = par.score.treat [it].lintInst (visitExpression (exp));
+	    else
+		elist = visitExpression (exp);
 	    exprs.insertBack (elist.getFirst ());
 	    list += elist;
 	}

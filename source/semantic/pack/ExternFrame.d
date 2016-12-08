@@ -31,11 +31,15 @@ class ExternFrame : Frame {
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ();
-		    auto type = info.CastOp (params.params [it].info.type);
-		    if (type is info) score.score += SAME;
-		    else if (type !is null) score.score += AFF;
-		    else return null;
-		    score.treat.insertBack (type.leftTreatment);					    
+		    auto type = params.params [it].info.type.CastOp (info);
+		    if (type is info) {
+			score.score += SAME;
+			score.treat.insertBack (null);  
+		    } else if (type !is null) {
+			score.score += AFF;
+			score.treat.insertBack (type);  
+		    } else return null;
+
 		} else {
 		    score.score += AFF;
 		    score.treat.insertBack (null);

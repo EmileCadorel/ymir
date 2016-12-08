@@ -297,7 +297,7 @@ class AMDReg : AMDObj {
     }
 
     AMDReg clone (AMDSize size) {
-	if (this._isStd) {	    
+	if (this._isStd && !this._isOff) {	    
 	    return new AMDReg (REG.getReg (this._name, size));
 	} else {
 	    return new AMDReg (this._id, size);

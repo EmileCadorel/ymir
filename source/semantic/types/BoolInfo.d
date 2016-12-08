@@ -2,7 +2,9 @@ module semantic.types.BoolInfo;
 import syntax.Word, ast.Expression;
 import semantic.types.CharInfo;
 import semantic.types.InfoType, utils.exception;
+import semantic.types.UndefInfo;
 import syntax.Tokens, semantic.types.BoolUtils;
+import semantic.types.IntInfo;
 
 class BoolInfo : InfoType {
 
@@ -25,8 +27,22 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    override InfoType BinaryOpRight (Word op, Expression left) {
+	if (op == Tokens.EQUAL) return AffectRight (left);
+	return null;
+    }
+    
     private InfoType Affect (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &BoolUtils.InstAffect;
+	    return b;
+	}
+	return null;
+    }
+
+    private InfoType AffectRight (Expression left) {
+	if (cast (UndefInfo) left.info.type) {
 	    auto b = new BoolInfo ();
 	    b.lintInst = &BoolUtils.InstAffect;
 	    return b;
@@ -52,6 +68,10 @@ class BoolInfo : InfoType {
 	else if (cast (CharInfo) other) {
 	    auto aux = new CharInfo;
 	    aux.lintInstS = &BoolUtils.InstCastChar ;
+	    return aux;
+	} else if (cast (IntInfo) other) {
+	    auto aux = new IntInfo;
+	    aux.lintInstS = &BoolUtils.InstCastInt;
 	    return aux;
 	}
 	return null;

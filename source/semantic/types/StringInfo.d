@@ -93,10 +93,6 @@ class StringInfo : InfoType {
 	return &StringUtils.InstParam;
     }
 
-    override InstCompS ReturnOp () {
-	return &StringUtils.InstReturn;
-    }
-    
     private InfoType NbRef () {
 	auto _int = new IntInfo;
 	_int.lintInst = &StringUtils.InstNbRef;

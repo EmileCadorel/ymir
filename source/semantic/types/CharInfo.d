@@ -22,6 +22,7 @@ class CharInfo : InfoType {
 	if (op == Tokens.PLUS_AFF) return opAff!(Tokens.PLUS) (right);
 	if (op == Tokens.INF) return opTest!(Tokens.INF) (right);
 	if (op == Tokens.SUP) return opTest!(Tokens.SUP) (right);
+	if (op == Tokens.DEQUAL) return opTest! (Tokens.DEQUAL) (right);
 	if (op == Tokens.INF_EQUAL) return opTest!(Tokens.INF_EQUAL) (right);
 	if (op == Tokens.SUP_EQUAL) return opTest!(Tokens.SUP_EQUAL) (right);
 	if (op == Tokens.NOT_EQUAL) return opTest!(Tokens.NOT_EQUAL) (right);

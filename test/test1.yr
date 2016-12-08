@@ -2,12 +2,16 @@ extern (C) malloc (a : int) : ptr!int;
 extern (C) free (a : ptr!int) : void;
 extern (C) putchar (a : char);
 
-def print (str) {
+def print (str : string) {
     let i = 0;
     while (i < str.length) {
 	putchar (str[i]);
 	i += 1;
     }
+}
+
+def print (c : char) {
+    putchar (c);
 }
 
 def print (i : int) : void {
@@ -20,17 +24,22 @@ def print (i : int) : void {
     }
 }
 
-def toStr (c : char) {
-    let a = "a";
-    a [0] = c;
-    return a;
+def print (b : bool) {
+    if (b) print ("true");
+    else print ("false");
 }
 
-def test () {
-    return "test\n";
+def find (str : string, c : char) {
+    let i = 0;
+    while (i < str.length) {
+	if (c == str [i]) return true;
+	i += 1;
+    }
+    return false;
 }
 
 def main () {
-    let a = test ();
-    print (a);
+    let t = find ("salut\n", '\n');
+    print (t);
+    print ('\n');
 }

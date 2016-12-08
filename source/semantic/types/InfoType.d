@@ -28,7 +28,7 @@ class ApplicationScore {
     Word token;
     string name;
     InfoType ret;
-    Array!InstPreTreatment treat;	
+    Array!InfoType treat;	
 }
 
 class InfoType {
