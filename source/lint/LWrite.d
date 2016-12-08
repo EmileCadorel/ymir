@@ -17,7 +17,7 @@ class LWrite : LInst {
 	this._right = right;
 	this._size = size;
     }    
-
+    
     override LExp getFirst () {
 	return this._left;
     }

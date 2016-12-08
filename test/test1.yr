@@ -1,45 +1,12 @@
-extern (C) malloc (a : int) : ptr!int;
-extern (C) free (a : ptr!int) : void;
+
 extern (C) putchar (a : char);
 
-def print (str : string) {
-    let i = 0;
-    while (i < str.length) {
-	putchar (str[i]);
-	i += 1;
-    }
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def print (b : bool) {
-    if (b) print ("true");
-    else print ("false");
-}
-
-def find (str : string, c : char) {
-    let i = 0;
-    while (i < str.length) {
-	if (c == str [i]) return true;
-	i += 1;
-    }
-    return false;
+def test (p : ptr!int) {
+    let c = p + 89776;
+    *c = 89;
 }
 
 def main () {
-    let t = find ("salut\n", '\n');
-    print (t);
-    print ('\n');
+    let a = 8;
+    test (&a);
 }

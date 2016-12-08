@@ -128,7 +128,8 @@ class PureFrame : Frame {
 	    
 	    FrameTable.instance.insert (finFrame);	
 	    FrameTable.instance.insert (this._fr);
-	    
+
+	    finFrame.file = this._function.ident.locus.file;
 	    finFrame.dest = Table.instance.quitBlock ();
 	    finFrame.last = Table.instance.quitFrame ();
 	    return this._fr;
@@ -141,6 +142,7 @@ class PureFrame : Frame {
 class FinalFrame {
 
     private Symbol _type;
+    private string _file;
     private string _name;
     private Array!Var _vars;
     private Array!Symbol _dest;
@@ -159,6 +161,10 @@ class FinalFrame {
 	return this._name;
     }
 
+    ref string file () {
+	return this._file;
+    }
+    
     Symbol type () {
 	return this._type;
     }

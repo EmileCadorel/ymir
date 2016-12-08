@@ -5,7 +5,7 @@ import semantic.types.VoidInfo;
 import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
-import semantic.types.StringUtils;
+import semantic.types.StringUtils, lint.LLocus;
 
 class LVisitor {
     
@@ -48,6 +48,7 @@ class LVisitor {
 	}
 	
 	auto fr = new LFrame (semFrame.name, entry, end, retReg, args);
+	fr.file = semFrame.file;
 	fr.lastId = LReg.lastId;
 	return fr;
     }
@@ -103,6 +104,7 @@ class LVisitor {
 
     private LInstList visitIf (ref LLabel end, ref LReg retReg, If _if) {
 	auto insts = new LInstList;
+	insts += new LLocus (_if.token.locus);
 	LLabel faux = new LLabel ();
 	LLabel vrai = new LLabel ();
 	LLabel fin = new LLabel ();
@@ -135,6 +137,7 @@ class LVisitor {
 
     private LInstList visitWhile (ref LLabel end, ref LReg retReg, While _while) {
 	auto inst = new LInstList;
+	inst += new LLocus (_while.token.locus);
 	LLabel faux = new LLabel (), vrai = new LLabel, debut = new LLabel;
 	auto left = _while.test;
 	inst += debut;
@@ -168,6 +171,7 @@ class LVisitor {
 	}
 	auto elseif = cast(ElseIf)_else;
 	auto insts = new LInstList;
+	insts += new LLocus (_else.token.locus);
 	LLabel faux = new LLabel, vrai = new LLabel;
 	Expression left = elseif.test;
 	if (elseif.info !is elseif.test.info.type) {
@@ -196,6 +200,7 @@ class LVisitor {
     
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
 	LInstList list = new LInstList ();
+	list += new LLocus (ret.token.locus);
 	if (ret.elem !is null) {
 	    auto rlist = visitExpression (ret.elem);
 	    if (ret.instComp !is null) {
@@ -315,9 +320,7 @@ class LVisitor {
     }
     
     private LInstList visitDot (Dot dot) {
-	//auto sym = new LReg (dot.info.id, dot.info.type.size);
 	auto inst = new LInstList;
-	//auto left = new LInstList (sym);
 	auto right = dot.info.type.lintInst (null, visitExpression (dot.left));
 	inst += right;
 	if (dot.info.isDestructible) {
@@ -358,7 +361,8 @@ class LVisitor {
 	    auto reg = new LReg (bin.info.id, bin.info.type.size);
 	    ret += new LWrite (reg, last);
 	}
-	return ret;
+	auto inst = new LInstList (new LLocus (bin.token.locus));
+	return inst + ret;
     }
 
 }

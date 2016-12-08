@@ -10,5 +10,5 @@ clean:
 	rm a.out
 	rm out.s
 
-install: all
+install: final
 	mv ymir ${HOME}/libs/ymir

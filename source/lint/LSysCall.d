@@ -17,7 +17,7 @@ class LSysCall : LExp {
 	this._name = name;
 	this._params = params;
     }
-
+    
     string name () {
 	return this._name;
     }

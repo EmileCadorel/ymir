@@ -5,6 +5,7 @@ import std.conv, std.stdio;
 
 class LFrame {
 
+    private string _file;
     private static LFrame [string] __preCompiled__;
     private ulong _number;
     private static ulong __lastNum__ = 0;
@@ -37,6 +38,10 @@ class LFrame {
 	return __preCompiled__;
     }
 
+    ref string file () {
+	return this._file;
+    }
+    
     ulong number () {
 	return this._number;
     }

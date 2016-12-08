@@ -5,7 +5,7 @@ import amd64.AMDMove, amd64.AMDBinop;
 import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
-import std.math;
+import std.math, amd64.AMDLocus;
 
 class AMDVisitor : TVisitor {
 
@@ -23,8 +23,10 @@ class AMDVisitor : TVisitor {
 	list += new AMDType (frame.name, AMDTypes.FUNCTION);
 	auto label = new AMDLabel (frame.name, new TInstList);
 	list += label;
+	auto file =  new AMDFile (frame.file);
 	auto lbl = cast(AMDLabel) visit (frame.entryLbl);
 	auto entry = new AMDLabel (lbl.id, new TInstList);
+	entry.inst += file;
 	entry.inst += new AMDCfiStartProc ();
 	entry.inst += new AMDPush (rbp);
 	entry.inst += new AMDCfiDefCfaOffset (16);
@@ -129,6 +131,10 @@ class AMDVisitor : TVisitor {
 	return inst;
     }
 
+    override TInstList visitLocus (LLocus locus) {
+	return new TInstList (new AMDLocus (locus.locus));
+    }
+    
     private TInstList visitWriteRegRead (LWrite write) {
 	auto inst = new TInstList;
 	auto left = visitExpression (write.left);

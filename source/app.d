@@ -75,8 +75,10 @@ void main (string [] args) {
 	}
 	semanticTime (file);
 	auto list = lintTime ();		
-	foreach ( it ; list) {
-	    writeln (it.toString);
+	debug {
+	    foreach ( it ; list) {
+		writeln (it.toString);
+	    }
 	}
 	auto target = targetTime (list, args);
 	toFile (target, args);

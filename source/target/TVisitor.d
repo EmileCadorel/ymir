@@ -8,7 +8,7 @@ public import lint.LSysCall, lint.LJump;
 public import lint.LCall, lint.LInstList;
 public import target.TInstList, target.TFrame, target.TInstPaire;
 public import target.TReg, target.TLabel, target.TExp;
-public import lint.LCast, lint.LUnop, lint.LAddr;
+public import lint.LCast, lint.LUnop, lint.LAddr, lint.LLocus;
 import std.container;
 
 abstract class TVisitor {
@@ -42,7 +42,8 @@ abstract class TVisitor {
 	else if (auto jump = cast (LJump) inst) return visitJump (jump);
 	else if (auto lbl = cast (LLabel) inst) return new TInstList (visit (lbl));
 	else if (auto call = cast (LCall) inst) return visitCall (call).what;
-	assert (false, "TODO, visit (" ~ inst.toString () ~ ")");
+	else if (auto _loc = cast (LLocus) inst) return visitLocus (_loc);
+	assert (false, "TODO, visit (" ~ inst.toString () ~ ")");	
     }
 
     abstract protected TInstList visitJump (LJump);
@@ -52,6 +53,10 @@ abstract class TVisitor {
     abstract protected TInstList visitGoto (LGoto);
     
     abstract protected TInstList visitWrite (LWrite);
+
+    protected TInstList visitLocus (LLocus) {
+	assert (false);
+    }
 
     final protected TInstPaire visitExpression (LExp elem) {
 	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg);
