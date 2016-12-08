@@ -1,3 +1,5 @@
+extern (C) putchar (c : char);
+
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -8,11 +10,15 @@ def print (i : int) : void {
     }
 }
 
-def fibo (n) {
+def fibo (n : int) {
     if (n < 2) return n;
-    else return fibo (n - 1) + fibo (n - 2);
+    else {
+	let sum = fibo (n - 1) + fibo (n - 2);
+	return sum;
+    }
 }
 
 def main () {
-    print (fibo (13));
+    let a = fibo (12);
+    print (a);
 }

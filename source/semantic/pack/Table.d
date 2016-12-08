@@ -56,7 +56,7 @@ class Table {
     }
 
     void garbage (Symbol info) {
-	if (info !is null && info.isDestructible) info.setId ();
+	info.setId ();
 	if (!this._frameTable.empty)
 	    this._frameTable.front.garbage (info);
 	else this._globalScope.garbage (info);
