@@ -201,7 +201,11 @@ class LVisitor {
 	    if (ret.instComp !is null) {
 		list += ret.instComp(rlist);
 	    } else list += rlist;
+	    auto instCompS = ret.elem.info.type.ReturnOp ();
 	    list += (new LWrite (retReg,  rlist.getFirst ()));
+	    /*	    if (instCompS) {
+		list = instCompS (list);
+		}*/
 	}
 	list += new LGoto (end);
 	return list;
@@ -294,7 +298,7 @@ class LVisitor {
 	
 	auto call = new LCall (par.score.name, exprs, par.score.ret.size);
 	if (cast (VoidInfo) par.score.ret is null) {
-	    auto reg = new LReg (par.score.ret.size);
+	    auto reg = new LReg (par.info.id, par.score.ret.size);
 	    list += new LWrite (reg, call);
 	} else 	list += call;
 	return list;

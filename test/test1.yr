@@ -20,8 +20,17 @@ def print (i : int) : void {
     }
 }
 
+def toStr (c : char) {
+    let a = "a";
+    a [0] = c;
+    return a;
+}
+
+def test () {
+    return "test\n";
+}
+
 def main () {
-    let a = "salut";
-    a += " comment " + "ca va ?\n";
+    let a = test ();
     print (a);
 }
