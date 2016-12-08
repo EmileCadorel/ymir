@@ -277,6 +277,24 @@ class StringUtils {
 	return inst;
     }
     
+    static LInstList InstPlusAffect (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	auto it = (__PlusString__ in LFrame.preCompiled);
+	if (it is null) createPlusString ();
+	auto res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), 8);
+	auto aux = new LReg (8);
+	inst += new LWrite (aux, res);
+	it = (__DstName__ in LFrame.preCompiled);
+	if (it is null) createDstString ();	
+	inst += new LCall (__DstName__, make!(Array!LExp) ([leftExp]), 0);
+	inst += new LWrite (leftExp, aux);
+	inst += new LWrite (new LRegRead (cast (LReg)leftExp, 0, 4), new LBinop (new LConstDWord (1), new LRegRead (cast (LReg)leftExp, 0, 4), Tokens.PLUS)); // Nb ref
+	inst += aux;
+	return inst;
+    }
+    
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();

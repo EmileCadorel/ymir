@@ -21,6 +21,7 @@ def print (i : int) : void {
 }
 
 def main () {
-    let a = "salut" + "comment\n";
+    let a = "salut";
+    a += " comment " + "ca va ?\n";
     print (a);
 }

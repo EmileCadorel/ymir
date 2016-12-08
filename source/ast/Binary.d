@@ -94,7 +94,7 @@ class Binary : Expression {
 	    aux._isRight = true;
 	}
 	
-	aux.info = new Symbol (false, aux._token, type);
+	aux.info = new Symbol (aux._token, type);
 	return aux;	
     }
     
