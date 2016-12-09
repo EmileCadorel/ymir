@@ -62,8 +62,11 @@ class UnPureFrame : Frame {
 	    proto.type = Table.instance.retInfo.info;
 	    
 	    FrameTable.instance.insert (fr);
+	    
+	    fr.file = this._function.ident.locus.file;
 	    fr.dest = Table.instance.quitBlock ();
 	    fr.last = Table.instance.quitFrame ();
+	    
 	    return proto;
 	}
 	Table.instance.quitBlock ();

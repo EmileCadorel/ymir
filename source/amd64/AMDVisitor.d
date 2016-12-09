@@ -15,6 +15,7 @@ class AMDVisitor : TVisitor {
     
     override protected TFrame visit (LFrame frame) {
 	AMDReg.resetOff ();
+	auto file =  new AMDFile (frame.file);
 	auto rbp = new AMDReg (REG.getReg ("rbp")), rsp = new AMDReg (REG.getReg ("rsp"));
 	AMDReg.lastId = frame.lastId;
 	auto stack = new AMDConstQWord (0);
@@ -23,7 +24,6 @@ class AMDVisitor : TVisitor {
 	list += new AMDType (frame.name, AMDTypes.FUNCTION);
 	auto label = new AMDLabel (frame.name, new TInstList);
 	list += label;
-	auto file =  new AMDFile (frame.file);
 	auto lbl = cast(AMDLabel) visit (frame.entryLbl);
 	auto entry = new AMDLabel (lbl.id, new TInstList);
 	entry.inst += file;

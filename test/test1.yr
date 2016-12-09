@@ -1,12 +1,16 @@
 
 extern (C) putchar (a : char);
 
-def test (p : ptr!int) {
-    let c = p + 89776;
-    *c = 89;
+def print (str) {
+    let i = 0;
+    while (i < str.length) {
+	putchar (str [i]);
+	i += 1;
+    }
 }
 
+
 def main () {
-    let a = 8;
-    test (&a);
+    let a = "salut" + " " + "comment " + "ca va ?" + "\n";
+    print (a);
 }
