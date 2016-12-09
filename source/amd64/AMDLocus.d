@@ -1,6 +1,7 @@
 module amd64.AMDLocus;
 import target.TInst, syntax.Word;
 import std.outbuffer;
+import utils.Options;
 
 class AMDFile : TInst {
 
@@ -22,11 +23,14 @@ class AMDFile : TInst {
     }
 
     override string toString () {
-	if (this._needed) {
-	    auto buf = new OutBuffer ();
-	    buf.writef ("\t.file\t%d \"%s\"\n", this._id, this._file);
-	    return buf.toString ();
-	} else return "";
+	if (Options.instance.isOn (OptionEnum.DEBUG)) {
+	    if (this._needed) {
+		auto buf = new OutBuffer ();
+		buf.writef ("\t.file\t%d \"%s\"\n", this._id, this._file);
+		return buf.toString ();
+	    }
+	}
+	return "";
     }
     
 }
@@ -42,9 +46,12 @@ class AMDLocus : TInst {
     }
 
     override string toString () {
-	auto buf = new OutBuffer ();
-	buf.writef ("\t.loc\t%d %d %d", this._id, this._loc.line, 0);
-	return buf.toString ();
+	if (Options.instance.isOn (OptionEnum.DEBUG)) {
+	    auto buf = new OutBuffer ();
+	    buf.writef ("\t.loc\t%d %d %d", this._id, this._loc.line, 0);
+	    return buf.toString ();
+	}
+	return "";
     }
     
     

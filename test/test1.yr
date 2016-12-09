@@ -11,6 +11,6 @@ def print (str) {
 
 
 def main () {
-    let a = "salut" + " " + "comment " + "ca va ?" + "\n";
+    let a = "test\n";
     print (a);
 }

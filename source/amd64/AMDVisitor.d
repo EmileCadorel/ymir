@@ -7,6 +7,7 @@ import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
 import std.math, amd64.AMDLocus;
 
+
 class AMDVisitor : TVisitor {
 
     private int max (int a, int b) {

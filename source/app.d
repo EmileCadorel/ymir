@@ -5,16 +5,11 @@ import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
 import syntax.Lexer, target.TRodata, std.process;
 import std.algorithm;
+import utils.Options, std.file;
 
-string file (string [] args) {
-    foreach (it ; args) {
-	if (extension (it) == ".yr") return it;
-    }
-    return null;
-}
 
-void semanticTime (string args) {
-    Visitor visitor = new Visitor (args);
+void semanticTime (string file) {
+    Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
     prog.declare ();
     
@@ -37,51 +32,56 @@ Array!LFrame lintTime () {
     return visitor.visit ();
 }
 
-Array!TFrame targetTime (Array!LFrame frames, string [] args) {
-    TVisitor visitor;
-    foreach (it ; args) {
-	if (it == "-x64")  {
-	    visitor = new AMDVisitor ();
-	} else if (it == "-yb") {
-	    visitor = new YBVisitor ();
-	}
-    }
-    if (visitor !is null) 
-	return visitor.target (frames);
-    else return new AMDVisitor ().target (frames);    
+Array!TFrame targetTime (Array!LFrame frames) {
+    return new AMDVisitor ().target (frames);    
 }
 
-void toFile (Array!TFrame frames, string [] args) {
-    if (find (args, "-yb") == []) {
-	auto file = File ("out.s", "w");
-	file.write ("\t.section .rodata\n");
-	foreach (it ; TRodata.insts.inst) {
-	    file.write (it);
-	}
+void toFile (Array!TFrame frames, string filename) {
+    auto file = File (filename, "w");
+    file.write ("\t.section .rodata\n");
+    foreach (it ; TRodata.insts.inst) {
+	file.write (it);
+    }
     
-	file.write ("\t.text\n");
-	foreach (it ; frames) {
-	    file.write (it.toString ());
-	}
-	spawnProcess (["gcc", "out.s"]);
+    file.write ("\t.text\n");
+    foreach (it ; frames) {
+	file.write (it.toString ());
     }
 }
 
 void main (string [] args) {
-    auto file = file (args);
+    Options.instance.init (args);
     try {
-	if (file is null) {
+	if (Options.instance.inputFiles == []) {
 	    throw new Exception ("Pas de fichier d'entree");
 	}
-	semanticTime (file);
-	auto list = lintTime ();		
-	debug {
-	    foreach ( it ; list) {
-		writeln (it.toString);
+	
+	string [] files;
+	foreach (file ; Options.instance.inputFiles) {	
+	    semanticTime (file);
+	    auto list = lintTime ();		
+	    debug {
+		foreach (it ; list) {
+		    writeln (it.toString);
+		}
 	    }
+	    auto target = targetTime (list);
+	    
+	    toFile (target, file ~ ".s");
+	    files ~= [file ~ ".s"];
 	}
-	auto target = targetTime (list, args);
-	toFile (target, args);
+	
+	auto pid = spawnProcess (["gcc"] ~ files);
+	writeln ("linking");
+	if (wait (pid) != 0) assert ("Compilation raté");
+	
+	bool del = true;
+	debug del = false;
+	if (del) {
+	    foreach (it ; files) std.file.remove (it);		
+	}
+	
+	
     } catch (YmirException yme) {
 	yme.print ();
     } catch (ErrorOccurs occurs) {
