@@ -16,6 +16,7 @@ class AMDUnop : TInst {
     private string opInt () {
 	if (this._op == Tokens.DIV) return "idiv";
 	else if (this._op == Tokens.MINUS) return "neg";
+	else if (this._op == Tokens.NOT) return "not";
 	else assert (false);
     }
 

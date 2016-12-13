@@ -152,8 +152,7 @@ class PtrInfo : InfoType {
     }
 
     override InfoType DotOp (Var var) {
-	if (!var.isType) return null;
-	else {
+	if (var.isType) {
 	    auto type = var.asType ();
 	    auto ret = type.info.type;
 	    if (ret.size == 1)  ret.lintInst = &PtrUtils.InstUnrefDot!(1);
@@ -164,7 +163,12 @@ class PtrInfo : InfoType {
 	    if (ret.size == -4)  ret.lintInst = &PtrUtils.InstUnrefDot!(-4);
 	    ret.isConst = false;
 	    return ret;
+	} else if (var.token.str == "init") {
+	    auto type = this.clone ();
+	    type.lintInst = &PtrUtils.InstNull;
+	    return type;
 	}
+	return null;  
     }
     
     ref InfoType content () {

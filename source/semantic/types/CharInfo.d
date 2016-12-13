@@ -3,6 +3,7 @@ import syntax.Word, ast.Expression;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.CharUtils, syntax.Tokens;
 import semantic.types.BoolInfo, semantic.types.IntInfo;
+import semantic.types.UndefInfo;
 
 class CharInfo : InfoType {
 
@@ -36,6 +37,7 @@ class CharInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word op, Expression right) {
+	if (op == Tokens.EQUAL) return AffectRight (right);
 	if (op == Tokens.INF) return opTestRight!(Tokens.INF) (right);
 	if (op == Tokens.SUP) return opTestRight!(Tokens.SUP) (right);
 	if (op == Tokens.INF_EQUAL) return opTestRight!(Tokens.INF_EQUAL) (right);
@@ -47,6 +49,15 @@ class CharInfo : InfoType {
 	if (op == Tokens.NOT_SUP_EQUAL) return opTestRight!(Tokens.INF) (right);
 	if (op == Tokens.PLUS) return opNormRight!(Tokens.PLUS) (right);
 	if (op == Tokens.MINUS) return opNormRight!(Tokens.MINUS) (right);
+	return null;
+    }
+
+    private InfoType AffectRight (Expression left) {
+	if (cast (UndefInfo) left.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstAffect;
+	    return ch;
+	}
 	return null;
     }
     

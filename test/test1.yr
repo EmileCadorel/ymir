@@ -1,16 +1,27 @@
 
 extern (C) putchar (a : char);
 
-def print (str) {
+def print (str : string) {
     let i = 0;
     while (i < str.length) {
 	putchar (str [i]);
-	i += 1;
+	i+=1;
+    }
+    putchar ('\n');
+}
+
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
     }
 }
 
-
 def main () {
-    let a = "test\n";
+    let a = 10, b = &a;
+    b.int = 9;
     print (a);
 }

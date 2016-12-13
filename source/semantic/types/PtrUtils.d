@@ -63,6 +63,12 @@ class PtrUtils {
 	return inst;
     }
 
+    static LInstList InstNull (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstQWord (0);
+	return inst;
+    }
+    
 
     static LInstList InstCast (LInstList llist) {
 	return llist;

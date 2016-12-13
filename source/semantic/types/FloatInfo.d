@@ -3,6 +3,7 @@ import syntax.Word, ast.Expression, semantic.types.FloatUtils;
 import syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.UndefInfo;
 
 class FloatInfo : InfoType {
 
@@ -40,6 +41,7 @@ class FloatInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word token, Expression right) {
+	if (token == Tokens.EQUAL) return AffectRight (right);
 	if (token == Tokens.INF) return opTestRight! (Tokens.INF) (right);	
 	if (token == Tokens.SUP) return opTestRight! (Tokens.SUP) (right);
 	if (token == Tokens.INF_EQUAL) return opTestRight! (Tokens.INF_EQUAL) (right);
@@ -66,6 +68,15 @@ class FloatInfo : InfoType {
 	    auto f = new FloatInfo ();
 	    f.lintInst = &FloatUtils.InstAffectInt;
 	    return f;
+	}
+	return null;
+    }
+
+    private InfoType AffectRight (Expression left) {
+	if (cast (UndefInfo) left.info.type) {
+	    auto fl = new FloatInfo ();
+	    fl.lintInst = &FloatUtils.InstAffect;
+	    return fl;
 	}
 	return null;
     }

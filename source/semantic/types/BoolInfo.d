@@ -4,7 +4,7 @@ import semantic.types.CharInfo;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.UndefInfo;
 import syntax.Tokens, semantic.types.BoolUtils;
-import semantic.types.IntInfo;
+import semantic.types.IntInfo, semantic.types.PtrInfo;
 
 class BoolInfo : InfoType {
 
@@ -30,6 +30,22 @@ class BoolInfo : InfoType {
     override InfoType BinaryOpRight (Word op, Expression left) {
 	if (op == Tokens.EQUAL) return AffectRight (left);
 	return null;
+    }
+
+    override InfoType UnaryOp (Word op) {
+	if (op == Tokens.NOT) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInstS = &BoolUtils.InstUnop !(Tokens.NOT);
+	    return ret;
+	} else if (op == Tokens.AND) return toPtr ();
+	return null;
+    }
+
+    private InfoType toPtr () {
+	auto ptr = new PtrInfo ();
+	ptr.content = new BoolInfo ();
+	ptr.lintInstS = &BoolUtils.InstAddr;
+	return ptr;
     }
     
     private InfoType Affect (Expression right) {

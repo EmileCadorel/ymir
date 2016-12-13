@@ -4,7 +4,7 @@ import amd64.AMDStd, amd64.AMDConst, amd64.AMDLabel;
 import amd64.AMDMove, amd64.AMDBinop;
 import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
-import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop;
+import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop, amd64.AMDLeaq;
 import std.math, amd64.AMDLocus;
 
 
@@ -147,6 +147,7 @@ class AMDVisitor : TVisitor {
 	    inst += new AMDMove (cast (AMDObj) right.where, aux);
 	    inst += left.what;
 	    inst += new AMDMove (aux, cast (AMDObj) left.where);
+	    REG.free (aux);
 	} else {
 	    inst += right.what + left.what;
 	    inst += new AMDMove (cast (AMDObj) right.where, cast (AMDObj) left.where);
@@ -463,7 +464,12 @@ class AMDVisitor : TVisitor {
 	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
 	inst += exp.what;
 	inst += new AMDMove (new AMDReg (REG.getReg ("rbp")), cast (AMDObj) where);
-	inst += new AMDBinop (new AMDConstQWord (-reg.offset), cast (AMDObj) where, Tokens.PLUS);
+	inst += new AMDBinop (new AMDConstQWord (-reg.offset),
+			      cast (AMDObj) where, Tokens.PLUS);
+
+	// On pourrait mettre un leaq mais je vois pas l'interet
+	// vu qu'il faut quand meme un registre intermediaire
+	 
 	REG.free (aux);
 	return new TInstPaire (where, inst);
     }
