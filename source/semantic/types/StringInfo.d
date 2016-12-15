@@ -3,7 +3,7 @@ import syntax.Word, ast.Expression, syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
-import ast.Var, semantic.types.UndefInfo;
+import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
 
 class StringInfo : InfoType {
 
@@ -71,6 +71,13 @@ class StringInfo : InfoType {
     
     override InfoType CastOp (InfoType info) {
 	if (cast (StringInfo)info) return this;
+	auto type = cast (ArrayInfo) info;
+	if (type && cast (CharInfo) type.content) {
+	    auto other = new ArrayInfo (new CharInfo);
+	    other.setDestruct (null);
+	    other.lintInstS = &StringUtils.InstCastArray;
+	    return other;
+	}
 	return null;
     }
 

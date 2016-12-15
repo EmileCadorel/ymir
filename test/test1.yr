@@ -44,6 +44,8 @@ def test (i) {
 
 def main () {
     let a = "er" + "r" + "t";
-    let b = [1, 2, 3] + [4] + [6] + [345];
-    println (b);
+    let b = ['t', 't', 't'] + ['t'] + ['t'] + ['r'];
+    let c = cast:string (b);
+    println (c);
+    let d = cast:array!(char) (c);
 }

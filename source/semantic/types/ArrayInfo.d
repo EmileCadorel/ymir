@@ -5,7 +5,7 @@ import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.ArrayUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, semantic.types.PtrInfo;
-import ast.ParamList;
+import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 
 class ArrayInfo : InfoType {
 
@@ -58,7 +58,9 @@ class ArrayInfo : InfoType {
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
 	    switch (this._content.size) {
+	    case 1: str.lintInst = &ArrayUtils.InstPlus !(1); break;
 	    case 4: str.lintInst = &ArrayUtils.InstPlus !(4); break;
+	    case 8: str.lintInst = &ArrayUtils.InstPlus !(8); break;
 	    default : assert (false, "TODO");
 	    }
 	    return str;
@@ -147,7 +149,12 @@ class ArrayInfo : InfoType {
 	auto type = cast (ArrayInfo) other;
 	if (type && type.content.isSame (this._content)) {
 	    return this;
-	} 
+	} else if (cast(StringInfo) other && cast(CharInfo) this._content) {
+	    auto _other = new StringInfo ();
+	    _other.lintInstS = &ArrayUtils.InstCastString;
+	    _other.setDestruct (null);
+	    return _other;
+	}
 	return null;	
     }
 

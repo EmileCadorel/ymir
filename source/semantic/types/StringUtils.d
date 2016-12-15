@@ -403,6 +403,9 @@ class StringUtils {
 	return llist;
     }
     
+    static LInstList InstCastArray (LInstList llist) {
+	return llist;
+    }
 
-
+    
 }

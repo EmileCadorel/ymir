@@ -127,6 +127,11 @@ class CharInfo : InfoType {
 	return null;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (CharInfo) other) return other;
+	return null;
+    }
+    
     
     override string typeString () {
 	return "char";
