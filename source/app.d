@@ -11,7 +11,6 @@ import utils.Options, std.file;
 void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
-    prog.print ();
     prog.declare ();
     
     auto error = 0;

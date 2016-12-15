@@ -43,11 +43,26 @@ class ArrayInfo : InfoType {
 
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
+	else if (token == Tokens.PLUS) return Plus (right);
 	return null;
     }
 
     override InfoType BinaryOpRight (Word token, Expression left) {
 	if (token == Tokens.EQUAL) return AffectRight (left);
+	return null;
+    }
+
+       
+    private InfoType Plus (Expression right) {
+	auto arr = cast (ArrayInfo) right.info.type;
+	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
+	    auto str = new ArrayInfo (this._content.clone ());
+	    switch (this._content.size) {
+	    case 4: str.lintInst = &ArrayUtils.InstPlus !(4); break;
+	    default : assert (false, "TODO");
+	    }
+	    return str;
+	}
 	return null;
     }
 

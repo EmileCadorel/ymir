@@ -38,7 +38,12 @@ def print (arr) {
     print (']');
 }
 
+def test (i) {
+    return i;
+}
+
 def main () {
-    let a = [[1]];
-    println (a);
+    let a = "er" + "r" + "t";
+    let b = [1, 2, 3] + [4] + [6] + [345];
+    println (b);
 }

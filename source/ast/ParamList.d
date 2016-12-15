@@ -1,5 +1,6 @@
 module ast.ParamList;
-import ast.Expression;
+import ast.Expression, utils.exception;
+import semantic.types.UndefInfo;
 import std.container, syntax.Word;
 import std.stdio, std.string;
 
@@ -20,6 +21,8 @@ class ParamList : Expression {
 	auto aux = new ParamList (this._token);
 	foreach (it ; this._params) {
 	    aux._params.insertBack (it.expression ());
+	    if (cast (UndefInfo) aux._params.back ().info.type)
+		throw new UninitVar (aux._params.back.token);
 	}
 	return aux;
     }
