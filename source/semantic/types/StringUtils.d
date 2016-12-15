@@ -26,13 +26,17 @@ class StringUtils {
 	auto addr = new LReg (8);
 	auto entry = new LLabel, end = new LLabel;
 	entry.insts = new LInstList;
-	auto test = new LBinop (new LRegRead (addr, 0, 8), new LConstQWord (0), Tokens.NOT_EQUAL);
+	auto test = new LBinop (new LRegRead (addr, 0, 8),
+				new LConstQWord (0),
+				Tokens.NOT_EQUAL);
+	
 	auto vrai = new LLabel, faux = new LLabel;
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
 	vrai.insts = new LInstList;
 	vrai.insts += new LWrite (new LRegRead (new LRegRead (addr, 0, 8), 0, 4),
-				  new LBinop (new LRegRead (new LRegRead (addr, 0, 8), 0, 4),
+				  new LBinop (new LRegRead (new LRegRead (addr, 0, 8),
+							    0, 4),
 					      new LConstDWord (1), Tokens.PLUS));
 	entry.insts += vrai;
 	entry.insts += faux;
@@ -257,12 +261,14 @@ class StringUtils {
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
 	if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
-	inst += new LWrite (new LRegRead (cast (LReg)rightExp, 0, 4), new LBinop (new LConstDWord (1), new LRegRead (cast (LReg)rightExp, 0, 4), Tokens.PLUS)); // Nb ref
-	auto it = (__DstName__ in LFrame.preCompiled);
-	if (it is null) {
-	    createDstString ();
-	}
+
+	auto it = (__AddRef__ in LFrame.preCompiled);
+	if (it is null) createAddRef ();
+	it = (__DstName__ in LFrame.preCompiled);
+	if (it is null) createDstString ();
+	inst += new LCall (__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), 0);
 	inst += new LCall (__DstName__, make!(Array!LExp) ([leftExp]), 0);
+
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -322,10 +328,12 @@ class StringUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
 	inst += llist + rlists.back ();
-	auto aux = new LReg (8);
-	inst += new LBinop (leftExp, new LCast (rightExp, 8), aux, Tokens.PLUS);
-	inst += new LBinop (new LConstQWord (8), aux, aux, Tokens.PLUS);
-	inst += new LRegRead (aux, 0, 1);
+	auto elem = new LBinop (new LConstQWord (8),
+			    new LBinop (leftExp, new LCast (rightExp, 8),
+					Tokens.PLUS),
+			    Tokens.PLUS);
+	
+	inst += new LRegRead (elem, 0, 1);
 	return inst;
     }
     

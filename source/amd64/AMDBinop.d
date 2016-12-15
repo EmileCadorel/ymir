@@ -28,7 +28,7 @@ class AMDBinop : TInst {
     }
 
     private bool isNormCom () {
-	return find ([Tokens.PLUS, Tokens.STAR], this._op) != [];
+	return find ([Tokens.PLUS, Tokens.STAR, Tokens.XOR], this._op) != [];
     }
 
     private bool isNorm () {
@@ -51,6 +51,7 @@ class AMDBinop : TInst {
 	else if (this._op == Tokens.PLUS) return "add";
 	else if (this._op == Tokens.DEQUAL) return "cmp";
 	else if (this._op == Tokens.STAR) return "imul";
+	else if (this._op == Tokens.XOR) return "xor";
 	assert (false, "TODO " ~ this._op.descr);
     }
 

@@ -21,6 +21,8 @@ class Expression : Instruction {
     Expression expression () {
 	assert (false, "TODO " ~ this.toString());
     }
+
+    void printSimple () {}
     
     override void print (int nb = 0) {}
     

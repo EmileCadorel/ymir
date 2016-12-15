@@ -86,7 +86,12 @@ class PtrInfo : InfoType {
     private InfoType Plus (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
-	    ptr.lintInst = &PtrUtils.InstOp ! (Tokens.PLUS) ;
+	    if (this._content.size == 1)  ptr.lintInst = &PtrUtils.InstOp !(1, Tokens.PLUS);
+	    if (this._content.size == 2)  ptr.lintInst = &PtrUtils.InstOp !(2, Tokens.PLUS);
+	    if (this._content.size == 4)  ptr.lintInst = &PtrUtils.InstOp !(4, Tokens.PLUS);
+	    if (this._content.size == 8)  ptr.lintInst = &PtrUtils.InstOp !(8, Tokens.PLUS);
+	    if (this._content.size == -8)  ptr.lintInst = &PtrUtils.InstOp !(-8, Tokens.PLUS);
+	    if (this._content.size == -4)  ptr.lintInst = &PtrUtils.InstOp !(-4, Tokens.PLUS);
 	    return ptr;
 	}
 	return null;
@@ -95,7 +100,12 @@ class PtrInfo : InfoType {
     private InfoType Sub (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
-	    ptr.lintInst = &PtrUtils.InstOp ! (Tokens.MINUS) ;
+	    if (this._content.size == 1)  ptr.lintInst = &PtrUtils.InstOp !(1, Tokens.MINUS);
+	    if (this._content.size == 2)  ptr.lintInst = &PtrUtils.InstOp !(2, Tokens.MINUS);
+	    if (this._content.size == 4)  ptr.lintInst = &PtrUtils.InstOp !(4, Tokens.MINUS);
+	    if (this._content.size == 8)  ptr.lintInst = &PtrUtils.InstOp !(8, Tokens.MINUS);
+	    if (this._content.size == -8)  ptr.lintInst = &PtrUtils.InstOp !(-8, Tokens.MINUS);
+	    if (this._content.size == -4)  ptr.lintInst = &PtrUtils.InstOp !(-4, Tokens.MINUS);
 	    return ptr;
 	}
 	return null;
@@ -104,7 +114,12 @@ class PtrInfo : InfoType {
     private InfoType PlusRight (Expression left) {
 	if (cast (IntInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
-	    ptr.lintInst = &PtrUtils.InstOpInv ! (Tokens.PLUS) ;
+	    if (this._content.size == 1)  ptr.lintInst = &PtrUtils.InstOpInv !(1, Tokens.PLUS);
+	    if (this._content.size == 2)  ptr.lintInst = &PtrUtils.InstOpInv !(2, Tokens.PLUS);
+	    if (this._content.size == 4)  ptr.lintInst = &PtrUtils.InstOpInv !(4, Tokens.PLUS);
+	    if (this._content.size == 8)  ptr.lintInst = &PtrUtils.InstOpInv !(8, Tokens.PLUS);
+	    if (this._content.size == -8)  ptr.lintInst = &PtrUtils.InstOpInv !(-8, Tokens.PLUS);
+	    if (this._content.size == -4)  ptr.lintInst = &PtrUtils.InstOpInv !(-4, Tokens.PLUS);
 	    return ptr;
 	}
 	return null;
@@ -113,7 +128,12 @@ class PtrInfo : InfoType {
     private InfoType SubRight (Expression left) {
 	if (cast (IntInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
-	    ptr.lintInst = &PtrUtils.InstOpInv ! (Tokens.MINUS) ;
+	    if (this._content.size == 1)  ptr.lintInst = &PtrUtils.InstOpInv !(1, Tokens.MINUS);
+	    if (this._content.size == 2)  ptr.lintInst = &PtrUtils.InstOpInv !(2, Tokens.MINUS);
+	    if (this._content.size == 4)  ptr.lintInst = &PtrUtils.InstOpInv !(4, Tokens.MINUS);
+	    if (this._content.size == 8)  ptr.lintInst = &PtrUtils.InstOpInv !(8, Tokens.MINUS);
+	    if (this._content.size == -8)  ptr.lintInst = &PtrUtils.InstOpInv !(-8, Tokens.MINUS);
+	    if (this._content.size == -4)  ptr.lintInst = &PtrUtils.InstOpInv !(-4, Tokens.MINUS);
 	    return ptr;
 	}
 	return null;
@@ -148,6 +168,7 @@ class PtrInfo : InfoType {
 	if (this._content.size == -8)  ret.lintInstS = &PtrUtils.InstUnref!(-8);
 	if (this._content.size == -4)  ret.lintInstS = &PtrUtils.InstUnref!(-4);
 	ret.isConst = false;
+	ret.setDestruct (null);
 	return ret;
     }
 

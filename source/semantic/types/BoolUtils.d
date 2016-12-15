@@ -2,6 +2,7 @@ module semantic.types.BoolUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens, lint.LCast;
 import semantic.types.IntInfo, lint.LUnop, lint.LAddr;
+import lint.LConst;
 
 class BoolUtils {
 
@@ -26,6 +27,14 @@ class BoolUtils {
 	auto left = llist.getFirst ();
 	inst += llist;
 	inst += new LUnop (left, op);
+	return inst;
+    }
+
+    static LInstList InstXor (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (left, new LConstByte (1), Tokens.XOR);
 	return inst;
     }
     

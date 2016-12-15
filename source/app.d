@@ -11,6 +11,7 @@ import utils.Options, std.file;
 void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
+    prog.print ();
     prog.declare ();
     
     auto error = 0;
@@ -69,12 +70,17 @@ void main (string [] args) {
 	    
 	    toFile (target, file ~ ".s");
 	    files ~= [file ~ ".s"];
+	}	
+	if (Options.instance.isOn (OptionEnum.DEBUG)) {
+	    auto pid = spawnProcess (["gcc"] ~ ["-g"] ~ files);
+	    writeln ("linking");
+	    if (wait (pid) != 0) assert ("Compilation raté");
+	} else {
+	    auto pid = spawnProcess (["gcc"] ~ files);
+	    writeln ("linking");
+	    if (wait (pid) != 0) assert ("Compilation raté");
 	}
-	
-	auto pid = spawnProcess (["gcc"] ~ files);
-	writeln ("linking");
-	if (wait (pid) != 0) assert ("Compilation raté");
-	
+	   	
 	bool del = true;
 	debug del = false;
 	if (del) {
@@ -84,6 +90,9 @@ void main (string [] args) {
 	
     } catch (YmirException yme) {
 	yme.print ();
+	debug {
+	    throw yme;
+	}
     } catch (ErrorOccurs occurs) {
 	occurs.print ();
     }

@@ -6,6 +6,7 @@ import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop, amd64.AMDLeaq;
 import std.math, amd64.AMDLocus;
+import std.stdio;
 
 
 class AMDVisitor : TVisitor {
@@ -110,8 +111,8 @@ class AMDVisitor : TVisitor {
 	auto right = visitExpression (write.right, left.where);
 	auto inst = new TInstList;
 	if (right.where != left.where) {
-	    inst += right.what;
-	    auto lreg = (cast (AMDReg) right.where), rreg = (cast(AMDReg) right.where);
+	    inst += right.what;	    
+	    auto lreg = (cast (AMDReg) right.where), rreg = (cast(AMDReg) right.where);	    
 	    if (lreg !is null && rreg !is null) {
 		if (!lreg.isStd || lreg.isOff || !rreg.isStd || rreg.isOff) {
 		    auto aux = new AMDReg (REG.getReg ("r14", lreg.sizeAmd));
@@ -140,18 +141,14 @@ class AMDVisitor : TVisitor {
 	auto inst = new TInstList;
 	auto left = visitExpression (write.left);
 	auto right = visitExpression (write.right);
-	auto rreg = cast (AMDReg) right.where;
-	if (rreg !is null && rreg.isOff) {
-	    inst += right.what;
-	    auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
-	    inst += new AMDMove (cast (AMDObj) right.where, aux);
-	    inst += left.what;
-	    inst += new AMDMove (aux, cast (AMDObj) left.where);
-	    REG.free (aux);
-	} else {
-	    inst += right.what + left.what;
-	    inst += new AMDMove (cast (AMDObj) right.where, cast (AMDObj) left.where);
-	}
+	auto rreg = cast (AMDObj) right.where;
+	inst += right.what;
+	auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
+	inst += new AMDMove (cast (AMDObj) right.where, aux);
+	inst += left.what;
+	inst += new AMDMove (aux, cast (AMDObj) left.where);
+	REG.free (aux);
+	
 	return inst;
     }
     
@@ -231,7 +228,6 @@ class AMDVisitor : TVisitor {
 	
 	auto rpaire = visitExpression (lbin.right, where);	
 	ret += rpaire.what;
-	if (!free) REG.free (laux);
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
 	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
 	    ret += lpaire.what;
@@ -240,7 +236,7 @@ class AMDVisitor : TVisitor {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
 	}
-
+	if (!free) REG.free (laux);
 	return new TInstPaire (where, ret);
     }
 
@@ -260,22 +256,20 @@ class AMDVisitor : TVisitor {
 	    where = cast (AMDReg) wh.where;
 	}
 	auto laux = new AMDReg (REG.aux (AMDSize.DWORD));
-	auto lpaire = visitExpression (lbin.left, laux);
-	if (laux != lpaire.where) {
-	    free = true;
-	    REG.free (laux);
-	}
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
-	if (!free) REG.free (laux);
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
+	    REG.reserve (where);
+	    auto lpaire = visitExpression (lbin.left, laux);
 	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
 	} else {
+	    auto lpaire = visitExpression (lbin.left, laux);
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
-	} 
+	}
+	if (!free) REG.free (laux);
 	return new TInstPaire (where, ret);
     }
 
@@ -299,7 +293,6 @@ class AMDVisitor : TVisitor {
 	}
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
-	if (!free) REG.free (laux);
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
 	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
 	    ret += lpaire.what;
@@ -307,7 +300,8 @@ class AMDVisitor : TVisitor {
 	} else {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
-	} 
+	}
+	if (!free) REG.free (laux);
 	return new TInstPaire (where, ret);
     }
     
@@ -462,16 +456,13 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (addr.exp, aux);
 	auto reg = cast (AMDReg) exp.where;
 	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
+	auto ret = new AMDReg (REG.getReg ("r13"));
 	inst += exp.what;
-	inst += new AMDMove (new AMDReg (REG.getReg ("rbp")), cast (AMDObj) where);
-	inst += new AMDBinop (new AMDConstQWord (-reg.offset),
-			      cast (AMDObj) where, Tokens.PLUS);
-
-	// On pourrait mettre un leaq mais je vois pas l'interet
-	// vu qu'il faut quand meme un registre intermediaire
-	 
+	inst += new AMDLeaq (reg, ret);
+	
 	REG.free (aux);
-	return new TInstPaire (where, inst);
+	REG.free (ret);
+	return new TInstPaire (ret, inst);
     }
 
 

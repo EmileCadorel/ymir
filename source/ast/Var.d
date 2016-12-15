@@ -18,8 +18,12 @@ class Var : Expression {
 	this._templates = templates;
     }
 
-    void printSimple () {
-	writef ("%s", this._token.str);
+    override void printSimple () {
+	writef ("%s!(", this._token.str);
+	foreach (it ; this._templates) {
+	    it.printSimple ();
+	}
+	writef (")");
     }
 
     override Var expression () {
@@ -34,7 +38,7 @@ class Var : Expression {
     }
 
     TypedVar setType (Symbol info) {
-	auto type = new Type (info.sym, info.type);
+	auto type = new Type (info.sym, info.type.clone ());
 	return new TypedVar (this._token, type);
     }
     
@@ -63,10 +67,14 @@ class Var : Expression {
     override void print (int nb = 0) {
 	writefln ("%s<Var> %s(%d, %d) %s ",
 		  rightJustify ("", nb, ' '),
-		this._token.locus.file,
-		this._token.locus.line,
-		this._token.locus.column,
-		this._token.str);
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column,
+		  this._token.str);
+	
+	foreach (it ; this._templates) {
+	    it.print (nb + 4);
+	}
     }
     
     

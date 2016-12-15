@@ -172,6 +172,7 @@ class Visitor {
 	} else _lex.rewind ();
 	return new Var (ident);
     }
+
     
     /**
      type := Identifiant ('!' (('(' expression (',' expression)* ')') | expression ) 
@@ -612,6 +613,8 @@ class Visitor {
 	    return visitSystem ();
 	} else if (word == Keys.CAST) {
 	    return visitCast ();
+	} else if (word == Tokens.LCRO) {
+	    return visitConstArray ();
 	} else this._lex.rewind ();
 	auto var = visitVar ();
 	auto next = _lex.next ();
@@ -621,6 +624,23 @@ class Visitor {
 	return var;
     }
 
+    private Expression visitConstArray () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto word = this._lex.next ();
+	Array!Expression params;
+	if (word != Tokens.RCRO)  {
+	    this._lex.rewind ();
+	    while (true) {
+		params.insertBack (visitExpression ());
+		word = this._lex.next ();
+		if (word == Tokens.RCRO) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+	    }
+	}
+	return new ConstArray (begin, params);
+    }
+    
     private Expression visitCast () {
 	this._lex.rewind ();
 	auto begin = this._lex.next ();
@@ -678,7 +698,7 @@ class Visitor {
 		    throw new SyntaxError (next, [Tokens.RPAR.descr, Tokens.COMA.descr]);
 	    }
 	}
-	auto retour = new Par (beg, left, new ParamList (suite, params));
+	auto retour = new Par (beg, next, left, new ParamList (suite, params));
 	next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
 	    return visitSuite (next, retour);
@@ -703,7 +723,7 @@ class Visitor {
 		    throw new SyntaxError (next, [Tokens.RCRO.descr, Tokens.COMA.descr]);
 	    }
 	}
-	auto retour = new Access (beg, left, new ParamList (suite, params));
+	auto retour = new Access (beg, next, left, new ParamList (suite, params));
 	next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
 	    return visitSuite (next, retour);

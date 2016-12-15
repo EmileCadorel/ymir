@@ -5,7 +5,8 @@ import semantic.types.VoidInfo;
 import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
-import semantic.types.StringUtils, lint.LLocus;
+import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
+import semantic.types.ArrayUtils, std.math;
 
 class LVisitor {
     
@@ -42,7 +43,7 @@ class LVisitor {
 	}
 	
 	visit (entry, end, retReg, semFrame.block);
-
+ 
 	foreach (it ; semFrame.dest) {	    
 	    end.insts += it.destruct ();
 	}
@@ -227,9 +228,40 @@ class LVisitor {
 	if (auto _bool = cast (Bool) elem) return visitBool (_bool);
 	if (auto _unop = cast (BefUnary) elem) return visitBefUnary (_unop);
 	if (auto _null = cast (Null) elem) return visitNull (_null);
+	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitConstArray (ConstArray carray) {
+	auto type = cast (ArrayInfo) carray.info.type;
+	Array!LExp params;
+	params.insertBack (new LConstDWord (carray.params.length *
+					    abs (type.content.size)));
+	params.insertBack (new LConstDWord (abs( type.content.size)));
+	
+	auto inst = new LInstList;
+	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	if (exist is null) ArrayUtils.createCstArray ();
+	auto aux = new LReg (carray.info.id, type.size);
+	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, 8));
+		
+	foreach (it ; 0 .. carray.params.length) {
+	    auto cster = carray.casters [it];
+	    LInstList ret;
+	    if (cster is null) ret = visitExpression (carray.params [it]);
+	    else ret = cster.lintInst (visitExpression (carray.params [it]));
+	    auto regRead = new LRegRead (aux,
+					 (it * abs (type.content.size)) + 8,
+					 abs (type.content.size));
+	    					 
+	    inst += ret;
+	    auto right = ret.getFirst ();
+	    inst += new LWrite (regRead, right);
+	}
+	inst += aux;
+	return inst;
+    }
+    
     private LInstList visitNull (Null _null) {
 	return new LInstList (new LConstQWord (0));
     }

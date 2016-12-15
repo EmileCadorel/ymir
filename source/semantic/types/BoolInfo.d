@@ -35,7 +35,7 @@ class BoolInfo : InfoType {
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.NOT) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInstS = &BoolUtils.InstUnop !(Tokens.NOT);
+	    ret.lintInstS = &BoolUtils.InstXor;
 	    return ret;
 	} else if (op == Tokens.AND) return toPtr ();
 	return null;

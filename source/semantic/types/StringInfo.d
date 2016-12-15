@@ -116,6 +116,7 @@ class StringInfo : InfoType {
 	    auto ch = new CharInfo;
 	    ch.lintInstMult = &StringUtils.InstAccessS;
 	    ch.isConst = false;
+	    ch.setDestruct (null);
 	    return ch;
 	}
 	return null;

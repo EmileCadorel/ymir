@@ -15,7 +15,7 @@ class PtrUtils {
 	return inst;
     }
 
-    static LInstList InstOp (Tokens op) (LInstList llist, LInstList rlist) {
+    static LInstList InstOp (int size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
@@ -23,7 +23,7 @@ class PtrUtils {
 	return inst;
     }
 
-    static LInstList InstOpInv (Tokens op) (LInstList llist, LInstList rlist) {
+    static LInstList InstOpInv (int size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;

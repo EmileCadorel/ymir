@@ -7,30 +7,32 @@ import semantic.pack.Symbol, std.container;
 
 class Par : Expression {
 
+    private Word _end;
     private ParamList _params;
     private Expression _left;
     private ApplicationScore _score;
     
-    this (Word word, Expression left, ParamList params) {
+    this (Word word, Word end, Expression left, ParamList params) {
 	super (word);
-	this._token.str = "()";
+	this._end = end;
 	this._params = params;
 	this._left = left;
     }
 
-    this (Word word) {
+    this (Word word, Word end) {
 	super (word);
+	this._end = end;
     }
     
     override Expression expression () {
-	auto aux = new Par (this._token);
+	auto aux = new Par (this._token, this._end);
 	aux._params = (cast(ParamList)this._params.expression ());
 	aux._left = this._left.expression ();
 	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token);
 	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
 	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	if (type is null) {
-	    throw new UndefinedOp (this._token, aux._left.info, aux._params);
+	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	}
 	
 	aux._score = type;

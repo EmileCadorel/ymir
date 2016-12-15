@@ -88,6 +88,11 @@ class IntInfo : InfoType {
 	return null;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (IntInfo) other) return other;
+	return null;
+    }
+    
     private InfoType toPtr () {
 	auto other = new PtrInfo ();
 	other.content = new IntInfo ();

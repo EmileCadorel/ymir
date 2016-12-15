@@ -7,6 +7,7 @@ import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
+import semantic.types.ArrayInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -50,7 +51,8 @@ class InfoType {
 		    "float" : &FloatInfo.create,
 		    "char" : &CharInfo.create,
 		    "void" : &VoidInfo.create,
-		    "ptr" : &PtrInfo.create];
+		    "ptr" : &PtrInfo.create,
+		    "array" : &ArrayInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {
@@ -104,6 +106,10 @@ class InfoType {
 	return null;
     }
 
+    InfoType CompOp (InfoType) {
+	return null;
+    }
+    
     InfoType DotOp (Var) {
 	return null;
     }
@@ -148,6 +154,10 @@ class InfoType {
 	return this._destruct;
     }
 
+    void setDestruct (InstCompS s) {
+	this._destruct = s;
+    }
+    
     bool isDestructible () {
 	return this._destruct != null;
     }

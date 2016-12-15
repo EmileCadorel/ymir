@@ -27,7 +27,7 @@ class UnPureFrame : Frame {
 	Array!Var finalParams;
 	foreach (it; 0 .. this._function.params.length) {
 	    if (cast(TypedVar)this._function.params [it] is null) {
-		auto var = this._function.params [it].setType (params.params [it].info);	    
+		auto var = this._function.params [it].setType (params.params [it].info);   
 		finalParams.insertBack (var.expression);
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.typeString ();

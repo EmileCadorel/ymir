@@ -24,7 +24,7 @@ class UndefinedAttribute : YmirException {
 	buf.writefln ("%sErreur%s: Attribut '%s%s%s' non définis pour le type '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, right.token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, right.token.locus);
 	msg = buf.toString();        
     }    
     
@@ -77,8 +77,8 @@ class UndefinedOp : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
-		      Colors.YELLOW.value, token.str, Colors.RESET.value,
-		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
+		    Colors.YELLOW.value, token.str, Colors.RESET.value,
+		    Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
 	
 	foreach (it ; right.params) {
 	    buf.writef ("%s%s%s",
@@ -91,7 +91,44 @@ class UndefinedOp : YmirException {
 	msg = buf.toString();        
     }
 
+    this (Word token, Word token2, Symbol left, ParamList right) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writef ("%sErreur%s: Operateur '%s%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
+		    Colors.YELLOW.value, token.str, token2.str, Colors.RESET.value,
+		    Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
+	
+	foreach (it ; right.params) {
+	    buf.writef ("%s%s%s",
+			Colors.YELLOW.value, it.info.type.typeString (), Colors.RESET.value);
+	    if (it !is right.params [$ - 1]) buf.writef (", ");
+	}
+	
+	buf.writefln ("):");	
+	super.addLine (buf, token.locus, token2.locus);
+	msg = buf.toString();        
+    }
+
     
+    
+}
+
+class IncompatibleTypes : YmirException {
+
+    this (Symbol left, Symbol right) {
+	auto buf = new OutBuffer;
+	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
+	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
+		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
+	super.addLine (buf, left.sym.locus);
+	
+	super.addLine (buf, right.sym.locus);
+	msg = buf.toString ();
+    }
+    
+
 }
 
 
@@ -252,7 +289,7 @@ class TemplateInferType : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : Reference vers un type de retour deduis pour l'appel : ",
-		   Colors.RED.value, Colors.RESET.value);
+		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, token.locus);
 
 	buf.writef ("%s:(%d,%d): ", func.locus.file, func.locus.line, func.locus.column);

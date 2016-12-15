@@ -43,6 +43,10 @@ class LConstDWord : LConst {
 	this._value = value;
     }
 
+    this (ulong value) {
+	this._value = to!int (value);
+    }
+    
     override int size () {
 	return 4;
     }

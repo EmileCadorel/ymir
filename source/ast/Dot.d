@@ -47,7 +47,8 @@ class Dot : Expression {
 	writefln ("%s<Dot> : %s(%d, %d) %s  ", rightJustify("", nb, ' '),
 		  this._token.locus.file,
 		  this._token.locus.line,
-		  this._token.locus.column);
+		  this._token.locus.column,
+		  this._token.str);
 	this._left.print (nb + 4);
 	this._right.print (nb + 4);
     }

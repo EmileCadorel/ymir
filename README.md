@@ -1,33 +1,49 @@
-##Installation
+Installation
+========
 
 ```
 git clone https://github.com/EmileCadorel/ymir.git
 cd ymir/
-make final
+make install
 ```
 
-##Utilisation
+Utilisation
+========
 
 ```
-ymir file.yr
+ymir [-g] 
+     [-Idir...]
+     [-o outfile] infiles...
 ```
 
-### Ymir syntaxe
+Ymir syntaxe
+=======
 
-```D
-def test () : string {
-  return 'test';
+```ocaml
+import std.stdio;
+
+def test () {
+	while:loop1 (true) {
+		let i = 0;
+		while i < 89 {
+			if (i == 4) break loop1;
+		}
+	}
 }
 
-def add (a : float, b : float) {
-  return a + b;
-}
-
-def add (a : int, b : int) {
-  return a + b;
+def printTab (arr : array!int) {
+	print ('[');
+	for it in arr {
+		print (it);
+	}
+	print (']');
 }
 
 def main () {
-  println (test, add (1., .09), add (3, 7));
+    let a = 10, b = 'd', c = &a, e = "salut";
+    let f = [1, 2, 3];
+    let g = f + [4];
+    if (g.length >= 4) printTab (g);
 }
+
 ```

@@ -72,6 +72,38 @@ class YmirException : Exception {
 	}
     } 
 
+
+    protected void addLine (ref OutBuffer buf, Location locus, Location locus2) {
+	auto line = getLine (locus);
+	if (line.length > 0) {
+	    auto j = 0;
+	    buf.writef ("%s%s%s%s%s%s%s%s%s", line[0 .. locus.column - 1],
+			Colors.YELLOW.value,
+			line[locus.column - 1 .. locus.column + locus.length - 1],
+			Colors.RESET.value,
+			line[locus.column + locus.length - 1 .. locus2.column - 1],
+			Colors.YELLOW.value,
+			line [locus2.column - 1 .. locus2.column + locus2.length - 1],
+			Colors.RESET.value,
+			line [locus2.column + locus2.length - 1 .. $]);
+	    
+	    if (line[$-1] != '\n') buf.write ("\n");
+	    foreach (it ; 0 .. locus.column - 1) {
+		if (line[it] == '\t') buf.write ('\t');
+		else buf.write (' ');
+	    }
+	    buf.writef ("%s", rightJustify ("", locus.length, '^'));
+	    foreach (it ; locus.column + locus.length - 1 .. locus2.column - 1) {
+		if (line[it] == '\t') buf.write ('\t');
+		else buf.write (' ');
+	    }
+	    buf.writefln ("%s", rightJustify ("", locus2.length, '^'));
+	} else {
+	    buf.writeln ("Fin de fichier inattendue");
+	}
+    } 
+
+    
     protected void addLine (ref OutBuffer buf, Location locus, ulong index, ulong length) {
 	auto line = getLine (locus);
 	if (line.length > 0) {

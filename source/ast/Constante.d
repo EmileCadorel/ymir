@@ -1,10 +1,11 @@
 module ast.Constante;
-import ast.Expression;
+import ast.Expression, std.stdio;
 import syntax.Word, semantic.pack.Symbol, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.CharInfo, semantic.types.BoolInfo;
 import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrInfo;
 import std.stdio, std.string, utils.exception, std.conv;
-import std.math;
+import std.math, std.container, semantic.types.InfoType;
+import semantic.types.ArrayInfo, semantic.types.VoidInfo;
 
 class Int : Expression {
     this (Word word) {
@@ -277,4 +278,69 @@ class Null : Expression {
 		  this._token.str);
     }
     
+}
+
+
+class ConstArray : Expression  {
+
+    private Array!Expression _params;
+    private Array!InfoType _casters;
+    
+    this (Word token, Array!Expression params) {
+	super (token);
+	this._params = params;
+    }
+
+    Array!Expression params () {
+	return this._params;
+    }
+
+    Array!InfoType casters () {
+	return this._casters;
+    }
+    
+    override Expression expression () {
+	auto aux = new ConstArray (this._token, this._params);
+	if (aux._params.length == 0) {
+	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
+	} else {
+	    InfoType last = null;
+	    foreach (ref it ; aux._params) {
+		it = it.expression;
+	    }
+	    aux._casters.length = aux._params.length;
+	    
+	    foreach (fst ; 0 .. aux._params.length) {
+		auto type = aux._params [fst].info.type;
+		if (last is null) last = type;
+		foreach (scd ; 1 .. aux._params.length) {
+		    if (fst != scd) {
+			auto cmp = aux._params [scd].info.type.CompOp (type);
+			if (cmp !is null && cmp !is type) {
+			    aux._casters [fst] = cmp;
+			    last = cmp;
+			} else if (cmp is null) {
+			    throw new IncompatibleTypes (aux._params [fst].info,
+							 aux._params [scd].info);
+			}
+		    }
+		}
+	    }
+	    aux._info = new Symbol (aux._token, new ArrayInfo (last.clone ()), true);
+	}
+	return aux;
+    }
+    
+    override void print (int nb = 0) {
+	writefln ("%s<Array> %s(%d, %d) ",
+		  rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column);
+	foreach (it ; this._params) {
+	    it.print (nb + 4);
+	}
+    }
+    
+
 }

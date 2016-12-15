@@ -152,9 +152,24 @@ class AMDRegTable {
 	return AMDRegInfo.empty (size);
     }
 
+    static AMDRegInfo getInfo (string name) {
+	foreach (it ; __table__) {
+	    if (name in it) return it;
+	}
+	assert (false, "Pas un registre " ~ name);
+    }
+    
+    static void reserve (AMDReg elem) {
+	if (elem.isStd && !elem.isOff) {
+	    auto reg = getInfo (elem.name);
+	    __free__ [reg.name] = false;
+	}
+    }
+
     static void free (AMDReg elem) {
-	if (elem.isStd) {
-	    __free__ [elem.name] = true;
+	if (elem.isStd && !elem.isOff) {
+	    auto reg = getInfo (elem.name);
+	    __free__ [reg.name] = true;
 	}
     }
     
