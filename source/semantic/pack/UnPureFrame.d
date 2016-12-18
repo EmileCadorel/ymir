@@ -49,7 +49,8 @@ class UnPureFrame : Frame {
 	    
 	    proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
 	    FrameTable.instance.insert (proto);
-	    
+
+	    Table.instance.retInfo.currentBlock = "true";	    
 	    auto block = this._function.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
@@ -65,6 +66,11 @@ class UnPureFrame : Frame {
 	    
 	    fr.file = this._function.ident.locus.file;
 	    fr.dest = Table.instance.quitBlock ();
+	    super.verifyReturn (this._function.ident,
+				fr.type,
+				Table.instance.retInfo);
+
+	    
 	    fr.last = Table.instance.quitFrame ();
 	    
 	    return proto;

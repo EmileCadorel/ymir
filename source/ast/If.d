@@ -3,6 +3,7 @@ import ast.Instruction, utils.exception;
 import ast.Expression, ast.Block;
 import syntax.Word, std.stdio, std.string;
 import semantic.types.BoolInfo, semantic.pack.Symbol, semantic.types.InfoType;
+import semantic.pack.Table;
 
 class If : Instruction {
 
@@ -31,6 +32,7 @@ class If : Instruction {
 	word.str = "cast";
 	if (type is null)
 	    throw new UndefinedOp (word, expr.info, new Symbol (word, new BoolInfo ()));
+	Table.instance.retInfo.currentBlock = "if";
 	auto bl = this._block.instructions ();
 	If _if;
 	if (this._else !is null) {
@@ -83,7 +85,9 @@ class Else : Instruction {
     }
 
     override Instruction instruction () {
-	return new Else (this._token, this._block.instructions);
+	Table.instance.retInfo.currentBlock = "else";
+	auto aux = new Else (this._token, this._block.instructions);
+	return aux;
     }
     
     Block block () {
@@ -125,6 +129,7 @@ class ElseIf : Else {
 	word.str = "cast";
 	if (type is null)
 	    throw new UndefinedOp (word, expr.info, new Symbol (word, new BoolInfo ()));
+	Table.instance.retInfo.currentBlock = "if";
 	auto bl = this._block.instructions ();
 	ElseIf _if;
 	if (this._else !is null) {

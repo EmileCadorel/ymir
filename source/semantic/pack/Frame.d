@@ -4,7 +4,9 @@ import ast.Var, semantic.types.UndefInfo, semantic.pack.Symbol;
 import syntax.Word, ast.Block, semantic.pack.FrameTable;
 import std.stdio, std.conv, std.container, std.outbuffer;
 import semantic.types.VoidInfo, ast.ParamList;
-import semantic.types.InfoType;
+import utils.exception;
+import semantic.types.InfoType, semantic.pack.FrameScope;
+
 
 class Frame {
 
@@ -30,6 +32,14 @@ class Frame {
 
     string namespace () {
 	return this._namespace;
+    }
+
+    void verifyReturn (Word token, Symbol ret, FrameReturnInfo infos) {
+	if (!(cast (VoidInfo) ret.type) && !(cast(UndefInfo) ret.type)) {
+	    if (!infos.retract) {
+		throw new NoReturnStmt (token, ret);
+	    }
+	}
     }
     
     ApplicationScore isApplicable (ParamList params) {
@@ -114,7 +124,7 @@ class PureFrame : Frame {
 	    }
 	    
 	    this._fr = new FrameProto (name, Table.instance.retInfo.info, finalParams);
-					  
+	    Table.instance.retInfo.currentBlock = "true";
 	    auto block = this._function.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
@@ -131,6 +141,10 @@ class PureFrame : Frame {
 
 	    finFrame.file = this._function.ident.locus.file;
 	    finFrame.dest = Table.instance.quitBlock ();
+	    super.verifyReturn (this._function.ident,
+				this._fr.type,
+				Table.instance.retInfo);
+	    
 	    finFrame.last = Table.instance.quitFrame ();
 	    return this._fr;
 	}

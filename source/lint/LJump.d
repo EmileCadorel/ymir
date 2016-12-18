@@ -1,6 +1,6 @@
 module lint.LJump;
 import lint.LInst, lint.LExp, lint.LLabel;
-import std.outbuffer;
+import std.outbuffer, std.stdio;
 
 class LJump : LInst {
 

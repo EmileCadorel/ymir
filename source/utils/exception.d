@@ -30,6 +30,19 @@ class UndefinedAttribute : YmirException {
     
 }
 
+class NoReturnStmt : YmirException {
+    this (Word token, Symbol type) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s : La fonction '%s%s%s' ne retournant pas void se termine sans retourner '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+}
+
 class UndefinedEscapeChar : YmirException {
 
     this (Word token, ulong index, string elem) {

@@ -76,8 +76,14 @@ class AMDVisitor : TVisitor {
 	auto inst = new TInstList;
 	auto exp = visitExpression (lj.test);
 	inst += exp.what;
-	auto reg = (cast (AMDReg) exp.where).clone (AMDSize.BYTE);
-	inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);	
+	if (cast (AMDReg) exp.where) {
+	    auto reg = (cast (AMDReg) exp.where).clone (AMDSize.BYTE);
+	    inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);
+	} else {
+	    auto reg = new AMDReg (REG.aux (AMDSize.BYTE));
+	    inst += new AMDMove (cast (AMDObj) exp.where, reg);
+	    inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);
+	}
 	inst += new AMDJne (lj.id);
 	return inst;
     }

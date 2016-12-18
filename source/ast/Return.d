@@ -22,6 +22,7 @@ class Return : Instruction {
 
     override Instruction instruction () {
 	auto aux = new Return (this._token);
+	Table.instance.retInfo.returned ();
 	if (this._elem !is null) {
 	    aux._elem = this._elem.expression ();
 	    aux._instComp = aux._elem.info.type.ReturnOp ();

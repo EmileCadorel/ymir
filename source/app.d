@@ -70,6 +70,7 @@ void main (string [] args) {
 	    toFile (target, file ~ ".s");
 	    files ~= [file ~ ".s"];
 	}	
+
 	if (Options.instance.isOn (OptionEnum.DEBUG)) {
 	    auto pid = spawnProcess (["gcc"] ~ ["-g"] ~ files);
 	    writeln ("linking");

@@ -1,81 +1,16 @@
-extern (C) putchar (c : char);
 
-def print (str : string) {
-    let i = 0;
-    while (i < str.length) {
-	print (str [i]);
-	i += 1;
-    }    
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def toStr (c : char) : string {
-    return cast:string ([c]);
-}
-
-def toStr (i : int) : string {
-    let ret = "", inf = false;
-    if (i < 0) {
-	inf = true;
-	i = -i;
-    }
-
-    while (i > 9) {
-	ret = toStr((i%10) + '0') + ret;
-	i /= 10;
-    }
-
-    ret = toStr((i%10) + '0') + ret;
-
-    if (inf) return "-" + ret;        
-    return ret;
-}
-
-def toStrReq (i : int) : string {
-    if (i < 0) {
-	return "-" + toStrReq (-i);
-    } else {
-	let ret = '';
-	if (i > 9) ret = toStrReq (i / 10);
-	return ret + toStr ((i%10) + '0');
+def test (o)  {
+    if (true) {
+	return ;
+    } else if (false) {
     }
 }
 
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
+def test2 (i)  {
 }
 
-def println (s) {
-    print (s);
-    print ('\n');
-}
-
-def print (arr) {
-    let i = 0;
-    print ('[');
-    while (i < arr.length) {
-	print (arr [i]);
-	if (i < arr.length - 1) print(", ");
-	i += 1;
-    }
-    print (']');
-}
-
-def test (i) {
-    return i;
-}
 
 def main () {
-    let a = toStrReq (787654);
-    println (a);
+    test (1);
+    test2 (23);
 }

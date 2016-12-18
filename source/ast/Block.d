@@ -41,7 +41,7 @@ class Block : Instruction {
 
 	foreach (it ; this._insts) {
 	    try {
-		if (Table.instance.retInfo.has ("true"))
+		if (Table.instance.retInfo.hasReturned ())
 		    throw new UnreachableStmt (it.token);
 		insts.insertBack (it.instruction);
 		insts.back ().father = block;
@@ -59,7 +59,7 @@ class Block : Instruction {
 	block._dest = dest;
 	return block;	
     }
-
+    
     override Instruction instruction () {
 	return this.instructions ();
     }
