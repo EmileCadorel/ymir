@@ -30,12 +30,20 @@ def toStr (i : int) : string {
 
     ret = toStr((i%10) + '0') + ret;
 
-    if (inf) {
-	return "-" + ret;
-    }
-    
+    if (inf) return "-" + ret;        
     return ret;
 }
+
+def toStrReq (i : int) : string {
+    if (i < 0) {
+	return "-" + toStrReq (-i);
+    } else {
+	let ret = '';
+	if (i > 9) ret = toStrReq (i / 10);
+	return ret + toStr ((i%10) + '0');
+    }
+}
+
 
 def print (i : int) : void {
     if (i < 0) {
@@ -68,6 +76,6 @@ def test (i) {
 }
 
 def main () {
-    let a = toStr (787654);
+    let a = toStrReq (787654);
     println (a);
 }

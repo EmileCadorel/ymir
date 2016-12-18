@@ -561,6 +561,7 @@ class Visitor {
 		       "\\v" : '\v', "\\" : '\\',  "\'" : '\'',
 		       "\"" : '\"', "\?": '\?'];
 
+	if (value.length == 0) return -1;
 	if (value.length == 1) return cast(short) (value[0]);
 	auto val = (value in escape);
 	if (val !is null) return cast(short) *val;
