@@ -6,7 +6,7 @@ import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
 import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
-import semantic.types.ArrayUtils, std.math;
+import semantic.types.ArrayUtils, std.math, std.stdio;
 
 class LVisitor {
     
@@ -206,9 +206,15 @@ class LVisitor {
 	    auto rlist = visitExpression (ret.elem);
 	    if (ret.instComp !is null) {
 		list += ret.instComp(rlist);
-	    } else list += rlist;
-	    list += (new LWrite (retReg,  rlist.getFirst ()));
+	    } else list += rlist;	    
+	    list += (new LWrite (retReg,  rlist.getFirst ()));	    
 	}
+	
+	foreach (it ; ret.father.dest) {
+	    list += it.destruct ();
+	}
+	
+	ret.father.dest.clear ();	
 	list += new LGoto (end);
 	return list;
     }

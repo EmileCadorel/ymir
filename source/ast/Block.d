@@ -21,6 +21,10 @@ class Block : Instruction {
 	this._decls = decls;
 	this._insts = insts;
     }
+    
+    Block instructions () {
+	return this.block;
+    }
 
     /**
      * Verification de la semantique
@@ -28,9 +32,8 @@ class Block : Instruction {
     Block block () {
 	Table.instance.enterBlock ();
 	Array!Instruction insts;
-	Array!Declaration decls;
 	auto error = 0;
-	
+	auto block = new Block (this._token, make!(Array!Declaration), insts);
 	//On declare tous les elements internes au block
 	foreach (it ; this._decls) {
 	    it.declare ();
@@ -41,6 +44,7 @@ class Block : Instruction {
 		if (Table.instance.retInfo.has ("true"))
 		    throw new UnreachableStmt (it.token);
 		insts.insertBack (it.instruction);
+		insts.back ().father = block;
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;
@@ -50,17 +54,17 @@ class Block : Instruction {
 	}
 	
 	auto dest = Table.instance.quitBlock ();
-	if (error > 0) throw new ErrorOccurs (error);	
-	auto block = new Block (this._token, decls, insts);
+	if (error > 0) throw new ErrorOccurs (error);
+	block._insts = insts;
 	block._dest = dest;
 	return block;	
     }
 
     override Instruction instruction () {
-	return this.block ();
+	return this.instructions ();
     }
 
-    Array!Symbol dest () {
+    ref Array!Symbol dest () {
 	return this._dest;
     }
     

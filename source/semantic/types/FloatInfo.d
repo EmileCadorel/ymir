@@ -148,6 +148,10 @@ class FloatInfo : InfoType {
 	return new FloatInfo ();
     }
 
+    override InfoType cloneForParam () {
+	return new FloatInfo ();
+    }
+
     override int size () {
 	return -8;
     }

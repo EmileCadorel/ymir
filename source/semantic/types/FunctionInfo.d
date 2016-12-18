@@ -27,6 +27,10 @@ class FunctionInfo : InfoType {
 	return this;
     }
 
+    override InfoType cloneForParam () {
+	assert (false, "C'est quoi cette histoire, une fonction en parametre");
+    }    
+    
     override ApplicationScore CallOp (Word func_token, ParamList params) {
 	ulong id = 0;
 	Array!ApplicationScore total;

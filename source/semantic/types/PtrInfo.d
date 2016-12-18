@@ -206,6 +206,10 @@ class PtrInfo : InfoType {
 	}
     }
 
+    override InfoType cloneForParam () {
+	return clone ();
+    }
+    
     override InfoType CastOp (InfoType other) {
 	auto type = cast (PtrInfo) other;
 	if (type && type.content.isSame (this._content)) {

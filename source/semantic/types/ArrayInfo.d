@@ -142,9 +142,15 @@ class ArrayInfo : InfoType {
     }
 
     override InfoType clone () {
+	auto ret = new ArrayInfo (this._content.clone ());
+	if (this._destruct is null) ret._destruct = null;
+	return ret;
+    }
+   
+    override InfoType cloneForParam () {
 	return new ArrayInfo (this._content.clone ());
     }
-    
+
     override InfoType CastOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
 	if (type && type.content.isSame (this._content)) {

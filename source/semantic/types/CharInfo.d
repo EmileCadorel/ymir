@@ -141,6 +141,10 @@ class CharInfo : InfoType {
 	return new CharInfo ();
     }
 
+    override InfoType cloneForParam () {
+	return new CharInfo ();
+    }
+    
     override InfoType CastOp (InfoType other) {
 	if (cast(CharInfo) other) return this;
 	return null;

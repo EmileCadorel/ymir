@@ -38,7 +38,7 @@ class Var : Expression {
     }
 
     TypedVar setType (Symbol info) {
-	auto type = new Type (info.sym, info.type.clone ());
+	auto type = new Type (info.sym, info.type.cloneForParam ());
 	return new TypedVar (this._token, type);
     }
     

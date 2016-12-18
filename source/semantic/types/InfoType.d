@@ -122,10 +122,10 @@ class InfoType {
 	return null;
     }
     
-    InfoType clone () {
-	return null;
-    }
-       
+    abstract InfoType clone ();
+
+    abstract InfoType cloneForParam ();
+    
     ref InstPreTreatment leftTreatment () {
 	return this._leftTreatment;
     }

@@ -43,7 +43,6 @@ class ArrayUtils {
 	auto fr = new LFrame (__AddRef__, entry, end, null, make!(Array!LReg) ([addr]));
 	LFrame.preCompiled [__AddRef__] = fr;
 	LReg.lastId = last;
-
     }
 
     /**
@@ -114,10 +113,9 @@ class ArrayUtils {
 									     ofsize,
 									     Tokens.DIV)));
 
-	LReg.lastId = last;
 	auto fr = new LFrame (__CstName__, entry, end, retReg, args);
 	LFrame.preCompiled [__CstName__] = fr;
-
+	LReg.lastId = last;
     }
 
     /**
@@ -197,10 +195,10 @@ class ArrayUtils {
 	vrai2.insts += new LBinop (index2, new LConstQWord (1), index2, Tokens.PLUS);
 	entry.insts += vrai2;
 	entry.insts += faux2;
-	LReg.lastId = last;
 	
 	auto fr = new LFrame (__PlusArrayInt__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
 	LFrame.preCompiled [__PlusArrayInt__] = fr;
+	LReg.lastId = last;
     }
 
     static void createPlusArrayLong () {
@@ -260,10 +258,10 @@ class ArrayUtils {
 	vrai2.insts += new LBinop (index2, new LConstQWord (1), index2, Tokens.PLUS);
 	entry.insts += vrai2;
 	entry.insts += faux2;
-	LReg.lastId = last;
 	
 	auto fr = new LFrame (__PlusArrayInt__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
 	LFrame.preCompiled [__PlusArrayInt__] = fr;
+	LReg.lastId = last;
     }
 
     

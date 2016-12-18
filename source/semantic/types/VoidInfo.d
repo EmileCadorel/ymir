@@ -17,6 +17,10 @@ class VoidInfo : InfoType {
     override InfoType clone () {
 	return new VoidInfo ();
     }
+
+    override InfoType cloneForParam () {
+	return new VoidInfo ();
+    }
     
     override string typeString () {
 	return "void";

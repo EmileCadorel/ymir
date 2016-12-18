@@ -31,7 +31,7 @@ class If : Instruction {
 	word.str = "cast";
 	if (type is null)
 	    throw new UndefinedOp (word, expr.info, new Symbol (word, new BoolInfo ()));
-	auto bl = this._block.block ();
+	auto bl = this._block.instructions ();
 	If _if;
 	if (this._else !is null) {
 	    _if = new If (this._token, expr, bl, cast(Else) this._else.instruction ());
@@ -83,7 +83,7 @@ class Else : Instruction {
     }
 
     override Instruction instruction () {
-	return new Else (this._token, this._block.block);
+	return new Else (this._token, this._block.instructions);
     }
     
     Block block () {
@@ -125,7 +125,7 @@ class ElseIf : Else {
 	word.str = "cast";
 	if (type is null)
 	    throw new UndefinedOp (word, expr.info, new Symbol (word, new BoolInfo ()));
-	auto bl = this._block.block ();
+	auto bl = this._block.instructions ();
 	ElseIf _if;
 	if (this._else !is null) {
 	    _if = new ElseIf (this._token, expr, bl, cast(Else) this._else.instruction ());

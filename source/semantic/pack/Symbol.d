@@ -2,6 +2,7 @@ module semantic.pack.Symbol;
 import syntax.Word;
 import semantic.types.InfoType, semantic.pack.Table;
 import std.container, lint.LInstList, lint.LReg;
+import std.stdio;
 
 class Symbol {
 
@@ -54,6 +55,7 @@ class Symbol {
 
     LInstList destruct () {
 	if (this._type.destruct !is null) {
+	    writeln (this.typeString, " ", this._id);
 	    return this._type.destruct (new LInstList (new LReg (this._id, this._type.size)));
 	} else return new LInstList ();
     }

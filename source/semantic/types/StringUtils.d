@@ -392,14 +392,16 @@ class StringUtils {
 	    createAddRef ();
 	}
 	llist += new LCall (__AddRef__, make! (Array!LExp) ([new LAddr (leftExp)]), 0);
+	llist += leftExp;
 	return llist;
     }
-
+       
     static LInstList InstReturn (LInstList llist) {
 	auto leftExp = llist.getFirst ();
 	auto it = (__AddRef__ in LFrame.preCompiled);
 	if (it is null) createAddRef ();
 	llist += new LCall (__AddRef__, make!(Array!LExp) ([new LAddr (leftExp)]), 0);
+	llist += leftExp;
 	return llist;
     }
     

@@ -211,7 +211,11 @@ class IntInfo : InfoType {
 
     override InfoType clone () {
 	return new IntInfo ();
-    }    
+    }
+
+    override InfoType cloneForParam () {
+	return new IntInfo ();
+    }
 
     override int size () {
 	return 4;

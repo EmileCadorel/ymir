@@ -12,6 +12,31 @@ def print (c : char) {
     putchar (c);
 }
 
+def toStr (c : char) : string {
+    return cast:string ([c]);
+}
+
+def toStr (i : int) : string {
+    let ret = "", inf = false;
+    if (i < 0) {
+	inf = true;
+	i = -i;
+    }
+
+    while (i > 9) {
+	ret = toStr((i%10) + '0') + ret;
+	i /= 10;
+    }
+
+    ret = toStr((i%10) + '0') + ret;
+
+    if (inf) {
+	return "-" + ret;
+    }
+    
+    return ret;
+}
+
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -43,9 +68,6 @@ def test (i) {
 }
 
 def main () {
-    let a = "er" + "r" + "t";
-    let b = ['t', 't', 't'] + ['t'] + ['t'] + ['r'];
-    let c = cast:string (b);
-    println (c);
-    let d = cast:array!(char) (c);
+    let a = toStr (787654);
+    println (a);
 }

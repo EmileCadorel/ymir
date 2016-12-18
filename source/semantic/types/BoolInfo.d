@@ -97,6 +97,10 @@ class BoolInfo : InfoType {
 	return new BoolInfo ();
     }
 
+    override InfoType cloneForParam () {
+	return new BoolInfo ();
+    }
+
     override int size () {
 	return 1;
     }

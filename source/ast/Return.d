@@ -24,7 +24,7 @@ class Return : Instruction {
 	auto aux = new Return (this._token);
 	if (this._elem !is null) {
 	    aux._elem = this._elem.expression ();
-	    this._instComp = aux._elem.info.type.ReturnOp ();
+	    aux._instComp = aux._elem.info.type.ReturnOp ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();
 	    }

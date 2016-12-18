@@ -100,6 +100,10 @@ class StringInfo : InfoType {
 	return &StringUtils.InstParam;
     }
 
+    override InstCompS ReturnOp () {
+	return &StringUtils.InstReturn;
+    }
+    
     private InfoType NbRef () {
 	auto _int = new IntInfo;
 	_int.lintInst = &StringUtils.InstNbRef;
@@ -134,6 +138,12 @@ class StringInfo : InfoType {
     }
 
     override InfoType clone () {
+	auto ret = new StringInfo ();
+	if (this._destruct is null) ret._destruct = null;
+	return ret;
+    }
+
+    override InfoType cloneForParam () {
 	return new StringInfo ();
     }
 
