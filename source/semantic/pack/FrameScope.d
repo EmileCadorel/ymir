@@ -1,6 +1,6 @@
 module semantic.pack.FrameScope;
 import semantic.pack.Scope, semantic.pack.Symbol;
-import semantic.types.InfoType;
+import semantic.types.InfoType, utils.exception;
 import std.container, std.outbuffer, std.string;
 import std.stdio, syntax.Word, std.algorithm;
 
@@ -21,8 +21,16 @@ class TreeInfo {
     Word ident () {
 	return this._ident;
     }
+
+    Word exist (string name) {
+	if (this._ident.str == name) return this._ident;
+	else if (this._father) return this._father.exist (name);
+	else return Word.eof;
+    }
     
     void ident (Word name) {
+	auto ex = this.exist (name.str);
+	if (!ex.isEof ()) throw new MultipleLoopName (name, ex);
 	this._ident = name;
     }
 

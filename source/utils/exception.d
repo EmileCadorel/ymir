@@ -214,6 +214,24 @@ class ShadowingVar : YmirException {
 }
 
 
+class MultipleLoopName : YmirException {
+    this (Word token, Word token2) {
+	auto buf = new OutBuffer;
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s : l'identifiant de boucle '%s%s%s' est déjâ definis ",
+		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	
+	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
+	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, token2.locus);
+	msg = buf.toString();        
+    }
+}
+
+
+
 class NotATemplate : YmirException {
 
     this (Word token) {

@@ -3,7 +3,8 @@
 
 def main () {
     while : test (true) {
-	    if (true)
-		break test;
+	    break;
     }
+    while:test (true)
+	  break test;
 }
