@@ -17,6 +17,8 @@ class AMDUnop : TInst {
 	if (this._op == Tokens.DIV) return "idiv";
 	else if (this._op == Tokens.MINUS) return "neg";
 	else if (this._op == Tokens.NOT) return "not";
+	else if (this._op == Tokens.DPLUS) return "inc";
+	else if (this._op == Tokens.DMINUS) return "dec";
 	else assert (false);
     }
 

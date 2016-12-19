@@ -136,3 +136,21 @@ class AMDConstString : AMDObj {
     }
     
 }
+
+class AMDConstFunc : AMDObj {
+
+    private string _name;
+
+    this (string name) {
+	this._name = name;
+    }
+
+    override string toString () {
+	return "$" ~ this._name;
+    }
+
+    override AMDSize sizeAmd () {
+	return AMDSize.QWORD;
+    }
+    
+}

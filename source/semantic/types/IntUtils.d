@@ -96,6 +96,22 @@ class IntUtils {
 	return inst;
     }
 
+    static LInstList InstPplus (LInstList llist) {
+	auto inst = new LInstList;
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LUnop (exp, Tokens.DPLUS, true);
+	return inst;
+    }
+
+    static LInstList InstSsub (LInstList llist) {
+	auto inst = new LInstList;
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LUnop (exp, Tokens.DMINUS, true);
+	return inst;
+    }
+    
     static LInstList InstDXorAff (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXorAff int");
     }

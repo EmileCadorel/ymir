@@ -55,7 +55,6 @@ class Symbol {
 
     LInstList destruct () {
 	if (this._type.destruct !is null) {
-	    writeln (this.typeString, " ", this._id);
 	    return this._type.destruct (new LInstList (new LReg (this._id, this._type.size)));
 	} else return new LInstList ();
     }

@@ -100,6 +100,7 @@ class AMDRegTable {
 	__aux__.insertBack (__table__["r9"]);
 	__aux__.insertBack (__table__["r10"]);
 	__aux__.insertBack (__table__["r11"]);
+	__aux__.insertBack (__table__["r13"]);
 	__aux__.insertBack (__table__["r12"]);
 	__aux__.insertBack (__table__["r15"]);
 	// r13 registre d'adresse

@@ -30,6 +30,10 @@ class Frame {
 	assert (false);
     }
 
+    FrameProto validate (Array!InfoType params) {
+	assert (false);
+    }
+    
     string namespace () {
 	return this._namespace;
     }
@@ -42,6 +46,35 @@ class Frame {
 	}
     }
     
+    ApplicationScore isApplicable (Array!InfoType params) {
+	auto score = new ApplicationScore (this._function.ident);
+	if (params.length == 0 && this._function.params.length == 0) {
+	    score.score = AFF; return score;
+	} else if (params.length == this._function.params.length) {
+	    foreach (it ; 0 .. params.length) {
+		auto param = this._function.params [it];
+		InfoType info = null;
+		if (cast (TypedVar) param !is null) {
+		    info = (cast(TypedVar)param).getType ();
+		    auto type = params [it].CastOp (info);
+		    if (type is params [it]) {
+			score.score += SAME;
+			score.treat.insertBack (null);
+		    } else if (type !is null) {
+			score.score += AFF;
+			score.treat.insertBack (type);
+		    } else return null;
+
+		} else {
+		    score.score += AFF;
+		    score.treat.insertBack (null);
+		}
+	    }
+	    return score;
+	}
+	return null;		
+    }
+
     ApplicationScore isApplicable (ParamList params) {
 	auto score = new ApplicationScore (this._function.ident);
 	if (params.params.length == 0 && this._function.params.length == 0) {
@@ -90,6 +123,10 @@ class PureFrame : Frame {
     }
 
     override FrameProto validate (ParamList) {
+	return this.validate ();
+    }
+
+    override FrameProto validate (Array!InfoType) {
 	return this.validate ();
     }
     

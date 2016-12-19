@@ -42,6 +42,11 @@ class Var : Expression {
 	return new TypedVar (this._token, type);
     }
     
+    TypedVar setType (InfoType info) {
+	auto type = new Type (this._token, info.cloneForParam ());
+	return new TypedVar (this._token, type);
+    }    
+
     Type asType () {
 	auto info = Table.instance.get (this._token.str);
 	if (info !is null) throw new UseAsType (this._token);

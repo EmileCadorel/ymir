@@ -22,3 +22,4 @@ public import ast.Access;
 public import ast.Dot;
 public import ast.Proto;
 public import ast.Break;
+public import ast.FuncPtr;

@@ -7,12 +7,13 @@ import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
+import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
 alias LInstList function (LInstList) InstCompS;
-alias Expression function (Expression) InstPreTreatment;
+alias LInstList function (InfoType, Expression, Expression) InstPreTreatment;
 
 class ApplicationScore {
 
@@ -52,7 +53,8 @@ class InfoType {
 		    "char" : &CharInfo.create,
 		    "void" : &VoidInfo.create,
 		    "ptr" : &PtrInfo.create,
-		    "array" : &ArrayInfo.create];
+		    "array" : &ArrayInfo.create,
+		    "function" : &PtrFuncInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {
@@ -130,16 +132,16 @@ class InfoType {
 	return this._leftTreatment;
     }
 
-    Expression leftTreatment (Expression elem) {
-	return this._leftTreatment (elem);
+    LInstList leftTreatment (InfoType type, Expression left, Expression right) {
+	return this._leftTreatment (type, left, right);
     }
     
     ref InstPreTreatment rightTreatment () {
 	return this._rightTreatment;
     }
 
-    Expression rightTreatment (Expression elem) {
-	return this._rightTreatment (elem);
+    LInstList rightTreatment (InfoType type, Expression left, Expression right) {
+	return this._rightTreatment (type, left, right);
     }
 
     ref InstComp lintInst () {

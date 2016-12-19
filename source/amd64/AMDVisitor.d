@@ -167,7 +167,7 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (lread.data);
 	auto inst = new TInstList;
 	inst += exp.what;
-	auto aux = new AMDReg (REG.getReg ("r13", (cast(AMDObj)exp.where).sizeAmd));
+	auto aux = new AMDReg (REG.getReg ("rax", (cast(AMDObj)exp.where).sizeAmd));
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
@@ -182,7 +182,7 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (lread.data);
 	auto inst = new TInstList;
 	inst += exp.what;
-	auto aux = new AMDReg (REG.getReg ("r13", (cast(AMDObj)exp.where).sizeAmd));
+	auto aux = new AMDReg (REG.getReg ("rax", (cast(AMDObj)exp.where).sizeAmd));
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
@@ -441,13 +441,20 @@ class AMDVisitor : TVisitor {
 
     override protected TInstPaire visitUnop (LUnop unop) {
 	auto inst = new TInstList;
-	auto res = new AMDReg (REG.getReg ("r14", getSize (unop.size)));
-	auto exp = visitExpression (unop.elem, res);
-	inst += exp.what;
-	if (res != exp.where)
-	    inst += new AMDMove (cast (AMDObj) exp.where, res);
-	inst += new AMDUnop (res, unop.op);
-	return new TInstPaire (res, inst);
+	if (!unop.modify) {
+	    auto res = new AMDReg (REG.getReg ("r14", getSize (unop.size)));
+	    auto exp = visitExpression (unop.elem, res);
+	    inst += exp.what;
+	    if (res != exp.where)
+		inst += new AMDMove (cast (AMDObj) exp.where, res);
+	    inst += new AMDUnop (res, unop.op);
+	    return new TInstPaire (res, inst);
+	} else {
+	    auto exp = visitExpression (unop.elem);
+	    inst += exp.what;
+	    inst += new AMDUnop (cast (AMDObj) exp.where, unop.op);
+	    return new TInstPaire (exp.where, inst);
+	}
     }
 
     override protected TInstPaire visitUnop (LUnop unop, TExp where) {
@@ -475,7 +482,7 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (addr.exp, aux);
 	auto reg = cast (AMDReg) exp.where;
 	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
-	auto ret = new AMDReg (REG.getReg ("r13"));
+	auto ret = new AMDReg (REG.getReg ("rax"));
 	inst += exp.what;
 	inst += new AMDLeaq (reg, ret);
 	
@@ -660,6 +667,16 @@ class AMDVisitor : TVisitor {
     override protected TInstPaire visitConstString (LConstString lstr, TExp) {
 	auto str = new AMDConstString (lstr.value);
 	return new TInstPaire (str, new TInstList);
+    }
+
+    override protected TInstPaire visitConstFunc (LConstFunc cfc, TExp) {
+	auto func = new AMDConstFunc (cfc.name);
+	return new TInstPaire (func, new TInstList);
+    }
+    
+    override protected TInstPaire visitConstFunc (LConstFunc cfc) {
+	auto func = new AMDConstFunc (cfc.name);
+	return new TInstPaire (func, new TInstList);
     }
     
     override protected TInstPaire visit (LReg reg) {

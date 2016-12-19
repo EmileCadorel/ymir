@@ -70,7 +70,9 @@ class IntInfo : InfoType {
 	    auto ret = new IntInfo ();
 	    ret.lintInstS = &IntUtils.InstUnop !(Tokens.MINUS);
 	    return ret;
-	} else if (op == Tokens.AND) return toPtr ();	
+	} else if (op == Tokens.AND && !this.isConst) return toPtr ();
+	else if (op == Tokens.DPLUS && !this.isConst) return pplus ();
+	else if (op == Tokens.DMINUS && !this.isConst) return ssub ();
 	return null;
     }
     
@@ -97,6 +99,18 @@ class IntInfo : InfoType {
 	auto other = new PtrInfo ();
 	other.content = new IntInfo ();
 	other.lintInstS = &IntUtils.InstAddr;
+	return other;
+    }
+
+    private InfoType pplus () {
+	auto other = new IntInfo ();
+	other.lintInstS = &IntUtils.InstPplus;
+	return other;
+    }
+
+    private InfoType ssub () {
+	auto other = new IntInfo ();
+	other.lintInstS = &IntUtils.InstSsub ;
 	return other;
     }
     

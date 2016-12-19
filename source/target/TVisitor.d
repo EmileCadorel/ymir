@@ -43,6 +43,7 @@ abstract class TVisitor {
 	else if (auto lbl = cast (LLabel) inst) return new TInstList (visit (lbl));
 	else if (auto call = cast (LCall) inst) return visitCall (call).what;
 	else if (auto _loc = cast (LLocus) inst) return visitLocus (_loc);
+	else if (auto _unop = cast (LUnop) inst) return visitUnop (_unop).what;
 	assert (false, "TODO, visit (" ~ inst.toString () ~ ")");	
     }
 
@@ -147,6 +148,8 @@ abstract class TVisitor {
 	    return visitConstDouble (ld);
 	else if (auto cstr = cast (LConstString) (co))
 	    return visitConstString (cstr);
+	else if (auto cfc = cast (LConstFunc) co)
+	    return visitConstFunc (cfc);
 	assert (false, "TODO, visitConst (LConst co)");
     }
     
@@ -163,6 +166,8 @@ abstract class TVisitor {
     abstract protected TInstPaire visitConstDouble (LConstDouble);
 
     abstract protected TInstPaire visitConstString (LConstString);
+
+    abstract protected TInstPaire visitConstFunc (LConstFunc);
     
     abstract protected TInstPaire visit (LReg reg);    
 
@@ -181,6 +186,8 @@ abstract class TVisitor {
 	    return visitConstDouble (ld, where);
 	else if (auto cstr = cast (LConstString) (co))
 	    return visitConstString (cstr, where);
+	else if (auto cfc = cast (LConstFunc) co)
+	    return visitConstFunc (cfc, where);
 	assert (false, "TODO, visitConst (LConst co)");
     }
     
@@ -211,7 +218,11 @@ abstract class TVisitor {
     protected TInstPaire visitConstString (LConstString, TExp) {
 	assert (false);
     }
-    
+
+    protected TInstPaire visitConstFunc (LConstFunc, TExp) {
+	assert (false);
+    }
+        
     protected TInstPaire visit (LReg reg, TExp) {
 	assert (false);
     }

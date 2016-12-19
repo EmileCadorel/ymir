@@ -617,6 +617,8 @@ class Visitor {
 	    return visitCast ();
 	} else if (word == Tokens.LCRO) {
 	    return visitConstArray ();
+	} else if (word == Keys.FUNCTION) {
+	    return visitFuncPtr ();
 	} else this._lex.rewind ();
 	auto var = visitVar ();
 	auto next = _lex.next ();
@@ -642,7 +644,11 @@ class Visitor {
 	}
 	return new ConstArray (begin, params);
     }
-    
+
+        
+    /**
+     cast := 'cast' ':' type '(' expression ')'
+     */
     private Expression visitCast () {
 	this._lex.rewind ();
 	auto begin = this._lex.next ();
@@ -656,10 +662,40 @@ class Visitor {
 	if (word !=  Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
 	return new Cast (begin, type, expr);
     }
-    
+
+
     /**
-     cast := 'cast' ':' type '(' expression ')'
+     func := 'function' '(' (var (',' var)*)? ')' ':' var
      */
+    private Expression visitFuncPtr () {
+	Array!Var params;
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto word = this._lex.next ();
+	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	word = this._lex.next ();
+	if (word != Tokens.RPAR) {
+	    this._lex.rewind ();
+	    while (true) {
+		params.insertBack (visitType ());
+		word = this._lex.next ();
+		if (word == Tokens.RPAR) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
+	    }	    
+	}
+	word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto ret = visitType ();
+	word = this._lex.next ();
+	if (word == Tokens.LPAR) {
+	    auto expr = visitExpression ();
+	    word = this._lex.next ();
+	    if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+	    return new FuncPtr (begin, params, ret, expr);
+	} else this._lex.rewind ();
+	return new FuncPtr (begin, params, ret);
+    }
+    
     private Expression visitSystem () {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);

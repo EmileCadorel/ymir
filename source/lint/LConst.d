@@ -163,6 +163,14 @@ class LConstFunc : LConst {
 	this._value = value;
     }
 
+    string name () {
+	return this._value;
+    }
+
+    override string toString () {
+	return "$" ~ this._value;
+    }
+    
 }
 
 class LConstArray : LConst {

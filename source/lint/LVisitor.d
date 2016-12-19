@@ -7,7 +7,7 @@ import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
 import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
 import semantic.types.ArrayUtils, std.math, std.stdio;
-import lint.LBinop, syntax.Tokens;
+import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
 
 class LVisitor {
 
@@ -114,15 +114,16 @@ class LVisitor {
 	LLabel faux = new LLabel ();
 	LLabel vrai = new LLabel ();
 	LLabel fin = new LLabel ();
-	Expression left = _if.test;
+	LInstList left;
 	if (_if.info !is _if.test.info.type) {
 	    if (_if.info.leftTreatment !is null )
-		left = _if.info.leftTreatment (left);
-	    auto tlist = _if.info.lintInst (visitExpression (left));
+		left = _if.info.leftTreatment (_if.info, _if.test, null);
+	    else left = visitExpression (_if.test);
+	    auto tlist = _if.info.lintInst (left);
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	} else {
-	    auto tlist = visitExpression (left);
+	    auto tlist = visitExpression (_if.test);
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	}
@@ -146,17 +147,18 @@ class LVisitor {
 	inst += new LLocus (_while.token.locus);
 	LLabel faux = new LLabel (), vrai = new LLabel, debut = new LLabel;
 	this._endLabels [_while.block] = faux;
-	auto left = _while.test;
+	LInstList left;
 	inst += debut;
 	if (_while.info !is _while.test.info.type) {
 	    if (_while.info.leftTreatment !is null)
-		left = _while.info.leftTreatment (left);
-	    auto tlist = _while.info.lintInst (visitExpression (left));
+		left = _while.info.leftTreatment (_while.info, _while.test, null);
+	    else left = visitExpression (_while.test);
+	    auto tlist = _while.info.lintInst (left);
 	    inst += tlist;	    
 	    inst += new LJump (tlist.getFirst (), vrai);
 	    inst += new LGoto (faux);
 	} else {
-	    auto tlist = visitExpression (left);
+	    auto tlist = visitExpression (_while.test);
 	    inst += tlist;
 	    inst += new LJump (tlist.getFirst, vrai);
 	    inst += new LGoto (faux);
@@ -181,15 +183,16 @@ class LVisitor {
 	auto insts = new LInstList;
 	insts += new LLocus (_else.token.locus);
 	LLabel faux = new LLabel, vrai = new LLabel;
-	Expression left = elseif.test;
+	LInstList left;
 	if (elseif.info !is elseif.test.info.type) {
 	    if (elseif.info.leftTreatment !is null )
-		left = elseif.info.leftTreatment (left);
-	    auto tlist = elseif.info.lintInst (visitExpression (left));
+		left = elseif.info.leftTreatment (elseif.info, elseif.test, null);
+	    else left = visitExpression (elseif.test);
+	    auto tlist = elseif.info.lintInst (left);
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	} else {
-	    auto tlist = visitExpression (left);
+	    auto tlist = visitExpression (elseif.test);
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	}
@@ -261,9 +264,21 @@ class LVisitor {
 	if (auto _unop = cast (BefUnary) elem) return visitBefUnary (_unop);
 	if (auto _null = cast (Null) elem) return visitNull (_null);
 	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
+	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitFuncPtr (FuncPtr fptr) {
+	auto inst = new LInstList;
+	if (fptr.expr is null) {
+	    inst += new LConstQWord (0);
+	} else {
+	    auto ptr = cast (PtrFuncInfo) fptr.info.type;
+	    inst += new LConstFunc (ptr.score.name);
+	}
+	return inst;
+    }
+    
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;
@@ -412,13 +427,16 @@ class LVisitor {
     }
 
     private LInstList visitBinary (Binary bin) {
-	Expression left = bin.left, right = bin.right;
+	LInstList left, right;
 	if (bin.info.type.leftTreatment !is null) 
-	    left = bin.info.type.leftTreatment (left);
+	    left = bin.info.type.leftTreatment (bin.info.type, bin.left, bin.right);
+	else left = visitExpression (bin.left);
+	
 	if (bin.info.type.rightTreatment !is null)
-	    right = bin.info.type.rightTreatment (right);
-	auto ret = bin.info.type.lintInst (visitExpression (left),
-					   visitExpression (right));
+	    right = bin.info.type.rightTreatment (bin.info.type, bin.left, bin.right);
+	else right = visitExpression (bin.right);
+	    
+	auto ret = bin.info.type.lintInst (left, right);
 	if (bin.info.isDestructible) {
 	    auto last = ret.getFirst ();
 	    auto reg = new LReg (bin.info.id, bin.info.type.size);
