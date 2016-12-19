@@ -281,6 +281,7 @@ class Visitor {
 	else if (tok == Keys.RETURN) return visitReturn ();
 	else if (tok == Keys.WHILE) return visitWhile ();
 	else if (tok == Keys.LET) return visitLet ();
+	else if (tok == Keys.BREAK) return visitBreak ();
 	else if (tok == Tokens.SEMI_COLON) {
 	    Warning.instance.warning_at (tok.locus,
 				"Utilisez {} pour une instruction vide pas %s",
@@ -656,6 +657,9 @@ class Visitor {
 	return new Cast (begin, type, expr);
     }
     
+    /**
+     cast := 'cast' ':' type '(' expression ')'
+     */
     private Expression visitSystem () {
 	auto word = this._lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
@@ -684,6 +688,10 @@ class Visitor {
 	    throw new SyntaxError (token);
     }
 
+
+    /**
+     par := '(' (expression (',' expression)*)? ')'
+     */
     private Expression visitPar (Expression left) {
 	_lex.rewind ();
 	auto beg = _lex.next (), next = _lex.next ();
@@ -709,6 +717,9 @@ class Visitor {
 	return retour;
     }
 
+    /**
+     access := '[' (expression (',' expression)*)? ']'
+     */
     private Expression visitAccess (Expression left) {
 	_lex.rewind ();
 	auto beg = _lex.next (), next = _lex.next ();
@@ -733,7 +744,10 @@ class Visitor {
 	_lex.rewind ();
 	return retour;
     }
-
+    
+    /**
+     dot := '.' identifiant
+     */
     private Expression visitDot (Expression left) {
 	_lex.rewind ();
 	auto begin = _lex.next ();
@@ -798,11 +812,36 @@ class Visitor {
     }
     
     
+    private Instruction visitBreak () {
+	this._lex.rewind ();
+	auto begin = this._lex.next (), next = this._lex.next ();
+	if (next == Tokens.SEMI_COLON) {
+	    return new Break (begin);
+	} else _lex.rewind ();
+	auto id = visitIdentifiant ();
+	next = this._lex.next ();
+	if (next != Tokens.SEMI_COLON)
+	    throw new SyntaxError (next, [Tokens.SEMI_COLON.descr]);
+	return new Break (begin, id);
+    }
+
     private Instruction visitWhile () {
 	_lex.rewind ();
 	auto begin = _lex.next ();
-	auto test = visitExpression ();
-	return new While (begin, test, visitBlock ());
+	auto next = this._lex.next ();
+	if (next == Tokens.COLON) {
+	    auto id = visitIdentifiant ();
+	    next = this._lex.next ();
+	    if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	    auto test = visitExpression ();
+	    next = this._lex.next ();
+	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	    return new While (begin, id, test, visitBlock ());
+	} else {
+	    this._lex.rewind ();
+	    auto test = visitExpression ();
+	    return new While (begin, test, visitBlock ());
+	}
     }
     
     

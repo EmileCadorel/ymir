@@ -14,8 +14,12 @@ class Instruction {
 	return this._token;
     }
 
-    ref Block father () {
+    Block father () {
 	return this._block;
+    }
+
+    void father (Block father) {
+	this._block = father;
     }
     
     Instruction instruction () {

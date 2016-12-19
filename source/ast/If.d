@@ -25,6 +25,11 @@ class If : Instruction {
 	this._else = else_;
     }
 
+    override void father (Block father) {
+	super._block = father;
+	this._block.father = father;
+    }
+    
     override Instruction instruction () {
 	auto expr = this._test.expression;
 	auto type = expr.info.type.CastOp (new BoolInfo ());
@@ -92,6 +97,11 @@ class Else : Instruction {
     
     Block block () {
 	return this._block;
+    }
+
+    override void father (Block father) {
+	super._block = father;
+	this._block.father = father;
     }
     
     override void print (int nb = 0) {

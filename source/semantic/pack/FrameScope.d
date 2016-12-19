@@ -2,22 +2,36 @@ module semantic.pack.FrameScope;
 import semantic.pack.Scope, semantic.pack.Symbol;
 import semantic.types.InfoType;
 import std.container, std.outbuffer, std.string;
-import std.stdio;
+import std.stdio, syntax.Word, std.algorithm;
 
 
 class TreeInfo {
 
     private string _name;
+    private Word _ident;
     private Array!TreeInfo _infos;
     private bool _returned = false;
+    private bool _breaked = false;
     private TreeInfo _father;
 
     this (string name) {
 	this._name = name;
     }
+
+    Word ident () {
+	return this._ident;
+    }
     
+    void ident (Word name) {
+	this._ident = name;
+    }
+
     void returned () {
 	this._returned = true;
+    }    
+
+    void breaked () {
+	this._breaked = true;
     }    
     
     string name () {
@@ -30,6 +44,33 @@ class TreeInfo {
 	return this._infos.back;
     }
 
+    bool hasBreaked () {
+	if (this._infos.length == 0) return this._breaked;
+	ulong nb = 0;
+	string need = "";
+	bool allNeed = true;
+	foreach (it ; this._infos) {
+	    if (!allNeed && need == it._name) allNeed = true;
+	    if (it._breaked && it._name == "true") {
+		this._breaked = true;
+		return true;
+	    } else if (it._breaked && it._name == "else") {
+		nb ++;
+	    } else if (it._breaked && it._name == "if") {
+		nb ++;
+		allNeed = false;
+		need = "else";
+	    } else if (it._breaked && it._name != "while") {
+		nb ++;
+	    }
+	}
+	
+	if (nb == this._infos.length && allNeed) {
+	    this._breaked = true;
+	}
+	return this._breaked;    
+    }
+    
     bool hasReturned () {
 	if (this._infos.length == 0) return this._returned;
 	ulong nb = 0;
@@ -46,7 +87,7 @@ class TreeInfo {
 		nb ++;
 		allNeed = false;
 		need = "else";
-	    } else if (it._returned) {
+	    } else if (it._returned && it._name != "while") {
 		nb ++;
 	    }
 	}
@@ -58,6 +99,7 @@ class TreeInfo {
     }
     
     TreeInfo quitBlock () {
+	hasBreaked ();
 	hasReturned ();
 	return this._father;
     }
@@ -66,54 +108,44 @@ class TreeInfo {
 	if (this._infos.length == 0) {
 	    if (this._father !is null) return this._father.retract ();
 	    else return this._returned;
-	}
-	
-	ulong nb = 0;
-	string need = "";
-	bool allNeed = true;
-	foreach (it ; this._infos) {
-	    if (!allNeed && need == it._name) allNeed = true;
-	    if (it._returned && it._name == "true") {
-		this._returned = true;
-		if (this._father) {
-		    return this._father.retract;
-		}
-	    } else if (it._returned && it._name == "else") {
-		nb ++;
-	    } else if (it._returned && it._name == "if") {
-		nb ++;
-		allNeed = false;
-		need = "else";
-	    } else if (it._returned) {
-		nb ++;
-	    }
-	}
-	
-	if (nb == this._infos.length && allNeed) {
-	    this._returned = true;
-	}
-	
+	}	
+	hasReturned ();
 	if (this._father)
 	    return this._father.retract;
 	else return this._returned;
+    }
+        
+    long rewind (string name, long nb = 0) {
+	nb ++;
+	if (this._ident.str == name) {
+	    return nb;
+	} else if (this._father) {
+	    return this._father.rewind (name, nb);
+	} else return -1;
+    }
+
+    long rewind (string [] types, long nb = 0) {	
+	nb ++;
+	if (find(types, this._name) != []) return nb;
+	else if (this._father) return this._father.rewind (types, nb);
+	else return -1;
     }
     
     void print (int i = 0) {
 	auto buf = new OutBuffer ();
 	if (this._returned) 
-	    writefln ("%s%s {:true", rightJustify("", i, ' '),
-		      this._name);
+	    writefln ("%s%s, %s {:true", rightJustify("", i, ' '),
+		      this._name, this._ident.str);
 	else
-	    writefln ("%s%s {", rightJustify("", i, ' '),
-		      this._name);
+	    writefln ("%s%s, %s {", rightJustify("", i, ' '),
+		      this._name, this._ident.str);
 	
 	foreach (it ; this._infos) {
 	    it.print (i + 4);
 	}
 	writefln ("%s}", rightJustify ("", i, ' '));
     }
-    
-    
+        
 }
 
 struct FrameReturnInfo {
@@ -130,6 +162,10 @@ struct FrameReturnInfo {
     void returned () {
 	this._retInfo.returned;
     }    
+
+    void breaked () {
+	this._retInfo.breaked ();
+    }
     
     void enterBlock () {
 	if (this._retInfo)
@@ -151,10 +187,26 @@ struct FrameReturnInfo {
 	return this._retInfo.hasReturned ();
     }
 
+    bool hasBreaked () {
+	return this._retInfo.hasBreaked ();
+    }    
+    
+    void setIdent (Word ident) {
+	this._retInfo.ident = ident;
+    }    
+    
     ref string currentBlock () {
 	return this._currentBlock;
     }   
 
+    long rewind (string name) {
+	return this._retInfo.rewind (name);
+    }
+
+    long rewind (string [] types) {
+	return this._retInfo.rewind (types);
+    }
+    
     void print () {
 	this._retInfo.print ();
     }

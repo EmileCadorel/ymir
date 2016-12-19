@@ -60,7 +60,7 @@ struct Word {
     }
     
     static Word eof () {
-	return Word (Location (0, 0, 0, null, false), "");
+	return Word (Location (0, 0, 0, null, true), "");
     }
     
 }

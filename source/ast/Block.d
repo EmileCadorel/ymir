@@ -11,7 +11,8 @@ import utils.exception, semantic.pack.Symbol;
  * { (instruction | declaration)* }
 */
 class Block : Instruction {
-
+    
+    private Word _ident;
     private Array!Declaration _decls;
     private Array!Instruction _insts;
     private Array!Symbol _dest;
@@ -20,6 +21,11 @@ class Block : Instruction {
 	super (word);
 	this._decls = decls;
 	this._insts = insts;
+	this._ident.setEof ();
+    }
+
+    void setIdent (Word ident) {
+	this._ident = ident;
     }
     
     Block instructions () {
@@ -31,6 +37,9 @@ class Block : Instruction {
      */
     Block block () {
 	Table.instance.enterBlock ();
+	if (!this._ident.isEof ()) 
+	    Table.instance.retInfo.setIdent (this._ident);
+	
 	Array!Instruction insts;
 	auto error = 0;
 	auto block = new Block (this._token, make!(Array!Declaration), insts);
@@ -41,7 +50,8 @@ class Block : Instruction {
 
 	foreach (it ; this._insts) {
 	    try {
-		if (Table.instance.retInfo.hasReturned ())
+		if (Table.instance.retInfo.hasReturned () ||
+		    Table.instance.retInfo.hasBreaked ())
 		    throw new UnreachableStmt (it.token);
 		insts.insertBack (it.instruction);
 		insts.back ().father = block;
@@ -61,6 +71,7 @@ class Block : Instruction {
     }
     
     override Instruction instruction () {
+	Table.instance.retInfo.currentBlock = "true";
 	return this.instructions ();
     }
 

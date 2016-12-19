@@ -325,3 +325,28 @@ class NeedAllType : YmirException {
 	msg = buf.toString ();
     }
 }
+
+
+class BreakOutSideBreakable : YmirException {
+    this (Word token) {
+	auto buf = new OutBuffer ();
+	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sError%s : Break en dehors d'un scope breakable",
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+}
+
+class BreakRefUndefined : YmirException {
+    this (Word token, string name) {
+	auto buf = new OutBuffer ();
+	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sError%s : l'identifiant de boucle '%s%s%s' n'existe pas",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, name, Colors.RESET.value);
+	
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+}

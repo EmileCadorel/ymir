@@ -9,6 +9,8 @@ import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
 import semantic.types.ArrayUtils, std.math, std.stdio;
 
 class LVisitor {
+
+    private LLabel [Instruction] _endLabels;
     
     Array!LFrame visit () {
 	Array!LFrame frames;
@@ -90,6 +92,7 @@ class LVisitor {
 	else if (auto _if = cast(If)elem) begin += visitIf (end, retReg, _if);
 	else if (auto _while = cast(While) elem) begin += visitWhile (end, retReg, _while);
 	else if (auto _block = cast(Block) elem) begin += visitBlock (end, retReg, _block);
+	else if (auto _break = cast (Break) elem) begin += visitBreak (_break);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
@@ -100,6 +103,7 @@ class LVisitor {
 	else if (auto _if = cast(If)elem) begin.insts += visitIf (end, retReg, _if);
 	else if (auto _while = cast(While)elem) begin.insts += visitWhile (end, retReg, _while);
 	else if (auto _block = cast(Block) elem) begin.insts += visitBlock (end, retReg, _block);
+	else if (auto _break = cast (Break) elem) begin.insts += visitBreak (_break);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
@@ -140,6 +144,7 @@ class LVisitor {
 	auto inst = new LInstList;
 	inst += new LLocus (_while.token.locus);
 	LLabel faux = new LLabel (), vrai = new LLabel, debut = new LLabel;
+	this._endLabels [_while.block] = faux;
 	auto left = _while.test;
 	inst += debut;
 	if (_while.info !is _while.test.info.type) {
@@ -160,6 +165,7 @@ class LVisitor {
 	vrai.insts.clean ();
 	inst += vrai;
 	inst += faux;
+	this._endLabels.remove (_while);
 	return inst;
     }
     
@@ -199,6 +205,25 @@ class LVisitor {
 	return insts;
     }
     
+    private LInstList visitBreak (Break elem) {
+	auto list = new LInstList;
+	list += new LLocus (elem.token.locus);
+	auto current = elem.father;
+	ulong nb = 0;
+	while (current !is null && nb < elem.nbBlock) {
+	    foreach (it ; current.dest) {
+		list += it.destruct ();
+	    }
+	    nb ++;
+	    if (nb < elem.nbBlock)
+		current = current.father;
+	}
+	elem.father.dest.clear ();
+	auto endLabel = this._endLabels [current];
+	list += new LGoto (endLabel);
+	return list;
+    }
+
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
 	LInstList list = new LInstList ();
 	list += new LLocus (ret.token.locus);

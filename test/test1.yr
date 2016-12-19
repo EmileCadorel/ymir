@@ -1,16 +1,9 @@
 
-def test (o)  {
-    if (true) {
-	return ;
-    } else if (false) {
-    }
-}
-
-def test2 (i)  {
-}
 
 
 def main () {
-    test (1);
-    test2 (23);
+    while : test (true) {
+	    if (true)
+		break test;
+    }
 }
