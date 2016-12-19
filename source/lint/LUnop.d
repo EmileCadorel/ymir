@@ -1,5 +1,5 @@
 module lint.LUnop;
-import lint.LExp;
+import lint.LExp, lint.LSize;
 import semantic.types.InfoType, syntax.Tokens;
 import std.outbuffer, std.string, std.conv;
 
@@ -22,7 +22,7 @@ class LUnop : LExp {
 	return this._op;
     }
 
-    override int size () {
+    override LSize size () {
 	return this._elem.size ;
     }
     

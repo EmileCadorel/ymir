@@ -1,5 +1,6 @@
 module amd64.AMDMove;
-import target.TInst, amd64.AMDObj;
+import amd64.AMDConst;
+import target.TInst, amd64.AMDObj, amd64.AMDSize;
 import std.outbuffer, amd64.AMDReg;
 
 class AMDMove : TInst {
@@ -20,19 +21,21 @@ class AMDMove : TInst {
 
     override string toString () {
 	auto buf = new OutBuffer;
+	auto size = this._left.sizeAmd;
+	if (cast (AMDConst) this._left) size = this._right.sizeAmd;
 	if (this._aux is null) {
 	    buf.writef("\tmov%s\t%s, %s",
-		       this._left.sizeAmd.id,
+		       size.id,
 		       this._left.toString (),
 		       this._right.toString ());
 	} else {
 	    buf.writefln ("\tmov%s\t%s, %s",
-		       this._left.sizeAmd.id,
-		       this._left.toString (),
-		       this._aux.toString);
+			  size.id,
+			  this._left.toString (),
+			  this._aux.toString);
 
 	    buf.writef("\tmov%s\t%s, %s",
-		       this._aux.sizeAmd.id,
+		       size.id, 
 		       this._aux.toString (),
 		       this._right.toString);
 	}

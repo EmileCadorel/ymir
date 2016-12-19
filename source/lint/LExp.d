@@ -1,5 +1,5 @@
 module lint.LExp;
-import lint.LInst;
+import lint.LInst, lint.LSize;
 import std.stdio;
 
 class LExp : LInst {
@@ -10,7 +10,7 @@ class LExp : LInst {
 	return this;
     }
 
-    int size () {
+    LSize size () {
 	assert (false, typeid (this).toString());
     }
     

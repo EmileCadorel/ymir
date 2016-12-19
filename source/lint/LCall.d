@@ -1,14 +1,14 @@
 module lint.LCall;
-import lint.LExp;
+import lint.LExp, lint.LSize;
 import std.container, std.outbuffer, std.conv;
 
 class LCall : LExp {
 
     private string _frame;
     private Array!LExp _params;
-    private int _size;
+    private LSize _size;
     
-    this (string frame, Array!LExp params, int size) {
+    this (string frame, Array!LExp params, LSize size) {
 	this._frame = frame;
 	this._params = params;
 	this._size = size;
@@ -22,7 +22,7 @@ class LCall : LExp {
 	return this._frame;
     }
 
-    override int size () {
+    override LSize size () {
 	return this._size;
     }
     

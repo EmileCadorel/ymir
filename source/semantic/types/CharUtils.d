@@ -1,6 +1,6 @@
 module semantic.types.CharUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
-import lint.LBinop, syntax.Tokens;
+import lint.LBinop, syntax.Tokens, lint.LSize;
 import lint.LExp, lint.LReg, lint.LCast;
 
 class CharUtils {
@@ -25,7 +25,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, 1), op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), op));
 	return inst;
     }
     
@@ -33,7 +33,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, 1), rightExp, op));
+	inst += (new LBinop (new LCast (leftExp, LSize.BYTE), rightExp, op));
 	return inst;
     }
     
@@ -49,7 +49,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, 1), leftExp, op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), leftExp, op));
 	return inst;
     }
     
@@ -65,7 +65,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, 4), rightExp, op));
+	inst += (new LBinop (new LCast (leftExp, LSize.INT), rightExp, op));
 	return inst;
     }
     
@@ -73,7 +73,7 @@ class CharUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, 4), op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.INT), op));
 	return inst;
     }
 

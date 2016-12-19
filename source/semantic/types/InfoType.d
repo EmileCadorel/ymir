@@ -7,7 +7,7 @@ import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
-import semantic.types.ArrayInfo;
+import semantic.types.ArrayInfo, lint.LSize;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -65,8 +65,8 @@ class InfoType {
 	return this._isConst;
     }
 
-    int size () {
-	return 0;
+    LSize size () {
+	return LSize.NONE;
     }
     
     static bool exist (string name) {

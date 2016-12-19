@@ -3,7 +3,7 @@ import lint.LInstList, lint.LConst, lint.LRegRead;
 import lint.LReg, lint.LWrite, lint.LSysCall;
 import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
-import lint.LCast;
+import lint.LCast, lint.LSize;
 
 class PtrUtils {
 
@@ -15,35 +15,35 @@ class PtrUtils {
 	return inst;
     }
 
-    static LInstList InstOp (int size, Tokens op) (LInstList llist, LInstList rlist) {
+    static LInstList InstOp (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (leftExp, new LCast (rightExp, 8), op));
+	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
 	return inst;
     }
 
-    static LInstList InstOpInv (int size, Tokens op) (LInstList llist, LInstList rlist) {
+    static LInstList InstOpInv (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (new LCast (rightExp, 8), leftExp, op));
+	inst += (new  LBinop (new LCast (rightExp, LSize.LONG), leftExp, op));
 	return inst;
     }
     
-    static LInstList InstUnref (int size) (LInstList llist) {
+    static LInstList InstUnref (LSize size) (LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LRegRead (leftExp, 0, size);
+	inst += new LRegRead (leftExp, new LConstDWord (0), size);
 	return inst;
     }
 
-    static LInstList InstUnrefDot (int size) (LInstList, LInstList llist) {
+    static LInstList InstUnrefDot (LSize size) (LInstList, LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LRegRead (leftExp, 0, size);
+	inst += new LRegRead (leftExp, new LConstDWord (0), size);
 	return inst;
     }
     

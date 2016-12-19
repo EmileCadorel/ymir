@@ -5,6 +5,7 @@ import semantic.types.InfoType, utils.exception;
 import semantic.types.UndefInfo;
 import syntax.Tokens, semantic.types.BoolUtils;
 import semantic.types.IntInfo, semantic.types.PtrInfo;
+import lint.LSize;
 
 class BoolInfo : InfoType {
 
@@ -101,8 +102,8 @@ class BoolInfo : InfoType {
 	return new BoolInfo ();
     }
 
-    override int size () {
-	return 1;
+    override LSize size () {
+	return LSize.BYTE;
     }
     
 }

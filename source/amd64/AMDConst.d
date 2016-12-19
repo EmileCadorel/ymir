@@ -2,14 +2,17 @@ module amd64.AMDConst;
 import amd64.AMDObj, amd64.AMDSize, std.conv;
 import target.TInst, amd64.AMDRodata, std.outbuffer;
 
-class AMDConstByte : AMDObj {
-    private ubyte _value;
+class AMDConst : AMDObj {
+}
 
-    this (ubyte value) {
+class AMDConstByte : AMDConst {
+    private long _value;
+
+    this (long value) {
 	this._value = value;
     }
 
-    ubyte value () {
+    long value () {
 	return this._value;
     }
     
@@ -23,7 +26,7 @@ class AMDConstByte : AMDObj {
     
 }
 
-class AMDConstDWord : AMDObj {
+class AMDConstDWord : AMDConst {
     private long _value;
 
     this (long value) {
@@ -44,7 +47,7 @@ class AMDConstDWord : AMDObj {
 }
 
 
-class AMDConstQWord : AMDObj {
+class AMDConstQWord : AMDConst {
     private long _value;
 
     this (long value) {

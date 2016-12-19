@@ -1,5 +1,5 @@
 module semantic.types.IntInfo;
-import syntax.Word, ast.Expression;
+import syntax.Word, ast.Expression, lint.LSize;
 import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
@@ -217,8 +217,8 @@ class IntInfo : InfoType {
 	return new IntInfo ();
     }
 
-    override int size () {
-	return 4;
+    override LSize size () {
+	return LSize.INT;
     }
 
     static int sizeOf () {

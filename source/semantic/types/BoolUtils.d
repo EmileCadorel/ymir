@@ -2,7 +2,7 @@ module semantic.types.BoolUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens, lint.LCast;
 import semantic.types.IntInfo, lint.LUnop, lint.LAddr;
-import lint.LConst;
+import lint.LConst, lint.LSize;
 
 class BoolUtils {
 
@@ -46,7 +46,7 @@ class BoolUtils {
 	auto list = new LInstList;
 	auto first = llist.getFirst ();
 	list += llist;
-	list += new LCast (first, IntInfo.sizeOf);
+	list += new LCast (first, LSize.INT);
 	return list;
     }
 

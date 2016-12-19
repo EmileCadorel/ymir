@@ -1,13 +1,13 @@
 module lint.LCast;
 import lint.LExp;
-import std.conv;
+import std.conv, lint.LSize;
 
 class LCast : LExp {
     
     private LExp _what;
-    private int _size;
+    private LSize _size;
     
-    this (LExp what, int size) {
+    this (LExp what, LSize size) {
 	this._what = what;
 	this._size = size;
     }
@@ -16,7 +16,7 @@ class LCast : LExp {
 	return this._what;
     }
 
-    override int size () {
+    override LSize size () {
 	return this._size;
     }
     

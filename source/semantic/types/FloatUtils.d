@@ -1,7 +1,7 @@
 module semantic.types.FloatUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, lint.LExp, lint.LReg, lint.LCast;
-import syntax.Tokens;
+import syntax.Tokens, lint.LSize;
 
 class FloatUtils {
 
@@ -18,7 +18,7 @@ class FloatUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LWrite (leftExp, new LCast (rightExp, -8)));
+	inst += (new LWrite (leftExp, new LCast (rightExp, LSize.FLOAT)));
 	return inst;
     }
 
@@ -34,7 +34,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, -8), op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), op));
 	return inst;
     }
         
@@ -42,7 +42,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, -8), rightExp, op));
+	inst += (new LBinop (new LCast (leftExp, LSize.FLOAT), rightExp, op));
 	return inst;
     }
     
@@ -58,7 +58,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, -8), leftExp, op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), leftExp, op));
 	return inst;
     }
     
@@ -66,7 +66,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (leftExp, rightExp, op, 1));
+	inst += (new LBinop (leftExp, rightExp, op));
 	return inst;
     }
 
@@ -74,7 +74,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (leftExp, new LCast (rightExp, -8), op, 1));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), op));
 	return inst;
     }
     
@@ -82,7 +82,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinopSized (new LCast (leftExp, -8), rightExp, op, 1));
+	inst += (new LBinop (new LCast (leftExp, LSize.FLOAT), rightExp, op));
 	return inst;
     }
 

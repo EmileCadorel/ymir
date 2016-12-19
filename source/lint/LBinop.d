@@ -1,5 +1,5 @@
 module lint.LBinop;
-import lint.LExp;
+import lint.LExp, lint.LSize;
 import semantic.types.InfoType, syntax.Tokens;
 import std.outbuffer, std.string, std.conv;
 
@@ -32,7 +32,7 @@ class LBinop : LExp {
 	return this._res;
     }
 
-    override int size () {
+    override LSize size () {
 	return this._left.size;
     }
     
@@ -66,14 +66,14 @@ class LBinop : LExp {
 
 class LBinopSized : LBinop {
 
-    private int _size;
+    private LSize _size;
     
-    this (LExp left, LExp right, Tokens op, int size) {
+    this (LExp left, LExp right, Tokens op, LSize size) {
 	super (left, right, op);
 	this._size = size;
     }
 
-    override int size () {
+    override LSize size () {
 	return this._size;
     }
     

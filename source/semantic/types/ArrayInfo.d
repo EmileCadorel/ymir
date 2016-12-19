@@ -6,6 +6,7 @@ import semantic.types.ArrayUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, semantic.types.PtrInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
+import lint.LSize;
 
 class ArrayInfo : InfoType {
 
@@ -57,10 +58,10 @@ class ArrayInfo : InfoType {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
-	    switch (this._content.size) {
-	    case 1: str.lintInst = &ArrayUtils.InstPlus !(1); break;
-	    case 4: str.lintInst = &ArrayUtils.InstPlus !(4); break;
-	    case 8: str.lintInst = &ArrayUtils.InstPlus !(8); break;
+	    switch (this._content.size.id) {
+	    case 1: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
+	    case 3: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
+	    case 4: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
 	    default : assert (false, "TODO");
 	    }
 	    return str;
@@ -103,13 +104,13 @@ class ArrayInfo : InfoType {
     private InfoType Access (Expression expr) {
 	if (cast (IntInfo) expr.info.type) {
 	    auto ch = this._content.clone ();
-	    switch (ch.size) {
-	    case 1: ch.lintInstMult = &ArrayUtils.InstAccessS! (1); break;
-	    case 2: ch.lintInstMult = &ArrayUtils.InstAccessS! (2); break;
-	    case 4: ch.lintInstMult = &ArrayUtils.InstAccessS! (4); break;
-	    case 8: ch.lintInstMult = &ArrayUtils.InstAccessS! (8); break;
-	    case -4: ch.lintInstMult = &ArrayUtils.InstAccessS! (-4); break;
-	    case -8: ch.lintInstMult = &ArrayUtils.InstAccessS! (-8); break;
+	    switch (ch.size.id) {
+	    case 1: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.BYTE); break;
+	    case 2: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.SHORT); break;
+	    case 3: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.INT); break;
+	    case 4: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.LONG); break;
+	    case 5: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.FLOAT); break;
+	    case 6: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.DOUBLE); break;
 	    default : assert (false);
 	    }
 	    ch.isConst = false;
@@ -168,8 +169,8 @@ class ArrayInfo : InfoType {
 	return "array!" ~ this._content.typeString ();
     }
 
-    override int size () {
-	return 8;
+    override LSize size () {
+	return LSize.LONG;
     }
 
     

@@ -6,7 +6,7 @@ import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop, amd64.AMDLeaq;
 import std.math, amd64.AMDLocus;
-import std.stdio;
+import std.stdio, lint.LSize;
 
 
 class AMDVisitor : TVisitor {
@@ -149,16 +149,20 @@ class AMDVisitor : TVisitor {
 	auto right = visitExpression (write.right);
 	auto rreg = cast (AMDObj) right.where;
 	inst += right.what;
-	auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
-	inst += new AMDMove (cast (AMDObj) right.where, aux);
-	inst += left.what;
-	inst += new AMDMove (aux, cast (AMDObj) left.where);
-	REG.free (aux);
+	if (cast (AMDConst) rreg is null) {
+	    auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
+	    inst += new AMDMove (cast (AMDObj) right.where, aux);
+	    inst += left.what;
+	    inst += new AMDMove (aux, cast (AMDObj) left.where);
+	    REG.free (aux);
+	} else {
+	    inst += left.what;
+	    inst += new AMDMove (rreg, cast (AMDObj) left.where);
+	}
 	
 	return inst;
     }
     
-
     override protected TInstPaire visitRegRead (LRegRead lread) {
 	auto exp = visitExpression (lread.data);
 	auto inst = new TInstList;
@@ -167,7 +171,9 @@ class AMDVisitor : TVisitor {
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
-	fin.offset = - cast (long) lread.begin;
+	auto res = this.resolve!AMDConstDWord (lread.begin);
+	if (res is null) assert (false, "TODO");
+	fin.offset = -res.value;
 	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }
@@ -180,7 +186,9 @@ class AMDVisitor : TVisitor {
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
-	fin.offset = - cast (long) lread.begin;
+	auto res = this.resolve!(AMDConstDWord) (lread.begin);
+	if (res is null) assert (false, "TODO");
+	fin.offset = -res.value;
 	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }
@@ -382,8 +390,9 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (where, inst);
     }    
     
-    
     override protected TInstPaire visitCast (LCast cst) {
+	auto res = this.resolve!(AMDObj) (cst);
+	if (res !is null) return new TInstPaire (res, new TInstList);
 	if (cst.size < cst.what.size) {
 	    auto reg = new AMDReg (REG.aux (getSize (cst.what.size)));
 	    auto inst = new TInstList;
@@ -471,7 +480,126 @@ class AMDVisitor : TVisitor {
 	return new TInstPaire (ret, inst);
     }
 
+    private T resolve (T) (LExp exp) {
+	if (auto _cb = cast (LConstByte) exp) return cast (T) (resolve (_cb));
+	else if (auto _cw = cast (LConstWord) exp) return cast (T) (resolve (_cw));
+	else if (auto _cdw = cast (LConstDWord) exp) return cast (T) resolve (_cdw);
+	else if (auto _cqw = cast (LConstQWord) exp) return cast (T) resolve (_cqw);
+	else if (auto _bin = cast (LBinop) exp) return cast (T) resolve (_bin);
+	else if (auto _cst = cast (LCast) exp) return cast (T) resolve (_cst);
+	return null;
+    }
 
+    private AMDObj resolve (LCast cst) {
+	auto elem = resolve!(AMDConst) (cst.what);
+	if (elem) {
+	    long value = 0;
+	    if (auto _e = cast (AMDConstByte) elem) value = _e.value;
+	    else if (auto _e = cast (AMDConstDWord) elem) value = _e.value;
+	    else if (auto _e = cast (AMDConstQWord) elem) value = _e.value;
+	    else return null;
+	    auto size = getSize (cst.size);
+	    if (size == AMDSize.BYTE) return new AMDConstByte (value);
+	    else if (size == AMDSize.DWORD) return new AMDConstDWord (value);
+	    else if (size == AMDSize.QWORD) return new AMDConstQWord (value);
+	}
+	return null;
+    }
+    
+    private AMDObj resolve (LBinop op) {
+	if (op.res is null) {
+	    auto left = resolve!(AMDConst) (op.left);
+	    auto right = resolve!(AMDConst) (op.right);
+	    if (auto _l = cast (AMDConstByte) left) {
+		if (auto _r = cast(AMDConstByte) right)
+		    return resolveFromByte (op.op, _l.value, _r.value);
+	    } else if (auto _l = cast (AMDConstDWord) left) {
+		if (auto _r = cast(AMDConstDWord) right)
+		    return resolveFromDWord (op.op, _l.value, _r.value);
+	    } else if (auto _l = cast (AMDConstQWord) left)
+		if (auto _r = cast(AMDConstQWord) right)
+		    return resolveFromQWord (op.op, _l.value, _r.value);
+	}
+	return null;
+    }
+
+    private AMDObj resolve (LConstByte lb) {
+	auto ret = visitConstByte (lb);
+	return cast (AMDObj) ret.where;
+    }
+
+    private AMDObj resolve (LConstWord lb) {
+	auto ret = visitConstWord (lb);
+	return cast (AMDObj) ret.where;
+    }
+    
+    private AMDObj resolve (LConstDWord lb) {
+	auto ret = visitConstDWord (lb);
+	return cast (AMDObj) ret.where;
+    }
+    
+    private AMDObj resolve (LConstQWord lb) {
+	auto ret = visitConstQWord (lb);
+	return cast (AMDObj) ret.where;
+    }
+    
+    private AMDConst resolveFromByte (Tokens op, long left, long right) {
+	if (op == Tokens.PLUS) return new AMDConstByte (left + right);
+	else if (op == Tokens.MINUS) return new AMDConstByte (left - right);
+	else if (op == Tokens.AND) return new AMDConstByte (left & right);
+	else if (op == Tokens.PIPE) return new AMDConstByte (left | right);
+	else if (op == Tokens.STAR) return new AMDConstByte (left * right);
+	else if (op == Tokens.DIV) return new AMDConstByte (left / right);
+	else if (op == Tokens.LEFTD) return new AMDConstByte (left << right);
+	else if (op == Tokens.RIGHTD) return new AMDConstByte (left >> right);
+	else if (op == Tokens.XOR) return new AMDConstByte (left ^ right);
+	else if (op == Tokens.SUP) return new AMDConstByte (left > right);
+	else if (op == Tokens.SUP_EQUAL) return new AMDConstByte (left >= right);
+	else if (op == Tokens.INF) return new AMDConstByte (left < right);
+	else if (op == Tokens.INF_EQUAL) return new AMDConstByte (left <= right);
+	else if (op == Tokens.DEQUAL) return new AMDConstByte (left == right);
+	else if (op == Tokens.NOT_EQUAL) return new AMDConstByte (left != right);
+	else assert (false, "TODO " ~ op.descr);
+    }
+    
+    private AMDConst resolveFromDWord (Tokens op, long left, long right) {
+	if (op == Tokens.PLUS) return new AMDConstDWord (left + right);
+	else if (op == Tokens.MINUS) return new AMDConstDWord (left - right);
+	else if (op == Tokens.AND) return new AMDConstDWord (left & right);
+	else if (op == Tokens.PIPE) return new AMDConstDWord (left | right);
+	else if (op == Tokens.STAR) return new AMDConstDWord (left * right);
+	else if (op == Tokens.DIV) return new AMDConstDWord (left / right);
+	else if (op == Tokens.LEFTD) return new AMDConstDWord (left << right);
+	else if (op == Tokens.RIGHTD) return new AMDConstDWord (left >> right);
+	else if (op == Tokens.XOR) return new AMDConstDWord (left ^ right);
+	else if (op == Tokens.SUP) return new AMDConstDWord (left > right);
+	else if (op == Tokens.SUP_EQUAL) return new AMDConstDWord (left >= right);
+	else if (op == Tokens.INF) return new AMDConstDWord (left < right);
+	else if (op == Tokens.INF_EQUAL) return new AMDConstDWord (left <= right);
+	else if (op == Tokens.DEQUAL) return new AMDConstDWord (left == right);
+	else if (op == Tokens.NOT_EQUAL) return new AMDConstDWord (left != right);
+	else assert (false, "TODO " ~ op.descr);
+    }    
+
+    private AMDConst resolveFromQWord (Tokens op, long left, long right) {
+	if (op == Tokens.PLUS) return new AMDConstQWord (left + right);
+	else if (op == Tokens.MINUS) return new AMDConstQWord (left - right);
+	else if (op == Tokens.AND) return new AMDConstQWord (left & right);
+	else if (op == Tokens.PIPE) return new AMDConstQWord (left | right);
+	else if (op == Tokens.STAR) return new AMDConstQWord (left * right);
+	else if (op == Tokens.DIV) return new AMDConstQWord (left / right);
+	else if (op == Tokens.LEFTD) return new AMDConstQWord (left << right);
+	else if (op == Tokens.RIGHTD) return new AMDConstQWord (left >> right);
+	else if (op == Tokens.XOR) return new AMDConstQWord (left ^ right);
+	else if (op == Tokens.SUP) return new AMDConstQWord (left > right);
+	else if (op == Tokens.SUP_EQUAL) return new AMDConstQWord (left >= right);
+	else if (op == Tokens.INF) return new AMDConstQWord (left < right);
+	else if (op == Tokens.INF_EQUAL) return new AMDConstQWord (left <= right);
+	else if (op == Tokens.DEQUAL) return new AMDConstQWord (left == right);
+	else if (op == Tokens.NOT_EQUAL) return new AMDConstQWord (left != right);
+	else assert (false, "TODO " ~ op.descr);
+    }    
+    
     override protected TInstPaire visitConstByte (LConstByte val) {
 	return new TInstPaire (new AMDConstByte (val.value), new TInstList);
     }
@@ -485,18 +613,30 @@ class AMDVisitor : TVisitor {
     }
 
     override protected TInstPaire visitConstDWord (LConstDWord val, TExp) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstDWord (val.value * (getSize (val.mult).size)), new TInstList);
+	}
 	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
     }
 
     override protected TInstPaire visitConstDWord (LConstDWord val) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstDWord (val.value * (getSize (val.mult).size)), new TInstList);
+	}
 	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
     }
 
     override protected TInstPaire visitConstQWord (LConstQWord val) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstQWord (val.value * (getSize (val.mult).size)), new TInstList);
+	}
 	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
     }
 
     override protected TInstPaire visitConstQWord (LConstQWord val, TExp) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstQWord (val.value * (getSize (val.mult).size)), new TInstList);
+	}
 	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
     }
     

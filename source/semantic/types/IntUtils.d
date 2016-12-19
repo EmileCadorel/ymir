@@ -3,7 +3,7 @@ import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
 import lint.LSysCall, std.container, lint.LExp, lint.LConst;
 import lint.LCast, lint.LUnop, semantic.types.IntInfo;
-import lint.LAddr;
+import lint.LAddr, lint.LSize;
 
 class IntUtils {
 
@@ -44,7 +44,7 @@ class IntUtils {
 	auto inst = new LInstList;
 	auto left = llist.getFirst;
 	inst += llist;
-	inst += new LCast (left, 1);
+	inst += new LCast (left, LSize.BYTE);
 	return inst;
     }
     
@@ -52,7 +52,7 @@ class IntUtils {
 	auto inst = new LInstList;
 	auto left = llist.getFirst;
 	inst += llist;
-	inst += new LCast (left, 1);
+	inst += new LCast (left, LSize.BYTE);
 	return inst;
     }
     

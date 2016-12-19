@@ -1,22 +1,22 @@
 module lint.LReg;
-import lint.LExp;
+import lint.LExp, lint.LSize;
 import std.conv;
 
 class LReg : LExp {
     
     private static ulong __last__ = 0;
     private ulong _id;
-    private int _size;
+    private LSize _size;
     private string _name;
     private ulong _length;
 
-    this (int size) {
+    this (LSize size) {
 	this._id = __last__;
 	__last__ ++;
 	this._size = size;
     }
 
-    this (ulong id, int size) {
+    this (ulong id, LSize size) {
 	this._id = id;
 	this._size = size;
     }
@@ -39,7 +39,7 @@ class LReg : LExp {
 	return false;
     }
     
-    override int size () {
+    override LSize size () {
 	return this._size;
     }
     

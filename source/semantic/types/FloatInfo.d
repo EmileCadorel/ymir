@@ -4,6 +4,7 @@ import syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo;
+import lint.LSize;
 
 class FloatInfo : InfoType {
 
@@ -152,8 +153,8 @@ class FloatInfo : InfoType {
 	return new FloatInfo ();
     }
 
-    override int size () {
-	return -8;
+    override LSize size () {
+	return LSize.DOUBLE;
     }
     
 }

@@ -1,4 +1,5 @@
 module semantic.types.StringInfo;
+import lint.LSize;
 import syntax.Word, ast.Expression, syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
@@ -147,8 +148,8 @@ class StringInfo : InfoType {
 	return new StringInfo ();
     }
 
-    override int size () {
-	return 8;
+    override LSize size () {
+	return LSize.LONG;
     }
     
 }

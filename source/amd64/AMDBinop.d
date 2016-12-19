@@ -3,7 +3,7 @@ import target.TInst, syntax.Tokens, amd64.AMDObj;
 import amd64.AMDSize, std.outbuffer;
 import target.TInstList, amd64.AMDSet, std.algorithm;
 import amd64.AMDReg, amd64.AMDMove, amd64.AMDStd;
-import amd64.AMDUnop;
+import amd64.AMDUnop, amd64.AMDConst;
 
 class AMDBinop : TInst {
 
@@ -194,6 +194,8 @@ class AMDBinop : TInst {
 	} else {
 	    auto size = this._left.sizeAmd;
 	    string op;
+	    if (cast (AMDConst) this._left) size = this._right.sizeAmd;
+	    
 	    if (size == AMDSize.BYTE) op = opInt ();	
 	    else if (size == AMDSize.WORD) op = opInt ();
 	    else if (size == AMDSize.DWORD) op = opInt ();

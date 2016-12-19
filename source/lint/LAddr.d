@@ -1,5 +1,5 @@
 module lint.LAddr;
-import lint.LExp;
+import lint.LExp, lint.LSize;
 
 class LAddr : LExp {
 
@@ -13,8 +13,8 @@ class LAddr : LExp {
 	return this._exp;
     }
 
-    override int size () {
-	return 8;
+    override LSize size () {
+	return LSize.LONG;
     }
     
     override bool isInst () {

@@ -1,12 +1,13 @@
 module lint.LVisitor;
 import semantic.pack.FrameTable, semantic.pack.Frame;
 import lint.LFrame, lint.LInstList, lint.LLabel, lint.LReg;
-import semantic.types.VoidInfo;
+import semantic.types.VoidInfo, lint.LSize;
 import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
 import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
 import semantic.types.ArrayUtils, std.math, std.stdio;
+import lint.LBinop, syntax.Tokens;
 
 class LVisitor {
 
@@ -266,24 +267,23 @@ class LVisitor {
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;
-	params.insertBack (new LConstDWord (carray.params.length *
-					    abs (type.content.size)));
-	params.insertBack (new LConstDWord (abs( type.content.size)));
+	params.insertBack (new LConstDWord (carray.params.length, type.content.size));
+	params.insertBack (new LConstDWord (1, type.content.size));
 	
 	auto inst = new LInstList;
 	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
 	if (exist is null) ArrayUtils.createCstArray ();
 	auto aux = new LReg (carray.info.id, type.size);
-	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, 8));
-		
+	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+			   
 	foreach (it ; 0 .. carray.params.length) {
 	    auto cster = carray.casters [it];
 	    LInstList ret;
 	    if (cster is null) ret = visitExpression (carray.params [it]);
 	    else ret = cster.lintInst (visitExpression (carray.params [it]));
 	    auto regRead = new LRegRead (aux,
-					 (it * abs (type.content.size)) + 8,
-					 abs (type.content.size));
+					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (2, LSize.INT), Tokens.PLUS),
+					 type.content.size);
 	    					 
 	    inst += ret;
 	    auto right = ret.getFirst ();
@@ -311,7 +311,7 @@ class LVisitor {
 	    StringUtils.createCstString ();
 	}
 	auto aux = new LReg (elem.info.id, elem.info.type.size);
-	inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, 8));
+	inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));
 	inst += aux;
 	return inst;
     }

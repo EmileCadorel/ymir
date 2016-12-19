@@ -1,34 +1,35 @@
 module lint.LRegRead;
-import lint.LExp, lint.LReg;
+import lint.LExp, lint.LReg, lint.LSize;
+import lint.LConst;
 import std.outbuffer, std.conv;
 
 class LRegRead : LExp {
 
     private LExp _data;
-    private ulong _begin;
-    private int _size;
+    private LExp _beginStatic;
+    private LSize _size;
 
     this (LExp reg) {
 	this._data = reg;
-	this._begin = 0;
+	this._beginStatic = new LConstDWord (0);
 	this._size = reg.size;
     }
     
-    this (LExp str, ulong begin, int size) {
+    this (LExp str, LExp begin, LSize size) {
 	this._data = str;
-	this._begin = begin;
+	this._beginStatic = begin;
 	this._size = size;
     }
-
+    
     ref LExp data () {
 	return this._data;
     }
 
-    ref ulong begin () {
-	return this._begin;
+    ref LExp begin () {
+	return this._beginStatic;
     }
-
-    override int size () {
+    
+    override LSize size () {
 	return this._size;
     }
 
@@ -38,7 +39,7 @@ class LRegRead : LExp {
     
     override string toString () {
 	return '{' ~ this._data.toString () ~ "}["
-	    ~ to!string (this._begin) ~ ":" ~ to!string (this._size) ~ "]";
+	    ~ this._beginStatic.toString () ~ ":" ~ this._size.value ~ "]";
     }
     
 }

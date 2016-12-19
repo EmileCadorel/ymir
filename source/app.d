@@ -1,6 +1,6 @@
 import std.stdio, utils.YmirException;
 import syntax.Visitor, semantic.pack.FrameTable;
-import target.TFrame, ybyte.YBVisitor;
+import target.TFrame;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
 import syntax.Lexer, target.TRodata, std.process;
