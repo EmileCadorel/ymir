@@ -1,6 +1,7 @@
 module amd64.AMDLabel;
 import target.TLabel, target.TInstList;
-import std.outbuffer;
+import std.outbuffer, std.stdio;
+import amd64.AMDLocus;
 
 class AMDLabel : TLabel {
 
@@ -27,9 +28,17 @@ class AMDLabel : TLabel {
     override string toString () {
 	auto buf = new OutBuffer;
 	buf.writef ("%s:\n", this._id);
+	AMDLocus last = null;
 	if (this._inst !is null) {
 	    foreach (it ; this._inst.inst) {
-		buf.writef ("%s\n", it.toString ());
+		if (auto _l = cast (AMDLocus) it) {
+		    if (!last || last.loc.line != _l.loc.line || last.loc.file != _l.loc.file) 
+			buf.writef ("%s\n", it.toString ());
+		    last = _l;
+		} else {
+		    buf.writef ("%s\n", it.toString ());
+		    last = null;
+		}
 	    }
 	} else {
 	    buf.writef ("\tnone\n");

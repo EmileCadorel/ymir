@@ -1,6 +1,6 @@
 module target.TInstList;
 import target.TInst, target.TExp;
-import std.container, std.outbuffer;
+import std.container, std.outbuffer, std.stdio;
 
 class TInstList {
 

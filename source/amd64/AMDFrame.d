@@ -1,6 +1,7 @@
 module amd64.AMDFrame;
 import target.TFrame, amd64.AMDConst, target.TInstList;
 import amd64.AMDLabel, std.outbuffer;
+import std.stdio;
 
 class AMDFrame : TFrame {
 

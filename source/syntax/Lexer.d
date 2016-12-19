@@ -102,7 +102,7 @@ class Lexer {
 		break;
 	    } else {
 		Token com;
-		if (isComment (word, com) && _enableComment) {
+		while (isComment (word, com) && _enableComment) {
 		    do {
 			getWord (word);
 		    } while (word != com && !word.isEof);

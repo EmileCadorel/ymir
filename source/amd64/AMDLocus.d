@@ -45,6 +45,10 @@ class AMDLocus : TInst {
 	this._id = AMDFile.__locusFiles__ [locus.file];
     }
 
+    Location loc () {
+	return this._loc;
+    }
+    
     override string toString () {
 	if (Options.instance.isOn (OptionEnum.DEBUG)) {
 	    auto buf = new OutBuffer ();

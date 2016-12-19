@@ -1,6 +1,11 @@
 
 extern (C) putchar (c : char);
 
+def println (a) {
+    print (a);
+    print ('\n');
+}
+
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -15,9 +20,27 @@ def print (c : char) {
     putchar (c);
 }
 
+
+def print (s : string) {
+    let i = 0;
+    while (i < s.length) {
+	print (s [i]);
+	i += 1;
+    }
+}
+
+def print (arr : array!int) {
+    let i = 0;
+    print ('[');
+    while (i < arr.length) {
+	print (arr [i]);
+	if (i < arr.length - 1) print(", ");
+	i += 1;
+    }
+    print (']');
+}
+
 def main () {
-    let a = 'salut';
-    print (a[4]);
-    print (a.nbRef);
-    print ('\n');
+    let a = [1];    
+    println (a);
 }

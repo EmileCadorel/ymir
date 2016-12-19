@@ -199,6 +199,8 @@ class AMDVisitor : TVisitor {
     }
 
     override protected TInstPaire visitBinop (LBinop lbin) {
+	auto res = resolve!(AMDObj) (lbin);
+	if (res !is null) return new TInstPaire (res, new TInstList);
 	auto size = getSize (lbin.left.size);
 	TInstPaire ret;
 	auto where = new AMDReg (REG.aux (size));
@@ -212,6 +214,8 @@ class AMDVisitor : TVisitor {
     }
     
     override protected TInstPaire visitBinop  (LBinop lbin, TExp where) {
+	auto res = resolve!(AMDObj) (lbin);
+	if (res !is null) return new TInstPaire (res, new TInstList);
 	auto size = getSize (lbin.left.size);
 	if (size == AMDSize.BYTE) return visitBinopByte (lbin, where);
 	else if (size == AMDSize.WORD) return visitBinopWord (lbin, where);
