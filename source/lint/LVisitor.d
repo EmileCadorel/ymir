@@ -406,12 +406,10 @@ class LVisitor {
     }
     
     private LInstList visitDot (Dot dot) {
-	auto inst = new LInstList;
-	auto right = dot.info.type.lintInst (null, visitExpression (dot.left));
-	inst += right;
+	auto inst = dot.info.type.lintInst (null, visitExpression (dot.left));
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
-	    auto last = right.getFirst ();	    
+	    auto last = inst.getFirst ();	    
 	    inst += new LWrite (sym, last);
 	}
 	return inst;

@@ -21,7 +21,11 @@ def print (i) : void {
 }
 
 def main () {
-    let b = [[function (int) : int]];
-    b [0] [0] = test;
-    b [0] [0] (10);
+    let a = ("salut").dup + " ca va ?";
+    let i = 0;
+    while (i < a.length) {
+	print (a[i]);
+	i++;
+    }
+    print ('\n');
 }
