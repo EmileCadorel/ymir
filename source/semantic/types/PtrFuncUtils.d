@@ -40,18 +40,5 @@ class PtrFuncUtils {
 	inst += leftExp;
 	return inst;
     }
-
-    static LInstList InstGetAddr (InfoType, Expression left, Expression right) {
-	auto info = left.info;
-	auto reg = new LReg (info.id, info.type.size);
-	return new LInstList (reg);
-    }
-    
-    static LInstList InstCall (LInstList llist, LInstList rlist) {
-	LInstList list = new LInstList;
-	auto rightExp = cast (LParam) rlist.getFirst (), leftExp = llist.getFirst ();
-	auto call = new LCall (leftExp, rightExp.params, rightExp.size);
-	return new LInstList (call);
-    }
     
 }

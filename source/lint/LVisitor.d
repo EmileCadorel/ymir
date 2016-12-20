@@ -381,8 +381,8 @@ class LVisitor {
 	LExp call;
 	if (par.score.dyn) {
 	    auto left = visitExpression (par.left);
-	    auto clist = par.score.ret.lintInst (left, new LInstList (new LParam (exprs, par.score.ret.size)));
-	    call = clist.getFirst ();
+	    list += left;
+	    call = new LCall (left.getFirst (), exprs, par.score.ret.size);
 	} else {		
 	    call = new LCall (par.score.name, exprs, par.score.ret.size);
 	}

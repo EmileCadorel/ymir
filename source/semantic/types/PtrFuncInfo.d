@@ -158,8 +158,6 @@ class PtrFuncInfo : InfoType {
 	}
 	
 	auto ret = this._ret.clone ();
-	ret.lintInst = &PtrFuncUtils.InstCall;
-	ret.leftTreatment = &PtrFuncUtils.InstGetAddr;
 	score.dyn = true;
 	score.ret = ret;
 	return score;
