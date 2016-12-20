@@ -362,7 +362,6 @@ class AMDVisitor : TVisitor {
     
     override protected TInstPaire visitCall (LCall lcall) {
 	auto inst = new TInstList;
-	auto call = new AMDCall (lcall.name);
 	foreach (it ; 0 .. lcall.params.length) {
 	    auto reg = new AMDReg (REG.param (it, getSize (lcall.params [it].size)));
 	    auto par = visitExpression (lcall.params [it], reg);
@@ -371,7 +370,14 @@ class AMDVisitor : TVisitor {
 		inst += new AMDMove (cast (AMDObj)par.where, reg);
 	}
 	
-	inst += call;
+	if (lcall.name) inst += new AMDCall (lcall.name);
+	else {
+	    auto expr = visitExpression (lcall.dynFrame);
+	    auto aux = new AMDReg (REG.getReg ("rax"));
+	    inst += expr.what;
+	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
+	}
+	
 	auto retReg = new AMDReg (REG.getReg ("rax"));
 	return new TInstPaire (retReg, inst);
     }
@@ -379,7 +385,6 @@ class AMDVisitor : TVisitor {
     override protected TInstPaire visitCall (LCall lcall, TExp twhere) {
 	auto where = cast (AMDReg) twhere;
 	auto inst = new TInstList;
-	auto call = new AMDCall (lcall.name);
 	foreach (it ; 0 .. lcall.params.length) {
 	    auto reg = new AMDReg (REG.param (it, getSize (lcall.params [it].size)));
 	    auto par = visitExpression (lcall.params [it], reg);
@@ -388,8 +393,15 @@ class AMDVisitor : TVisitor {
 		inst += new AMDMove (cast (AMDObj)par.where, reg);
 	}
 	
-	inst += call;
-	auto retReg = new AMDReg (REG.getReg ("rax", where.sizeAmd));
+	if (lcall.name) inst += new AMDCall (lcall.name);
+	else {
+	    auto expr = visitExpression (lcall.dynFrame);
+	    auto aux = new AMDReg (REG.getReg ("rax"));
+	    inst += expr.what;
+	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
+	}
+	
+	auto retReg = new AMDReg (REG.getReg ("rax"));
 	inst += new AMDMove (retReg, where);
 	return new TInstPaire (where, inst);
     }    

@@ -48,6 +48,14 @@ class Par : Expression {
 	return this._score;
     }
 
+    Expression left () {
+	return this._left;
+    }
+
+    ParamList paramList () {
+	return this._params;
+    }
+    
     Array!Expression params () {
 	return this._params.params;
     }

@@ -3,14 +3,25 @@ extern (C) putchar (c : char);
 
 def test (i) {
     putchar ('i');
+    return 10;
 }
 
 def print (c : char) {
     putchar (c);
 }
 
+def print (i) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
 def main () {
-    let b = function (int) : void (test);
-    b = null;
-    let c = b;
+    let b = [[function (int) : int]];
+    b [0] [0] = test;
+    b [0] [0] (10);
 }

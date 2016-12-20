@@ -378,12 +378,20 @@ class LVisitor {
 	    list += elist;
 	}
 	
-	auto call = new LCall (par.score.name, exprs, par.score.ret.size);
+	LExp call;
+	if (par.score.dyn) {
+	    auto left = visitExpression (par.left);
+	    auto clist = par.score.ret.lintInst (left, new LInstList (new LParam (exprs, par.score.ret.size)));
+	    call = clist.getFirst ();
+	} else {		
+	    call = new LCall (par.score.name, exprs, par.score.ret.size);
+	}
+	
 	if (cast (VoidInfo) par.score.ret is null) {
 	    auto reg = new LReg (par.info.id, par.score.ret.size);
 	    list += new LWrite (reg, call);
 	} else 	list += call;
-	return list;
+	return list;	
     }
 
     private LInstList visitAccess (Access access) {

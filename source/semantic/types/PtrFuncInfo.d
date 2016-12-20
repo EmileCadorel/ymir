@@ -7,6 +7,7 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.PtrInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
+import ast.ParamList, semantic.pack.Frame;
 
 class PtrFuncInfo : InfoType {
     
@@ -62,7 +63,7 @@ class PtrFuncInfo : InfoType {
     private InfoType Affect (Expression right) {
 	if (auto fun = cast (FunctionInfo) right.info.type) {
 	    auto score = fun.CallOp (right.token, this._params);
-	    if (score is null) return null;
+	    if (score is null || !score.ret.isSame (this._ret)) return null;
 	    auto ret = cast (PtrFuncInfo) this.clone ();
 	    ret._score = score;
 	    ret.lintInst = &PtrFuncUtils.InstAffect;
@@ -136,6 +137,32 @@ class PtrFuncInfo : InfoType {
 
     override LSize size () {
 	return LSize.LONG;
+    }
+
+    override ApplicationScore CallOp (Word token, ParamList params) {
+	if (params.params.length != this._params.length) {
+	    return null;
+	}
+	
+	auto score = new ApplicationScore (token);
+	foreach (it ; 0 .. this._params.length) {
+	    InfoType info = this._params [it];	    
+	    auto type = params.params [it].info.type.CastOp (info);
+	    if (type is params.params [it].info.type) {
+		score.score += Frame.SAME;
+		score.treat.insertBack (null);
+	    } else if (type !is null) {
+		score.score += Frame.AFF;
+		score.treat.insertBack (type);
+	    } else return null;
+	}
+	
+	auto ret = this._ret.clone ();
+	ret.lintInst = &PtrFuncUtils.InstCall;
+	ret.leftTreatment = &PtrFuncUtils.InstGetAddr;
+	score.dyn = true;
+	score.ret = ret;
+	return score;
     }
     
     override string typeString () {

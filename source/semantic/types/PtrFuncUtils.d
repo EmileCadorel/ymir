@@ -5,7 +5,7 @@ import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LSize;
 import ast.Expression, semantic.types.PtrFuncInfo;
-import semantic.types.InfoType;
+import semantic.types.InfoType, lint.LCall;
 
 class PtrFuncUtils {
     
@@ -41,4 +41,17 @@ class PtrFuncUtils {
 	return inst;
     }
 
+    static LInstList InstGetAddr (InfoType, Expression left, Expression right) {
+	auto info = left.info;
+	auto reg = new LReg (info.id, info.type.size);
+	return new LInstList (reg);
+    }
+    
+    static LInstList InstCall (LInstList llist, LInstList rlist) {
+	LInstList list = new LInstList;
+	auto rightExp = cast (LParam) rlist.getFirst (), leftExp = llist.getFirst ();
+	auto call = new LCall (leftExp, rightExp.params, rightExp.size);
+	return new LInstList (call);
+    }
+    
 }

@@ -13,9 +13,9 @@ class Frame {
     protected Function _function;
     protected string _namespace;
     
-    protected static long SAME = 10;
-    protected static long AFF = 5;
-
+    static long SAME = 10;
+    static long AFF = 5;
+    static long CHANGE = 7;
     
     this (string namespace, Function func) {
 	this._function = func;
@@ -66,7 +66,7 @@ class Frame {
 		    } else return null;
 
 		} else {
-		    score.score += AFF;
+		    score.score += CHANGE;
 		    score.treat.insertBack (null);
 		}
 	    }
@@ -95,7 +95,7 @@ class Frame {
 		    } else return null;
 
 		} else {
-		    score.score += AFF;
+		    score.score += CHANGE;
 		    score.treat.insertBack (null);
 		}
 	    }

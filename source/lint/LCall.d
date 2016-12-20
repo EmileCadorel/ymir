@@ -7,6 +7,15 @@ class LCall : LExp {
     private string _frame;
     private Array!LExp _params;
     private LSize _size;
+    private LExp _dynFrame;
+
+
+    this (LExp dyn, Array!LExp params, LSize size) {
+	this._dynFrame = dyn;
+	this._params = params;
+	this._size = size;
+	this._frame = null;
+    }
     
     this (string frame, Array!LExp params, LSize size) {
 	this._frame = frame;
@@ -14,6 +23,10 @@ class LCall : LExp {
 	this._size = size;
     }
     
+    LExp dynFrame () {
+	return this._dynFrame;
+    }
+
     Array!LExp params () {
 	return this._params;
     }
@@ -32,7 +45,8 @@ class LCall : LExp {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("Call(%s, [", this._frame);
+	buf.writef ("Call(%s, [",
+		    this._frame !is null ? this._frame : this._dynFrame.toString);
 	foreach (it ; this._params) {
 	    if (it !is this._params [$ - 1])
 		buf.writef ("%s, ", it);
@@ -41,6 +55,5 @@ class LCall : LExp {
 	buf.writef("])\n");
 	return buf.toString ();
     }
-
     
 }

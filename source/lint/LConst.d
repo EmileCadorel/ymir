@@ -188,6 +188,30 @@ class LConstArray : LConst {
     LExp opIndex (ulong i) {
 	return this._exp[i];
     }    
+   
+}
 
+class LParam : LConst {
+
+    private Array!LExp _exps;
+    private LSize _size;
+    
+    this (Array!LExp exp, LSize size) {
+	this._exps = exp;
+	this._size = size;
+    }
+
+    override LSize size () {
+	return this._size;
+    }
+    
+    Array!LExp params () {
+	return this._exps;
+    }    
+    
+    LExp opIndex (ulong i) {
+	return this._exps [i];
+    }
+    
 }
 

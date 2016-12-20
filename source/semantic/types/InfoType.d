@@ -29,8 +29,9 @@ class ApplicationScore {
     long score;
     Word token;
     string name;
+    bool dyn;
     InfoType ret;
-    Array!InfoType treat;	
+    Array!InfoType treat;    
 }
 
 class InfoType {
