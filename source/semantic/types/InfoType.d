@@ -134,6 +134,14 @@ class InfoType {
 	return this._leftTreatment;
     }
 
+    /** 
+     Utilisé quand on a besoin d'appliquer un pre traitement a l'element de gauche d'une expression
+     Example :
+     ---
+     //a <- ref!int
+     a = 10;
+     ---
+     */
     LInstList leftTreatment (InfoType type, Expression left, Expression right) {
 	return this._leftTreatment (type, left, right);
     }
@@ -142,10 +150,19 @@ class InfoType {
 	return this._rightTreatment;
     }
 
+    /**
+     Utilisé quand on a besoin d'appliquer un pre traitement a l'element de droite d'une expression
+     Example :
+     ---
+     //a <- ref!int
+     b = a;
+     ---
+    */
     LInstList rightTreatment (InfoType type, Expression left, Expression right) {
 	return this._rightTreatment (type, left, right);
     }
 
+    
     ref InstComp lintInst () {
 	return this._lintInst;
     }
@@ -169,19 +186,23 @@ class InfoType {
     ref InstCompMult lintInstMult () {
 	return this._lintInstMult;
     }
-    
+
+    /// Utilisé pour les operateur multiple
     LInstList lintInst (LInstList left, Array!LInstList rights) {
 	return this._lintInstMult (left, rights);
     }
-    
+
+    /// Utilisé pour les operateur binaire
     LInstList lintInst (LInstList left, LInstList right) {
 	return this._lintInst (left, right);
     }
-    
+
+    /// Utilisé pour les operateur unaire
     LInstList lintInst (LInstList left) {
 	return this._lintInstS (left);
     }
-    
+
+    /// Utilisé pour les destructeur
     LInstList destruct (LInstList elem) {
 	return this._destruct (elem);
     }

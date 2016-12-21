@@ -23,3 +23,4 @@ public import ast.Dot;
 public import ast.Proto;
 public import ast.Break;
 public import ast.FuncPtr;
+public import ast.Struct;

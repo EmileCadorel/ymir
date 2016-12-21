@@ -4,14 +4,16 @@ import lint.LReg, lint.LWrite, lint.LSysCall;
 import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LFrame, lint.LCall, lint.LAddr;
-import semantic.types.StringUtils, lint.LSize;
-import semantic.types.ClassUtils;
+import semantic.types.StringUtils, lint.LSize, lint.LUnop;
+import semantic.types.ClassUtils, semantic.types.InfoType;
+import ast.Expression, lint.LVisitor, semantic.types.ArrayInfo;
 
 class ArrayUtils {
 
     static immutable string __CstName__ = "_YPCstArray";
     static immutable string __PlusArrayInt__ = "_YPPlusArrayInt";
     static immutable string __PlusArrayLong__ = "_YPPlusArrayLong";
+    static immutable string __DstArray__ = "_YPDstArray";
 
     /**
      def cstArray (size : int, ofsize : int) {
@@ -201,8 +203,6 @@ class ArrayUtils {
 	LReg.lastId = last;
     }
 
-    
-    
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -321,6 +321,7 @@ class ArrayUtils {
     static LInstList InstCastString (LInstList llist) {
 	return llist;
     }
+
     
 }
 

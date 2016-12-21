@@ -57,7 +57,6 @@ class Symbol {
 	auto type = this._type.destruct ();
 	if (type && type.destruct) {
 	    LInstList list = new LInstList (new LReg (this._id, this._type.size));
-	    if (type.lintInstS) list = type.lintInst (list);
 	    return type.destruct (list);
 	}
 	

@@ -191,6 +191,7 @@ class ArrayInfo : InfoType {
     }
 
     override InfoType destruct () {
+	if (this._destruct is null) return null;
 	auto ret = this.clone ();
 	ret.setDestruct (this._destruct);
 	return ret;

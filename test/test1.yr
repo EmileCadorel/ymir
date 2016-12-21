@@ -1,23 +1,6 @@
 
-extern (C) putchar (c : char);
-
-def test (a : ref!string) {
-    a = "salut";
-}
+struct (a : int, b : float) test;
 
 def main () {
-
-    def println (str : string) {
-	let i = 0;
-	while (i < str.length) {
-	    putchar (str [i]);
-	    i ++;
-	}
-	putchar ('\n');
-    }
-    
-    
-    let a = 'comment';
-    test (a);
-    println (a);
+    let a = test (12, 44.);    
 }

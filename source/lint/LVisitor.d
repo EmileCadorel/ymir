@@ -430,7 +430,7 @@ class LVisitor {
 	if (dot.info.type.leftTreatment) {
 	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
 	} else left = visitExpression (dot.left);
-	auto inst = dot.info.type.lintInst (null, left);
+	auto inst = dot.info.type.lintInst (LInstList.init, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
 	    auto last = inst.getFirst ();	    

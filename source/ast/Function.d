@@ -47,9 +47,6 @@ class Function : Declaration {
 	} else {
 	    Frame fr = verifyPure ();
 	    auto space = Table.instance.namespace ();
-	    if (fr is null) {
-		fr = new UnPureFrame (space, this);
-	    }
 
 	    auto it = Table.instance.get (this._ident.str);
 	    if (it !is null) {
@@ -67,7 +64,7 @@ class Function : Declaration {
     Frame verifyPure () {
 	auto space = Table.instance.namespace ();
 	foreach (it ; this._params) {
-	    if (cast(TypedVar) (it) is null) return null;
+	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    
 	}
 	auto fr = new PureFrame (space, this);

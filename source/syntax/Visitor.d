@@ -71,6 +71,7 @@ class Visitor {
 	    if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
 	    else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
 	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else throw new SyntaxError (word);
 	    _lex.next (word);
 	}
@@ -83,7 +84,31 @@ class Visitor {
     private Import visitImport () {
 	return null;
     }
-    
+
+    /**
+     struct := 'struct' '(' (var (',' var)*)? ')' Identifiant ';'
+     */
+    private Struct visitStruct () {
+	auto word = this._lex.next ();
+	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	Array!Var exps;
+	word = this._lex.next ();
+	if (word != Tokens.RPAR) {
+	    _lex.rewind ();
+	    while (1) {
+		exps.insertBack (visitVarDeclaration ());
+		_lex.next (word);
+		if (word == Tokens.RPAR) break;
+		else if (word != Tokens.COMA)
+		    throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+	    }
+	}
+	auto ident = visitIdentifiant ();
+	word = this._lex.next ();
+	if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	return new Struct (ident, exps);
+    }    
+
     /**
      function := 'def' Identifiant '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
      */
