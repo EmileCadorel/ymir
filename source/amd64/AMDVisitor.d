@@ -373,12 +373,12 @@ class AMDVisitor : TVisitor {
 	if (lcall.name) inst += new AMDCall (lcall.name);
 	else {
 	    auto expr = visitExpression (lcall.dynFrame);
-	    auto aux = new AMDReg (REG.getReg ("rax"));
+	    auto aux = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	    inst += expr.what;
 	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
 	}
 	
-	auto retReg = new AMDReg (REG.getReg ("rax"));
+	auto retReg = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	return new TInstPaire (retReg, inst);
     }
 
@@ -396,12 +396,12 @@ class AMDVisitor : TVisitor {
 	if (lcall.name) inst += new AMDCall (lcall.name);
 	else {
 	    auto expr = visitExpression (lcall.dynFrame);
-	    auto aux = new AMDReg (REG.getReg ("rax"));
+	    auto aux = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	    inst += expr.what;
 	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
 	}
 	
-	auto retReg = new AMDReg (REG.getReg ("rax"));
+	auto retReg = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	inst += new AMDMove (retReg, where);
 	return new TInstPaire (where, inst);
     }    

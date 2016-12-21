@@ -10,15 +10,23 @@ def print (i : int) : void {
     }
 }
 
+def print (c : char) {
+    putchar (c);
+}
+
+def println (i) {
+    print (i);
+    print ('\n');
+}
+
 def fibo (n : int) {
     if (n < 2) return n;
     else {
-	let sum = fibo (n - 1) + fibo (n - 2);
-	return sum;
+	return fibo (n - 1) + fibo (n - 2);
     }
 }
 
 def main () {
-    let a = fibo (12);
+    let a = fibo (5);
     print (a);
 }

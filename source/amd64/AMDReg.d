@@ -113,7 +113,7 @@ class AMDRegTable {
 	    foreach (key, value ; __table__) {
 		if (name in value) {
 		    auto reg = (size in value);
-		    if (reg is null) assert (false, "Pas de registre " ~ name);
+		    if (reg is null) assert (false, "Pas de registre " ~ name ~ " de taille " ~ to!string (size));
 		    return *reg;
 		}
 	    }

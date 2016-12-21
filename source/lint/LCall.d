@@ -52,7 +52,7 @@ class LCall : LExp {
 		buf.writef ("%s, ", it);
 	    else  buf.writef ("%s", it);
 	}
-	buf.writef("])\n");
+	buf.writef("], %s)\n", to!string (this._size));
 	return buf.toString ();
     }
     
