@@ -54,9 +54,14 @@ class Symbol {
     }
 
     LInstList destruct () {
-	if (this._type.destruct !is null) {
-	    return this._type.destruct (new LInstList (new LReg (this._id, this._type.size)));
-	} else return new LInstList ();
+	auto type = this._type.destruct ();
+	if (type && type.destruct) {
+	    LInstList list = new LInstList (new LReg (this._id, this._type.size));
+	    if (type.lintInstS) list = type.lintInst (list);
+	    return type.destruct (list);
+	}
+	
+	return new LInstList ();
     }
     
     string typeString () {

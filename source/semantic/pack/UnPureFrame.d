@@ -42,7 +42,7 @@ class UnPureFrame : Frame {
 	if (proto is null) {
 	    
 	    if (this._function.type is null) {
-		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
+		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }
@@ -105,7 +105,7 @@ class UnPureFrame : Frame {
 	if (proto is null) {
 	    
 	    if (this._function.type is null) {
-		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
+		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }

@@ -1,0 +1,45 @@
+module semantic.types.RefUtils;
+import lint.LInstList, lint.LConst, lint.LRegRead;
+import lint.LReg, lint.LWrite, lint.LSysCall;
+import std.container, lint.LExp, lint.LBinop;
+import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
+import lint.LCast, lint.LSize, semantic.types.ClassUtils;
+import semantic.types.ClassUtils, lint.LFrame;
+import lint.LCall, lint.LVisitor, semantic.types.InfoType;
+import ast.Expression, std.stdio;
+
+class RefUtils {
+
+    static LInstList InstAffect (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += (new LWrite (leftExp, rightExp));
+	return inst;
+    }
+
+    static LInstList InstAffectAddingRef (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	inst += llist + rlist;
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([rightExp]), LSize.NONE);
+	inst += new LWrite (leftExp, rightExp);
+	return inst;
+    }
+
+    static LInstList InstUnref (LSize size) (InfoType, Expression left, Expression) {
+	auto inst = LVisitor.visitExpressionOutSide (left);
+	auto leftExp = inst.getFirst ();
+	inst += new LRegRead (leftExp, new LConstDWord (0), size);
+	return inst;
+    }    
+
+    static LInstList InstUnrefS (LSize size) (LInstList llist) {
+	auto leftExp = llist.getFirst ();
+	return new LInstList (new LRegRead (leftExp, new LConstDWord (0), size));
+    }    
+
+    
+}

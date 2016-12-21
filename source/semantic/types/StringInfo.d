@@ -5,6 +5,7 @@ import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
 import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
+import semantic.types.RefInfo, semantic.types.ClassUtils;
 
 class StringInfo : InfoType {
 
@@ -12,6 +13,18 @@ class StringInfo : InfoType {
 	this._destruct = &StringUtils.InstDestruct;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (StringInfo) other) return other;
+	else if (auto _ref = cast (RefInfo) other) {
+	    if (cast (StringInfo) _ref.content  && !this.isConst) {
+		auto aux = new RefInfo (this.clone ());
+		aux.lintInstS = &StringUtils.InstAddr;
+		return aux;
+	    }
+	}
+	return null;
+    }
+    
     override bool isSame (InfoType other) {
 	return (cast (StringInfo) other) !is null;
     }
@@ -79,7 +92,7 @@ class StringInfo : InfoType {
 	    other.lintInstS = &StringUtils.InstCastArray;
 	    return other;
 	}
-	return null;
+	return null; 
     }
 
     override InfoType AccessOp (Word token, ParamList params) {
@@ -97,12 +110,16 @@ class StringInfo : InfoType {
 	return null;
     }
 
-    override InstCompS ParamOp () {
-	return &StringUtils.InstParam;
+    override InfoType ParamOp () {
+	auto str = new StringInfo ();
+	str.lintInstS = &ClassUtils.InstParam;
+	return str;
     }
 
-    override InstCompS ReturnOp () {
-	return &StringUtils.InstReturn;
+    override InfoType ReturnOp () {
+	auto str = new StringInfo ();
+	str.lintInstS = &ClassUtils.InstReturn;
+	return str;
     }
     
     private InfoType NbRef () {
@@ -152,5 +169,12 @@ class StringInfo : InfoType {
 	return LSize.LONG;
     }
     
+    override InfoType destruct () {
+	if (this._destruct is null) return null;
+	auto ret = new StringInfo ();
+	ret.setDestruct (this._destruct);
+	return ret;
+    }
+
 }
 

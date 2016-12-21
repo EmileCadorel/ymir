@@ -41,13 +41,18 @@ class LVisitor {
 	    auto ret = new LReg (it.info.id, it.info.type.size);
 	    args.insertBack (ret);
 	    auto compS = it.info.type.ParamOp ();
-	    if (compS)
-		entry.insts += compS (new LInstList (ret));
+	    if (compS) {
+		LInstList list;
+		if (compS.leftTreatment) {
+		    list = compS.leftTreatment (it.info.type, it, null);
+		} else list = new LInstList (ret);
+		entry.insts += compS.lintInst (list);
+	    }
 	}
 	
 	visit (entry, end, retReg, semFrame.block);
  
-	foreach (it ; semFrame.dest) {	    
+	foreach (it ; semFrame.dest) {
 	    end.insts += it.destruct ();
 	}
 	
@@ -232,10 +237,16 @@ class LVisitor {
 	LInstList list = new LInstList ();
 	list += new LLocus (ret.token.locus);
 	if (ret.elem !is null) {
-	    auto rlist = visitExpression (ret.elem);
+	    LInstList rlist;
 	    if (ret.instComp !is null) {
-		list += ret.instComp(rlist);
-	    } else list += rlist;	    
+		if (ret.instComp.leftTreatment)
+		    rlist = ret.instComp.leftTreatment (ret.elem.info.type, ret.elem, null);
+		else rlist = visitExpression (ret.elem);
+		list += ret.instComp.lintInst (rlist);
+	    } else {
+		rlist = visitExpression (ret.elem);
+		list += rlist;
+	    }
 	    list += (new LWrite (retReg,  rlist.getFirst ()));	    
 	}
 	
@@ -246,6 +257,11 @@ class LVisitor {
 	ret.father.dest.clear ();	
 	list += new LGoto (end);
 	return list;
+    }
+
+    static LInstList visitExpressionOutSide (Expression elem) {
+	auto visitor = new LVisitor ();
+	return visitor.visitExpression (elem);
     }
     
     private LInstList visitExpression (Expression elem) {
@@ -401,12 +417,20 @@ class LVisitor {
 	    exprs.insertBack (visitExpression (access.params [it]));
 	}
 	auto type = access.info.type;
-	inst += type.lintInst (visitExpression (access.left), exprs);
+	LInstList left;
+	if (access.info.type.leftTreatment)
+	    left = access.info.type.leftTreatment (access.info.type, access.left, null);
+	else left = visitExpression (access.left);
+	inst += type.lintInst (left, exprs);
 	return inst;
     }
     
     private LInstList visitDot (Dot dot) {
-	auto inst = dot.info.type.lintInst (null, visitExpression (dot.left));
+	LInstList left;
+	if (dot.info.type.leftTreatment) {
+	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
+	} else left = visitExpression (dot.left);
+	auto inst = dot.info.type.lintInst (null, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
 	    auto last = inst.getFirst ();	    

@@ -493,10 +493,16 @@ class AMDVisitor : TVisitor {
 	auto aux = new AMDReg (REG.aux (getSize (addr.exp.size)));
 	auto exp = visitExpression (addr.exp, aux);
 	auto reg = cast (AMDReg) exp.where;
+	auto rbp = new AMDReg (REG.getReg ("rbp"));
 	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
-	auto ret = new AMDReg (REG.getReg ("rax"));
+	AMDReg tmp;
 	inst += exp.what;
-	inst += new AMDLeaq (reg, ret);
+	if (reg != rbp) {
+	    tmp = new AMDReg (reg.sizeAmd);
+	    inst += new AMDMove (reg, tmp);
+	} else tmp = reg;
+	auto ret = new AMDReg (REG.getReg ("rax"));
+	inst += new AMDLeaq (tmp, ret);
 	
 	REG.free (aux);
 	REG.free (ret);

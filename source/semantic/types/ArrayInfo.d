@@ -6,7 +6,7 @@ import semantic.types.ArrayUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, semantic.types.PtrInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
-import lint.LSize;
+import lint.LSize, semantic.types.ClassUtils;
 
 class ArrayInfo : InfoType {
 
@@ -78,9 +78,18 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
-    override InstCompS ParamOp () {
-	return &ArrayUtils.InstParam;
+    override InfoType ParamOp () {
+	auto str = new ArrayInfo (this._content.clone);
+	str.lintInstS = &ClassUtils.InstParam;
+	return str;
     }
+    
+    override InfoType ReturnOp () {
+	auto str = new ArrayInfo (this._content.clone);
+	str.lintInstS = &ClassUtils.InstReturn;
+	return str;
+    }
+
 
     override InfoType AccessOp (Word token, ParamList params) {
 	if (params.params.length == 1) {
@@ -165,12 +174,26 @@ class ArrayInfo : InfoType {
 	return null;	
     }
 
+    override InfoType CompOp (InfoType other) {
+	auto type = cast (ArrayInfo) other;
+	if (type && type.content.isSame (this._content)) {
+	    return other;
+	}
+	return null;
+    }
+    
     override string typeString () {
 	return "array!" ~ this._content.typeString ();
     }
 
     override LSize size () {
 	return LSize.LONG;
+    }
+
+    override InfoType destruct () {
+	auto ret = this.clone ();
+	ret.setDestruct (this._destruct);
+	return ret;
     }
 
     

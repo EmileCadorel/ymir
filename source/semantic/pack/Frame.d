@@ -56,8 +56,8 @@ class Frame {
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ();
-		    auto type = params [it].CastOp (info);
-		    if (type is params [it]) {
+		    auto type = params [it].CompOp (info);
+		    if (type is info) {
 			score.score += SAME;
 			score.treat.insertBack (null);
 		    } else if (type !is null) {
@@ -85,8 +85,8 @@ class Frame {
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ();
-		    auto type = params.params [it].info.type.CastOp (info);
-		    if (type is params.params [it].info.type) {
+		    auto type = params.params [it].info.type.CompOp (info);
+		    if (type is info) {
 			score.score += SAME;
 			score.treat.insertBack (null);
 		    } else if (type !is null) {
@@ -155,7 +155,7 @@ class PureFrame : Frame {
 	    Table.instance.setCurrentSpace (name);
 	
 	    if (this._function.type is null) {
-		Table.instance.retInfo.info = new Symbol (Word.eof (), new UndefInfo ());
+		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }

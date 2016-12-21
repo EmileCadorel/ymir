@@ -1,31 +1,22 @@
 
 extern (C) putchar (c : char);
 
-def test (i) {
-    putchar ('i');
-    return 10;
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def print (i) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
+def test (a : ref!string) {
 }
 
 def main () {
-    let a = ("salut").dup + " ca va ?";
-    let i = 0;
-    while (i < a.length) {
-	print (a[i]);
-	i++;
+
+    def println (str : string) {
+	let i = 0;
+	while (i < str.length) {
+	    putchar (str [i]);
+	    i ++;
+	}
+	putchar ('\n');
     }
-    print ('\n');
+    
+    
+    let a = 'comment';
+    test (a);
+    println (a);
 }

@@ -76,6 +76,8 @@ def test (i) {
 }
 
 def main () {
-    let a = toStrReq (787654);
+    let a = "salut" + " comment " + " ca va ?";
+    let b = [1, 2, 3] + [4];
     println (a);
+    println (b);
 }

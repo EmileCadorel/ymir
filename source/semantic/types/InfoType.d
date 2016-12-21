@@ -8,7 +8,7 @@ import lint.LInstList, std.container;
 import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
-import semantic.types.ArrayInfo, lint.LSize;
+import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -55,7 +55,8 @@ class InfoType {
 		    "void" : &VoidInfo.create,
 		    "ptr" : &PtrInfo.create,
 		    "array" : &ArrayInfo.create,
-		    "function" : &PtrFuncInfo.create];
+		    "function" : &PtrFuncInfo.create,
+		    "ref" : &RefInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {
@@ -117,11 +118,11 @@ class InfoType {
 	return null;
     }
 
-    InstCompS ParamOp () {
+    InfoType ParamOp () {
 	return null;
     }
     
-    InstCompS ReturnOp () {
+    InfoType ReturnOp () {
 	return null;
     }
     
@@ -153,8 +154,8 @@ class InfoType {
 	return this._lintInstS;
     }
 
-    ref InstCompS destruct () {
-	return this._destruct;
+    InfoType destruct () {
+	return null;
     }
 
     void setDestruct (InstCompS s) {
@@ -162,7 +163,7 @@ class InfoType {
     }
     
     bool isDestructible () {
-	return this._destruct != null;
+	return this._destruct !is null;
     }
     
     ref InstCompMult lintInstMult () {

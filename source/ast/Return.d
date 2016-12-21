@@ -9,7 +9,7 @@ import lint.LInstList;
 class Return : Instruction {
 
     private Expression _elem;
-    private InstCompS _instComp;
+    private InfoType _instComp;
     
     this (Word word) {
 	super (word);
@@ -44,12 +44,8 @@ class Return : Instruction {
 	return this._elem;
     }
     
-    InstCompS instComp () {
+    InfoType instComp () {
 	return this._instComp;
-    }
-
-    LInstList instComp (LInstList llist) {
-	return this._instComp (llist);
     }
 
     override void print (int nb = 0) {

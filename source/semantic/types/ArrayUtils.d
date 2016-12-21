@@ -5,85 +5,13 @@ import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LFrame, lint.LCall, lint.LAddr;
 import semantic.types.StringUtils, lint.LSize;
+import semantic.types.ClassUtils;
 
 class ArrayUtils {
 
     static immutable string __CstName__ = "_YPCstArray";
-    static immutable string __DstName__ = "_YPDstArray";
-    static immutable string __AddRef__ = "_YPAddRefArray";
     static immutable string __PlusArrayInt__ = "_YPPlusArrayInt";
     static immutable string __PlusArrayLong__ = "_YPPlusArrayLong";
-
-    /**
-     def AddRef (T)(arr : array!T) {
-     if (arr !is null) 
-     arr.nbRef++;
-     }
-    */
-    static void createAddRef () {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr = new LReg (LSize.LONG);
-	auto entry = new LLabel, end = new LLabel;
-	entry.insts = new LInstList;
-	auto test = new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.LONG),
-				new LConstQWord (0),
-				Tokens.NOT_EQUAL);
-	
-	auto vrai = new LLabel, faux = new LLabel;
-	entry.insts += new LJump (test, vrai);
-	entry.insts += new LGoto (faux);
-	vrai.insts = new LInstList;
-	vrai.insts += new LWrite (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.INT), new LConstDWord (0), LSize.INT),
-				  new LBinop (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG),
-							    new LConstDWord (0), LSize.INT),
-					      new LConstDWord (1), Tokens.PLUS));
-	entry.insts += vrai;
-	entry.insts += faux;
-	auto fr = new LFrame (__AddRef__, entry, end, null, make!(Array!LReg) ([addr]));
-	LFrame.preCompiled [__AddRef__] = fr;
-	LReg.lastId = last;
-    }
-
-    /**
-     def DstArray (T) (arr : array!T) {
-     if (arr !is null) {
-     arr.nbRef --;
-     if (arr.nbRef <= 0) free (arr);
-     }
-     }
-    */
-    static void createDstArray () {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr = new LReg (LSize.LONG);
-	auto entry = new LLabel, end = new LLabel;
-	entry.insts = new LInstList;
-	auto test = new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.INT), new LConstDWord (0),
-				Tokens.INF_EQUAL);
-	
-	auto test1 = new LBinop (addr, new LConstQWord (0), Tokens.NOT_EQUAL);
-	auto vrai1 = new LLabel, vrai = new LLabel, faux = new LLabel;
-
-	entry.insts += new LJump (test1, vrai1);
-	entry.insts += new LGoto (faux);
-	
-	vrai1.insts = new LInstList;
-	vrai1.insts += new LWrite (new LRegRead (addr, new LConstDWord (0), LSize.INT), new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.INT), new LConstDWord (1), Tokens.MINUS));
-	entry.insts += vrai1;
-	vrai1.insts += new LJump (test, vrai);
-	vrai1.insts += new LGoto (faux);
-	
-	vrai.insts = new LInstList;
-	vrai.insts += new LSysCall ("free", make!(Array!LExp) ([addr]));
-	vrai.insts += new LGoto (faux);
-	entry.insts += vrai;
-
-	entry.insts += faux;
-	auto fr = new LFrame (__DstName__, entry, end, null, make!(Array!LReg) ([addr]));
-	LFrame.preCompiled [__DstName__] = fr;
-	LReg.lastId = last;
-    }
 
     /**
      def cstArray (size : int, ofsize : int) {
@@ -284,12 +212,12 @@ class ArrayUtils {
 	    //   return affectConstArray (inst, leftExp, cst);
 	}
 
-	auto it = (__AddRef__ in LFrame.preCompiled);
-	if (it is null) createAddRef ();
-	it = (__DstName__ in LFrame.preCompiled);
-	if (it is null) createDstArray ();
-	inst += new LCall (__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
-	inst += new LCall (__DstName__, make!(Array!LExp) ([leftExp]), LSize.NONE);
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -298,9 +226,9 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	auto it = (__DstName__ in LFrame.preCompiled);
-	if (it is null) createDstArray ();
-	inst += new LCall (__DstName__, make!(Array!LExp) ([leftExp]), LSize.NONE);
+	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, new LConstQWord (0));
 	return inst;
     }
@@ -309,9 +237,9 @@ class ArrayUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto it = (__AddRef__ in LFrame.preCompiled);
-	if (it is null) createAddRef ();
-	inst += new LCall (__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -326,21 +254,13 @@ class ArrayUtils {
     
 
     static LInstList InstDestruct (LInstList llist) {
-	auto it = (__DstName__ in LFrame.preCompiled);
-	if (it is null) createDstArray ();
+	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
 	auto expr = llist.getFirst ();
 	auto inst = new LInstList;
 	inst += llist;
-	inst += new LCall (__DstName__, make!(Array!LExp) ([expr]), LSize.NONE);
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
-    }
-
-    static LInstList InstParam (LInstList llist) {
-	auto leftExp = llist.getFirst ();
-	auto it = (__AddRef__ in LFrame.preCompiled);
-	if (it is null) createAddRef ();
-	llist += new LCall (__AddRef__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
-	return llist;
     }
 
     static LInstList InstLength (LInstList, LInstList list) {

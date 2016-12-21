@@ -4,6 +4,7 @@ import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
+import semantic.types.RefInfo;
 
 class IntInfo : InfoType {
 
@@ -92,6 +93,13 @@ class IntInfo : InfoType {
 
     override InfoType CompOp (InfoType other) {
 	if (cast (IntInfo) other) return other;
+	else if (auto _ref = cast (RefInfo) other) {
+	    if (cast (IntInfo) _ref.content && !this.isConst) {
+		auto aux = new RefInfo (this.clone ());
+		aux.lintInstS = &IntUtils.InstAddr;
+		return aux;
+	    }
+	}
 	return null;
     }
     
