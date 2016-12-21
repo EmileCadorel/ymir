@@ -2,6 +2,7 @@
 extern (C) putchar (c : char);
 
 def test (a : ref!string) {
+    a = "salut";
 }
 
 def main () {

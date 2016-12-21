@@ -18,17 +18,6 @@ class RefUtils {
 	return inst;
     }
 
-    static LInstList InstAffectAddingRef (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	inst += llist + rlist;
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([rightExp]), LSize.NONE);
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
-    }
-
     static LInstList InstUnref (LSize size) (InfoType, Expression left, Expression) {
 	auto inst = LVisitor.visitExpressionOutSide (left);
 	auto leftExp = inst.getFirst ();

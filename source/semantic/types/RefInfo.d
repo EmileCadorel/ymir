@@ -51,20 +51,16 @@ class RefInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word token, Expression right) {
-	InfoType ret = null;
-	if (token == Tokens.EQUAL) ret = AffectRight (right);
-	if (ret is null) {
-	    auto aux = this._content.BinaryOpRight (token, right);
-	    if (aux !is null) {
-		if (this._content.size == LSize.BYTE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.BYTE);
-		else if (this._content.size == LSize.SHORT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.SHORT);
-		else if (this._content.size == LSize.INT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.INT);
-		else if (this._content.size == LSize.LONG)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.LONG);
-		else if (this._content.size == LSize.FLOAT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.FLOAT);
-		else if (this._content.size == LSize.DOUBLE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.DOUBLE);	
-		return aux;
-	    }   
-	} else return ret;	
+	auto aux = this._content.BinaryOpRight (token, right);
+	if (aux !is null) {
+	    if (this._content.size == LSize.BYTE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.BYTE);
+	    else if (this._content.size == LSize.SHORT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.SHORT);
+	    else if (this._content.size == LSize.INT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.INT);
+	    else if (this._content.size == LSize.LONG)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.LONG);
+	    else if (this._content.size == LSize.FLOAT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.FLOAT);
+	    else if (this._content.size == LSize.DOUBLE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.DOUBLE);	
+	    return aux;
+	}   
 	return null;
     }
 
@@ -103,17 +99,7 @@ class RefInfo : InfoType {
     override InfoType ReturnOp () {
 	return null;
     }
-    
-    private InfoType AffectRight (Expression left) {
-	if (cast (UndefInfo) left.info.type) {
-	    auto ret = new RefInfo (this._content.clone ());
-	    if (this._content.isDestructible ())
-		ret.lintInst = &RefUtils.InstAffectAddingRef;
-	    else ret.lintInst = &RefUtils.InstAffect;
-	    return ret;
-	} else return null;
-    }
-    
+        
     override InfoType clone () {
 	return new RefInfo (this._content.clone ());
     }

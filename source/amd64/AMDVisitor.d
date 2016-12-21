@@ -490,25 +490,49 @@ class AMDVisitor : TVisitor {
     
     override protected TInstPaire visitAddr (LAddr addr, TExp where) {
 	auto inst = new TInstList;
+	if (auto read = cast (LRegRead) (addr.exp)) {
+	    return visitAddrFromRegRead (addr, read, where);
+	}
 	auto aux = new AMDReg (REG.aux (getSize (addr.exp.size)));
-	auto exp = visitExpression (addr.exp, aux);
+	auto exp = visitExpression (addr.exp, aux);	
 	auto reg = cast (AMDReg) exp.where;
 	auto rbp = new AMDReg (REG.getReg ("rbp"));
 	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
-	AMDReg tmp;
 	inst += exp.what;
-	if (reg != rbp) {
-	    tmp = new AMDReg (reg.sizeAmd);
-	    inst += new AMDMove (reg, tmp);
-	} else tmp = reg;
 	auto ret = new AMDReg (REG.getReg ("rax"));
-	inst += new AMDLeaq (tmp, ret);
+	inst += new AMDLeaq (reg, ret);
 	
 	REG.free (aux);
 	REG.free (ret);
 	return new TInstPaire (ret, inst);
     }
 
+    private TInstPaire visitAddrFromRegRead (LAddr addr, LRegRead read, TExp where) {
+	auto res = this.resolve!AMDConstDWord (read.begin);
+	if (res !is null && res.value == 0) {
+	    if (read.data.size == read.size) {		
+		return visitExpression (read.data, where);
+	    } else {
+		auto cst = new LCast (read.data, read.size);
+		return visitExpression (cst, where);
+	    }		    
+	} else {
+	    auto inst = new TInstList;
+	    auto aux = new AMDReg (REG.aux (getSize (addr.exp.size)));
+	    auto exp = visitExpression (addr.exp, aux);	
+	    auto reg = cast (AMDReg) exp.where;
+	    auto rbp = new AMDReg (REG.getReg ("rbp"));
+	    if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
+	    inst += exp.what;
+	    auto ret = new AMDReg (REG.getReg ("rax"));
+	    inst += new AMDLeaq (reg, ret);
+	    
+	    REG.free (aux);
+	    REG.free (ret);
+	    return new TInstPaire (ret, inst);
+	}
+    }
+    
     private T resolve (T) (LExp exp) {
 	if (auto _cb = cast (LConstByte) exp) return cast (T) (resolve (_cb));
 	else if (auto _cw = cast (LConstWord) exp) return cast (T) (resolve (_cw));
