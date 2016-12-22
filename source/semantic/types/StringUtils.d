@@ -10,6 +10,7 @@ import semantic.types.ClassUtils;
 class StringUtils {
 
     static immutable string __CstName__ = "_YPCstString";
+    static immutable string __CstNameNoRef__ = "_YPCstStringNoRef";
     static immutable string __DupString__ = "_YPDupString";
     static immutable string __PlusString__ = "_YPPlusString";
 
@@ -64,6 +65,60 @@ class StringUtils {
 	LFrame.preCompiled [__CstName__] = fr;
     }
 
+
+
+
+    /**
+     def cstStringNoRef (size : int, val : ptr!char) : string {
+         str = malloc (size + 8);
+	 str.int = 0;
+	 (str + 4).int = size;
+	 let i = 0;
+	 while (*val) {
+	     *(str + 8 + i) = *val;
+	     i ++;
+	     val ++;
+	 } 
+	 return str;
+     }
+     */
+    static void createCstStringNoRef () {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	auto size = new LReg (LSize.INT);
+	auto addr = new LReg (LSize.LONG);
+	Array!LReg args = make!(Array!LReg) (size, addr);
+	auto retReg = new LReg (LSize.LONG);
+	auto entry = new LLabel (), end = new LLabel;
+	entry.insts = new LInstList;
+	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (size, new LConstDWord (2, LSize.INT), Tokens.PLUS)]), retReg));
+	auto index = new LReg (LSize.LONG);
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.INT), new LConstDWord (0)));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.INT), LSize.INT), size));
+	entry.insts += (new LWrite (index, new LConstQWord (2, LSize.INT)));
+	auto test = new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.BYTE), new LConstByte (0), Tokens.NOT_EQUAL);
+	auto debut = new LLabel (), vrai = new LLabel, faux = new LLabel;
+	entry.insts += debut;
+	entry.insts += new LJump (test, vrai);
+	entry.insts += new LGoto (faux);
+
+	vrai.insts = new LInstList;
+	auto access = new LRegRead (new LBinop (retReg, index, Tokens.PLUS), new LConstDWord (0), LSize.BYTE);
+	vrai.insts += new LWrite (access, new LRegRead (addr, new LConstDWord (0), LSize.BYTE));
+	vrai.insts += new LBinop (addr, new LConstQWord (1), addr, Tokens.PLUS);
+	vrai.insts += new LBinop (index, new LConstQWord (1), index, Tokens.PLUS);
+	vrai.insts += new LGoto (debut);
+	
+	entry.insts += vrai;
+	entry.insts += faux;
+
+	
+	LReg.lastId = last;
+	auto fr = new LFrame (__CstNameNoRef__, entry, end, retReg, args);
+	LFrame.preCompiled [__CstNameNoRef__] = fr;
+    }
+
+    
     /**
      def dupString (str:string) {
          let aux = malloc (str.length + 9);
@@ -353,4 +408,20 @@ class StringUtils {
 	return inst;
     }
 
+    static LInstList InstComp (LInstList list) {
+	auto inst = new LInstList;
+	auto rightExp = list.getFirst ();
+	if (auto cst = (cast (LConstString) rightExp)) {
+	    auto it = (__CstNameNoRef__ in LFrame.preCompiled);
+	    if (it is null) createCstStringNoRef ();
+	    inst += list;
+	    inst += new LCall (__CstNameNoRef__, make!(Array!LExp) ([new LConstQWord (cst.value.length), cst]), LSize.LONG);
+	    return inst;
+	} else {
+	    inst += list;
+	    inst += rightExp;
+	    return inst;
+	}
+    }
+    
 }

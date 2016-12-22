@@ -14,8 +14,10 @@ class StringInfo : InfoType {
     }
 
     override InfoType CompOp (InfoType other) {
-	if (cast (StringInfo) other) return other;
-	else if (auto _ref = cast (RefInfo) other) {
+	if (cast (StringInfo) other) {
+	    other.lintInstS = &StringUtils.InstComp;
+	    return other;
+	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (StringInfo) _ref.content  && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
 		aux.lintInstS = &StringUtils.InstAddr;

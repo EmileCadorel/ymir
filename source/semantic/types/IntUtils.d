@@ -88,6 +88,12 @@ class IntUtils {
 	return inst;
     }    
     
+    static LInstList IntStringOf (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstString ("int");
+	return inst;
+    }
+
     static LInstList InstAddr (LInstList llist) {
 	auto inst = new LInstList ();
 	auto exp = llist.getFirst ();

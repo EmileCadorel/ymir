@@ -55,11 +55,11 @@ class Frame {
 		auto param = this._function.params [it];
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
-		    info = (cast(TypedVar)param).getType ();
+		    info = (cast(TypedVar)param).getType ().clone ();
 		    auto type = params [it].CompOp (info);
 		    if (type is info) {
 			score.score += SAME;
-			score.treat.insertBack (null);
+			score.treat.insertBack (type);
 		    } else if (type !is null) {
 			score.score += AFF;
 			score.treat.insertBack (type);
@@ -84,11 +84,11 @@ class Frame {
 		auto param = this._function.params [it];
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
-		    info = (cast(TypedVar)param).getType ();
+		    info = (cast(TypedVar)param).getType ().clone ();
 		    auto type = params.params [it].info.type.CompOp (info);
 		    if (type is info) {
 			score.score += SAME;
-			score.treat.insertBack (null);
+			score.treat.insertBack (type);
 		    } else if (type !is null) {
 			score.score += AFF;
 			score.treat.insertBack (type);

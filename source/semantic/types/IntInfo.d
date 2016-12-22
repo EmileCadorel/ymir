@@ -4,7 +4,7 @@ import semantic.types.InfoType, semantic.types.IntUtils;
 import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
-import semantic.types.RefInfo;
+import semantic.types.RefInfo, semantic.types.StringInfo;
 
 class IntInfo : InfoType {
 
@@ -200,6 +200,7 @@ class IntInfo : InfoType {
 	else if (var.token.str == "max") return Max ();
 	else if (var.token.str == "min") return Min ();
 	else if (var.token.str == "sizeof") return SizeOf ();
+	else if (var.token.str == "stringof") return StringOf ();
 	return null;
     }
 
@@ -225,6 +226,13 @@ class IntInfo : InfoType {
 	auto _int = new IntInfo ();
 	_int.lintInst = &IntUtils.IntSizeOf ;
 	return _int;
+    }
+
+    private InfoType StringOf () {
+	auto _str = new StringInfo ();
+	_str.lintInst = &IntUtils.IntStringOf;
+	_str.setDestruct (null);
+	return _str;
     }
     
     override string typeString () {
