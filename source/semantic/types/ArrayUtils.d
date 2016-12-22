@@ -7,6 +7,7 @@ import lint.LCast, lint.LFrame, lint.LCall, lint.LAddr;
 import semantic.types.StringUtils, lint.LSize, lint.LUnop;
 import semantic.types.ClassUtils, semantic.types.InfoType;
 import ast.Expression, lint.LVisitor, semantic.types.ArrayInfo;
+import ast.Constante, syntax.Word;
 
 class ArrayUtils {
 
@@ -322,6 +323,20 @@ class ArrayUtils {
 	return llist;
     }
 
+    static LInstList ArrayGetType (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	inst += LVisitor.visitExpressionOutSide (left);
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+
+    static LInstList ArrayStringOf (LInstList, LInstList left) {
+	return left;
+    }
+    
     
 }
 

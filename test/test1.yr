@@ -11,5 +11,6 @@ def println (s : string) {
 }
 
 def main () {
-    println (int.stringof);
+    let a;
+    println ((a) .typeid);
 }

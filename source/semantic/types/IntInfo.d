@@ -200,7 +200,7 @@ class IntInfo : InfoType {
 	else if (var.token.str == "max") return Max ();
 	else if (var.token.str == "min") return Min ();
 	else if (var.token.str == "sizeof") return SizeOf ();
-	else if (var.token.str == "stringof") return StringOf ();
+	else if (var.token.str == "typeid") return StringOf ();
 	return null;
     }
 
@@ -230,8 +230,10 @@ class IntInfo : InfoType {
 
     private InfoType StringOf () {
 	auto _str = new StringInfo ();
-	_str.lintInst = &IntUtils.IntStringOf;
-	_str.setDestruct (null);
+	if (this.isConst) 
+	    _str.lintInst = &IntUtils.IntStringOfConst;
+	else
+	    _str.lintInst = &IntUtils.IntStringOf;
 	return _str;
     }
     
@@ -251,8 +253,8 @@ class IntInfo : InfoType {
 	return LSize.INT;
     }
 
-    static int sizeOf () {
-	return 4;
+    static LSize sizeOf () {
+	return LSize.INT;
     }
     
 }

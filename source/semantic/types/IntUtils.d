@@ -3,7 +3,8 @@ import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens;
 import lint.LSysCall, std.container, lint.LExp, lint.LConst;
 import lint.LCast, lint.LUnop, semantic.types.IntInfo;
-import lint.LAddr, lint.LSize;
+import lint.LAddr, lint.LSize, lint.LVisitor;
+import syntax.Word, ast.Constante;
 
 class IntUtils {
 
@@ -84,15 +85,25 @@ class IntUtils {
 
     static LInstList IntSizeOf (LInstList, LInstList) {
 	auto inst = new LInstList ();
-	inst += new LConstDWord (IntInfo.sizeOf);
+	inst += new LConstDWord (1, IntInfo.sizeOf);
 	return inst;
     }    
     
     static LInstList IntStringOf (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstString ("int");
+	auto str = new String (Word.eof, "int").expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
 	return inst;
     }
+
+    static LInstList IntStringOfConst (LInstList, LInstList) {
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, "const (int)").expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }    
 
     static LInstList InstAddr (LInstList llist) {
 	auto inst = new LInstList ();

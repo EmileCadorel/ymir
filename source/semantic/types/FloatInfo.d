@@ -4,7 +4,8 @@ import syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo;
-import lint.LSize;
+import lint.LSize, ast.Var, ast.Constante;
+import semantic.types.StringInfo;
 
 class FloatInfo : InfoType {
 
@@ -87,6 +88,103 @@ class FloatInfo : InfoType {
 	return null;
     }
 
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "init") return Init ();
+	else if (var.token.str == "max") return Max ();
+	else if (var.token.str == "min") return Min ();
+	else if (var.token.str == "nan") return Nan ();
+	else if (var.token.str == "dig") return Dig ();
+	else if (var.token.str == "epsilon") return Epsilon ();
+	else if (var.token.str == "mant_dig") return MantDig ();
+	else if (var.token.str == "max_10_exp") return Max10Exp ();
+	else if (var.token.str == "max_exp") return MaxExp ();
+	else if (var.token.str == "min_10_exp") return Min10Exp ();
+	else if (var.token.str == "min_exp") return MinExp ();
+	else if (var.token.str == "infinity") return Inf ();
+	else if (var.token.str == "typeid") return StringOf ();
+	return null;
+    }
+
+
+    private InfoType Init () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.FloatInit;
+	return fl;
+    }
+
+    private InfoType Max () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Max;
+	return fl;
+    }
+
+    private InfoType Min () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Min;
+	return fl;
+    }
+
+    private InfoType Nan () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Nan;
+	return fl;
+    }
+    
+    private InfoType Dig () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Dig;
+	return fl;
+    }
+    
+    private InfoType Epsilon () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Epsilon;
+	return fl;
+    }
+
+    private InfoType MantDig () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.MantDig;
+	return fl;
+    }
+    
+    private InfoType Max10Exp () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Max10Exp;
+	return fl;
+    }
+
+    private InfoType MaxExp () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.MaxExp;
+	return fl;
+    }
+    
+    private InfoType MinExp () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.MinExp;
+	return fl;
+    }
+
+    private InfoType Min10Exp () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Min10Exp;
+	return fl;
+    }
+
+    private InfoType Inf () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Inf;
+	return fl;
+    }
+
+    private InfoType StringOf () {
+	auto str = new StringInfo ();
+	str.lintInst = &FloatUtils.FloatStringOf;
+	str.leftTreatment = &FloatUtils.FloatGetStringOf;
+	return str;
+    }
+              
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast (FloatInfo) right.info.type) {
 	    auto fl = new FloatInfo ();

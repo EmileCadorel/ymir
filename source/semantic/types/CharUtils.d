@@ -2,6 +2,9 @@ module semantic.types.CharUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens, lint.LSize;
 import lint.LExp, lint.LReg, lint.LCast;
+import semantic.types.CharInfo, lint.LVisitor;
+import syntax.Word, ast.Constante;
+import lint.LConst;
 
 class CharUtils {
 
@@ -77,6 +80,34 @@ class CharUtils {
 	return inst;
     }
 
+
+    static LInstList CharInit (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstByte (0);
+	return inst;
+    }
+
+    static LInstList CharSizeOf (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstDWord (1, CharInfo.sizeOf);
+	return inst;
+    }
+
+    static LInstList CharStringOf (LInstList, LInstList) {
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, "char").expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+    
+    static LInstList CharStringOfConst (LInstList, LInstList) {
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, "const (char)").expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
     
 
 }

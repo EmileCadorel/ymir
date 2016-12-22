@@ -100,6 +100,7 @@ class ArrayInfo : InfoType {
     
     override InfoType DotOp (Var var) {
 	if (var.token.str == "length") return Length;
+	else if (var.token.str == "typeid") return StringOf;
 	return null;
     }
 
@@ -110,6 +111,13 @@ class ArrayInfo : InfoType {
 	return elem;
     }
 
+    private InfoType StringOf () {
+	auto _str = new StringInfo;
+	_str.leftTreatment = &ArrayUtils.ArrayGetType;
+	_str.lintInst = &ArrayUtils.ArrayStringOf;
+	return _str;
+    }
+    
     private InfoType Access (Expression expr) {
 	if (cast (IntInfo) expr.info.type) {
 	    auto ch = this._content.clone ();

@@ -5,6 +5,7 @@ import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.PtrUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
+import semantic.types.StringInfo;
 
 class PtrInfo : InfoType {
 
@@ -193,6 +194,11 @@ class PtrInfo : InfoType {
 	    auto type = this.clone ();
 	    type.lintInst = &PtrUtils.InstNull;
 	    return type;
+	} else if (var.token.str == "typeid") {
+	    auto str = new StringInfo;
+	    str.lintInst = &PtrUtils.StringOf;
+	    str.leftTreatment = &PtrUtils.GetStringOf;
+	    return str;
 	}
 	return null;  
     }

@@ -5,7 +5,7 @@ import semantic.types.InfoType, utils.exception;
 import semantic.types.UndefInfo;
 import syntax.Tokens, semantic.types.BoolUtils;
 import semantic.types.IntInfo, semantic.types.PtrInfo;
-import lint.LSize;
+import lint.LSize, ast.Var, semantic.types.StringInfo;
 
 class BoolInfo : InfoType {
 
@@ -80,6 +80,33 @@ class BoolInfo : InfoType {
 	return "bool";
     }
 
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "init") return Init ();
+	else if (var.token.str == "sizeof") return SizeOf ();
+	else if (var.token.str == "typeid") return StringOf ();
+	return null;
+    }
+
+    private InfoType Init () {
+	auto _bl = new BoolInfo ();
+	_bl.lintInst = &BoolUtils.BoolInit;
+	return _bl;
+    }
+
+    private InfoType SizeOf () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &BoolUtils.BoolSize;
+	return _int;
+    }
+
+    private InfoType StringOf () {
+	auto str = new StringInfo ();
+	str.lintInst = &BoolUtils.BoolStringOf;
+	str.leftTreatment = &BoolUtils.BoolGetStringOf;
+	return str;
+    }
+    
+    
     override InfoType CastOp (InfoType other) {
 	if (cast(BoolInfo)other) return this;
 	else if (cast (CharInfo) other) {

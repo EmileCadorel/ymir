@@ -1,6 +1,8 @@
 module semantic.types.VoidInfo;
 import semantic.types.InfoType, utils.exception;
 import syntax.Word, ast.Expression;
+import ast.Var, semantic.types.PtrUtils;
+import semantic.types.StringInfo;
 
 class VoidInfo : InfoType {
 			        
@@ -18,6 +20,16 @@ class VoidInfo : InfoType {
 	return new VoidInfo ();
     }
 
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "typeid") {
+	    auto str = new StringInfo;
+	    str.lintInst = &PtrUtils.StringOf;
+	    str.leftTreatment = &PtrUtils.GetStringOf;
+	    return str;
+	}
+	return null;
+    }
+    
     override InfoType cloneForParam () {
 	return new VoidInfo ();
     }

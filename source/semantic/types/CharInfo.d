@@ -4,6 +4,7 @@ import semantic.types.InfoType, utils.exception;
 import semantic.types.CharUtils, syntax.Tokens;
 import semantic.types.BoolInfo, semantic.types.IntInfo;
 import semantic.types.UndefInfo, lint.LSize;
+import semantic.types.StringInfo, ast.Var;
 
 class CharInfo : InfoType {
 
@@ -133,6 +134,34 @@ class CharInfo : InfoType {
     }
     
     
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "init") return Init ();
+	else if (var.token.str == "sizeof") return SizeOf ();
+	else if (var.token.str == "typeid") return StringOf ();
+	else return null;
+    }
+
+    private InfoType Init () {
+	CharInfo _ch = new CharInfo ();
+	_ch.lintInst = &CharUtils.CharInit;
+	return _ch;
+    }
+
+    private InfoType SizeOf () {
+	auto _int = new IntInfo ();
+	_int.lintInst = &CharUtils.CharSizeOf;
+	return _int;
+    }
+
+    private InfoType StringOf () {
+	auto _str = new StringInfo ();
+	if (this.isConst) 
+	    _str.lintInst = &CharUtils.CharStringOfConst;
+	else
+	    _str.lintInst = &CharUtils.CharStringOf;
+	return _str;
+    }
+
     override string typeString () {
 	return "char";
     }
@@ -153,5 +182,8 @@ class CharInfo : InfoType {
     override LSize size () {
 	return LSize.BYTE;
     }
-    
+
+    static LSize sizeOf () {
+	return LSize.INT;
+    }
 }

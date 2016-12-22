@@ -109,6 +109,7 @@ class StringInfo : InfoType {
 	if (var.token.str == "nbRef") return NbRef ();
 	if (var.token.str == "length") return Length ();
 	else if (var.token.str == "dup") return Dup ();
+	else if (var.token.str == "typeid") return StringOf ();
 	return null;
     }
 
@@ -139,6 +140,13 @@ class StringInfo : InfoType {
     private InfoType Dup () {
 	auto str = new StringInfo ();
 	str.lintInst = &StringUtils.InstDup;
+	return str;
+    }
+    
+    private InfoType StringOf () {
+	auto str = new StringInfo;
+	str.lintInst = &StringUtils.StringOf;
+	str.leftTreatment = &StringUtils.GetStringOf;
 	return str;
     }
     

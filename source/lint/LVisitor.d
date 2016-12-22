@@ -341,9 +341,14 @@ class LVisitor {
 	if (it is null) {
 	    StringUtils.createCstString ();
 	}
-	auto aux = new LReg (elem.info.id, elem.info.type.size);
-	inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));
-	inst += aux;
+	if (elem.info.type.isDestructible) {
+	    auto aux = new LReg (elem.info.id, elem.info.type.size);
+	    inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));
+	    inst += aux;
+	} else {
+	    inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
+	}
+
 	return inst;
     }
     
@@ -433,7 +438,8 @@ class LVisitor {
 	auto inst = dot.info.type.lintInst (LInstList.init, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
-	    auto last = inst.getFirst ();	    
+	    auto last = inst.getFirst ();
+	    writeln (last);
 	    inst += new LWrite (sym, last);
 	}
 	return inst;

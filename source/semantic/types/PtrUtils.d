@@ -4,6 +4,9 @@ import lint.LReg, lint.LWrite, lint.LSysCall;
 import std.container, lint.LExp, lint.LBinop;
 import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LSize;
+import lint.LConst, ast.Constante, syntax.Word;
+import lint.LVisitor, semantic.types.InfoType;
+import ast.Expression;
 
 class PtrUtils {
 
@@ -69,10 +72,24 @@ class PtrUtils {
 	return inst;
     }
     
-
     static LInstList InstCast (LInstList llist) {
 	return llist;
     }
+
+    static LInstList GetStringOf (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+
+    static LInstList StringOf (LInstList, LInstList left) {
+	return left;
+    }
+
+
     
 }
 

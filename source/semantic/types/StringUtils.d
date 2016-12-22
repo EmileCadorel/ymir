@@ -6,6 +6,8 @@ import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCall, lint.LFrame, lint.LCast, lint.LAddr;
 import std.stdio, lint.LSize, lint.LUnop;
 import semantic.types.ClassUtils;
+import lint.LVisitor, semantic.types.InfoType;
+import ast.Expression, ast.Constante, syntax.Word;
 
 class StringUtils {
 
@@ -424,4 +426,19 @@ class StringUtils {
 	}
     }
     
+    static LInstList GetStringOf (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	inst += LVisitor.visitExpressionOutSide (left);
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+
+    static LInstList StringOf (LInstList, LInstList left) {
+	return left;
+    }
+
+
 }

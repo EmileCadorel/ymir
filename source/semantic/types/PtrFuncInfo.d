@@ -7,7 +7,7 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.PtrInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
-import ast.ParamList, semantic.pack.Frame;
+import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 
 class PtrFuncInfo : InfoType {
     
@@ -163,6 +163,16 @@ class PtrFuncInfo : InfoType {
 	return score;
     }
     
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "typeid") {
+	    auto str = new StringInfo ();
+	    str.lintInst = &PtrFuncUtils.StringOf;
+	    str.leftTreatment = &PtrFuncUtils.GetStringOf;
+	    return str;
+	}
+	return null;
+    }    
+
     override string typeString () {
 	auto buf = new OutBuffer ();
 	buf.write ("function(");

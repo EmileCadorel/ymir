@@ -3,6 +3,8 @@ import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens, lint.LCast;
 import semantic.types.IntInfo, lint.LUnop, lint.LAddr;
 import lint.LConst, lint.LSize;
+import ast.Constante, lint.LVisitor, syntax.Word;
+import semantic.types.InfoType, ast.Var;
 
 class BoolUtils {
 
@@ -58,5 +60,31 @@ class BoolUtils {
 	return inst;
     }
 
+    static LInstList BoolInit (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstByte (0);
+	return inst;
+    }
+
+    static LInstList BoolSize (LInstList, LInstList) {
+	auto inst = new LInstList;
+	inst += new LConstDWord (1, LSize.BYTE);
+	return inst;
+    }
+    
+    static LInstList BoolGetStringOf (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+
+    static LInstList BoolStringOf (LInstList, LInstList left) {
+	return left;
+    }
+    
+    
     
 }
