@@ -7,6 +7,7 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, semantic.types.PtrInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 import lint.LSize, semantic.types.ClassUtils;
+import semantic.types.LongInfo;
 
 class ArrayInfo : InfoType {
 
@@ -99,14 +100,21 @@ class ArrayInfo : InfoType {
     }
     
     override InfoType DotOp (Var var) {
-	if (var.token.str == "length") return Length;
+	if (var.token.str == "nbRef") return NbRef ();
+	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;
 	return null;
+    }
+    
+    private InfoType NbRef () {
+	auto l = new LongInfo ();
+	l.lintInst = &ArrayUtils.InstNbRef;
+	return l;
     }
 
     private InfoType Length () {
 	if (cast (VoidInfo) this._content) return null; 
-	auto elem = new IntInfo ();
+	auto elem = new LongInfo ();
 	elem.lintInst = &ArrayUtils.InstLength;
 	return elem;
     }
@@ -184,8 +192,10 @@ class ArrayInfo : InfoType {
 
     override InfoType CompOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
-	if (type && type.content.isSame (this._content)) {
-	    return other;
+	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
+	    auto ret = new ArrayInfo (this._content.clone ());
+	    ret.lintInst = &ArrayUtils.InstAffectRight;
+	    return ret;
 	}
 	return null;
     }

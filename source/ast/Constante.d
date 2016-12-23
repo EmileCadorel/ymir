@@ -6,7 +6,7 @@ import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrIn
 import std.stdio, std.string, utils.exception, std.conv;
 import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
-import semantic.types.LongInfo;
+import semantic.types.LongInfo, semantic.types.UndefInfo;
 
 class Int : Expression {
     this (Word word) {
@@ -333,24 +333,18 @@ class ConstArray : Expression  {
 		it = it.expression;
 	    }
 	    aux._casters.length = aux._params.length;
-	    
-	    foreach (fst ; 0 .. aux._params.length) {
-		auto type = aux._params [fst].info.type;
-		if (last is null) last = type;
-		foreach (scd ; 1 .. aux._params.length) {
-		    if (fst != scd) {
-			auto cmp = aux._params [scd].info.type.CompOp (type);
-			if (cmp !is null && cmp !is type) {
-			    aux._casters [fst] = cmp;
-			    last = cmp;
-			} else if (cmp is null) {
-			    throw new IncompatibleTypes (aux._params [fst].info,
-							 aux._params [scd].info);
-			}
-		    }
+
+	    auto begin = new Symbol(false, this._token, new UndefInfo ());
+	    foreach (fst ; 0 .. aux._params.length) {		
+		auto cmp = aux._params [fst].info.type.CompOp (begin.type);
+		aux._casters [fst] = cmp;
+		if (cmp is null) {
+		    throw new IncompatibleTypes (begin,
+						 aux._params [fst].info);
 		}
+		begin.type = cmp;
 	    }
-	    aux._info = new Symbol (aux._token, new ArrayInfo (last.clone ()), true);
+	    aux._info = new Symbol (aux._token, new ArrayInfo (begin.type.clone ()), true);
 	}
 	return aux;
     }

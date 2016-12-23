@@ -92,8 +92,11 @@ class IntInfo : InfoType {
     }
 
     override InfoType CompOp (InfoType other) {
-	if (cast (IntInfo) other) return other;
-	else if (auto _ref = cast (RefInfo) other) {
+	if (cast (UndefInfo) other || cast (IntInfo) other) {
+	    auto ret = new IntInfo ();
+	    ret.lintInst = &IntUtils.InstAffect;
+	    return ret;
+	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (IntInfo) _ref.content && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
 		aux.lintInstS = &IntUtils.InstAddr;

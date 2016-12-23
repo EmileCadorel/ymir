@@ -63,9 +63,33 @@ class LongInfo : InfoType {
 	}
     }
 
-    override InfoType BinaryOpRight (Word op, Expression left) {
-	if (op == Tokens.EQUAL) return AffectRight (left);
-	return null;
+    override InfoType BinaryOpRight (Word op, Expression right) {
+	if (op == Tokens.EQUAL) return AffectRight (right);
+	switch (op.str) {
+	case Tokens.DAND.descr: return opNormRight!(Tokens.DAND) (right);
+	case Tokens.DPIPE.descr: return opNormRight!(Tokens.DPIPE) (right);
+	case Tokens.INF.descr: return opTestRight!(Tokens.INF) (right);
+	case Tokens.SUP.descr: return opTestRight!(Tokens.SUP) (right);
+	case Tokens.INF_EQUAL.descr: return opTestRight!(Tokens.INF_EQUAL) (right);
+	case Tokens.SUP_EQUAL.descr: return opTestRight!(Tokens.SUP_EQUAL) (right);
+	case Tokens.NOT_EQUAL.descr: return opTestRight!(Tokens.NOT_EQUAL) (right);
+	case Tokens.NOT_INF.descr: return opTestRight!(Tokens.SUP_EQUAL) (right);
+	case Tokens.NOT_INF_EQUAL.descr: return opTestRight!(Tokens.SUP) (right);
+	case Tokens.NOT_SUP.descr: return opTestRight!(Tokens.INF_EQUAL) (right);
+	case Tokens.NOT_SUP_EQUAL.descr: return opTestRight!(Tokens.INF) (right);
+	case Tokens.DEQUAL.descr: return opTestRight!(Tokens.DEQUAL) (right);
+	case Tokens.PLUS.descr: return opNormRight !(Tokens.PLUS) (right);
+	case Tokens.MINUS.descr: return opNormRight !(Tokens.MINUS) (right);
+	case Tokens.DIV.descr: return opNormRight !(Tokens.DIV) (right);
+	case Tokens.STAR.descr: return opNormRight !(Tokens.STAR) (right);
+	case Tokens.PIPE.descr: return opNormRight!(Tokens.PIPE) (right);
+	case Tokens.LEFTD.descr: return opNormRight!(Tokens.LEFTD) (right);
+	case Tokens.XOR.descr: return opNormRight!(Tokens.XOR) (right);
+	case Tokens.RIGHTD.descr: return opNormRight!(Tokens.RIGHTD) (right);
+	case Tokens.PERCENT.descr: return opNormRight!(Tokens.PERCENT) (right);
+	case Tokens.DXOR.descr: return dxorOpRight (right);
+	default : return null;
+	}
     }
 
     override InfoType UnaryOp (Word op) {
@@ -176,6 +200,15 @@ class LongInfo : InfoType {
 	return null;
     }
 
+    private InfoType opTestRight (Tokens op) (Expression right) {
+	if (cast (IntInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &LongUtils.InstOpTestIntRight !(op);
+	    return b;
+	}
+	return null;
+    }
+    
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast (LongInfo) right.info.type !is null) {
 	    auto l = new LongInfo ();
@@ -184,6 +217,15 @@ class LongInfo : InfoType {
 	} else if (cast (IntInfo) right.info.type !is null) {
 	    auto l = new LongInfo ();
 	    l.lintInst = &LongUtils.InstOpInt! (op);
+	    return l;
+	}
+	return null;
+    }
+        
+    private InfoType opNormRight (Tokens op) (Expression right) {
+	if (cast (IntInfo) right.info.type !is null) {
+	    auto l = new LongInfo ();
+	    l.lintInst = &LongUtils.InstOpIntRight ! (op);
 	    return l;
 	}
 	return null;
@@ -202,6 +244,15 @@ class LongInfo : InfoType {
 	return null;      
     }
 
+    private InfoType opNormInvRight (Tokens op) (Expression right) {
+	if (cast (IntInfo) right.info.type !is null) {
+	    auto l = new IntInfo ();
+	    l.lintInst = &LongUtils.InstOpIntRight !(op);
+	    return l;
+	}
+	return null;      
+    }
+    
     private InfoType dxorAffOp (Expression right) {
 	if (cast (LongInfo) right.info.type) {
 	    auto l = new LongInfo;
@@ -227,6 +278,16 @@ class LongInfo : InfoType {
 	}
 	return null;
     }
+
+    private InfoType dxorOpRight (Expression right) {
+	if (cast (IntInfo) right.info.type) {
+	    auto l = new IntInfo;
+	    l.lintInst = &LongUtils.InstDXorIntRight;
+	    return l;
+	}
+	return null;
+    }
+
     
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();

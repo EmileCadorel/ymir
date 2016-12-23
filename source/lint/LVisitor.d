@@ -299,27 +299,33 @@ class LVisitor {
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;
-	params.insertBack (new LConstDWord (carray.params.length, type.content.size));
-	params.insertBack (new LConstDWord (1, type.content.size));
+	params.insertBack (new LConstQWord (carray.params.length, type.content.size));
+	params.insertBack (new LConstQWord (1, type.content.size));
 	
 	auto inst = new LInstList;
-	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
-	if (exist is null) ArrayUtils.createCstArray ();
 	auto aux = new LReg (carray.info.id, type.size);
-	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
-			   
+	if (!(cast (ArrayInfo)carray.info.type).content.isDestructible) {	    
+	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+	} else {
+	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
+	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createDstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
+	}
+	
 	foreach (it ; 0 .. carray.params.length) {
 	    auto cster = carray.casters [it];
 	    LInstList ret;
-	    if (cster is null) ret = visitExpression (carray.params [it]);
+	    if (cster.lintInstS is null) ret = visitExpression (carray.params [it]);
 	    else ret = cster.lintInst (visitExpression (carray.params [it]));
 	    auto regRead = new LRegRead (aux,
-					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (2, LSize.INT), Tokens.PLUS),
+					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (3, LSize.LONG), Tokens.PLUS),
 					 type.content.size);
 	    					 
-	    inst += ret;
-	    auto right = ret.getFirst ();
-	    inst += new LWrite (regRead, right);
+	    inst += cster.lintInst (new LInstList (regRead), ret);
 	}
 	inst += aux;
 	return inst;

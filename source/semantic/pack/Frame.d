@@ -57,7 +57,7 @@ class Frame {
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ().clone ();
 		    auto type = params [it].CompOp (info);
-		    if (type is info) {
+		    if (type && type.isSame (info)) {
 			score.score += SAME;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {
@@ -86,7 +86,7 @@ class Frame {
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ().clone ();
 		    auto type = params.params [it].info.type.CompOp (info);
-		    if (type is info) {
+		    if (type && type.isSame (info)) {
 			score.score += SAME;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {

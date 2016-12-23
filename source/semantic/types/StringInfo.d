@@ -6,6 +6,7 @@ import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
 import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
 import semantic.types.RefInfo, semantic.types.ClassUtils;
+import semantic.types.LongInfo;
 
 class StringInfo : InfoType {
 
@@ -132,7 +133,7 @@ class StringInfo : InfoType {
     }
     
     private InfoType Length () {
-	auto _int = new IntInfo ();
+	auto _int = new LongInfo ();
 	_int.lintInst = &StringUtils.InstLength ;
 	return _int;
     }

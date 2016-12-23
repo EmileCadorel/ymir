@@ -18,7 +18,7 @@ class StringUtils {
 
 
     /**
-     def cstString (size : int, val : ptr!char) : string {
+     def cstString (size : long, val : ptr!char) : string {
          str = malloc (size + 8);
 	 str.int = 1;
 	 (str + 4).int = size;
@@ -34,17 +34,20 @@ class StringUtils {
     static void createCstString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
-	auto size = new LReg (LSize.INT);
+	auto size = new LReg (LSize.LONG);
 	auto addr = new LReg (LSize.LONG);
 	Array!LReg args = make!(Array!LReg) (size, addr);
 	auto retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (), end = new LLabel;
 	entry.insts = new LInstList;
-	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (size, new LConstDWord (2, LSize.INT), Tokens.PLUS)]), retReg));
+	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (size, new LConstDWord (3, LSize.LONG), Tokens.PLUS)]), retReg));
 	auto index = new LReg (LSize.LONG);
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.INT), new LConstDWord (1))); // Une reference, le symbol ""
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.INT), LSize.INT), size));
-	entry.insts += (new LWrite (index, new LConstQWord (2, LSize.INT)));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstQWord (1))); // Une reference, le symbol ""
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc ("free")));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (2, LSize.LONG), LSize.LONG), size));
+	
+	entry.insts += (new LWrite (index, new LConstQWord (3, LSize.LONG)));
+	
 	auto test = new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.BYTE), new LConstByte (0), Tokens.NOT_EQUAL);
 	auto debut = new LLabel (), vrai = new LLabel, faux = new LLabel;
 	entry.insts += debut;
@@ -54,8 +57,8 @@ class StringUtils {
 	vrai.insts = new LInstList;
 	auto access = new LRegRead (new LBinop (retReg, index, Tokens.PLUS), new LConstDWord (0), LSize.BYTE);
 	vrai.insts += new LWrite (access, new LRegRead (addr, new LConstDWord (0), LSize.BYTE));
-	vrai.insts += new LBinop (addr, new LConstQWord (1), addr, Tokens.PLUS);
-	vrai.insts += new LBinop (index, new LConstQWord (1), index, Tokens.PLUS);
+	vrai.insts += new LUnop (addr, Tokens.DPLUS, true);
+	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
 	vrai.insts += new LGoto (debut);
 	
 	entry.insts += vrai;
@@ -71,7 +74,7 @@ class StringUtils {
 
 
     /**
-     def cstStringNoRef (size : int, val : ptr!char) : string {
+     def cstStringNoRef (size : long, val : ptr!char) : string {
          str = malloc (size + 8);
 	 str.int = 0;
 	 (str + 4).int = size;
@@ -87,17 +90,20 @@ class StringUtils {
     static void createCstStringNoRef () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
-	auto size = new LReg (LSize.INT);
+	auto size = new LReg (LSize.LONG);
 	auto addr = new LReg (LSize.LONG);
 	Array!LReg args = make!(Array!LReg) (size, addr);
 	auto retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (), end = new LLabel;
 	entry.insts = new LInstList;
-	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (size, new LConstDWord (2, LSize.INT), Tokens.PLUS)]), retReg));
+	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (size, new LConstDWord (3, LSize.LONG), Tokens.PLUS)]), retReg));
 	auto index = new LReg (LSize.LONG);
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.INT), new LConstDWord (0)));
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.INT), LSize.INT), size));
-	entry.insts += (new LWrite (index, new LConstQWord (2, LSize.INT)));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstQWord (0))); // Une reference, le symbol ""
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc ("free")));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (2, LSize.LONG), LSize.LONG), size));
+	
+	entry.insts += (new LWrite (index, new LConstQWord (3, LSize.LONG)));
+	
 	auto test = new LBinop (new LRegRead (addr, new LConstDWord (0), LSize.BYTE), new LConstByte (0), Tokens.NOT_EQUAL);
 	auto debut = new LLabel (), vrai = new LLabel, faux = new LLabel;
 	entry.insts += debut;
@@ -107,8 +113,8 @@ class StringUtils {
 	vrai.insts = new LInstList;
 	auto access = new LRegRead (new LBinop (retReg, index, Tokens.PLUS), new LConstDWord (0), LSize.BYTE);
 	vrai.insts += new LWrite (access, new LRegRead (addr, new LConstDWord (0), LSize.BYTE));
-	vrai.insts += new LBinop (addr, new LConstQWord (1), addr, Tokens.PLUS);
-	vrai.insts += new LBinop (index, new LConstQWord (1), index, Tokens.PLUS);
+	vrai.insts += new LUnop (addr, Tokens.DPLUS, true);
+	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
 	vrai.insts += new LGoto (debut);
 	
 	entry.insts += vrai;
@@ -140,28 +146,34 @@ class StringUtils {
 	auto addr = new LReg (LSize.LONG), retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel ();
 	auto index = new LReg (LSize.LONG);
-	LExp size = new LBinop (new LRegRead (addr, new LConstDWord (1, LSize.INT), LSize.INT),
-				new LConstDWord (2, LSize.INT), Tokens.PLUS);
+	
+	LExp size = new LBinop (new LRegRead (addr, new LConstDWord (2, LSize.LONG), LSize.LONG),
+				new LConstDWord (3, LSize.LONG), Tokens.PLUS);
 	
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.INT),
-				   new LConstDWord (1));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.INT), LSize.INT),
-				   new LRegRead (addr, new LConstDWord (1, LSize.INT), LSize.INT));
+	
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstDWord (1));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc ("free"));
+	
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (2, LSize.LONG), LSize.LONG),
+				   new LRegRead (addr, new LConstDWord (2, LSize.LONG), LSize.LONG));
+    
 	entry.insts += new LWrite (index, new LConstQWord (0));
-	size = new LRegRead (addr, new LConstDWord (1, LSize.INT), LSize.INT);
-	auto test = new LBinop (index, new LCast (size, LSize.LONG), Tokens.INF);
+	size = new LRegRead (addr, new LConstDWord (2, LSize.LONG), LSize.LONG);
+    
+	auto test = new LBinop (index, size, Tokens.INF);
 	auto debut = new LLabel, vrai = new LLabel (new LInstList), faux = new LLabel;
 	entry.insts += debut;
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
-	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (2, LSize.INT), Tokens.PLUS),
+
+    auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (3, LSize.LONG), Tokens.PLUS),
 						Tokens.PLUS),
 				    new LConstDWord (0), LSize.BYTE);
 
 	vrai.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr, new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR),
 										Tokens.PLUS),
-								    new LConstQWord (2, LSize.INT), Tokens.PLUS)
+								    new LConstQWord (3, LSize.LONG), Tokens.PLUS)
 							, new LConstDWord (0), LSize.BYTE));
 	
 	vrai.insts += new LBinop (index, new LConstQWord (1), index, Tokens.PLUS);
@@ -177,38 +189,46 @@ class StringUtils {
     static void createPlusString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
-	auto addr1 = new LReg (LSize.LONG), addr2 = new LReg (LSize.LONG), size = new LReg (LSize.INT);
+	auto addr1 = new LReg (LSize.LONG), addr2 = new LReg (LSize.LONG), size = new LReg (LSize.LONG);
 	auto retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel ();
 	auto index = new LReg (LSize.LONG);
-	auto globalSize = new LBinop (new LBinop (new LBinop (new LRegRead (addr1, new LConstDWord (1, LSize.INT), LSize.INT),
-							      new LRegRead (addr2, new LConstDWord (1, LSize.INT), LSize.INT),
+	
+	auto globalSize = new LBinop (new LBinop (new LBinop (new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG),
+							      new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG),
 							      Tokens.PLUS),
 						  new LConstDWord (1, LSize.BYTE), Tokens.STAR),
-				      new LConstDWord (1, LSize.LONG), Tokens.PLUS);
+				      new LConstDWord (3, LSize.LONG), Tokens.PLUS);
+	
 	auto index2 = new LReg (LSize.LONG);
 	entry.insts += new LSysCall ("alloc",
 				     make!(Array!LExp) ([globalSize]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.INT), new LConstDWord (1));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.INT), LSize.INT), new LBinop (new LRegRead (addr1, new LConstDWord (1, LSize.INT), LSize.INT),
-														 new LRegRead (addr2, new LConstDWord (1, LSize.INT), LSize.INT),
-														 Tokens.PLUS));
+	
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstDWord (1));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc ("free"));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (2, LSize.LONG), LSize.INT),
+				   new LBinop (new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG),
+					       new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG),
+					       Tokens.PLUS));
+	
 	// index = 8, size = addr1.length + 8
 	entry.insts += new LWrite (index,  new LConstQWord (0));
-	entry.insts += new LWrite (size, new LRegRead (addr1, new LConstDWord (1, LSize.INT), LSize.INT));
-	auto test = new LBinop (index, new LCast (size, LSize.LONG), Tokens.INF);
+	entry.insts += new LWrite (size, new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG));
+	auto test = new LBinop (index, size, Tokens.INF);
 	auto debut1 = new LLabel, vrai1 = new LLabel (new LInstList), faux1 = new LLabel;
 	entry.insts += debut1;
 	entry.insts += new LJump (test, vrai1);
 	entry.insts += new LGoto (faux1);
-	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (2, LSize.INT), Tokens.PLUS),
+	
+	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (3, LSize.LONG), Tokens.PLUS),
 						Tokens.PLUS),
 				    new LConstDWord (0), LSize.BYTE);
 	
 	vrai1.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr1, new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR),
 										 Tokens.PLUS),
-								     new LConstQWord (2, LSize.INT), Tokens.PLUS)
+								     new LConstQWord (3, LSize.LONG), Tokens.PLUS)
 							 , new LConstDWord (0), LSize.BYTE));
+	
 	vrai1.insts += new LUnop (index, Tokens.DPLUS, true);
 	vrai1.insts += new LGoto (debut1);
 	entry.insts += vrai1;
@@ -216,21 +236,17 @@ class StringUtils {
 
 	// index2 = 8;
 	entry.insts += new LWrite (index2, new LConstQWord (0));
-	entry.insts += new LWrite (size, new LRegRead (addr2, new LConstDWord (1, LSize.INT), LSize.INT));
+	entry.insts += new LWrite (size, new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG));
 	
-	test = new LBinop (index2, new LCast (size, LSize.LONG), Tokens.INF);
+	test = new LBinop (index2, size, Tokens.INF);
 	auto debut2 = new LLabel, vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
 	entry.insts += debut2;
 	entry.insts += new LJump (test, vrai2);
 	entry.insts += new LGoto (faux2);
-
-	access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (2, LSize.INT), Tokens.PLUS),
-					   Tokens.PLUS),
-			       new LConstDWord (0), LSize.BYTE);
 	
 	vrai2.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr2, new LBinop (index2, new LConstQWord (1, LSize.BYTE), Tokens.STAR),
 										 Tokens.PLUS),
-								     new LConstQWord (2, LSize.INT), Tokens.PLUS)
+								     new LConstQWord (3, LSize.LONG), Tokens.PLUS)
 							 , new LConstDWord (0), LSize.BYTE));
 	
 	vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
@@ -334,7 +350,7 @@ class StringUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
 	inst += llist + rlists.back ();
-	auto elem = new LBinop (new LConstQWord (2, LSize.INT),
+	auto elem = new LBinop (new LConstQWord (3, LSize.LONG),
 			    new LBinop (leftExp, new LCast (rightExp, LSize.LONG),
 					Tokens.PLUS),
 			    Tokens.PLUS);
@@ -350,7 +366,7 @@ class StringUtils {
 	if (auto str = (cast(LConstString) leftExp)) {
 	    inst += new LConstQWord (str.value.length);
 	} else {
-	    inst += new LRegRead (cast (LExp) leftExp, new LConstDWord (1, LSize.INT), LSize.INT);
+	    inst += new LRegRead (cast (LExp) leftExp, new LConstDWord (2, LSize.LONG), LSize.LONG);
 	}
 	return inst;
     }
@@ -362,7 +378,7 @@ class StringUtils {
 	if (auto str = (cast(LConstString) leftExp)) {
 	    inst += new LConstQWord (0);
 	} else {
-	    inst += new LRegRead (cast (LExp) leftExp, new LConstDWord (0), LSize.INT);
+	    inst += new LRegRead (cast (LExp) leftExp, new LConstDWord (0), LSize.LONG);
 	}
 	return inst;
     }

@@ -32,10 +32,8 @@ class ClassUtils {
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
 	vrai.insts = new LInstList;
-	vrai.insts += new LWrite (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG), new LConstDWord (0), LSize.INT),
-				  new LBinop (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.INT),
-							    new LConstDWord (0), LSize.INT),
-					      new LConstDWord (1), Tokens.PLUS));
+	vrai.insts += new LUnop (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG), new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);
+
 	entry.insts += vrai;
 	entry.insts += faux;
 	auto fr = new LFrame (__AddRef__, entry, end, null, make!(Array!LReg) ([addr]));
@@ -72,17 +70,17 @@ class ClassUtils {
 	entry.insts += new LGoto (faux);
 	
 	vrai1.insts = new LInstList;
-	vrai1.insts += new LWrite (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG),
-						 new LConstDWord (0), LSize.INT),
-				   new LBinop (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG),
-							     new LConstDWord (0), LSize.INT), new LConstDWord (1), Tokens.MINUS));
+	vrai1.insts += new LUnop (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG), new LConstDWord (0), LSize.LONG), Tokens.DMINUS, true);
 	
 	entry.insts += vrai1;
 	vrai1.insts += new LJump (test, vrai);
 	vrai1.insts += new LGoto (faux);
 	
 	vrai.insts = new LInstList;
-	vrai.insts += new LSysCall ("free", make!(Array!LExp) ([new LRegRead (addr, new LConstDWord (0), LSize.LONG)]));
+	vrai.insts += new LCall (new LRegRead (new LRegRead (addr, new LConstDWord (0), LSize.LONG), new LConstDWord (1, LSize.LONG), LSize.LONG),
+				 make!(Array!LExp) ([new LRegRead (addr, new LConstDWord (0), LSize.LONG)]),
+				 LSize.NONE);
+	//vrai.insts += new LSysCall ("free", );
 	vrai.insts += new LWrite (new LRegRead (addr, new LConstDWord (0), LSize.LONG), new LConstQWord (0));
 	vrai.insts += new LGoto (faux);
 	entry.insts += vrai;

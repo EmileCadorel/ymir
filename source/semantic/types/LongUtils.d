@@ -40,6 +40,14 @@ class LongUtils {
 	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
 	return inst;
     }
+    
+    static LInstList InstOpIntRight (Tokens op) (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += (new LBinop (new LCast (leftExp, LSize.LONG), rightExp, op));
+	return inst;
+    }
 
     static LInstList InstOpAff (Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
@@ -70,6 +78,14 @@ class LongUtils {
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
 	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
+	return inst;
+    }
+            
+    static LInstList InstOpTestIntRight (Tokens op) (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += (new LBinop (new LCast (leftExp, LSize.LONG), rightExp, op));
 	return inst;
     }
 
@@ -180,6 +196,10 @@ class LongUtils {
     }
     
     static LInstList InstDXorInt (LInstList llist, LInstList rlist) {
+	assert (false, "TODO, DXor int");
+    }
+        
+    static LInstList InstDXorIntRight (LInstList llist, LInstList rlist) {
 	assert (false, "TODO, DXor int");
     }
 
