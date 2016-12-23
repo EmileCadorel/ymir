@@ -120,6 +120,15 @@ class BoolInfo : InfoType {
 	}
 	return null;
     }
+
+    override InfoType CompOp (InfoType other) {
+	if (cast (BoolInfo) other || cast (UndefInfo) other) {
+	    auto bl = new BoolInfo;
+	    bl.lintInst = &BoolUtils.InstAffect;
+	    return bl;
+	}
+	return null;
+    }
     
     override InfoType clone () {
 	return new BoolInfo ();

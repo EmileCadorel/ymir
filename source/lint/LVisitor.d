@@ -450,7 +450,6 @@ class LVisitor {
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
 	    auto last = inst.getFirst ();
-	    writeln (last);
 	    inst += new LWrite (sym, last);
 	}
 	return inst;

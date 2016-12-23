@@ -121,9 +121,12 @@ class LongInfo : InfoType {
 	return null;
     }
 
-    override InfoType CompOp (InfoType other) {
-	if (cast (LongInfo) other) return other;
-	else if (auto _ref = cast (RefInfo) other) {
+    override InfoType CompOp (InfoType other) {	
+	if (cast (UndefInfo) other || cast (LongInfo) other)  {
+	    auto o = new LongInfo ();
+	    o.lintInst = &LongUtils.InstAffect;
+	    return o;
+	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (LongInfo) _ref.content && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
 		aux.lintInstS = &LongUtils.InstAddr;

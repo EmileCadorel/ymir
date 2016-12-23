@@ -150,7 +150,11 @@ class CharInfo : InfoType {
     }
 
     override InfoType CompOp (InfoType other) {
-	if (cast (CharInfo) other) return other;
+	if (cast (UndefInfo) other || cast (CharInfo) other) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstAffect;
+	    return ch;
+	}
 	return null;
     }
     

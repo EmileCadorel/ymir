@@ -88,6 +88,15 @@ class FloatInfo : InfoType {
 	return null;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (UndefInfo) other || cast (FloatInfo) other) {
+	    auto fl = new FloatInfo ();
+	    fl.lintInst = &FloatUtils.InstAffect;
+	    return fl;
+	}
+	return null;
+    }
+    
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "max") return Max ();

@@ -14,6 +14,11 @@ def print (c : char) {
     putchar (c);
 }
 
+def print (b : bool) {
+    if (b) print ('true');
+    else print ('false');
+}
+
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -34,7 +39,7 @@ def print (a) : void {
     let i = 0;
     while (i < a.length) {
 	print (a [i]);
-	if (i < a.length - 1) putchar (',');
+	if (i < a.length - 1) print (', ');
 	i++;
     }
     putchar(']');
@@ -49,7 +54,7 @@ def print (s : string) {
 }
 
 def main () {
-    let a = [[1], [4]];
+    let a = [10l, 123l];
     println (a);
     println (a.typeid);
 }

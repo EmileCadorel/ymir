@@ -110,8 +110,23 @@ class RefInfo : InfoType {
 
     override InfoType CompOp (InfoType other) {
 	auto ptr = cast (RefInfo) other;
-	if (ptr && ptr.content.isSame (this._content)) return other;
-	return null;
+	if (ptr && ptr.content.isSame (this._content)) {
+	    auto rf = this.clone ();
+	    rf.lintInst = &RefUtils.InstAffect;
+	    return rf;
+	} else {
+	    auto aux = this._content.CompOp (other);	    
+	    if (aux !is null) {
+		if (this._content.size == LSize.BYTE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.BYTE);
+		else if (this._content.size == LSize.SHORT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.SHORT);
+		else if (this._content.size == LSize.INT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.INT);
+		else if (this._content.size == LSize.LONG)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.LONG);
+		else if (this._content.size == LSize.FLOAT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.FLOAT);
+		else if (this._content.size == LSize.DOUBLE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.DOUBLE);
+		return aux;
+	    }
+	    return null;
+	}
     }
     
     override string typeString () {

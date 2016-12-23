@@ -163,6 +163,15 @@ class PtrFuncInfo : InfoType {
 	return score;
     }
     
+    override InfoType CompOp (InfoType other) {
+	if (other.isSame (this) || cast (UndefInfo) other) {
+	    auto ptr = this.clone ();
+	    ptr.lintInst = &PtrFuncUtils.InstAffect;
+	    return ptr;
+	}
+	return null;
+    }
+
     override InfoType DotOp (Var var) {
 	if (var.token.str == "typeid") {
 	    auto str = new StringInfo ();

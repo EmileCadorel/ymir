@@ -232,6 +232,15 @@ class PtrInfo : InfoType {
 	}
 	return null;
     }
+
+    override InfoType CompOp (InfoType other) {
+	if (other.isSame (this) || cast (UndefInfo) other) {
+	    auto ptr = this.clone ();
+	    ptr.lintInst = &PtrUtils.InstAffect;
+	    return ptr;
+	}
+	return null;
+    }
     
     override string typeString () {
 	if (this._content is null) {
