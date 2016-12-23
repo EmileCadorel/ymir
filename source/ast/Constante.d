@@ -6,6 +6,7 @@ import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrIn
 import std.stdio, std.string, utils.exception, std.conv;
 import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
+import semantic.types.LongInfo;
 
 class Int : Expression {
     this (Word word) {
@@ -29,6 +30,29 @@ class Int : Expression {
     }
     
 }
+
+class Long : Expression {
+
+    this (Word word) {
+	super (word);
+    }
+
+    override Expression expression () {
+	auto aux = new Long (this._token);
+	aux.info = new Symbol (this._token, new LongInfo ());
+	return aux;
+    }
+
+    override void print (int nb = 0) {
+	writefln ("%s<Long> %s(%d, %d) %s"
+		  , rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column,
+		  this._token.str);	
+    }
+}
+
 
 class Char : Expression {
 

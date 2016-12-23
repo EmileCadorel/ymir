@@ -1,16 +1,47 @@
 
 extern (C) putchar (c : char);
 
-def println (s : string) {
+def print (s : string) {
     let i = 0;
     while (i < s.length) {
 	putchar (s [i]);
 	i ++;
     }
-    putchar ('\n');
 }
 
+def print (c : char) {
+    putchar (c);
+}
+
+def println (a) {
+    print (a);
+    print ('\n');
+}
+
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+def print (i : long) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	let mi = -i;
+	if (mi < 0) print ("inf");
+	else print (mi);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+
 def main () {
-    let a;
-    println ((a) .typeid);
+    let a = 0;
+    println (long.min * (1 - 1));
 }

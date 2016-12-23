@@ -2,8 +2,8 @@ module lint.LExp;
 import lint.LInst, lint.LSize;
 import std.stdio;
 
-class LExp : LInst {
-
+class LExp : LInst {    
+    
     abstract bool isInst ();
     
     override final LExp getFirst () {

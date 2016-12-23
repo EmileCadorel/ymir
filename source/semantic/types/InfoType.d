@@ -9,6 +9,7 @@ import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
+import semantic.types.LongInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -56,7 +57,8 @@ class InfoType {
 		    "ptr" : &PtrInfo.create,
 		    "array" : &ArrayInfo.create,
 		    "function" : &PtrFuncInfo.create,
-		    "ref" : &RefInfo.create];
+		    "ref" : &RefInfo.create,
+		    "long" : &LongInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {

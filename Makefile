@@ -6,9 +6,10 @@ final:
 
 clean:
 	dub clean
+	rm test/*.s
 	rm ymir
 	rm a.out
 	rm out.s
 
 install: final
-	mv ymir ${HOME}/libs/ymir
+	cp ymir ${HOME}/libs/ymir

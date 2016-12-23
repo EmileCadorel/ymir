@@ -6,7 +6,7 @@ import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop, amd64.AMDLeaq;
 import std.math, amd64.AMDLocus;
-import std.stdio, lint.LSize;
+import std.stdio, lint.LSize, utils.exception;
 
 
 class AMDVisitor : TVisitor {
@@ -565,13 +565,13 @@ class AMDVisitor : TVisitor {
 	    auto right = resolve!(AMDConst) (op.right);
 	    if (auto _l = cast (AMDConstByte) left) {
 		if (auto _r = cast(AMDConstByte) right)
-		    return resolveFromByte (op.op, _l.value, _r.value);
+		    return resolveFromByte (op, _l.value, _r.value);
 	    } else if (auto _l = cast (AMDConstDWord) left) {
 		if (auto _r = cast(AMDConstDWord) right)
-		    return resolveFromDWord (op.op, _l.value, _r.value);
+		    return resolveFromDWord (op, _l.value, _r.value);
 	    } else if (auto _l = cast (AMDConstQWord) left)
 		if (auto _r = cast(AMDConstQWord) right)
-		    return resolveFromQWord (op.op, _l.value, _r.value);
+		    return resolveFromQWord (op, _l.value, _r.value);
 	}
 	return null;
     }
@@ -596,61 +596,70 @@ class AMDVisitor : TVisitor {
 	return cast (AMDObj) ret.where;
     }
     
-    private AMDConst resolveFromByte (Tokens op, long left, long right) {
-	if (op == Tokens.PLUS) return new AMDConstByte (left + right);
-	else if (op == Tokens.MINUS) return new AMDConstByte (left - right);
-	else if (op == Tokens.AND) return new AMDConstByte (left & right);
-	else if (op == Tokens.PIPE) return new AMDConstByte (left | right);
-	else if (op == Tokens.STAR) return new AMDConstByte (left * right);
-	else if (op == Tokens.DIV) return new AMDConstByte (left / right);
-	else if (op == Tokens.LEFTD) return new AMDConstByte (left << right);
-	else if (op == Tokens.RIGHTD) return new AMDConstByte (left >> right);
-	else if (op == Tokens.XOR) return new AMDConstByte (left ^ right);
-	else if (op == Tokens.SUP) return new AMDConstByte (left > right);
-	else if (op == Tokens.SUP_EQUAL) return new AMDConstByte (left >= right);
-	else if (op == Tokens.INF) return new AMDConstByte (left < right);
-	else if (op == Tokens.INF_EQUAL) return new AMDConstByte (left <= right);
-	else if (op == Tokens.DEQUAL) return new AMDConstByte (left == right);
-	else if (op == Tokens.NOT_EQUAL) return new AMDConstByte (left != right);
-	else assert (false, "TODO " ~ op.descr);
+    private AMDConst resolveFromByte (LBinop op, long left, long right) {
+	if (op.op == Tokens.PLUS) return new AMDConstByte (left + right);
+	else if (op.op == Tokens.MINUS) return new AMDConstByte (left - right);
+	else if (op.op == Tokens.AND) return new AMDConstByte (left & right);
+	else if (op.op == Tokens.PIPE) return new AMDConstByte (left | right);
+	else if (op.op == Tokens.STAR) return new AMDConstByte (left * right);
+	else if (op.op == Tokens.DIV) {
+	    if (right == 0) throw new FloatingPointException (op.locus);
+	    return new AMDConstByte (left / right);
+	}
+	else if (op.op == Tokens.LEFTD) return new AMDConstByte (left << right);
+	else if (op.op == Tokens.RIGHTD) return new AMDConstByte (left >> right);
+	else if (op.op == Tokens.XOR) return new AMDConstByte (left ^ right);
+	else if (op.op == Tokens.SUP) return new AMDConstByte (left > right);
+	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstByte (left >= right);
+	else if (op.op == Tokens.INF) return new AMDConstByte (left < right);
+	else if (op.op == Tokens.INF_EQUAL) return new AMDConstByte (left <= right);
+	else if (op.op == Tokens.DEQUAL) return new AMDConstByte (left == right);
+	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstByte (left != right);
+	else assert (false, "TODO " ~ op.op.descr);
     }
     
-    private AMDConst resolveFromDWord (Tokens op, long left, long right) {
-	if (op == Tokens.PLUS) return new AMDConstDWord (left + right);
-	else if (op == Tokens.MINUS) return new AMDConstDWord (left - right);
-	else if (op == Tokens.AND) return new AMDConstDWord (left & right);
-	else if (op == Tokens.PIPE) return new AMDConstDWord (left | right);
-	else if (op == Tokens.STAR) return new AMDConstDWord (left * right);
-	else if (op == Tokens.DIV) return new AMDConstDWord (left / right);
-	else if (op == Tokens.LEFTD) return new AMDConstDWord (left << right);
-	else if (op == Tokens.RIGHTD) return new AMDConstDWord (left >> right);
-	else if (op == Tokens.XOR) return new AMDConstDWord (left ^ right);
-	else if (op == Tokens.SUP) return new AMDConstDWord (left > right);
-	else if (op == Tokens.SUP_EQUAL) return new AMDConstDWord (left >= right);
-	else if (op == Tokens.INF) return new AMDConstDWord (left < right);
-	else if (op == Tokens.INF_EQUAL) return new AMDConstDWord (left <= right);
-	else if (op == Tokens.DEQUAL) return new AMDConstDWord (left == right);
-	else if (op == Tokens.NOT_EQUAL) return new AMDConstDWord (left != right);
-	else assert (false, "TODO " ~ op.descr);
+    private AMDConst resolveFromDWord (LBinop op, long left, long right) {
+	if (op.op == Tokens.PLUS) return new AMDConstDWord (left + right);
+	else if (op.op == Tokens.MINUS) return new AMDConstDWord (left - right);
+	else if (op.op == Tokens.AND) return new AMDConstDWord (left & right);
+	else if (op.op == Tokens.PIPE) return new AMDConstDWord (left | right);
+	else if (op.op == Tokens.STAR) return new AMDConstDWord (left * right);
+	else if (op.op == Tokens.DIV) {
+	    if (right == 0) throw new FloatingPointException (op.locus);
+	    return new AMDConstDWord (left / right);
+	}
+	else if (op.op == Tokens.LEFTD) return new AMDConstDWord (left << right);
+	else if (op.op == Tokens.RIGHTD) return new AMDConstDWord (left >> right);
+	else if (op.op == Tokens.XOR) return new AMDConstDWord (left ^ right);
+	else if (op.op == Tokens.SUP) return new AMDConstDWord (left > right);
+	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstDWord (left >= right);
+	else if (op.op == Tokens.INF) return new AMDConstDWord (left < right);
+	else if (op.op == Tokens.INF_EQUAL) return new AMDConstDWord (left <= right);
+	else if (op.op == Tokens.DEQUAL) return new AMDConstDWord (left == right);
+	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstDWord (left != right);
+	else assert (false, "TODO " ~ op.op.descr);
     }    
 
-    private AMDConst resolveFromQWord (Tokens op, long left, long right) {
-	if (op == Tokens.PLUS) return new AMDConstQWord (left + right);
-	else if (op == Tokens.MINUS) return new AMDConstQWord (left - right);
-	else if (op == Tokens.AND) return new AMDConstQWord (left & right);
-	else if (op == Tokens.PIPE) return new AMDConstQWord (left | right);
-	else if (op == Tokens.STAR) return new AMDConstQWord (left * right);
-	else if (op == Tokens.DIV) return new AMDConstQWord (left / right);
-	else if (op == Tokens.LEFTD) return new AMDConstQWord (left << right);
-	else if (op == Tokens.RIGHTD) return new AMDConstQWord (left >> right);
-	else if (op == Tokens.XOR) return new AMDConstQWord (left ^ right);
-	else if (op == Tokens.SUP) return new AMDConstQWord (left > right);
-	else if (op == Tokens.SUP_EQUAL) return new AMDConstQWord (left >= right);
-	else if (op == Tokens.INF) return new AMDConstQWord (left < right);
-	else if (op == Tokens.INF_EQUAL) return new AMDConstQWord (left <= right);
-	else if (op == Tokens.DEQUAL) return new AMDConstQWord (left == right);
-	else if (op == Tokens.NOT_EQUAL) return new AMDConstQWord (left != right);
-	else assert (false, "TODO " ~ op.descr);
+    private AMDConst resolveFromQWord (LBinop op, long left, long right) {
+	if (op.op == Tokens.PLUS) return new AMDConstQWord (left + right);
+	else if (op.op == Tokens.MINUS) return new AMDConstQWord (left - right);
+	else if (op.op == Tokens.AND) return new AMDConstQWord (left & right);
+	else if (op.op == Tokens.PIPE) return new AMDConstQWord (left | right);
+	else if (op.op == Tokens.STAR) return new AMDConstQWord (left * right);
+	else if (op.op == Tokens.DIV) {
+	    if (right == 0) throw new FloatingPointException (op.locus);
+	    return new AMDConstQWord (left / right);
+	}
+	else if (op.op == Tokens.LEFTD) return new AMDConstQWord (left << right);
+	else if (op.op == Tokens.RIGHTD) return new AMDConstQWord (left >> right);
+	else if (op.op == Tokens.XOR) return new AMDConstQWord (left ^ right);
+	else if (op.op == Tokens.SUP) return new AMDConstQWord (left > right);
+	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstQWord (left >= right);
+	else if (op.op == Tokens.INF) return new AMDConstQWord (left < right);
+	else if (op.op == Tokens.INF_EQUAL) return new AMDConstQWord (left <= right);
+	else if (op.op == Tokens.DEQUAL) return new AMDConstQWord (left == right);
+	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstQWord (left != right);
+	else assert (false, "TODO " ~ op.op.descr);
     }    
     
     override protected TInstPaire visitConstByte (LConstByte val) {

@@ -512,15 +512,18 @@ class Visitor {
     }
 
     private Expression visitNumeric (Word begin) {
-	foreach (it ; begin.str) {
-	    if (it < '0' || it > '9')
-		throw new SyntaxError (begin);	    
+	foreach (it ; 0 .. begin.str.length) {
+	    if (begin.str [it] < '0' || begin.str [it] > '9') {
+		if (it != begin.str.length - 1 && begin.str [it] != 'l') 
+		    throw new SyntaxError (begin);
+		else return new Long (begin);
+	    }
 	}
 	auto next = _lex.next ();
 	if (next == Tokens.DOT) {
 	    next = _lex.next ();
 	    auto suite = next.str;
-	    foreach (it ; next.str) {
+	    foreach (it ; next.str) {		
 		if (it < '0' || it > '9') {
 		    suite = "0";
 		    _lex.rewind ();

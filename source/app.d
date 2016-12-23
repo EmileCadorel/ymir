@@ -49,6 +49,7 @@ void toFile (Array!TFrame frames, string filename) {
     }
 }
 
+
 void main (string [] args) {
     Options.instance.init (args);
     try {

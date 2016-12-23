@@ -368,3 +368,17 @@ class BreakRefUndefined : YmirException {
 	msg = buf.toString ();
     }
 }
+
+class FloatingPointException : YmirException {
+
+    this (Location locus) {
+	auto buf = new OutBuffer;
+	buf.writefln ("%s:(%d, %d): %sErreur%s Division par zero ",
+		      locus.file, locus.line, locus.column,
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, locus);
+	msg = buf.toString ();
+    }
+    
+
+}

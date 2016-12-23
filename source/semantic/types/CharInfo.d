@@ -5,6 +5,7 @@ import semantic.types.CharUtils, syntax.Tokens;
 import semantic.types.BoolInfo, semantic.types.IntInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.StringInfo, ast.Var;
+import semantic.types.LongInfo;
 
 class CharInfo : InfoType {
 
@@ -80,6 +81,10 @@ class CharInfo : InfoType {
 	    auto ch = new BoolInfo ();
 	    ch.lintInst = &CharUtils.InstOpTestInt !(op);
 	    return ch;
+	} else if (cast (LongInfo) right.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstOpTestInt! (op);
+	    return ch;
 	}
 	return null;
     }
@@ -88,6 +93,10 @@ class CharInfo : InfoType {
 	if (cast (IntInfo) right.info.type) {
 	    auto ch = new BoolInfo ();
 	    ch.lintInst = &CharUtils.InstOpTestIntRight !(op);
+	    return ch;
+	} else if (cast (LongInfo) right.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstOpTestIntRight ! (op);
 	    return ch;
 	}
 	return null;
@@ -102,6 +111,10 @@ class CharInfo : InfoType {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOpAffInt!(op);
 	    return ch;
+	} else if (cast (LongInfo) right.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstOpAffInt! (op);
+	    return ch;
 	}
 	return null;
     }
@@ -115,6 +128,10 @@ class CharInfo : InfoType {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOpInt!(op);
 	    return ch;
+	} else if (cast (LongInfo) right.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstOpInt! (op);
+	    return ch;
 	}
 	return null;
     }
@@ -123,6 +140,10 @@ class CharInfo : InfoType {
 	if (cast (IntInfo) right.info.type) {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOpIntRight!(op);
+	    return ch;
+	} else if (cast (LongInfo) right.info.type) {
+	    auto ch = new CharInfo ();
+	    ch.lintInst = &CharUtils.InstOpIntRight! (op);
 	    return ch;
 	}
 	return null;

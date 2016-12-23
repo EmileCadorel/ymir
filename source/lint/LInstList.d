@@ -27,6 +27,10 @@ class LInstList {
     ref Array!LInst insts () {
 	return this._inst;
     }
+
+    LInst back () {
+	return this._inst.back ();
+    }
     
     LExp getFirst () {
 	if (!this._inst.empty) {

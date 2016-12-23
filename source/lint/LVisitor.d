@@ -281,6 +281,7 @@ class LVisitor {
 	if (auto _null = cast (Null) elem) return visitNull (_null);
 	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
+	if (auto _long = cast (Long) elem) return visitLong (_long);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -367,6 +368,10 @@ class LVisitor {
     
     private LInstList visitInt (Int elem) {
 	return new LInstList (new LConstDWord (to!int (elem.token.str)));
+    }
+
+    private LInstList visitLong (Long elem) {
+	return new LInstList (new LConstQWord (to!long (elem.token.str [0 .. $ - 1])));// on enleve le 'l'
     }
     
     private LInstList visitFloat (Float elem) {
@@ -473,6 +478,7 @@ class LVisitor {
 	else right = visitExpression (bin.right);
 	    
 	auto ret = bin.info.type.lintInst (left, right);
+	ret.back.locus = bin.token.locus;
 	if (bin.info.isDestructible) {
 	    auto last = ret.getFirst ();
 	    auto reg = new LReg (bin.info.id, bin.info.type.size);
