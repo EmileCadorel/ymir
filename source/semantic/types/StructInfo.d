@@ -31,7 +31,7 @@ class StructCstInfo : InfoType {
     override bool isSame (InfoType) {
 	return false;
     }
-
+    
     override InfoType clone () {
 	return this;
     }
@@ -73,7 +73,7 @@ class StructInfo : InfoType {
     private Array!InfoType _params;
     private Array!string _attribs;
     private string _name;
-
+    
     private this (string name, Array!string names, Array!InfoType params) {
 	this._name = name;
 	this._attribs = names;
@@ -90,6 +90,7 @@ class StructInfo : InfoType {
 	return this._params;
     }
 
+    
     string name () {
 	return this._name;
     }    
@@ -108,6 +109,42 @@ class StructInfo : InfoType {
 	return null;
     }    
 
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "init") return Init ();
+	else if (var.token.str == "typeid") return StringOf ();
+	else {
+	    foreach (it ; 0 .. this._attribs.length) {
+		if (var.token.str == this._attribs [it]) {
+		    return GetAttrib (it);
+		}
+	    }
+	}
+	return null;
+    }
+
+    private InfoType Init () {
+	auto t = this.clone ();
+	t.lintInst = &StructUtils.Init;
+	return t;
+    }
+
+    private InfoType StringOf () {
+	auto str = new StringInfo;
+	str.lintInst = &StructUtils.StringOf;
+	str.leftTreatment = &StructUtils.GetStringOf;
+	return str;
+    }
+
+    private InfoType GetAttrib (ulong nb) {
+	auto type = this._params [nb].clone ();
+	type.toGet = nb;
+	type.lintInst = &StructUtils.Attrib;
+	type.leftTreatment = &StructUtils.GetAttrib;
+	type.isConst = false;
+	type.setDestruct (null);
+	return type;
+    }    
+    
     override bool isSame (InfoType other) {
 	auto type = cast (StructInfo) other;
 	if (type && type._name == this._name) {

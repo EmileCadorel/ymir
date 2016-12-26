@@ -177,6 +177,73 @@ class StructUtils {
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
     }
+       
+    static LInstList GetStringOf (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
+    }
+
+    static LInstList StringOf (LInstList, LInstList left) {
+	return left;
+    }
+
+    static LInstList Init (LInstList, LInstList) {
+	return new LInstList (new LConstQWord (0));
+    }
+
+    static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
+	auto type = cast (StructInfo) (left.info.type);
+	auto inst = new LInstList;
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
+	auto size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
+				new LBinop (new LConstDWord (nbInt, LSize.INT),
+					    new LBinop (new LConstDWord (nbShort, LSize.SHORT),
+							new LBinop (new LConstDWord (nbByte, LSize.BYTE),
+								    new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
+										new LConstDWord (nbDouble, LSize.DOUBLE),
+										Tokens.PLUS),
+								    Tokens.PLUS),
+							Tokens.PLUS),
+					    Tokens.PLUS),
+				Tokens.PLUS);
+
+	foreach (it ; 0 .. ret.toGet) {	    
+	    final switch (type.params [it].size.id) {
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }
+
+	    size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
+			       new LBinop (new LConstDWord (nbInt, LSize.INT),
+					   new LBinop (new LConstDWord (nbShort, LSize.SHORT),
+						       new LBinop (new LConstDWord (nbByte, LSize.BYTE),
+								   new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
+									       new LConstDWord (nbDouble, LSize.DOUBLE),
+									       Tokens.PLUS),
+								   Tokens.PLUS),
+						       Tokens.PLUS),
+					   Tokens.PLUS),
+			       Tokens.PLUS);
+	    
+	}
+
+	auto l = LVisitor.visitExpressionOutSide (left);
+	auto leftExp = l.getFirst ();
+	inst += new LRegRead (leftExp, size, ret.size);
+	return inst;
+    }
+
+    static LInstList Attrib (LInstList, LInstList left) {
+	return left;
+    }
     
-    
+
 }

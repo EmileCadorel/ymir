@@ -44,7 +44,8 @@ class InfoType {
     protected InstCompS _destruct = null;
     private InstCompMult _lintInstMult = null;
     private bool _isConst = true;
-    
+    private ulong _toGet;
+
     static InfoType function (Word, Expression[]) [string] creators;
 
     static this () {
@@ -65,6 +66,10 @@ class InfoType {
 	auto it = (word.str in creators);
 	if (it !is null) return (*it) (word, templates);
 	throw new UndefinedType (word);
+    }
+
+    ref ulong toGet () {
+	return this._toGet;
     }
     
     ref bool isConst () {

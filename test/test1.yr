@@ -1,5 +1,49 @@
-struct (a : int, b : long, c : string) A;
+extern (C) putchar (c : char);
+
+struct (f : int, s : long, t : string) A;
+
+
+def print (i : long) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+def print (c : char) {
+    putchar (c);
+}
+
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+def println (i) {
+    print (i);
+    putchar ('\n');
+}
+
+def print (s : string) {
+    let i = 0;
+    while i < s.length {
+	    print (s [i]);
+	    i++;
+    }
+}
 
 def main () {
     let a = A (10, 10l, "salut");
+    a.f = 100;
+    a.t = "comment ?";
+    a.t [0] = 'r';
+    println (a.t);
 }
