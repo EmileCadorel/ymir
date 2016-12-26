@@ -515,7 +515,7 @@ class Visitor {
     private Expression visitNumeric (Word begin) {
 	foreach (it ; 0 .. begin.str.length) {
 	    if (begin.str [it] < '0' || begin.str [it] > '9') {
-		if (it != begin.str.length - 1 && begin.str [it] != 'l') 
+		if (it != begin.str.length - 1 || begin.str [it] != 'l') 
 		    throw new SyntaxError (begin);
 		else return new Long (begin);
 	    }

@@ -55,6 +55,16 @@ class AMDBinop : TInst {
 	assert (false, "TODO " ~ this._op.descr);
     }
 
+    private string opFloat () {
+	if (this._op == Tokens.MINUS) return "sub";
+	else if (this._op == Tokens.PLUS) return "add";
+	else if (this._op == Tokens.DEQUAL) return "ucomi";
+	else if (this._op == Tokens.STAR) return "mul";
+	else if (this._op == Tokens.DIV) return "div";
+	else if (this._op == Tokens.SQRT) return "sqrt";
+	assert (false, "TODO " ~ this._op.descr);
+    }
+    
     private void assembly () {
 	this._insts = new TInstList;
 	if (this.isNormCom ()) this.opNormCom ();
@@ -129,28 +139,48 @@ class AMDBinop : TInst {
 	    this._insts += new AMDMove (aux, this._res); 
     }
 
-    private void opDiv () {	
+    private void opDiv () {
+	if (this._left.sizeAmd.id <= AMDSize.QWORD.id) {
+	    AMDReg lreg, rreg;
+	    auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
+	    auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
+	    if (rax == lreg) {
+		this._insts += new AMDCqto;
+		if (ret != rreg)
+		    this._insts += new AMDMove (this._right, ret);
+		this._insts += new AMDUnop (ret, Tokens.DIV);
+	    } else if (rax == rreg) {
+		this._insts += new AMDMove (this._right, ret);
+		this._insts += new AMDMove (this._left, rax);
+		this._insts += new AMDCqto;
+		this._insts += new AMDUnop (ret, Tokens.DIV);
+	    } else {
+		this._insts += new AMDMove (this._left, rax);
+		this._insts += new AMDCqto;
+		if (ret != rreg)
+		    this._insts += new AMDMove (this._right, ret);
+		this._insts += new AMDUnop (ret, Tokens.DIV);
+	    }
+	    this._insts += new AMDMove (rax, this._res);
+	} else opDivFloat ();
+    }
+
+    private void opDivFloat () {
 	AMDReg lreg, rreg;
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
-	auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
-	if (rax == lreg) {
-	    this._insts += new AMDCqto;
-	    if (ret != rreg)
-		this._insts += new AMDMove (this._right, ret);
-	    this._insts += new AMDUnop (ret, Tokens.DIV);
-	} else if (rax == rreg) {
-	    this._insts += new AMDMove (this._right, ret);
-	    this._insts += new AMDMove (this._left, rax);
-	    this._insts += new AMDCqto;
-	    this._insts += new AMDUnop (ret, Tokens.DIV);
+	if (ret == lreg) {
+	    this._insts += new AMDBinop (this._right, ret, Tokens.DIV);
+	} else if (ret == rreg) {
+	    auto xmm2 = new AMDReg (REG.getSwap(this._left.sizeAmd));
+	    this._insts += new AMDMove (this._right, xmm2);
+	    this._insts += new AMDMove (this._left, ret);
+	    this._insts += new AMDBinop (xmm2, ret, Tokens.DIV);
 	} else {
-	    this._insts += new AMDMove (this._left, rax);
-	    this._insts += new AMDCqto;
-	    if (ret != rreg)
-		this._insts += new AMDMove (this._right, ret);
-	    this._insts += new AMDUnop (ret, Tokens.DIV);
+	    this._insts += new AMDMove (this._left, ret);
+	    this._insts += new AMDBinop (this._right, ret, Tokens.DIV);
 	}
-	this._insts += new AMDMove (rax, this._res);	
+	if (ret != this._res)
+	    this._insts += new AMDMove (ret, this._res);	
     }
     
     private void opMod () {
@@ -178,10 +208,6 @@ class AMDBinop : TInst {
 	this._insts += new AMDMove (rdx, this._res);
     }
     
-
-    private string opFloat () {
-	return "";
-    }
     
     override string toString () {
 	if (this._insts !is null) {

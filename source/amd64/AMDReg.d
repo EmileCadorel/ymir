@@ -61,8 +61,9 @@ class AMDRegTable {
     private static AMDRegInfo [string] __table__;
     private static bool [string] __free__;
     private static AMDRegInfo [] __params__;
+    private static Array!AMDRegInfo __paramsFloat__;
     private static Array!AMDRegInfo __aux__;
-    private static Array!AMDReg __auxFlaot__;
+    private static Array!AMDRegInfo __auxFloat__;
     
     static this () {
 	__table__ = ["rax" : new AMDRegInfo ("rax", [R(AMDSize.QWORD, "rax"), R(AMDSize.DWORD, "eax"), R(AMDSize.WORD, "ax"), R(AMDSize.BYTE, "al"), R(AMDSize.BYTE, "ah")]),
@@ -83,9 +84,15 @@ class AMDRegTable {
 		     "r14" : new AMDRegInfo ("r14", [R(AMDSize.QWORD, "r14"), R(AMDSize.DWORD, "r14d"), R(AMDSize.WORD, "r14w"), R(AMDSize.BYTE, "r14b")]),
 		     "r15" : new AMDRegInfo ("r15", [R(AMDSize.QWORD, "r15"), R(AMDSize.DWORD, "r15d"), R(AMDSize.WORD, "r15w"), R(AMDSize.BYTE, "r15b")]),
 		     "rip" : new AMDRegInfo ("rip", [R(AMDSize.QWORD, "rip")]),
-		     "xmm" : new AMDRegInfo ("xmm", [R(AMDSize.DPREC, "xmm0"), R(AMDSize.DPREC, "xmm1"), R(AMDSize.DPREC, "xmm2"),
-						     R(AMDSize.DPREC, "xmm3"), R(AMDSize.DPREC, "xmm4"), R(AMDSize.DPREC, "xmm5"),
-						     R(AMDSize.DPREC, "xmm6"), R(AMDSize.DPREC, "xmm7")])];
+		     "xmm0" : new AMDRegInfo ("xmm0", [R(AMDSize.DPREC, "xmm0"), R(AMDSize.SPREC, "xmm0")]),
+		     "xmm1" : new AMDRegInfo ("xmm1", [R(AMDSize.DPREC, "xmm1"), R(AMDSize.SPREC, "xmm1")]),
+		     "xmm2" : new AMDRegInfo ("xmm2", [R(AMDSize.DPREC, "xmm2"), R(AMDSize.SPREC, "xmm2")]),
+		     "xmm3" : new AMDRegInfo ("xmm3", [R(AMDSize.DPREC, "xmm3"), R(AMDSize.SPREC, "xmm3")]),
+		     "xmm4" : new AMDRegInfo ("xmm4", [R(AMDSize.DPREC, "xmm4"), R(AMDSize.SPREC, "xmm4")]),
+		     "xmm5" : new AMDRegInfo ("xmm5", [R(AMDSize.DPREC, "xmm5"), R(AMDSize.SPREC, "xmm5")]),
+		     "xmm6" : new AMDRegInfo ("xmm6", [R(AMDSize.DPREC, "xmm6"), R(AMDSize.SPREC, "xmm6")]),
+		     "xmm7" : new AMDRegInfo ("xmm7", [R(AMDSize.DPREC, "xmm7"), R(AMDSize.SPREC, "xmm7")]),
+		     ];
 
 	__params__ = [__table__ ["rdi"],
 		      __table__ ["rsi"],
@@ -94,6 +101,7 @@ class AMDRegTable {
 		      __table__ ["r8"],
 		      __table__ ["r9"]];
 
+	
 	__aux__.insertBack (__table__["rbx"]);
 	__aux__.insertBack (__table__["rcx"]);
 	__aux__.insertBack (__table__["r8"]);
@@ -103,8 +111,27 @@ class AMDRegTable {
 	__aux__.insertBack (__table__["r13"]);
 	__aux__.insertBack (__table__["r12"]);
 	__aux__.insertBack (__table__["r15"]);
+
+	__auxFloat__.insertBack (__table__ ["xmm1"]);
+	__auxFloat__.insertBack (__table__ ["xmm2"]);
+	__auxFloat__.insertBack (__table__ ["xmm3"]);
+	__auxFloat__.insertBack (__table__ ["xmm4"]);
+	__auxFloat__.insertBack (__table__ ["xmm5"]);
+	__auxFloat__.insertBack (__table__ ["xmm6"]);
+	__auxFloat__.insertBack (__table__ ["xmm7"]);
+
+	
+	__paramsFloat__.insertBack (__table__ ["xmm1"]);
+	__paramsFloat__.insertBack (__table__ ["xmm2"]);
+	__paramsFloat__.insertBack (__table__ ["xmm3"]);
+	__paramsFloat__.insertBack (__table__ ["xmm4"]);
+	__paramsFloat__.insertBack (__table__ ["xmm5"]);
+	__paramsFloat__.insertBack (__table__ ["xmm6"]);
+	__paramsFloat__.insertBack (__table__ ["xmm7"]);
+
 	// r13 registre d'adresse
-	// r14 operateur de swap
+	// r14 registre de swap entier
+	// xmm0 registre de swap flottant
     }
 
     static R getReg (string name, AMDSize size = AMDSize.QWORD) {
@@ -120,6 +147,10 @@ class AMDRegTable {
 	    assert (false, "Pas de registre " ~ name);
 	}
 	else {
+	    if (elem.name.length == 4 && elem.name[0 .. 3] == "xmm") {
+		auto reg = (AMDSize.DPREC in *elem);
+		return *reg;
+	    }
 	    auto reg = (size in *elem);
 	    if (reg is null) assert (false, "Pas de registre " ~ name);
 	    return *reg;
@@ -127,28 +158,53 @@ class AMDRegTable {
     }
        
     static R param (ulong nb, AMDSize size = AMDSize.QWORD) {
-	if (nb < __params__.length) {
-	    auto reg = (size in (__params__ [nb]));
-	    if (reg is null) assert (false);
-	    return *reg;
-	} return AMDRegInfo.empty (size);
+	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
+	    if (nb < __paramsFloat__.length) {
+		auto reg = (size in (__paramsFloat__ [nb]));
+		if (reg is null) assert (false);
+		return *reg;
+	    } return AMDRegInfo.empty (size);
+	} else {
+	    if (nb < __params__.length) {
+		auto reg = (size in (__params__ [nb]));
+		if (reg is null) assert (false);
+		return *reg;
+	    } return AMDRegInfo.empty (size);
+	}
     }
 
     static R getSwap (AMDSize size = AMDSize.QWORD) {
-	auto elem = (size in __table__ ["r14"]);
-	if (elem !is null) return *elem;
-	else assert (false);
+	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
+	    auto elem = (size in __table__ ["xmm0"]);
+	    if (elem !is null) return *elem;
+	    else assert (false);
+	} else {
+	    auto elem = (size in __table__ ["r14"]);
+	    if (elem !is null) return *elem;
+	    else assert (false);
+	}
     }
     
     static R aux (AMDSize size = AMDSize.QWORD) {
-	if (size == AMDSize.SPREC || size == AMDSize.DPREC) assert (false, "TODO");
-	foreach (reg ; __aux__) {
-	    auto inside = (reg.name in __free__);	    
-	    if (inside is null || *inside) {
-		__free__ [reg.name] = false;
-		auto it = (size in reg);
-		if (it is null) assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
-		return *it;
+	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
+	    foreach (reg ; __auxFloat__) {
+		auto inside = (reg.name in __free__);
+		if (inside is null || * inside) {
+		    __free__ [reg.name] = false;
+		    auto it = (size in reg);
+		    if (it is null) assert (false, "Taille inconny pour " ~ reg.name ~ " " ~ to!string (size));
+		    return *it;
+		}
+	    }
+	} else {
+	    foreach (reg ; __aux__) {
+		auto inside = (reg.name in __free__);	    
+		if (inside is null || *inside) {
+		    __free__ [reg.name] = false;
+		    auto it = (size in reg);
+		    if (it is null) assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
+		    return *it;
+		}
 	    }
 	}
 	return AMDRegInfo.empty (size);

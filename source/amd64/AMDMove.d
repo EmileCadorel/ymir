@@ -16,10 +16,14 @@ class AMDMove : TInst {
 	auto r = cast (AMDReg) right;
 	if (r && l && r.isOff && l.isOff) {
 	    this._aux = new AMDReg (REG.getReg ("r14", r.sizeAmd));
+	} else if (r && r.isOff && cast (AMDConstDouble) left) {
+	    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
 	}
+	
     }
 
-    override string toString () {
+
+       override string toString () {
 	auto buf = new OutBuffer;
 	auto size = this._left.sizeAmd;
 	if (cast (AMDConst) this._left) size = this._right.sizeAmd;
@@ -48,7 +52,6 @@ class AMDMove : TInst {
 
 class AMDMoveCast : TInst {
 
-
     private AMDObj _left;
     private AMDObj _right;
     private AMDObj _aux;
@@ -63,12 +66,21 @@ class AMDMoveCast : TInst {
 	}
     }
 
+    private string getName () {
+	if (this._left.sizeAmd.size >= this._right.sizeAmd.size) {
+	    if (auto _r = cast (AMDReg) this._left) 
+		_r.resize (this._right.sizeAmd);
+	    return "mov" ~ this._right.sizeAmd.id;
+	} else {
+	    return "movs" ~ this._left.sizeAmd.id ~ this._right.sizeAmd.id;
+	}
+    }
+    
     override string toString () {
 	auto buf = new OutBuffer;
 	if (this._aux is null) {
-	    buf.writef("\tmovs%s%s\t%s, %s",
-		       this._left.sizeAmd.id,
-		       this._right.sizeAmd.id,
+	    buf.writef("\t%s\t%s, %s",
+		       this.getName (),
 		       this._left.toString (),
 		       this._right.toString ());
 	} else {
@@ -77,11 +89,14 @@ class AMDMoveCast : TInst {
 		       this._left.toString (),
 		       this._aux.toString);
 
-	    buf.writef("\tmovs%s%s\t%s, %s",
-		       this._aux.sizeAmd.id,
-		       this._right.sizeAmd.id,
+	    buf.writef("\t%s\t%s, %s",
+		       this.getName (),
 		       this._aux.toString (),
 		       this._right.toString);
+	}
+	if (auto _l = cast (AMDReg) this._left) {
+	    if (auto _r = cast (AMDReg) this._right)
+		if (_r == _l) return ""; // cast inutile
 	}
 	return buf.toString ();
     }    

@@ -9,8 +9,8 @@ enum AMDSize : SizeTuple {
     WORD = SizeTuple ("w", 2),
     DWORD = SizeTuple ("l", 4),
     QWORD = SizeTuple ("q", 8),
-    SPREC = SizeTuple ("sp", -4),
-	DPREC = SizeTuple ("dp", -8),
+    SPREC = SizeTuple ("ss", -4),
+	DPREC = SizeTuple ("sd", -8),
 	NONE = SizeTuple ("", 0)
 }
 

@@ -332,12 +332,11 @@ class ConstArray : Expression  {
 	    foreach (ref it ; aux._params) {
 		it = it.expression;
 	    }
-	    aux._casters.length = aux._params.length;
 
 	    auto begin = new Symbol(false, this._token, new UndefInfo ());
 	    foreach (fst ; 0 .. aux._params.length) {		
 		auto cmp = aux._params [fst].info.type.CompOp (begin.type);
-		aux._casters [fst] = cmp;
+		aux._casters.insertBack (cmp);
 		if (cmp is null) {
 		    throw new IncompatibleTypes (begin,
 						 aux._params [fst].info);

@@ -5,7 +5,7 @@ import semantic.types.InfoType, utils.exception;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo;
 import lint.LSize, ast.Var, ast.Constante;
-import semantic.types.StringInfo;
+import semantic.types.StringInfo, semantic.types.LongInfo;
 
 class FloatInfo : InfoType {
 
@@ -85,6 +85,15 @@ class FloatInfo : InfoType {
     
     override InfoType CastOp (InfoType other) {
 	if (cast(FloatInfo)other !is null) return this;
+	else if (cast (LongInfo) other !is null) {
+	    auto l = new LongInfo ();
+	    l.lintInstS = &FloatUtils.InstCastLong;
+	    return l;
+	} else if (cast (IntInfo) other !is null) {
+	    auto i = new IntInfo ();
+	    i.lintInstS = &FloatUtils.InstCastInt;
+	    return i;
+	}
 	return null;
     }
 
@@ -140,7 +149,7 @@ class FloatInfo : InfoType {
     }
     
     private InfoType Dig () {
-	auto fl = new FloatInfo ();
+	auto fl = new IntInfo ();
 	fl.lintInst = &FloatUtils.Dig;
 	return fl;
     }
@@ -152,7 +161,7 @@ class FloatInfo : InfoType {
     }
 
     private InfoType MantDig () {
-	auto fl = new FloatInfo ();
+	auto fl = new IntInfo ();
 	fl.lintInst = &FloatUtils.MantDig;
 	return fl;
     }
@@ -209,6 +218,10 @@ class FloatInfo : InfoType {
 	    fl.lintInst = &FloatUtils.InstOp ! (op);
 	    return fl;
 	} else if (cast (IntInfo) right.info.type) {
+	    auto fl = new FloatInfo ();
+	    fl.lintInst = &FloatUtils.InstOpInt !(op);
+	    return fl;
+	} else if (cast (LongInfo) right.info.type) {
 	    auto fl = new FloatInfo ();
 	    fl.lintInst = &FloatUtils.InstOpInt !(op);
 	    return fl;

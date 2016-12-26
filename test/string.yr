@@ -13,7 +13,7 @@ def print (c : char) {
 }
 
 def toStr (c : char) : string {
-    return cast:string ([c]);
+    return cast:string (['r']);
 }
 
 def toStr (i : int) : string {
@@ -78,6 +78,6 @@ def test (i) {
 def main () {
     let a = "salut" + " comment " + "ca va ?";
     let b = [1, 2, 3] + [4];
-    println (a);
+       println (a);
     println (b);
 }

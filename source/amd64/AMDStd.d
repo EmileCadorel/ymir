@@ -87,8 +87,6 @@ class AMDCmp : TInst {
     }
 }
 
-
-
 class AMDCfiDefCfaOffset : TInst {
     private ulong _nb;
   
@@ -170,4 +168,17 @@ class AMDCqto : TInst {
     override string toString () {
 	return "\tcqto";
     }
+}
+
+class AMDAlign : TInst {
+    private ulong _nb;
+    
+    this (ulong nb) {
+	this._nb = nb;
+    }
+
+    override string toString () {
+	return "\t.align\t" ~ to!string (this._nb) ~ "\n";
+    }
+    
 }

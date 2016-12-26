@@ -8,6 +8,7 @@ import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
 import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
 import semantic.types.ArrayUtils, std.math, std.stdio, syntax.Keys;
 import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
+import semantic.types.InfoType;
 
 class LVisitor {
 
@@ -325,15 +326,19 @@ class LVisitor {
 	}
 	
 	foreach (it ; 0 .. carray.params.length) {
-	    auto cster = carray.casters [it];
+	    InfoType cster = carray.casters [it];
+	    std.stdio.writeln (carray.casters [it]);
 	    LInstList ret;
-	    if (cster.lintInstS is null) ret = visitExpression (carray.params [it]);
-	    else ret = cster.lintInst (visitExpression (carray.params [it]));
+	    if (cster) {
+		if (cster.lintInstS is null) ret = visitExpression (carray.params [it]);
+		else ret = cster.lintInst (visitExpression (carray.params [it]));
+	    } else ret = visitExpression (carray.params [it]);
 	    auto regRead = new LRegRead (aux,
 					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (3, LSize.LONG), Tokens.PLUS),
 					 type.content.size);
 	    					 
 	    inst += cster.lintInst (new LInstList (regRead), ret);
+	    std.stdio.writeln ("Ici");
 	}
 	inst += aux;
 	return inst;

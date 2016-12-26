@@ -21,7 +21,7 @@ class FloatUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LWrite (leftExp, new LCast (rightExp, LSize.FLOAT)));
+	inst += (new LWrite (leftExp, new LCast (rightExp, LSize.DOUBLE)));
 	return inst;
     }
 
@@ -37,7 +37,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.DOUBLE), op));
 	return inst;
     }
         
@@ -45,7 +45,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, LSize.FLOAT), rightExp, op));
+	inst += (new LBinop (new LCast (leftExp, LSize.DOUBLE), rightExp, op));
 	return inst;
     }
     
@@ -61,7 +61,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), leftExp, op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.DOUBLE), leftExp, op));
 	return inst;
     }
     
@@ -77,7 +77,7 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.FLOAT), op));
+	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.DOUBLE), op));
 	return inst;
     }
     
@@ -85,10 +85,26 @@ class FloatUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, LSize.FLOAT), rightExp, op));
+	inst += (new LBinop (new LCast (leftExp, LSize.DOUBLE), rightExp, op));
 	return inst;
     }
 
+    static LInstList InstCastInt (LInstList llist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LCast (leftExp, LSize.INT);
+	return inst;
+    }
+
+    static LInstList InstCastLong (LInstList llist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LCast (leftExp, LSize.LONG);
+	return inst;
+    }
+    
     static LInstList FloatInit (LInstList, LInstList) {
 	return new LInstList (new LConstFloat (0.0f));
     }
@@ -106,7 +122,7 @@ class FloatUtils {
     }
 
     static LInstList Dig (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.dig));
+	return new LInstList (new LConstDWord (float.dig));
     }
     
     static LInstList Epsilon (LInstList, LInstList) {
@@ -114,7 +130,7 @@ class FloatUtils {
     }
 
     static LInstList MantDig (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.mant_dig));
+	return new LInstList (new LConstDWord (float.mant_dig));
     }
 
     static LInstList Max10Exp (LInstList, LInstList) {
