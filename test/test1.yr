@@ -19,20 +19,26 @@ def println (a) {
     putchar ('\n');
 }
 
-def test (a : A) {
-    a.f = 130;
+def foo () {
+    def test () {
+	println (123);
+    }
+    test ();
 }
 
-def test (a : int, b) {
-    return 9;
-}
-def test (a, b : int) {
-    return 10;
+
+def test (a : int) {
+    println (10);
 }
 
 def main () {
-    let a = test (10, 'e');
-    let b = test ('r', 10);
-    println (a);
-    println (b);
+    {
+	def test () {
+	    println (11);
+	}
+	
+	test ();
+    }
+    test (10);
+    foo ();
 }

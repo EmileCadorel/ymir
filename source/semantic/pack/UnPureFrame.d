@@ -8,9 +8,7 @@ import semantic.pack.FrameTable, syntax.Word;
 
 class UnPureFrame : Frame {
     
-    private string _name;
-    private string _namespace;
-    
+    private string _name;    
     
     this (string namespace, Function func) {
 	super (namespace, func);
@@ -34,8 +32,8 @@ class UnPureFrame : Frame {
 	    finalParams.back ().info.id = it + 1;
 	    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	}
-	
-	Table.instance.setCurrentSpace (name);
+
+	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);
 	
 	auto proto = FrameTable.instance.existProto (name);
 	    
@@ -83,7 +81,6 @@ class UnPureFrame : Frame {
     override FrameProto validate (ParamList params) {
 	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
-	
 	Table.instance.enterFrame (name, this._function.params.length);
 	Table.instance.enterBlock ();
 	
@@ -98,7 +95,7 @@ class UnPureFrame : Frame {
 	    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	}
 	
-	Table.instance.setCurrentSpace (name);
+	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);
 	
 	auto proto = FrameTable.instance.existProto (name);
 	    

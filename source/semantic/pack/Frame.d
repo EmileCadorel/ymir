@@ -34,7 +34,7 @@ class Frame {
 	assert (false);
     }
     
-    string namespace () {
+    ref string namespace () {
 	return this._namespace;
     }
 
@@ -123,7 +123,6 @@ class Frame {
 class PureFrame : Frame {
 
     private string _name;
-    private string _namespace;
     private FrameProto _fr;
     private bool valid = false;
     
@@ -161,8 +160,8 @@ class PureFrame : Frame {
 		if (name != "main")
 		    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	    }
-	    	    
-	    Table.instance.setCurrentSpace (name);
+
+	    Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);	    	    
 	
 	    if (this._function.type is null) {
 		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
