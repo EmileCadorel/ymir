@@ -301,7 +301,7 @@ class StringUtils {
 	if (it is null) ClassUtils.createDstObj ();	
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, aux);
-	inst += new LUnop (new LRegRead (cast (LExp)rightExp, new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);
+	inst += new LUnop (new LRegRead (cast (LExp)leftExp, new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);
 	
 	inst += aux;
 	return inst;

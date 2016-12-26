@@ -440,7 +440,7 @@ class LVisitor {
 	}
 	
 	if (cast (VoidInfo) par.score.ret is null) {
-	    auto reg = new LReg (par.info.id, par.score.ret.size);
+	    auto reg = new LReg (par.info.id, par.score.ret.size);	    
 	    list += new LWrite (reg, call);
 	} else 	list += call;
 	return list;	
@@ -504,7 +504,7 @@ class LVisitor {
 	    
 	auto ret = bin.info.type.lintInst (left, right);
 	ret.back.locus = bin.token.locus;
-	if (bin.info.isDestructible) {
+	if (bin.info.isDestructible && bin.info.id != 0) {
 	    auto last = ret.getFirst ();
 	    auto reg = new LReg (bin.info.id, bin.info.type.size);
 	    ret += new LWrite (reg, last);

@@ -46,6 +46,7 @@ class ArrayInfo : InfoType {
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
 	else if (token == Tokens.PLUS) return Plus (right);
+	else if (token == Tokens.PLUS_AFF) return PlusAff (right);
 	return null;
     }
 
@@ -70,6 +71,21 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    private InfoType PlusAff (Expression right) {
+	auto arr = cast (ArrayInfo) right.info.type;
+	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
+	    auto str = new ArrayInfo (this._content.clone ());
+	    switch (this._content.size.id) {
+	    case 1: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
+	    case 3: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
+	    case 4: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
+	    default : assert (false, "TODO");
+	    }
+	    return str;
+	}
+	return null;
+    }
+    
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto arr = new ArrayInfo (this._content.clone ());
@@ -194,6 +210,10 @@ class ArrayInfo : InfoType {
 	auto type = cast (ArrayInfo) other;
 	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
 	    auto ret = new ArrayInfo (this._content.clone ());
+	    ret.lintInst = &ArrayUtils.InstAffectRight;
+	    return ret;
+	} else if (type && cast (VoidInfo) this._content) {
+	    auto ret = other.clone ();
 	    ret.lintInst = &ArrayUtils.InstAffectRight;
 	    return ret;
 	}

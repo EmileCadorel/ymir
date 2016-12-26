@@ -2,6 +2,8 @@ extern (C) putchar (c : char);
 
 struct (f : int, s : long, t : string) A;
 
+struct (nb : int, tab : array!int) B;
+
 
 def print (i : long) : void {
     if (i < 0) {
@@ -40,10 +42,19 @@ def print (s : string) {
     }
 }
 
+def print (a : array!int) {
+    let i = 0;
+    print ('[');
+    while (i < a.length) {
+	print (a[i]);
+	if (i < a.length - 1) print (", ");
+	i ++;
+    }
+    print (']');
+}
+
 def main () {
-    let a = A (10, 10l, "salut");
-    a.f = 100;
-    a.t = "comment ?";
-    a.t [0] = 'r';
-    println (a.t);
+    let b = B (10, []);
+    b.tab += [10, 12];
+    println (b.tab);
 }
