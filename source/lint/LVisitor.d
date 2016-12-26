@@ -6,7 +6,7 @@ import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
 import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
-import semantic.types.ArrayUtils, std.math, std.stdio;
+import semantic.types.ArrayUtils, std.math, std.stdio, syntax.Keys;
 import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
 
 class LVisitor {
@@ -54,6 +54,11 @@ class LVisitor {
  
 	foreach (it ; semFrame.dest) {
 	    end.insts += it.destruct ();
+	}
+	
+	if (semFrame.name == Keys.MAIN.descr && retReg is null) {
+	    retReg = new LReg (LSize.LONG);
+	    end.insts += new LWrite (retReg, new LConstQWord (0));
 	}
 	
 	auto fr = new LFrame (semFrame.name, entry, end, retReg, args);

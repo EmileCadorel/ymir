@@ -47,9 +47,8 @@ class Var : Expression {
 	return new TypedVar (this._token, type);
     }    
 
-    Type asType () {
-	auto info = Table.instance.get (this._token.str);
-	if (info !is null) throw new UseAsType (this._token);
+    Type asType () {	
+	if (!InfoType.exist (this._token.str)) throw new UseAsType (this._token);
 	else {
 	    Expression [] temp;
 	    temp.length = this._templates.length;

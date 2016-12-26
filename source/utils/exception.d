@@ -333,11 +333,11 @@ class TemplateInferType : YmirException {
 }
 
 class NeedAllType : YmirException {
-    this (Word token) {
+    this (Word token, string type = "fonction") {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sError%s : Tous les types sont requis dans une prototype de fonction : ",
-		      Colors.RED.value, Colors.RESET.value);
+	buf.writefln ("%sError%s : Tous les types sont requis dans une prototype de %s : ",
+		      Colors.RED.value, Colors.RESET.value, type);
 	super.addLine (buf, token.locus);
 	
 	msg = buf.toString ();

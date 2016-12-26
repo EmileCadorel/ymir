@@ -32,7 +32,7 @@ class UnPureFrame : Frame {
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.typeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= to!string(t.length) ~ t[0];
+	    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	}
 	
 	Table.instance.setCurrentSpace (name);
@@ -95,7 +95,7 @@ class UnPureFrame : Frame {
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.typeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= to!string(t.length) ~ t[0];
+	    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	}
 	
 	Table.instance.setCurrentSpace (name);

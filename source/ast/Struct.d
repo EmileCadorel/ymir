@@ -6,7 +6,7 @@ import semantic.pack.FrameTable, semantic.pack.Table;
 import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
-import semantic.types.StructInfo;
+import semantic.types.StructInfo, semantic.types.InfoType;
 
 
 class Struct : Declaration {
@@ -35,11 +35,12 @@ class Struct : Declaration {
 	    auto str = new StructCstInfo (this._ident.str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
+	    InfoType.addCreator (this._ident.str);
 	    foreach (it ; this._params) {
 		if (auto ty = cast (TypedVar) it) {
 		    auto type = ty.getType ();
 		    str.addAttrib (it.token.str, type);
-		} else throw new NeedAllType (this._ident);		
+		} else throw new NeedAllType (this._ident, "structure");		
 	    }
 	}
     }

@@ -9,7 +9,7 @@ import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
-import semantic.types.LongInfo;
+import semantic.types.LongInfo, semantic.types.StructInfo;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -68,6 +68,11 @@ class InfoType {
 	throw new UndefinedType (word);
     }
 
+    static void addCreator (string name) {
+	if (name in creators) assert (false, "Pas possible !!");
+	creators [name] = &StructCstInfo.create;
+    }
+    
     ref ulong toGet () {
 	return this._toGet;
     }

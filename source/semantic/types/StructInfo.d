@@ -8,6 +8,7 @@ import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.PtrInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
+import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 
 
 /**
@@ -26,6 +27,13 @@ class StructCstInfo : InfoType {
     void addAttrib (string name, InfoType type) {
 	this._names.insertBack (name);
 	this._params.insertBack (type);
+    }
+
+    static InfoType create (Word name, Expression [] templates) {
+	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
+	if (cst is null) assert (false, "Nooooon !!!");
+	if (templates.length != 0) throw new NotATemplate (name);	
+	return StructInfo.create (cst._name, cst._names, cst._params);
     }
     
     override bool isSame (InfoType) {
@@ -64,8 +72,18 @@ class StructCstInfo : InfoType {
 	score.ret = ret;
 	return score;
     }
-    
 
+    override string typeString () {
+	auto name = this._name ~ "(";
+	foreach (it ; this._params) {
+	    name ~= it.typeString ();
+	    if (it !is this._params [$ - 1]) name ~= ", ";
+	}
+	name ~= ")";
+	return name;
+
+    }
+    
 }
 
 class StructInfo : InfoType {
@@ -122,6 +140,27 @@ class StructInfo : InfoType {
 	return null;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (UndefInfo) other || this.isSame (other)) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &StructUtils.InstAffectRight;
+	    return ret;
+	}
+	return null;
+    }
+    
+    override InfoType ParamOp () {
+	auto ret = this.clone ();
+	ret.lintInstS = &ClassUtils.InstParam;
+	return ret;
+    }
+
+    override InfoType ReturnOp () {
+	auto ret = this.clone ();
+	ret.lintInstS = &ClassUtils.InstReturn;
+	return ret;
+    }    
+    
     private InfoType Init () {
 	auto t = this.clone ();
 	t.lintInst = &StructUtils.Init;

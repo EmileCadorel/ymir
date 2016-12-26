@@ -104,6 +104,16 @@ class Frame {
 	return null;
     }
 
+    string mangle (string name) {
+	string s = "";
+	foreach (it ; name) {
+	    if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) {
+		s ~= to!string(to!short (it));
+	    } else s ~= it;
+	}
+	return s;
+    }
+
     Function func () {
 	return this._function;
     }
@@ -149,7 +159,7 @@ class PureFrame : Frame {
 		finalParams.back ().info.id = it + 1;
 		auto t = finalParams.back ().info.type.typeString ();
 		if (name != "main")
-		    name ~= to!string (t.length) ~ t[0];
+		    name ~= super.mangle (t) ~ to!string (to!short (' '));
 	    }
 	    	    
 	    Table.instance.setCurrentSpace (name);

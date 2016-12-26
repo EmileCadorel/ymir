@@ -31,8 +31,8 @@ class ExternFrame : Frame {
 		InfoType info = null;
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ();
-		    auto type = params.params [it].info.type.CastOp (info);
-		    if (type is info) {
+		    auto type = params.params [it].info.type.CompOp (info);
+		    if (info.isSame (type)) {
 			score.score += SAME;
 			score.treat.insertBack (null);  
 		    } else if (type !is null) {
@@ -66,7 +66,7 @@ class ExternFrame : Frame {
 	    finalParams.back ().info.id = it + 1;
 	    auto t = finalParams.back ().info.type.typeString ();
 	    if (name != "main" && (this._from is null || this._from != "C"))
-		name ~= to!string (t.length) ~ t[0];
+		name ~= super.mangle (t) ~ to!string (to!short (' '));
 	}
 	    
 	    
