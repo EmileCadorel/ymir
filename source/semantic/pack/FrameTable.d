@@ -34,11 +34,11 @@ class FrameTable {
 	return null;
     }
     
-    Array!PureFrame pures () {
+    ref Array!PureFrame pures () {
 	return this._pures;
     }
 
-    Array!FinalFrame finals () {
+    ref Array!FinalFrame finals () {
 	return this._finals;
     }    
     

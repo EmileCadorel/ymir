@@ -17,6 +17,8 @@ class LFrame {
     private int stack = 0;
     private bool _is_main = false;
     private ulong _lastId;
+    private bool _done;
+
     
     private static LFrame[ulong] __table__;
     
@@ -38,6 +40,10 @@ class LFrame {
 	return __preCompiled__;
     }
 
+    ref bool done () {
+	return this._done;
+    }
+    
     ref string file () {
 	return this._file;
     }

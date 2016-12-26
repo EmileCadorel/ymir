@@ -73,6 +73,10 @@ class StructCstInfo : InfoType {
 	return score;
     }
 
+    override void quit (string) {
+	InfoType.removeCreator (this._name);
+    }
+    
     override string typeString () {
 	auto name = this._name ~ "(";
 	foreach (it ; this._params) {

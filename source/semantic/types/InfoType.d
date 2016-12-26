@@ -72,6 +72,10 @@ class InfoType {
 	if (name in creators) assert (false, "Pas possible !!");
 	creators [name] = &StructCstInfo.create;
     }
+
+    static void removeCreator (string name) {
+	creators.remove (name);
+    }
     
     ref ulong toGet () {
 	return this._toGet;

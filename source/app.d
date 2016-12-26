@@ -59,6 +59,8 @@ void main (string [] args) {
 	
 	string [] files;
 	foreach (file ; Options.instance.inputFiles) {	
+	    FrameTable.instance.pures.clear ();
+	    FrameTable.instance.finals.clear ();
 	    semanticTime (file);
 	    auto list = lintTime ();		
 	    debug {

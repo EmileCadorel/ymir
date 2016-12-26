@@ -20,7 +20,10 @@ class LVisitor {
 	}
 	
 	foreach (key, value ; LFrame.preCompiled) {
-	    frames.insertBack (value);
+	    if (!value.done) {
+		frames.insertBack (value);
+		value.done = true;
+	    }
 	}
 	
 	return frames;

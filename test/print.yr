@@ -1,0 +1,32 @@
+extern (C) putchar (c : char);
+
+def print (c : char) {
+    putchar (c);
+}
+
+def println (a : array!int) {
+    let i = 0;
+    print ('[');
+    while (i < a.length) {
+	print (a[i]);
+	if (i < a.length - 1) print (',');
+	i++;
+    }
+    print(']');
+    print ('\n');
+}
+
+def println (i : int) {
+    print (i);
+    system (print_c, '\n');
+}
+
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}

@@ -1,44 +1,12 @@
-extern (C) putchar (c : char);
 
-struct (f : int, b : long) A;
-
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-
-def println (a) {
-    print (a);
-    putchar ('\n');
-}
-
-def foo () {
-    def test () {
-	println (123);
-    }
-    test ();
-}
-
-
-def test (a : int) {
-    println (10);
-}
+extern println (a : int);
+extern println (a : array!int);
 
 def main () {
-    {
-	def test () {
-	    println (11);
-	}
-	
-	test ();
-    }
-    test (10);
-    foo ();
+    println ([10]);
+
+}
+
+def A (a : int) {
+    return 10;
 }

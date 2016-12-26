@@ -271,6 +271,7 @@ class Visitor {
 		auto next = _lex.next ();
 		if (next == Keys.DEF) decls.insertBack (visitFunction ());
 		else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+		else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (next == Tokens.LACC) {
 		    this._lex.rewind ();
 		    insts.insertBack (visitBlock ());		
