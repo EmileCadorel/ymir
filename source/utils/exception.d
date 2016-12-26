@@ -207,7 +207,7 @@ class ShadowingVar : YmirException {
 	
 	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
-	
+
 	super.addLine (buf, token2.locus);
 	msg = buf.toString();        
     }

@@ -398,25 +398,45 @@ class LVisitor {
 
     private LInstList visitPar (Par par) {
 	Array!LExp exprs;
+	Array!LInstList rights;
 	LInstList list = new LInstList;
-	foreach (it ; 0 .. par.params.length) {
-	    Expression exp = par.params [it];
-	    LInstList elist;
-	    if (par.score.treat [it] && par.score.treat [it].lintInstS) 
-		elist = par.score.treat [it].lintInst (visitExpression (exp));
-	    else
-		elist = visitExpression (exp);
-	    exprs.insertBack (elist.getFirst ());
-	    list += elist;
-	}
-	
 	LExp call;
-	if (par.score.dyn) {
-	    auto left = visitExpression (par.left);
-	    list += left;
-	    call = new LCall (left.getFirst (), exprs, par.score.ret.size);
-	} else {		
-	    call = new LCall (par.score.name, exprs, par.score.ret.size);
+
+	if (par.info.type.lintInstMult) {
+	    foreach (it ; 0 .. par.params.length) {
+		Expression exp = par.params [it];
+		LInstList elist;
+		if (par.score.treat [it] && par.score.treat [it].lintInstS) 
+		    elist = par.score.treat [it].lintInst (visitExpression (exp));
+		else
+		elist = visitExpression (exp);
+		rights.insertBack (elist);
+	    }
+	    
+	    LInstList left;
+	    if (par.info.type.leftTreatment) left = par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
+	    else left = visitExpression (par.left);
+	    list = par.info.type.lintInst (left, rights);
+	    call = list.getFirst ();
+	} else {
+	    foreach (it ; 0 .. par.params.length) {
+		Expression exp = par.params [it];
+		LInstList elist;
+		if (par.score.treat [it] && par.score.treat [it].lintInstS) 
+		    elist = par.score.treat [it].lintInst (visitExpression (exp));
+		else
+		elist = visitExpression (exp);
+		exprs.insertBack (elist.getFirst ());
+		list += elist;
+	    }
+	    
+	    if (par.score.dyn) {
+		auto left = visitExpression (par.left);
+		list += left;
+		call = new LCall (left.getFirst (), exprs, par.score.ret.size);
+	    } else {		
+		call = new LCall (par.score.name, exprs, par.score.ret.size);
+	    }
 	}
 	
 	if (cast (VoidInfo) par.score.ret is null) {

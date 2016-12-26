@@ -147,6 +147,7 @@ class AMDRegTable {
 	    if (inside is null || *inside) {
 		__free__ [reg.name] = false;
 		auto it = (size in reg);
+		if (it is null) assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
 		return *it;
 	    }
 	}

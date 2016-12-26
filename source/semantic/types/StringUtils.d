@@ -301,8 +301,8 @@ class StringUtils {
 	if (it is null) ClassUtils.createDstObj ();	
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, aux);
-	inst += new LWrite (new LRegRead (cast (LReg)leftExp, new LConstDWord (0), LSize.INT),
-			    new LBinop (new LConstDWord (1), new LRegRead (cast (LReg)leftExp, new LConstDWord (0), LSize.INT), Tokens.PLUS)); // Nb ref
+	inst += new LUnop (new LRegRead (cast (LExp)rightExp, new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);
+	
 	inst += aux;
 	return inst;
     }
@@ -312,9 +312,7 @@ class StringUtils {
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
 	if (auto cst = cast (LConstString) rightExp) return affectConstStringRight (inst, leftExp, cst);
-	inst += new LWrite (new LRegRead (cast (LExp)rightExp, new LConstDWord (0), LSize.INT),
-			    new LBinop (new LConstDWord (1), new LRegRead (cast (LExp)rightExp, new LConstDWord (0), LSize.INT), Tokens.PLUS)); // Nb ref
-	
+	inst += new LUnop (new LRegRead (cast (LExp)rightExp, new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);	
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }

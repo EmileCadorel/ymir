@@ -120,6 +120,12 @@ class InfoType {
 	return null;
     }
 
+    final InfoType DotOp (string name) {
+	auto word = Word.eof;
+	word.str = name;
+	return this.DotOp (new Var (word));
+    }
+
     InfoType ParamOp () {
 	return null;
     }

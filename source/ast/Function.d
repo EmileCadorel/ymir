@@ -1,7 +1,7 @@
 module ast.Function;
 import ast.Declaration;
 import syntax.Word;
-import ast.Var, ast.Block;
+import ast.Var, ast.Block, utils.exception;
 import semantic.pack.FrameTable, semantic.pack.Table;
 import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
@@ -51,6 +51,9 @@ class Function : Declaration {
 	    auto it = Table.instance.get (this._ident.str);
 	    if (it !is null) {
 		auto fun = cast (FunctionInfo) it.type;
+		if (fun is null) {
+		    throw new ShadowingVar (this._ident, it.sym);
+		}
 		fun.insert (fr);
 		Table.instance.insert (it);
 	    } else {

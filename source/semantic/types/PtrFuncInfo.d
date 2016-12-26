@@ -147,10 +147,10 @@ class PtrFuncInfo : InfoType {
 	auto score = new ApplicationScore (token);
 	foreach (it ; 0 .. this._params.length) {
 	    InfoType info = this._params [it];	    
-	    auto type = params.params [it].info.type.CastOp (info);
-	    if (type is params.params [it].info.type) {
+	    auto type = params.params [it].info.type.CompOp (info);
+	    if (type.isSame(info)) {
 		score.score += Frame.SAME;
-		score.treat.insertBack (null);
+		score.treat.insertBack (type);
 	    } else if (type !is null) {
 		score.score += Frame.AFF;
 		score.treat.insertBack (type);
