@@ -4,7 +4,7 @@ import lint.LBinop, lint.LExp, lint.LReg, lint.LCast;
 import syntax.Tokens, lint.LSize;
 import syntax.Word, ast.Constante;
 import semantic.types.InfoType, lint.LConst;
-import lint.LVisitor;
+import lint.LVisitor, lint.LUnop;
 
 class FloatUtils {
 
@@ -153,6 +153,14 @@ class FloatUtils {
 	return new LInstList (new LConstFloat (float.infinity));
     }
 
+    static LInstList Sqrt (LInstList, LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst ();
+	inst += llist;
+	inst += new LUnop (left, Tokens.SQRT);
+	return inst;
+    }
+    
     static LInstList FloatGetStringOf (InfoType, Expression left, Expression) {
 	auto type = left.info;
 	auto inst = new LInstList;

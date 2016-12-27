@@ -120,6 +120,7 @@ class FloatInfo : InfoType {
 	else if (var.token.str == "min_exp") return MinExp ();
 	else if (var.token.str == "infinity") return Inf ();
 	else if (var.token.str == "typeid") return StringOf ();
+	else if (var.token.str == "sqrt") return Sqrt ();
 	return null;
     }
 
@@ -196,6 +197,12 @@ class FloatInfo : InfoType {
 	return fl;
     }
 
+    private InfoType Sqrt () {
+	auto fl = new FloatInfo ();
+	fl.lintInst = &FloatUtils.Sqrt;
+	return fl;
+    }
+    
     private InfoType StringOf () {
 	auto str = new StringInfo ();
 	str.lintInst = &FloatUtils.FloatStringOf;

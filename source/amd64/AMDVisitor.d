@@ -150,7 +150,7 @@ class AMDVisitor : TVisitor {
 	auto rreg = cast (AMDObj) right.where;
 	inst += right.what;
 	if (cast (AMDConst) rreg is null) {
-	    auto aux = new AMDReg (REG.getReg ("r14", rreg.sizeAmd));
+	    auto aux = new AMDReg (REG.getSwap (rreg.sizeAmd));
 	    inst += new AMDMove (cast (AMDObj) right.where, aux);
 	    inst += left.what;
 	    inst += new AMDMove (aux, cast (AMDObj) left.where);
@@ -532,7 +532,7 @@ class AMDVisitor : TVisitor {
     override protected TInstPaire visitUnop (LUnop unop) {
 	auto inst = new TInstList;
 	if (!unop.modify) {
-	    auto res = new AMDReg (REG.getReg ("r14", getSize (unop.size)));
+	    auto res = new AMDReg (REG.getSwap (getSize (unop.size)));
 	    auto exp = visitExpression (unop.elem, res);
 	    inst += exp.what;
 	    if (res != exp.where)

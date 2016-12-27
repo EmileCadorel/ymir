@@ -22,6 +22,12 @@ class AMDUnop : TInst {
 	else assert (false);
     }
 
+    private string opFloat () {
+	if (this._op == Tokens.SQRT) return "sqrt";
+	else if (this._op == Tokens.MINUS) return "neg";
+	else assert (false);
+    }
+    
     override string toString () {
 	auto buf = new OutBuffer ();
 	string op;
@@ -29,9 +35,15 @@ class AMDUnop : TInst {
 	else if (this._obj.sizeAmd == AMDSize.WORD) op = this.opInt ();
 	else if (this._obj.sizeAmd == AMDSize.DWORD) op = this.opInt ();
 	else if (this._obj.sizeAmd == AMDSize.QWORD) op = this.opInt ();
-	else if (this._obj.sizeAmd == AMDSize.SPREC) op = this.opInt ();
-	else if (this._obj.sizeAmd == AMDSize.DPREC) op = this.opInt ();
-	buf.writef ("\t%s%s\t%s", op, this._obj.sizeAmd.id, this._obj.toString ());
+	else if (this._obj.sizeAmd == AMDSize.SPREC) op = this.opFloat ();
+	else if (this._obj.sizeAmd == AMDSize.DPREC) op = this.opFloat ();
+	if (this._op == Tokens.SQRT) {
+	    buf.writef ("\t%s%s\t%s, %s", op,
+			this._obj.sizeAmd.id,
+			this._obj.toString (),
+			this._obj.toString ());
+	} else 
+	    buf.writef ("\t%s%s\t%s", op, this._obj.sizeAmd.id, this._obj.toString ());
 	return buf.toString ();
     }
     
