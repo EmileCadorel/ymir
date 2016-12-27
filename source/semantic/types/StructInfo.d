@@ -9,7 +9,7 @@ import semantic.types.PtrInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
-
+import semantic.types.BoolUtils;
 
 /**
  Le constructeur de structure
@@ -17,23 +17,40 @@ import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 class StructCstInfo : InfoType {
 
     private string _name;
-    private Array!InfoType _params;
+    private Array!TypedVar _params;
+    private Array!InfoType _types;
     private Array!string _names;
-
+    
     this (string name) {
 	this._name = name;
     }
 
-    void addAttrib (string name, InfoType type) {
-	this._names.insertBack (name);
+    void addAttrib (TypedVar type) {
 	this._params.insertBack (type);
     }
 
+    string name () {
+	return this._name;
+    }
+    
     static InfoType create (Word name, Expression [] templates) {
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
 	if (cst is null) assert (false, "Nooooon !!!");
-	if (templates.length != 0) throw new NotATemplate (name);	
-	return StructInfo.create (cst._name, cst._names, cst._params);
+	if (templates.length != 0) throw new NotATemplate (name);
+	if (cst._types.empty) {
+	    foreach (it ; cst._params) {
+		auto _st = cast (StructCstInfo) (Table.instance.get (it.type.token.str).type);
+		if (_st) {
+		    cst._types.insertBack (_st);
+		    cst._names.insertBack (it.token.str);
+		} else {
+		    cst._types.insertBack (it.getType ());
+		    cst._names.insertBack (it.token.str);
+		}
+	    }
+	}
+	
+	return StructInfo.create (cst._name, cst._names, cst._types);
     }
     
     override bool isSame (InfoType) {
@@ -52,9 +69,14 @@ class StructCstInfo : InfoType {
 	if (params.params.length != this._params.length) {
 	    return null;
 	}
+
+	Array!InfoType types;
+	Array!string names;
 	auto score = new ApplicationScore (token);
 	foreach (it ; 0 .. this._params.length) {
-	    auto info = this._params [it];
+	    auto info = this._params [it].getType ();
+	    types.insertBack (info);
+	    names.insertBack (this._params [it].token.str);
 	    auto type = params.params [it].info.type.CompOp (info);
 	    if (info.isSame (type)) {
 		score.score += Frame.SAME;
@@ -65,7 +87,7 @@ class StructCstInfo : InfoType {
 	    } else return null;
 	}
 	
-	auto ret = StructInfo.create (this._name, this._names, this._params);
+	auto ret = StructInfo.create (this._name, names, types);
 	ret.lintInstMult = &StructUtils.InstCall;
 	ret.leftTreatment = &StructUtils.InstCreateCst;
 	score.dyn = true;
@@ -73,20 +95,39 @@ class StructCstInfo : InfoType {
 	return score;
     }
 
+    
+    override string typeString () {
+	auto name = this._name ~ "(";
+	if (this._types.empty) {	    
+	    foreach (it ; this._params) {
+		if (auto _st = cast(StructCstInfo) it.getType ())
+		    name ~= _st.name ~ "(...)";
+		else if (auto _st = cast (StructInfo) it.getType ())
+		name ~= _st.name ~ "(...)";
+		else
+		    name ~= it.getType ().typeString ();
+		if (it !is this._params [$ - 1]) name ~= ", ";
+	    }
+	} else {
+	    foreach (it ; this._types) {
+		if (auto _st = cast(StructCstInfo) it)
+		    name ~= _st.name ~ "(...)";
+		else if (auto _st = cast (StructInfo) it)
+		    name ~= _st.name ~ "(...)";
+		else
+		    name ~= it.typeString ();
+		if (it !is this._types [$ - 1]) name ~= ", ";
+	    }
+	}
+	name ~= ")";
+	return name;
+    }
+
+    
     override void quit (string) {
 	InfoType.removeCreator (this._name);
     }
     
-    override string typeString () {
-	auto name = this._name ~ "(";
-	foreach (it ; this._params) {
-	    name ~= it.typeString ();
-	    if (it !is this._params [$ - 1]) name ~= ", ";
-	}
-	name ~= ")";
-	return name;
-
-    }
     
 }
 
@@ -116,12 +157,58 @@ class StructInfo : InfoType {
     string name () {
 	return this._name;
     }    
+
+    override InfoType BinaryOp (Word token, Expression right) {
+	if (token == Keys.IS) return Is (right);
+	else if (token == Keys.NOT_IS) return NotIs (right);
+	return null;
+    }
     
     override InfoType BinaryOpRight (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return AffectRight (right);
 	return null;
     }
 
+    private InfoType Is (Expression right) {
+	if (this.isSame (right.info.type)) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &StructUtils.InstEqual;
+	    return b;
+	} else if (auto _cst = cast (StructCstInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstTrue;
+	    else b.lintInst = &BoolUtils.InstFalse;
+	    return b;
+	} else if (auto _ptr = cast (PtrInfo) right.info.type) {
+	    if (_ptr && cast (VoidInfo) _ptr.content) {
+		auto b = new BoolInfo ();
+		b.lintInst = &StructUtils.InstEqual;
+		return b;
+	    }
+	}
+	return null;
+    }    
+
+    private InfoType NotIs (Expression right) {
+	if (this.isSame (right.info.type)) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &StructUtils.InstNotEqual;
+	    return b;
+	} else if (auto _cst = cast (StructCstInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstFalse;
+	    else b.lintInst = &BoolUtils.InstTrue;
+	    return b;
+	} else if (auto _ptr = cast (PtrInfo) right.info.type) {
+	    if (_ptr && cast (VoidInfo) _ptr.content) {
+		auto b = new BoolInfo ();
+		b.lintInst = &StructUtils.InstNotEqual;
+		return b;
+	    }
+	}
+	return null;
+    }    
+    
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto other = this.clone ();
@@ -130,7 +217,7 @@ class StructInfo : InfoType {
 	}
 	return null;
     }    
-
+        
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "typeid") return StringOf ();
@@ -180,6 +267,11 @@ class StructInfo : InfoType {
 
     private InfoType GetAttrib (ulong nb) {
 	auto type = this._params [nb].clone ();
+	if (auto _cst = cast (StructCstInfo) type) {
+	    auto word = Word.eof;
+	    word.str = this._name;
+	    type = _cst.create (word, []);
+	}
 	type.toGet = nb;
 	type.lintInst = &StructUtils.Attrib;
 	type.leftTreatment = &StructUtils.GetAttrib;
@@ -199,7 +291,12 @@ class StructInfo : InfoType {
     override string typeString () {
 	auto name = this._name ~ "(";
 	foreach (it ; this._params) {
-	    name ~= it.typeString ();
+	    if (auto _st = cast(StructCstInfo) it)
+		name ~= _st.name ~ "(...)";
+	    else if (auto _st = cast (StructInfo) it)
+		name ~= _st.name ~ "(...)";
+	    else
+		name ~= it.typeString ();
 	    if (it !is this._params [$ - 1]) name ~= ", ";
 	}
 	name ~= ")";

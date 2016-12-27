@@ -163,7 +163,13 @@ class StructUtils {
 	inst += llist + rlist;
 	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createAddRef ();
+	auto test = new LBinop (rightExp, new LConstQWord (0), Tokens.NOT_EQUAL);
+	auto vrai = new LLabel, faux = new LLabel;
+	inst += new LJump (test, vrai);
+	inst += new LGoto (faux);
+	inst += vrai;
 	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += faux;
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -244,6 +250,22 @@ class StructUtils {
     static LInstList Attrib (LInstList, LInstList left) {
 	return left;
     }
-    
 
+    static LInstList InstEqual (LInstList llist, LInstList rlist) {
+	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	auto inst = new LInstList;
+	inst += llist + rlist;
+	inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
+	return inst;
+    }
+    
+    static LInstList InstNotEqual (LInstList llist, LInstList rlist) {
+	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	auto inst = new LInstList;
+	inst += llist + rlist;
+	inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
+	return inst;
+    }
+
+    
 }

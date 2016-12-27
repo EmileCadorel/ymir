@@ -84,7 +84,13 @@ class BoolUtils {
     static LInstList BoolStringOf (LInstList, LInstList left) {
 	return left;
     }
-    
-    
-    
+           
+    static LInstList InstTrue (LInstList, LInstList) {
+	return new LInstList (new LConstByte (1));
+    }
+
+    static LInstList InstFalse (LInstList, LInstList) {
+	return new LInstList (new LConstByte (0));
+    }
+
 }

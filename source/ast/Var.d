@@ -46,7 +46,7 @@ class Var : Expression {
 	auto type = new Type (this._token, info.cloneForParam ());
 	return new TypedVar (this._token, type);
     }    
-
+    
     Type asType () {	
 	if (!InfoType.exist (this._token.str)) throw new UseAsType (this._token);
 	else {
@@ -102,6 +102,10 @@ class TypedVar : Var {
 	return aux;
     }
 
+    Var type () {
+	return this._type;
+    }
+    
     InfoType getType () {
 	auto type = this._type.asType ();
 	return type.info.type;

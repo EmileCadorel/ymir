@@ -1,101 +1,21 @@
-extern (C) putchar (c : char);
 
-def print (i : long) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def print (b : bool) {
-    if (b) print ('true');
-    else print ('false');
-}
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def println (i) {
-    print (i);
-    putchar ('\n');
-}
-
-def println (f : float) {
-    print (f, 3l);
-    putchar ('\n');
-}
-
-def print (a) : void {
-    putchar ('[');
-    let i = 0;
-    while (i < a.length) {
-	print (a [i]);
-	if (i < a.length - 1) print (', ');
-	i++;
-    }
-    putchar(']');
-}
-
-def print (s : string) {
+def println (s : string) {
     let i = 0;
     while (i < s.length) {
-	print (s [i]);
+	system (print_c, s[i]);
 	i++;
     }
+    system (print_c, '\n');
 }
 
-def toStr (c: char) {
-    let ret = cast:string ([c]);
-    return ret;
-}
+struct (a : B) A;
 
-def exp (x, y) {
-    if (y == 0) return 1;
-    let j = 0, f = x;
-    while (j < y - 1) {
-	f *= x;
-	j ++;
-    }
-    return f;
-}
-
-def print (a : float, prec : long) {
-    let i = cast:long (a * exp(10, prec));
-    let ret = "", inf = false;
-    if (i < 0) {
-	inf = true;
-	i = -i;
-    }
-    
-    while (i > 9) {
-	ret = toStr ((i % 10) + '0') + ret;
-	i /= 10;
-	prec --;
-	if (prec == 0) ret = "." + ret;	
-    }
-    
-    ret = toStr ((i % 10) + '0') + ret;
-    if (prec > 0) ret = "." + ret;
-    if (inf) print("-" + ret);
-    else print (ret);    
-}
+struct (a : A) B;
 
 def main () {
-    let b = 45., c = .78;
-    println (b);
-    println (c);
+    let a = A (B (null));
+    if (a.a is null)
+	println ("ici");
+    else
+	println ('la');
 }

@@ -38,8 +38,7 @@ class Struct : Declaration {
 	    InfoType.addCreator (this._ident.str);
 	    foreach (it ; this._params) {
 		if (auto ty = cast (TypedVar) it) {
-		    auto type = ty.getType ();
-		    str.addAttrib (it.token.str, type);
+		    str.addAttrib (ty);
 		} else throw new NeedAllType (this._ident, "structure");		
 	    }
 	}

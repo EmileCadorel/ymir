@@ -6,6 +6,7 @@ import semantic.types.PtrUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.StringInfo;
+import semantic.types.StructInfo;
 
 class PtrInfo : InfoType {
 
@@ -238,7 +239,14 @@ class PtrInfo : InfoType {
 	    auto ptr = this.clone ();
 	    ptr.lintInst = &PtrUtils.InstAffect;
 	    return ptr;
+	} else if (auto str = cast (StructInfo) other) {
+	    if (cast (VoidInfo) this._content) {
+		auto ret = other.clone ();
+		ret.lintInst = &PtrUtils.InstAffect;
+		return ret;
+	    }	    
 	}
+	       
 	return null;
     }
     
