@@ -98,7 +98,10 @@ class LConstQWord : LConst {
     long value () { return this._value; }
 
     override string toString () {
-	return "$(" ~ to!string (this._value) ~ ")";
+	if (this._mult != LSize.NONE) {
+	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
+	} else
+	    return "$(" ~ to!string (this._value) ~ ")";
     }
     
 }

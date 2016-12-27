@@ -1,13 +1,9 @@
-extern (C) putchar (c : char);
 
-def print (i) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }   
+struct (f : float) A;
+
+def println (i) {
+    print (i);
+    print ('\n');
 }
 
 def exp (x, y) {
@@ -71,31 +67,13 @@ def print (a : float, prec : int) {
 }
 
 def print (f : float) {
-    print (f, 2);
+    print (f, 10);
 }
 
-
-def println (i) {
-    print (i);
-    putchar ('\n');
-}
-
-def print (a : array!float) {
-    let i = 0;
-    putchar ('[');
-    while (i < a.length) {
-	print (a [i]);
-	i++;
-	if (i < a.length)
-	    putchar (' ');
-    }
-    putchar (']');    
-}
 
 def main () {
-    let a = [1., 2.];
-    a += [3., 45.34];
-    println (a);
+    let a = A (1233.);
+    println (float.sqrt);
 }
 
 

@@ -64,7 +64,9 @@ class InfoType {
     
     static InfoType factory (Word word, Expression [] templates) {
 	auto it = (word.str in creators);
-	if (it !is null) return (*it) (word, templates);
+	if (it !is null) {
+	    return (*it) (word, templates);
+	}
 	throw new UndefinedType (word);
     }
 

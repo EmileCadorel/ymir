@@ -327,7 +327,6 @@ class LVisitor {
 	
 	foreach (it ; 0 .. carray.params.length) {
 	    InfoType cster = carray.casters [it];
-	    std.stdio.writeln (carray.casters [it]);
 	    LInstList ret;
 	    if (cster) {
 		if (cster.lintInstS is null) ret = visitExpression (carray.params [it]);
@@ -338,7 +337,6 @@ class LVisitor {
 					 type.content.size);
 	    					 
 	    inst += cster.lintInst (new LInstList (regRead), ret);
-	    std.stdio.writeln ("Ici");
 	}
 	inst += aux;
 	return inst;
