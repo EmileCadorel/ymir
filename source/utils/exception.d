@@ -257,7 +257,7 @@ class UndefinedType : YmirException {
 
     this (Word token, string elem) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s %s :", Colors.RED.value, Colors.RESET.value, Colors.GREEN.value, token.str, Colors.RESET.value, elem);
+	buf.writef ("%sErreur%s: Le type %s'%s'%s %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, elem);
 	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 
 	super.addLine (buf, token.locus);

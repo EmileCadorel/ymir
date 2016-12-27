@@ -9,7 +9,7 @@ import semantic.types.PtrInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
-import semantic.types.BoolUtils;
+import semantic.types.BoolUtils, semantic.types.RefInfo;
 
 /**
  Le constructeur de structure
@@ -257,6 +257,12 @@ class StructInfo : InfoType {
 	    auto ret = this.clone ();
 	    ret.lintInst = &StructUtils.InstAffectRight;
 	    return ret;
+	} else if (auto _ref = cast (RefInfo) other) {
+	    if (this.isSame(_ref.content) && !this.isConst) {
+		auto aux = new RefInfo (this.clone ());
+		aux.lintInstS = &StructUtils.InstAddr;
+		return aux;
+	    }
 	}
 	return null;
     }

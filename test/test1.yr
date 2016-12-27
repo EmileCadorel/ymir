@@ -1,5 +1,5 @@
+struct (a : int) A;
 
-struct (left : Tree, right : Tree, key : int, value : string) Tree;
 
 def println (s : string) {
     let i = 0;
@@ -24,35 +24,20 @@ def print (i : int) : void {
     }
 }
 
-def println (r : Tree, nb : int) : void {
-    let i = 0;
-    while (i < nb) {
-	print (' ');
-	i ++;
-    }
-    print (r.key);
-    print (':');
-    println (r.value);
-    if (r.left !is null) println (r.left, nb + 4);
-    if (r.right !is null) println (r.right, nb + 4);
+def println (i) {
+    print (i);
+    print ('\n');
 }
 
-def addNode (root : Tree, node : Tree) : void {
-    if (node.key < root.key) {
-	if (root.left !is null) addNode (root.left, node);
-	else root.left = node;	
-    } else {
-	if (root.right !is null) addNode (root.right, node);
-	else root.right = node;
-    }
+
+def test (a : ref!A) {
+    a = A (2345);
 }
 
 def main () {
-    let root = Tree (null, null, 0, "Root");
-    addNode (root, Tree (null, null, -1, "Left"));
-    addNode (root, Tree (null, null, -3, "Left2"));
-    addNode (root, Tree (null, null, 1, "Right"));
-    println (root, 0);
+    let root = A (0);
+    test (root);
+    println (root.a);
 }
 
 

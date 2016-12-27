@@ -5,7 +5,7 @@ import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.RefUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
-import ast.ParamList;
+import ast.ParamList, semantic.types.StructInfo;
 
 class RefInfo : InfoType {
 
@@ -32,7 +32,10 @@ class RefInfo : InfoType {
 
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0]))
-	    throw new UndefinedType (token, "prend un type en template");
+	    if (auto _cst = cast (StructCstInfo) templates [0].info.type) {
+		return new RefInfo (_cst.create (templates [0].token, []));
+	    } else
+		throw new UndefinedType (token, "prend un type en template");
 	else return new RefInfo (templates [0].info.type);	
     }
 

@@ -275,5 +275,11 @@ class StructUtils {
 	return inst;
     }
 
-    
+    static LInstList InstAddr (LInstList llist) {
+	auto leftExp = llist.getFirst ();
+	llist += new LAddr (leftExp);
+	return llist;
+    }
+
+
 }
