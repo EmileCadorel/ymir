@@ -156,6 +156,20 @@ class StructUtils {
 	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	return inst;
     }
+
+    static LInstList InstAffect (LInstList llist, LInstList rlist) {
+	LInstList inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, rightExp);
+	return inst;
+    }    
     
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
@@ -163,13 +177,7 @@ class StructUtils {
 	inst += llist + rlist;
 	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createAddRef ();
-	auto test = new LBinop (rightExp, new LConstQWord (0), Tokens.NOT_EQUAL);
-	auto vrai = new LLabel, faux = new LLabel;
-	inst += new LJump (test, vrai);
-	inst += new LGoto (faux);
-	inst += vrai;
 	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
-	inst += faux;
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }

@@ -39,11 +39,17 @@ class StructCstInfo : InfoType {
 	if (templates.length != 0) throw new NotATemplate (name);
 	if (cst._types.empty) {
 	    foreach (it ; cst._params) {
-		auto _st = cast (StructCstInfo) (Table.instance.get (it.type.token.str).type);
-		if (_st) {
-		    cst._types.insertBack (_st);
-		    cst._names.insertBack (it.token.str);
-		} else {
+		auto printed = false;
+		auto sym = Table.instance.get (it.type.token.str);
+		if (sym) {
+		    auto _st = cast (StructCstInfo) (sym.type);
+		    if (_st) {
+			cst._types.insertBack (_st);
+			cst._names.insertBack (it.token.str);
+			printed = true;
+		    }
+		}
+		if (!printed) {
 		    cst._types.insertBack (it.getType ());
 		    cst._names.insertBack (it.token.str);
 		}
@@ -123,7 +129,10 @@ class StructCstInfo : InfoType {
 	return name;
     }
 
-    
+    override LSize size () {
+	return LSize.LONG;
+    }
+
     override void quit (string) {
 	InfoType.removeCreator (this._name);
     }
@@ -159,6 +168,7 @@ class StructInfo : InfoType {
     }    
 
     override InfoType BinaryOp (Word token, Expression right) {
+	if (token == Tokens.EQUAL) return Affect (right);
 	if (token == Keys.IS) return Is (right);
 	else if (token == Keys.NOT_IS) return NotIs (right);
 	return null;
@@ -209,6 +219,17 @@ class StructInfo : InfoType {
 	return null;
     }    
     
+    private InfoType Affect (Expression right) {
+	auto _st = cast (StructInfo) right.info.type;
+	if (_st && _st.name == this._name) {
+	    auto other = this.clone ();
+	    other.lintInst = &StructUtils.InstAffect;
+	    return other;
+	}
+	return null;
+    }
+    
+
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto other = this.clone ();
