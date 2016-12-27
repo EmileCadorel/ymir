@@ -7,7 +7,7 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, semantic.types.PtrInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 import lint.LSize, semantic.types.ClassUtils;
-import semantic.types.LongInfo;
+import semantic.types.LongInfo, semantic.types.StructInfo;
 
 class ArrayInfo : InfoType {
 
@@ -36,7 +36,10 @@ class ArrayInfo : InfoType {
 
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0])) {
-	    throw new UndefinedType (token, "prend un type en template");
+	    if (auto _cst = cast (StructCstInfo) templates [0].info.type) {
+		return new ArrayInfo (_cst.create (templates [0].token, []));
+	    } else
+		throw new UndefinedType (token, "prend un type en template");
 	} else {
 	    auto arr = new ArrayInfo (templates [0].info.type);
 	    return arr;
@@ -60,11 +63,15 @@ class ArrayInfo : InfoType {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
-	    switch (this._content.size.id) {
-	    case 1: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
-	    case 3: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
-	    case 4: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
-	    default : assert (false, "TODO");
+	    if (this._content.isDestructible) {
+		str.lintInst = &ArrayUtils.InstPlusObj;
+	    } else {
+		switch (this._content.size.id) {
+		case 1: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
+		case 3: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
+		case 4: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
+		default : assert (false, "TODO");
+		}
 	    }
 	    return str;
 	}
@@ -75,11 +82,15 @@ class ArrayInfo : InfoType {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
-	    switch (this._content.size.id) {
-	    case 1: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
-	    case 3: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
-	    case 4: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
-	    default : assert (false, "TODO");
+	    if (this._content.isDestructible) {
+		str.lintInst = &ArrayUtils.InstPlusAffObj;
+	    } else {
+		switch (this._content.size.id) {
+		case 1: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
+		case 3: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
+		case 4: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
+		default : assert (false, "TODO");
+		}
 	    }
 	    return str;
 	}

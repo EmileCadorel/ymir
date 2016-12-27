@@ -1,13 +1,12 @@
 struct (a : int) A;
 
 
-def println (s : string) {
+def print (s : string) {
     let i = 0;
     while (i < s.length) {
 	system (print_c, s[i]);
 	i++;
     }
-    system (print_c, '\n');
 }
 
 def print (c : char) {
@@ -29,15 +28,28 @@ def println (i) {
     print ('\n');
 }
 
-
-def test (a : ref!A) {
-    a = A (2345);
+def print (a : A) {
+    print ('A(');
+    print (a.a);
+    print (')');
 }
 
+def print (a : array!A) {
+    let i = 0;
+    print ('[');
+    while (i < a.length) {
+	print (a [i]);
+	if (i < a.length - 1) print (', ');
+	i ++;
+    }
+    print (']');
+}
+
+
 def main () {
-    let root = A (0);
-    test (root);
-    println (root.a);
+    let test = [A (0), A (1)];
+    test += [A (90)];
+    println (test);
 }
 
 

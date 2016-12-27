@@ -15,6 +15,7 @@ class ArrayUtils {
     static immutable string __CstNameObj__ = "_YPCstArrayObj";
     static immutable string __PlusArrayInt__ = "_YPPlusArrayInt";
     static immutable string __PlusArrayLong__ = "_YPPlusArrayLong";
+    static immutable string __PlusArrayObj__ = "_YPPlusArrayObj";
     static immutable string __DstArray__ = "_YPDstArray";
 
     /**
@@ -262,11 +263,92 @@ class ArrayUtils {
 	entry.insts += vrai2;
 	entry.insts += faux2;
 	
-	auto fr = new LFrame (__PlusArrayInt__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
-	LFrame.preCompiled [__PlusArrayInt__] = fr;
+	auto fr = new LFrame (__PlusArrayLong__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
+	LFrame.preCompiled [__PlusArrayLong__] = fr;
 	LReg.lastId = last;
     }
 
+
+    static void createPlusArrayObj () {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	auto addr1 = new LReg (LSize.LONG), addr2 = new LReg (LSize.LONG), size = new LReg (LSize.LONG);
+	auto retReg = new LReg (LSize.LONG);
+	auto entry = new LLabel (new LInstList), end = new LLabel ();
+	auto index = new LReg (LSize.LONG);
+	
+	auto globalSize = new LBinop (new LBinop (new LBinop (new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG),
+							      new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG),
+							      Tokens.PLUS),
+						  new LConstDWord (1, LSize.LONG), Tokens.STAR),
+				      new LConstDWord (3, LSize.LONG), Tokens.PLUS); // taille = (addr1 [2 * long] + addr2 [2 * long]) * long + 3 * long;
+	
+	auto index2 = new LReg (LSize.LONG);
+	entry.insts += new LSysCall ("alloc",
+				     make!(Array!LExp) ([globalSize]), retReg);
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstQWord (1));
+	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG),
+				    new LRegRead (addr1, new LConstDWord (1, LSize.LONG), LSize.LONG))); // on recupere le destructeur
+			
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (2, LSize.LONG), LSize.LONG),
+				   new LBinop (new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG),
+					       new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG),
+					       Tokens.PLUS));
+	
+	// index = 8, size = addr1.length + 8
+	entry.insts += new LWrite (index,  new LConstQWord (0));
+	entry.insts += new LWrite (size, new LRegRead (addr1, new LConstDWord (2, LSize.LONG), LSize.LONG));
+	auto test = new LBinop (index, size, Tokens.INF);
+	
+	auto debut1 = new LLabel, vrai1 = new LLabel (new LInstList), faux1 = new LLabel;
+	entry.insts += debut1;
+	entry.insts += new LJump (test, vrai1);
+	entry.insts += new LGoto (faux1);
+
+	// access = array [3 * long + size * long]
+	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.LONG), Tokens.STAR),
+								    new LConstQWord (3, LSize.LONG), Tokens.PLUS),
+						Tokens.PLUS),
+				    new LConstDWord (0), LSize.LONG);
+	
+	vrai1.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr1, new LBinop (index, new LConstQWord (1, LSize.LONG), Tokens.STAR),
+										 Tokens.PLUS),
+								     new LConstQWord (3, LSize.LONG), Tokens.PLUS)
+							 , new LConstDWord (0), LSize.LONG));
+	vrai1.insts += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (access)]), LSize.NONE);
+	
+	vrai1.insts += new LUnop (index, Tokens.DPLUS, true);
+	vrai1.insts += new LGoto (debut1);
+	entry.insts += vrai1;
+	entry.insts += faux1;
+
+	// index2 = 8;
+	entry.insts += new LWrite (index2, new LConstQWord (0));
+	entry.insts += new LWrite (size, new LRegRead (addr2, new LConstDWord (2, LSize.LONG), LSize.LONG));
+	
+	test = new LBinop (index2, size, Tokens.INF);
+	auto debut2 = new LLabel, vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
+	entry.insts += debut2;
+	entry.insts += new LJump (test, vrai2);
+	entry.insts += new LGoto (faux2);
+	
+	vrai2.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr2, new LBinop (index2, new LConstQWord (1, LSize.LONG), Tokens.STAR),
+										 Tokens.PLUS),
+								     new LConstQWord (3, LSize.LONG), Tokens.PLUS)
+							 , new LConstDWord (0), LSize.LONG));
+	vrai2.insts += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (access)]), LSize.NONE);
+	vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
+	vrai2.insts += new LUnop (index2, Tokens.DPLUS, true);
+	vrai2.insts += new LGoto (debut2);
+	entry.insts += vrai2;
+	entry.insts += faux2;
+	
+	auto fr = new LFrame (__PlusArrayObj__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
+	LFrame.preCompiled [__PlusArrayObj__] = fr;
+	LReg.lastId = last;
+    }
+
+    
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -372,8 +454,36 @@ class ArrayUtils {
 	inst += aux;
 	return inst;
     }
-
+         
+    static LInstList InstPlusObj (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	inst += llist + rlist;
+	auto it = (__PlusArrayObj__ in LFrame.preCompiled);
+	if (it is null) createPlusArrayObj ();
+	inst += new LCall (__PlusArrayObj__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
+	return inst;
+    }
     
+    static LInstList InstPlusAffObj (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	inst += llist + rlist;
+	auto it = (__PlusArrayObj__ in LFrame.preCompiled);
+	if (it is null) createPlusArrayObj ();
+	auto res = new LCall (__PlusArrayObj__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
+	auto aux = new LReg (LSize.LONG);
+	inst += new LWrite (aux, res);
+	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, aux);
+	inst += new LUnop (new LRegRead (cast (LExp) leftExp, new LConstDWord (0), LSize.LONG), Tokens.DPLUS, true);
+	inst += aux;
+	return inst;
+    }
+
+
     static LInstList InstPlus (LSize size : LSize.LONG) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
@@ -384,11 +494,12 @@ class ArrayUtils {
 	return inst;
     }
 
+    
     static LInstList InstPlusAff (LSize size : LSize.LONG) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
 	inst += llist + rlist;
-	auto it = (__PlusArrayInt__ in LFrame.preCompiled);
+	auto it = (__PlusArrayLong__ in LFrame.preCompiled);
 	if (it is null) createPlusArrayLong ();
 	auto res = new LCall (__PlusArrayLong__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	auto aux = new LReg (LSize.LONG);
@@ -431,7 +542,6 @@ class ArrayUtils {
 	inst += aux;
 	return inst;
     }
-
     
     static LInstList InstAccessS (LSize size) (LInstList llist, Array!LInstList rlists) {
 	auto inst = new LInstList;
