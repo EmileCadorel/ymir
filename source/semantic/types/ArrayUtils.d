@@ -7,7 +7,7 @@ import lint.LCast, lint.LFrame, lint.LCall, lint.LAddr;
 import semantic.types.StringUtils, lint.LSize, lint.LUnop;
 import semantic.types.ClassUtils, semantic.types.InfoType;
 import ast.Expression, lint.LVisitor, semantic.types.ArrayInfo;
-import ast.Constante, syntax.Word;
+import ast.Constante, syntax.Word, ast.ParamList;
 
 class ArrayUtils {
 
@@ -16,7 +16,8 @@ class ArrayUtils {
     static immutable string __PlusArray__ = "_YPPlusArray";
     static immutable string __PlusArrayObj__ = "_YPPlusArrayObj";
     static immutable string __DstArray__ = "_YPDstArray";
-
+    
+    
     /**
      def cstArray (size : int, ofsize : int) {
      let arr = malloc (size + 9);
@@ -264,8 +265,7 @@ class ArrayUtils {
 	auto fr = new LFrame (__PlusArrayObj__, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
 	LFrame.preCompiled [__PlusArrayObj__] = fr;
 	LReg.lastId = last;
-    }
-
+    }    
     
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
@@ -436,5 +436,35 @@ class ArrayUtils {
     }
     
     
+    static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
+	auto inst = new LInstList;
+	auto type = cast (ArrayInfo) _type;
+	auto left = LVisitor.visitExpressionOutSide (_left);
+	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	auto leftExp = left.getFirst(), rightExp = right.getFirst ();
+	inst += left + right;
+	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
+	auto faux = new LLabel;
+	auto index = new LReg (LSize.LONG);
+	auto test = new LBinop (index, new LRegRead (leftExp, new LConstDWord (2, LSize.LONG), LSize.LONG), Tokens.INF);
+	inst += new LWrite (index, new LConstDWord (0));
+	inst += debut;
+	inst += new LJump (test, vrai);
+	inst += new LGoto (faux);
+	vrai.insts += new LWrite (rightExp, new LBinop (leftExp, new LBinop (new LBinop (index, new LConstQWord (1, type.content.size), Tokens.STAR),
+									     new LConstQWord (3, LSize.LONG), Tokens.PLUS),
+							Tokens.PLUS));
+	vrai.insts += block;
+	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
+	vrai.insts += new LGoto (debut);
+	inst += vrai;
+	inst += faux;
+	return inst;
+    }
+
+    static LInstList InstApply (LInstList func, LInstList block) {
+	return func.replace ("tmp_block", block);
+    }
+
 }
 

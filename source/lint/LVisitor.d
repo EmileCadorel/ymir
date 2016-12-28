@@ -9,9 +9,11 @@ import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
 import semantic.types.ArrayUtils, std.math, std.stdio, syntax.Keys;
 import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
 import semantic.types.InfoType;
+import lint.LAddr, syntax.Word;
 
 class LVisitor {
 
+    static string __ForEachBody__ = "_YPForEachBody__";
     private LLabel [Instruction] _endLabels;
     
     Array!LFrame visit () {
@@ -106,6 +108,7 @@ class LVisitor {
 	else if (auto ret = cast(Return)elem) begin += visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin += visitIf (end, retReg, _if);
 	else if (auto _while = cast(While) elem) begin += visitWhile (end, retReg, _while);
+	else if (auto _for = cast (For) elem) begin += visitFor (end, retReg, _for);
 	else if (auto _block = cast(Block) elem) begin += visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin += visitBreak (_break);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
@@ -117,6 +120,7 @@ class LVisitor {
 	else if (auto ret = cast(Return)elem) begin.insts += visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin.insts += visitIf (end, retReg, _if);
 	else if (auto _while = cast(While)elem) begin.insts += visitWhile (end, retReg, _while);
+	else if (auto _for = cast (For) elem) begin.insts += visitFor (end, retReg, _for);
 	else if (auto _block = cast(Block) elem) begin.insts += visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin.insts += visitBreak (_break);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
@@ -185,8 +189,23 @@ class LVisitor {
 	this._endLabels.remove (_while);
 	return inst;
     }
-    
 
+    private LInstList visitFor (ref LLabel _end, ref LReg retReg, For _for) {
+	auto inst = new LInstList;
+	inst += new LLocus (_for.token.locus);
+	Array!Expression params;
+	foreach (it ; _for.vars) {
+	    params.insertBack (it);
+	}
+	
+	auto left = _for.ret.leftTreatment (_for.ret, _for.iter,
+					new ParamList (Word.eof, params));
+
+	auto block = visitBlock (_end, retReg, _for.block);
+	inst = _for.ret.lintInst (left, block);
+	return inst;
+    }
+    
     private LInstList visitElse (ref LLabel end, ref LLabel fin, ref LReg retReg, Else _else) {	
 	if (cast(ElseIf) _else is null) {
 	    auto inst =  visitBlock (end, retReg, _else.block);
@@ -420,7 +439,7 @@ class LVisitor {
 		if (par.score.treat [it] && par.score.treat [it].lintInstS) 
 		    elist = par.score.treat [it].lintInst (visitExpression (exp));
 		else
-		elist = visitExpression (exp);
+		    elist = visitExpression (exp);
 		rights.insertBack (elist);
 	    }
 	    

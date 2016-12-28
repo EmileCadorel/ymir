@@ -21,6 +21,10 @@ class LLabel : LInst {
 	this._id = __last__;
 	__last__++;
     }
+
+    this (string name) {
+	this._name = name;
+    }
     
     this (ulong id) {
 	this._id = __rename__ (id);
@@ -57,14 +61,18 @@ class LLabel : LInst {
     ref LInstList insts () {
 	return this._insts;
     }
-
+    
+    string name () {
+	return this._name;
+    }
+    
     string toSimpleString () {
 	return "lbl" ~ to!string (this._id);
     }
     
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("lbl%s:", this._id);
+	buf.writef ("lbl%s%s:", this._id, this._name ? this._name : "");
 	if (this._insts !is null)
 	    buf.write (this._insts.toString ());
 	else buf.writefln ("");

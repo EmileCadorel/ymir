@@ -305,6 +305,7 @@ class Visitor {
 	auto tok = _lex.next ();
 	if (tok == Keys.IF) return visitIf ();
 	else if (tok == Keys.RETURN) return visitReturn ();
+	else if (tok == Keys.FOR) return visitFor ();
 	else if (tok == Keys.WHILE) return visitWhile ();
 	else if (tok == Keys.LET) return visitLet ();
 	else if (tok == Keys.BREAK) return visitBreak ();
@@ -907,6 +908,38 @@ class Visitor {
 	    auto test = visitExpression ();
 	    return new While (begin, test, visitBlock ());
 	}
+    }
+
+    private Instruction visitFor () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next ();
+	Word id = Word.eof;
+	bool need = false;
+	if (next == Tokens.COLON) {
+	    id = visitIdentifiant ();
+	    next = this._lex.next ();
+	    if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	    need = true;
+	} else if (next == Tokens.LPAR) {
+	    need = true;
+	} else this._lex.rewind ();
+	Array!Var vars;
+	while (true) {	    
+	    vars.insertBack (visitVar ());
+	    next = this._lex.next ();
+	    if (next == Keys.IN) break;
+	    if (next != Tokens.COMA) throw new SyntaxError (next, [Keys.IN.descr,
+								   Tokens.COMA.descr]);
+	}
+
+	auto iter = visitExpression ();
+	if (need) {
+	    next = this._lex.next ();
+	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	}
+
+	return new For (begin, id, vars, iter, visitBlock ());
     }
     
     

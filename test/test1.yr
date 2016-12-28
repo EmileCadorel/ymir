@@ -1,101 +1,37 @@
-extern (C) putchar (c : char);
+struct (i : int) A;
 
-def print (i) : void {
+def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
 	print (- i);
     } else {
 	if (i > 9) print (i / 10);
 	system (print_c, (i%10) + '0');
-    }   
+    }
 }
 
-def exp (x, y) {
-    let i = 0;
-    let f = 1l;
-    while (i < y) {
-	f *= x;
-	i ++;
+def print (s : string) {
+    let i =0;
+    while (i < s.length) {
+	system (print_c, s [i]);
+	i++;
     }
-    return f;
 }
 
 def print (c : char) {
     system (print_c, c);
 }
 
-def print (s : string) {
-    let i = 0;
-    while (i < s.length) {
-	print (s[i]);
-	i ++;
-    }
-}
-
-def toStr (c) {
-    let ret = cast:string ([c]);
-    return ret;
-}
-
-def print (i : long) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-
-def print (a : float, prec : int) {
-    let i = cast:long (a * (exp (10, prec)));
-    let ret = "", inf = false;
-    if (i < 0) {
-	inf = true;
-	i = -i;
-    }
-
-    while (i > 9) {
-	ret = toStr((i%10) + '0') + ret;
-	i /= 10;
-	prec --;
-	if (prec == 0) ret = "." + ret;
-    }
-
-    ret = toStr((i%10) + '0') + ret;
-    if (prec >= 1) ret = "." + ret;
-
-    if (inf) print( "-" + ret);
-    else print (ret);    
-}
-
-def print (f : float) {
-    print (f, 2);
-}
-
-
-def println (i) {
-    print (i);
-    putchar ('\n');
-}
-
-def print (a : array!float) {
-    let i = 0;
-    putchar ('[');
-    while (i < a.length) {
-	print (a [i]);
-	i++;
-	if (i < a.length)
-	    putchar (' ');
-    }
-    putchar (']');    
-}
 
 def main () {
-    let a = [1., 2.];
-    a += [3., 45.34];
-    println (a);
+    let a = [1, 2, 4];
+    for it in a {
+	print (it);
+	print (' ');
+    }
+
+    print ('\n');
+    return 0;
 }
 
 

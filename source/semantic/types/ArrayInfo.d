@@ -8,11 +8,13 @@ import semantic.types.UndefInfo, semantic.types.PtrInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 import lint.LSize, semantic.types.ClassUtils;
 import semantic.types.LongInfo, semantic.types.StructInfo;
+import std.container, semantic.types.RefInfo;
+
 
 class ArrayInfo : InfoType {
 
     private InfoType _content = null;
-
+    
     this () {
 	this._content = new VoidInfo ();
 	this._destruct = &ArrayUtils.InstDestruct;
@@ -57,8 +59,18 @@ class ArrayInfo : InfoType {
 	if (token == Tokens.EQUAL) return AffectRight (left);
 	return null;
     }
-
        
+    override InfoType ApplyOp (Array!Var vars) {
+	if (vars.length != 1) return null;
+	if (!cast (UndefInfo) vars [0].info.type) return null;
+	vars [0].info.type = new RefInfo (this._content.clone ());
+	vars [0].info.type.isConst = false;
+	auto ret = this.clone ();
+	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
+	ret.lintInst = &ArrayUtils.InstApply;
+	return ret;
+    }
+
     private InfoType Plus (Expression right) {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {

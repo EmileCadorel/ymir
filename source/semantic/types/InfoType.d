@@ -45,7 +45,8 @@ class InfoType {
     private InstCompMult _lintInstMult = null;
     private bool _isConst = true;
     private ulong _toGet;
-
+    private Object [string] _supplInfos;
+    
     static InfoType function (Word, Expression[]) [string] creators;
 
     static this () {
@@ -69,7 +70,7 @@ class InfoType {
 	}
 	throw new UndefinedType (word);
     }
-
+       
     static void addCreator (string name) {
 	if (name in creators) assert (false, "Pas possible !!");
 	creators [name] = &StructCstInfo.create;
@@ -77,6 +78,10 @@ class InfoType {
 
     static void removeCreator (string name) {
 	creators.remove (name);
+    }
+
+    ref Object [string] supplInfos () {
+	return this._supplInfos;
     }
     
     ref ulong toGet () {
@@ -113,6 +118,10 @@ class InfoType {
     }
 
     ApplicationScore CallOp (Word, ParamList) {
+	return null;
+    }
+
+    InfoType ApplyOp (Array!Var) {
 	return null;
     }
     

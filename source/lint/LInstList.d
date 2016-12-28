@@ -59,6 +59,22 @@ class LInstList {
 	}
 	return this;
     }
+
+    LInstList replace (string labelName, LInstList list) {
+	Array!LInst ret;
+	foreach (it ; this._inst) {
+	    if (auto _l = cast (LLabel) it) {
+		if (_l.name == labelName) {
+		    foreach (__it__; list._inst) ret.insertBack (__it__);
+		} else {
+		    if (_l.insts)
+			_l.insts = _l.insts.replace (labelName, list);
+		    ret.insertBack (_l);
+		}
+	    } else ret.insertBack (it);
+	}
+	return new LInstList (ret);
+    }
     
     LInstList clean () {
 	Array!LInst aux;

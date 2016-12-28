@@ -170,6 +170,10 @@ class LConstFunc : LConst {
 	return this._value;
     }
 
+    override LSize size() {
+	return LSize.LONG;
+    }
+    
     override string toString () {
 	return "$" ~ this._value;
     }

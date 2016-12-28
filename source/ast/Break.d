@@ -28,7 +28,7 @@ class Break : Instruction {
 	auto aux = new Break (this._token);
 	Table.instance.retInfo.breaked ();
 	if (this._id.isEof ()) {
-	    auto nb = Table.instance.retInfo.rewind (["while"]);
+	    auto nb = Table.instance.retInfo.rewind (["while", "for"]);
 	    if (nb == -1) {
 		throw new BreakOutSideBreakable (this._token);
 	    } else

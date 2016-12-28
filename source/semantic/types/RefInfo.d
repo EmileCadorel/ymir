@@ -120,12 +120,12 @@ class RefInfo : InfoType {
 	} else {
 	    auto aux = this._content.CompOp (other);	    
 	    if (aux !is null) {
-		if (this._content.size == LSize.BYTE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.BYTE);
-		else if (this._content.size == LSize.SHORT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.SHORT);
-		else if (this._content.size == LSize.INT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.INT);
-		else if (this._content.size == LSize.LONG)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.LONG);
-		else if (this._content.size == LSize.FLOAT)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.FLOAT);
-		else if (this._content.size == LSize.DOUBLE)  aux.leftTreatment = &RefUtils.InstUnref!(LSize.DOUBLE);
+		if (this._content.size == LSize.BYTE)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.BYTE);
+		else if (this._content.size == LSize.SHORT)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.SHORT);
+		else if (this._content.size == LSize.INT)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.INT);
+		else if (this._content.size == LSize.LONG)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.LONG);
+		else if (this._content.size == LSize.FLOAT)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.FLOAT);
+		else if (this._content.size == LSize.DOUBLE)  aux.lintInstS = &RefUtils.InstUnrefS!(LSize.DOUBLE);
 		return aux;
 	    }
 	    return null;
