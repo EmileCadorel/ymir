@@ -27,11 +27,12 @@ def test () {
 		let i = 0;
 		while i < 89 {
 			if (i == 4) break loop1;
+			i ++;
 		}
 	}
 }
 
-def printTab (arr : array!int) {
+def printTab (arr : [int]) {
 	print ('[');
 	for it in arr {
 		print (it);
