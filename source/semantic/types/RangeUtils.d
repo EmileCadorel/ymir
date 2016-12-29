@@ -9,6 +9,7 @@ import semantic.types.InfoType, ast.Expression;
 import std.container, semantic.types.RangeInfo;
 import lint.LVisitor, lint.LGoto, lint.LJump;
 import lint.LUnop, ast.ParamList;
+import lint.LCast;
 
 class RangeUtils {
 
@@ -66,6 +67,21 @@ class RangeUtils {
 	return inst;
     }
 
+
+    static LInstList InstIn (LSize size) (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	auto scd = new LRegRead (rightExp, new LBinop (new LConstDWord (2, LSize.LONG),
+						      new LConstDWord (1, size),
+						      Tokens.PLUS),
+				 size);
+	auto fst = new LRegRead (rightExp, new LConstDWord (2, LSize.LONG), size);
+	inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF_EQUAL), Tokens.DAND);
+	return inst;
+    }
+
+    
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
 	auto inst = new LInstList;
 	auto type = cast (RangeInfo) _type;
@@ -91,11 +107,17 @@ class RangeUtils {
 	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel (new LInstList);
 	vrai.insts += new LJump (new LBinop (fst, scd, Tokens.INF), vrai2);
 	vrai.insts += new LGoto (faux2);
-
-	vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai2.insts += new LGoto (debut);
-	faux2.insts += new LUnop (index, Tokens.DMINUS, true);
-	faux2.insts += new LGoto (debut);
+	if (type.content.size == LSize.FLOAT || type.content.size == LSize.DOUBLE) {
+	    vrai2.insts += new LBinop (index, new LCast (new LConstDouble (1), type.content.size), index, Tokens.PLUS);
+	    vrai2.insts += new LGoto (debut);
+	    faux2.insts += new LBinop (index, new LCast (new LConstDouble (1.), type.content.size), index, Tokens.MINUS);
+	    faux2.insts += new LGoto (debut);
+	} else {
+	    vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
+	    vrai2.insts += new LGoto (debut);
+	    faux2.insts += new LUnop (index, Tokens.DMINUS, true);
+	    faux2.insts += new LGoto (debut);
+	}
 	vrai.insts += vrai2;
 	vrai.insts += faux2;
 	inst += vrai;

@@ -4,7 +4,7 @@ import semantic.types.InfoType;
 import semantic.types.BoolInfo;
 import syntax.Tokens, semantic.types.UndefInfo;
 import ast.Var, semantic.types.RangeUtils;
-import std.container;
+import std.container, syntax.Keys;
 
 class RangeInfo : InfoType {
 
@@ -46,6 +46,7 @@ class RangeInfo : InfoType {
 
     override InfoType BinaryOpRight (Word token, Expression left) {
 	if (token == Tokens.EQUAL) return AffectRight (left);
+	else if (token == Keys.IN) return In (left);
 	return null;
     }
 
@@ -53,6 +54,23 @@ class RangeInfo : InfoType {
 	if (cast (UndefInfo) left.info.type) {
 	    auto ret = this.clone ();
 	    ret.lintInst = &RangeUtils.InstAffectRight;
+
+	    return ret;
+	}
+	return null;
+    }
+
+    private InfoType In (Expression left) {
+	if (this._content.isSame (left.info.type)) {
+	    auto ret = new BoolInfo ();
+	    final switch (this._content.size.id) {
+	    case LSize.BYTE.id: ret.lintInst =  (&RangeUtils.InstIn!(LSize.BYTE)); break;
+	    case LSize.SHORT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.SHORT)); break;
+	    case LSize.INT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.INT)); break;
+	    case LSize.LONG.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.LONG)); break;
+	    case LSize.FLOAT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.FLOAT)); break;
+	    case LSize.DOUBLE.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.DOUBLE)); break;
+	    }
 	    return ret;
 	}
 	return null;

@@ -169,7 +169,7 @@ class ArrayInfo : InfoType {
     }
     
     private InfoType Access (Expression expr) {
-	if (cast (IntInfo) expr.info.type) {
+	if (cast (IntInfo) expr.info.type || cast (LongInfo) expr.info.type) {
 	    auto ch = this._content.clone ();
 	    switch (ch.size.id) {
 	    case 1: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.BYTE); break;

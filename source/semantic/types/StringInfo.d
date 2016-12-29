@@ -166,7 +166,7 @@ class StringInfo : InfoType {
     }
     
     private InfoType Access (Expression expr) {
-	if (cast(IntInfo) expr.info.type) {
+	if (cast(IntInfo) expr.info.type || cast (LongInfo) expr.info.type) {
 	    auto ch = new CharInfo;
 	    ch.lintInstMult = &StringUtils.InstAccessS;
 	    ch.isConst = false;

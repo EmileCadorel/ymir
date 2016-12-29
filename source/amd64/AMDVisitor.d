@@ -121,7 +121,7 @@ class AMDVisitor : TVisitor {
 	    auto lreg = (cast (AMDReg) right.where), rreg = (cast(AMDReg) right.where);	    
 	    if (lreg !is null && rreg !is null) {
 		if (!lreg.isStd || lreg.isOff || !rreg.isStd || rreg.isOff) {
-		    auto aux = new AMDReg (REG.getReg ("r14", lreg.sizeAmd));
+		    auto aux = new AMDReg (REG.getSwap (lreg.sizeAmd));
 		    inst += new AMDMove (cast (AMDObj)right.where, aux);
 		    inst += left.what;
 		    inst += new AMDMove (aux, cast (AMDObj) left.where);
@@ -365,71 +365,43 @@ class AMDVisitor : TVisitor {
     
     private TInstPaire visitBinopDPrec (LBinop lbin, TExp twhere) {
 	auto ret = new TInstList;
-	bool free = false;
-	AMDReg where;
-	if (lbin.res is null) {
+	bool free = false, whereFree = true;
+	AMDReg where, raux;
+	if (lbin.res is null) {	    
 	    where = cast (AMDReg) twhere;
 	    if (where.sizeAmd != AMDSize.DPREC)
 		where = new AMDReg (REG.aux (AMDSize.DPREC));
+	    raux = where;
+	    if (AMDBinop.isTest (lbin.op)) {
+		where = new AMDReg (REG.aux (AMDSize.BYTE));
+		whereFree = false;		
+	    }
 	} else {
 	    auto wh = visitExpression (lbin.res);
 	    ret += wh.what;
 	    where = cast (AMDReg) wh.where;
 	}
+	
 	auto laux = new AMDReg (REG.aux (AMDSize.DPREC));
 	auto lpaire = visitExpression (lbin.left, laux);
 	if (laux != lpaire.where) {
 	    free = true;
 	    REG.free (laux);
 	}
+	
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
-	if (cast (LRegRead) lbin.right && rpaire.where != where) {
-	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);
+	if (cast (LRegRead) lbin.right && rpaire.where != raux) {
+	    ret += new AMDMove (cast (AMDObj) rpaire.where, raux);
 	    ret += lpaire.what;
-	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, raux, lbin.op);
 	} else {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);	   
 	}
+	REG.free (raux);
+	if (!whereFree) REG.free (where);
 	if (!free) REG.free (laux);
-	return new TInstPaire (where, ret);
-    }
-
-    override protected TInstPaire visitBinopSized (LBinopSized lbin) {
-	auto ret = new TInstList;
-	bool free = false;
-	auto where = new AMDReg (REG.aux (getSize (lbin.size)));
-	where.resize (AMDSize.QWORD);
-	auto laux = new AMDReg (REG.aux ());
-	auto lpaire = visitExpression (lbin.left, laux);
-	if (laux != lpaire.where) {
-	    free = true;
-	    REG.free (laux);
-	}
-	auto rpaire = visitExpression (lbin.right, where);
-	ret += lpaire.what + rpaire.what;
-	if (!free) REG.free (laux);
-	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
-	REG.free (where);
-	return new TInstPaire (where, ret);
-    }
-
-    override protected TInstPaire visitBinopSized (LBinopSized lbin, TExp twhere) {
-	auto ret = new TInstList;
-	bool free = false;	
-	auto where = (cast (AMDReg) twhere);
-	where.resize (AMDSize.QWORD);
-	auto laux = new AMDReg (REG.aux ());
-	auto lpaire = visitExpression (lbin.left, laux);
-	if (laux != lpaire.where) {
-	    free = true;
-	    REG.free (laux);
-	}
-	auto rpaire = visitExpression (lbin.right, where);
-	ret += lpaire.what + rpaire.what;
-	if (!free) REG.free (laux);
-	ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj)rpaire.where, lbin.op);
 	return new TInstPaire (where, ret);
     }
     

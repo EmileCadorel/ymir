@@ -11,7 +11,11 @@ enum AMDSetType : SET {
     EQUALS = SET ("e"),
     NOT_EQ = SET ("ne"),
     LOWER_E = SET ("le"),
-    GREATER_E = SET ("ge")
+    GREATER_E = SET ("ge"),
+    LOWERU = SET ("b"),
+    GREATERU = SET ("a"),
+    LOWER_EU = SET ("be"),
+    GREATER_EU = SET ("ae")
 }
 
 class AMDSet : TInst {
@@ -31,6 +35,10 @@ class AMDSet : TInst {
 	else if (type == AMDSetType.EQUALS) return AMDSetType.EQUALS;
 	else if (type == AMDSetType.LOWER_E) return AMDSetType.GREATER_E;
 	else if (type == AMDSetType.GREATER_E) return AMDSetType.LOWER_E;
+        else if (type == AMDSetType.LOWERU) return AMDSetType.GREATERU;
+        else if (type == AMDSetType.GREATERU) return AMDSetType.LOWERU;
+        else if (type == AMDSetType.GREATER_EU) return AMDSetType.LOWER_EU;
+        else if (type == AMDSetType.LOWER_EU) return AMDSetType.GREATER_EU;
 	else assert (false);	
     }
 

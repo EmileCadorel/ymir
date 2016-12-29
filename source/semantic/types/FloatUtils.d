@@ -153,6 +153,14 @@ class FloatUtils {
 	return new LInstList (new LConstFloat (float.infinity));
     }
 
+    static LInstList InstInv (LInstList llist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst;
+	inst += llist;
+	inst += new LBinop (new LConstDouble (0), leftExp, Tokens.MINUS);
+	return inst;
+    }
+    
     static LInstList Sqrt (LInstList, LInstList llist) {
 	auto inst = new LInstList;
 	auto left = llist.getFirst ();

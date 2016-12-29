@@ -63,7 +63,6 @@ abstract class TVisitor {
 	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg);
 	if (auto reg = cast(LReg) elem) return visit (reg);
 	if (auto co = cast (LConst) elem) return visitConst (co);
-	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin);
 	if (auto bin = cast (LBinop) elem) return visitBinop (bin);
 	if (auto call = cast (LCall) elem) return visitCall (call);
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
@@ -76,7 +75,6 @@ abstract class TVisitor {
 	if (auto reg = cast(LRegRead) elem) return visitRegRead (reg, where);
 	if (auto reg = cast(LReg) elem) return visit (reg, where);
 	if (auto co = cast (LConst) elem) return visitConst (co, where);
-	if (auto bin = cast(LBinopSized) elem) return visitBinopSized (bin, where);
 	if (auto bin = cast (LBinop) elem) return visitBinop (bin, where);
 	if (auto call = cast (LCall) elem) return visitCall (call, where);
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);
@@ -90,8 +88,6 @@ abstract class TVisitor {
     abstract protected TReg visitReg (LReg);
     
     abstract protected TInstPaire visitBinop (LBinop);
-    
-    abstract protected TInstPaire visitBinopSized (LBinopSized);
     
     abstract protected  TInstPaire visitCall (LCall);
 
@@ -110,10 +106,6 @@ abstract class TVisitor {
     }
     
     protected TInstPaire visitBinop (LBinop, TExp) {
-	assert (false);
-    }
-    
-    protected TInstPaire visitBinopSized (LBinopSized, TExp) {
 	assert (false);
     }
     

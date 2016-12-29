@@ -28,22 +28,51 @@ class AMDBinop : TInst {
     }
 
     private bool isNormCom () {
-	return find ([Tokens.PLUS, Tokens.STAR, Tokens.XOR], this._op) != [];
+	return find ([Tokens.PLUS, Tokens.STAR, Tokens.XOR, Tokens.DAND], this._op) != [];
     }
 
     private bool isNorm () {
 	return find ([Tokens.MINUS], this._op) != [];
     }
 
-    private bool isTest () {
-	if (this._op == Tokens.INF)  opTest (AMDSetType.LOWER);
-	else if (this._op == Tokens.SUP) opTest (AMDSetType.GREATER);
-	else if (this._op == Tokens.DEQUAL) opTest (AMDSetType.EQUALS);
-	else if (this._op == Tokens.SUP_EQUAL) opTest (AMDSetType.GREATER_E);
-	else if (this._op == Tokens.INF_EQUAL) opTest (AMDSetType.LOWER_E);
-	else if (this._op == Tokens.NOT_EQUAL) opTest (AMDSetType.NOT_EQ);
+    static bool isTest (Token op) {
+	if (op == Tokens.INF)  return true;
+	else if (op == Tokens.SUP) return true;
+	else if (op == Tokens.DEQUAL) return true;
+	else if (op == Tokens.SUP_EQUAL) return true;
+	else if (op == Tokens.INF_EQUAL) return true;
+	else if (op == Tokens.NOT_EQUAL) return true;
 	else return false;
-	return true;
+    }
+    
+    private bool isTest () {
+	if (this._left.sizeAmd != AMDSize.SPREC &&
+	    this._left.sizeAmd != AMDSize.DPREC) {
+	    if (this._op == Tokens.INF)  opTest (AMDSetType.LOWER);
+	    else if (this._op == Tokens.SUP) opTest (AMDSetType.GREATER);
+	    else if (this._op == Tokens.DEQUAL) opTest (AMDSetType.EQUALS);
+	    else if (this._op == Tokens.SUP_EQUAL) opTest (AMDSetType.GREATER_E);
+	    else if (this._op == Tokens.INF_EQUAL) opTest (AMDSetType.LOWER_E);
+	    else if (this._op == Tokens.NOT_EQUAL) opTest (AMDSetType.NOT_EQ);
+	    else return false;
+	    return true;
+	}
+	return false;
+    }
+    
+    private bool isTestFloat () {
+	if (this._left.sizeAmd == AMDSize.SPREC ||
+	    this._left.sizeAmd == AMDSize.DPREC) {
+	    if (this._op == Tokens.INF)  opTestFloat (AMDSetType.LOWERU);
+	    else if (this._op == Tokens.SUP) opTestFloat (AMDSetType.GREATERU);
+	    else if (this._op == Tokens.DEQUAL) opTestFloat (AMDSetType.EQUALS);
+	    else if (this._op == Tokens.SUP_EQUAL) opTestFloat (AMDSetType.GREATER_EU);
+	    else if (this._op == Tokens.INF_EQUAL) opTestFloat (AMDSetType.LOWER_EU);
+	    else if (this._op == Tokens.NOT_EQUAL) opTestFloat (AMDSetType.NOT_EQ);
+	    else return false;
+	    return true;
+	}
+	else return false;
     }
     
     private string opInt () {
@@ -52,6 +81,7 @@ class AMDBinop : TInst {
 	else if (this._op == Tokens.DEQUAL) return "cmp";
 	else if (this._op == Tokens.STAR) return "imul";
 	else if (this._op == Tokens.XOR) return "xor";
+	else if (this._op == Tokens.DAND) return "and";
 	assert (false, "TODO " ~ this._op.descr);
     }
 
@@ -70,6 +100,7 @@ class AMDBinop : TInst {
 	if (this.isNormCom ()) this.opNormCom ();
 	else if (this.isNorm ()) this.opNorm ();
 	else if (this.isTest ()) {}
+	else if (this.isTestFloat ()) {}
 	else if (this._op == Tokens.DIV) this.opDiv ();
 	else if (this._op == Tokens.PERCENT) this.opMod ();
 	else assert (false, "TODO " ~ this._op.descr);
@@ -78,6 +109,9 @@ class AMDBinop : TInst {
     private AMDReg initLR (ref AMDReg left, ref AMDReg right, AMDObj l, AMDObj r, AMDObj res) {
 	left = cast (AMDReg) l;
 	right = cast (AMDReg) r;
+	if (l.sizeAmd != res.sizeAmd) 
+	    return new AMDReg (REG.getSwap (l.sizeAmd));
+	
 	if (!(cast (AMDReg) res) || (cast (AMDReg)res).isOff)
 	    return new AMDReg (REG.getSwap (l.sizeAmd));
 	else return cast (AMDReg) res;
@@ -121,7 +155,7 @@ class AMDBinop : TInst {
     private void opTest (AMDSetType type) {
 	AMDReg lreg, rreg;
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
-	auto fin = new AMDReg (REG.getReg (ret.name, AMDSize.BYTE));
+	auto fin = new AMDReg (REG.getReg ((cast (AMDReg)this._res).name, AMDSize.BYTE));
 	if (ret == lreg) {
 	    this._insts += new AMDCmp (this._right, ret);
 	    this._insts += new AMDSet (fin, type);
@@ -139,6 +173,19 @@ class AMDBinop : TInst {
 	    this._insts += new AMDMove (aux, this._res); 
     }
 
+    private void opTestFloat (AMDSetType type) {
+	AMDReg lreg, rreg;
+	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
+	auto fin = new AMDReg (REG.getReg ((cast (AMDReg)this._res).name, AMDSize.BYTE));
+	this._insts += new AMDMove (this._left, ret);	
+	this._insts += new AMDCmp (this._right, ret);
+	this._insts += new AMDSet (fin, type);
+	
+	auto aux = fin.clone (this._res.sizeAmd);
+	if (this._res != aux)
+	    this._insts += new AMDMove (aux, this._res); 
+    }
+    
     private void opDiv () {
 	if (this._left.sizeAmd.id <= AMDSize.QWORD.id) {
 	    AMDReg lreg, rreg;

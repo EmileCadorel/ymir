@@ -1,6 +1,7 @@
 module amd64.AMDStd;
 import target.TInst, std.conv, std.outbuffer;
 import amd64.AMDObj;
+import amd64.AMDSize;
 
 class AMDGlobal : TInst {
     private string _name;
@@ -79,10 +80,18 @@ class AMDCmp : TInst {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("\tcmp%s\t%s, %s",
-		    this._left.sizeAmd.id,
-		    this._left.toString (),
-		    this._right.toString ());
+	if (this._left.sizeAmd == AMDSize.SPREC ||
+	    this._left.sizeAmd == AMDSize.DPREC) {
+	    buf.writef ("\tucomi%s\t%s, %s",
+			this._left.sizeAmd.id,
+			this._left.toString (),
+			this._right.toString ());
+	} else {
+	    buf.writef ("\tcmp%s\t%s, %s",
+			this._left.sizeAmd.id,
+			this._left.toString (),
+			this._right.toString ());
+	}
 	return buf.toString ();
     }
 }

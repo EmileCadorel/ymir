@@ -467,6 +467,9 @@ class Visitor {
     	} else if (tok == Tokens.DDOT) {
 	    auto right = visitPth ();
 	    return visitHigh (new ConstRange (tok, left, right));
+	} else if (tok == Keys.IN) {
+	    auto right = visitPth ();
+	    return visitHigh (new Binary (tok, left, right));
 	} else _lex.rewind ();
     	return left;
     }
@@ -479,6 +482,9 @@ class Visitor {
 	} else if (tok == Tokens.DDOT) {
 	    auto right = visitPth ();
 	    return visitHigh (new ConstRange (tok, left, right));
+	} else if (tok == Keys.IN) {
+	    auto right = visitPth ();
+	    return visitHigh (new Binary (tok, left, right));
 	} else _lex.rewind ();
 	return left;
     }

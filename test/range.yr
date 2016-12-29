@@ -1,0 +1,72 @@
+extern (C) putchar (c : char);
+
+def print (c : char) putchar (c);
+
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+def print (s : string)
+    for it in s print (it);
+
+
+
+def exp (x, y) {
+    let i = 0;
+    let f = 1l;
+    while (i < y) {
+	f *= x;
+	i ++;
+    }
+    return f;
+}
+
+
+def toStr (c) {
+    let ret = cast:string ([c]);
+    return ret;
+}
+
+def print (a : float, prec : int) {
+    let i = cast:long (a * (exp (10, prec)));
+    let ret = "", inf = false;
+    if (i < 0) {
+	inf = true;
+	i = -i;
+    }
+
+    while (i > 9) {
+	ret = toStr((i%10) + '0') + ret;
+	i /= 10;
+	prec --;
+	if (prec == 0) ret = "." + ret;
+    }
+
+    ret = toStr((i%10) + '0') + ret;
+    if (prec >= 1) ret = "." + ret;
+
+    if (inf) print( "-" + ret);
+    else print (ret);    
+}
+
+def print (f : float) {
+    print (f, 3);
+}
+
+def println (elem) {
+    print (elem);
+    print ('\n');
+}
+
+def main ( ) {
+    let a = -10. .. 0.;
+    for it in a
+	println (it);       
+}
+

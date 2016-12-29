@@ -105,6 +105,17 @@ class FloatInfo : InfoType {
 	}
 	return null;
     }
+
+    override InfoType UnaryOp (Word op) {
+	if (op == Tokens.MINUS) return Inv ();
+	return null;
+    }
+
+    private InfoType Inv () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&FloatUtils.InstInv);
+	return ret;
+    }
     
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();

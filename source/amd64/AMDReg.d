@@ -225,7 +225,7 @@ class AMDRegTable {
     }
 
     static void free (AMDReg elem) {
-	if (elem.isStd && !elem.isOff) {
+	if (elem && elem.isStd && !elem.isOff) {
 	    auto reg = getInfo (elem.name);
 	    __free__ [reg.name] = true;
 	}

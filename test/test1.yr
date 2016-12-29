@@ -1,24 +1,7 @@
-struct (i : int) A;
+extern (C) putchar (c : char);
 
-def print (c : char) {
-    system (print_c, c);
+def main ( ) {
+    let a = -1.;
+
 }
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def main () {
-    for (it in 0 .. -10) {
-	print (it);
-	print ('\n');
-    }
-}
-
 
