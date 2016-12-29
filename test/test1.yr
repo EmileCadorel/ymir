@@ -11,11 +11,8 @@ def print (i : int) : void {
 }
 
 def print (s : string) {
-    let i =0;
-    while (i < s.length) {
-	system (print_c, s [i]);
-	i++;
-    }
+    for it in s
+	print (it);
 }
 
 def print (c : char) {
@@ -24,13 +21,7 @@ def print (c : char) {
 
 
 def main () {
-    let a = [1, 2, 4];
-    for it in a {
-	print (it);
-	print (' ');
-    }
-
-    print ('\n');
+    print ("salut\n");
     return 0;
 }
 

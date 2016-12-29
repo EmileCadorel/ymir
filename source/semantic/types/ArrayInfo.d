@@ -62,7 +62,6 @@ class ArrayInfo : InfoType {
        
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
-	if (!cast (UndefInfo) vars [0].info.type) return null;
 	vars [0].info.type = new RefInfo (this._content.clone ());
 	vars [0].info.type.isConst = false;
 	auto ret = this.clone ();

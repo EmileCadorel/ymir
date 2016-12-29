@@ -6,7 +6,8 @@ import semantic.types.StringUtils, ast.ParamList;
 import semantic.types.CharInfo, semantic.types.IntInfo;
 import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
 import semantic.types.RefInfo, semantic.types.ClassUtils;
-import semantic.types.LongInfo;
+import semantic.types.LongInfo, std.container;
+import semantic.types.ArrayUtils;
 
 class StringInfo : InfoType {
 
@@ -100,6 +101,16 @@ class StringInfo : InfoType {
 	return null; 
     }
 
+    override InfoType ApplyOp (Array!Var vars) {
+	if (vars.length != 1) return null;
+	vars [0].info.type = new RefInfo (new CharInfo ());
+	vars [0].info.type.isConst = false;
+	auto ret = new ArrayInfo (new CharInfo ());
+	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
+	ret.lintInst = &ArrayUtils.InstApply;
+	return ret;
+    }
+    
     override InfoType AccessOp (Word token, ParamList params) {
 	if (params.params.length == 1) {
 	    return Access (params.params [0]);
