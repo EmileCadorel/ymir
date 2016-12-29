@@ -186,9 +186,12 @@ class AMDVisitor : TVisitor {
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
-	auto res = this.resolve!(AMDConstDWord) (lread.begin);
-	if (res is null) assert (false, "TODO");
-	fin.offset = -res.value;
+	auto res = this.resolve!(AMDConst) (lread.begin);
+	if (auto _res = cast (AMDConstDWord) (res))
+	    fin.offset = -_res.value;
+	else if (auto _res = cast (AMDConstQWord) (res))
+	    fin.offset = -_res.value;      
+	else  assert (false, "TODO");
 	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }

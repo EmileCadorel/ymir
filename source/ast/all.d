@@ -26,3 +26,5 @@ public import ast.Break;
 public import ast.FuncPtr;
 public import ast.Struct;
 public import ast.For;
+public import ast.ConstArray;
+public import ast.ConstRange;

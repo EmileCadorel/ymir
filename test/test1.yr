@@ -1,5 +1,9 @@
 struct (i : int) A;
 
+def print (c : char) {
+    system (print_c, c);
+}
+
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -10,24 +14,11 @@ def print (i : int) : void {
     }
 }
 
-def print (c : char) {
-    system (print_c, c);
-}
-
-def test (a : ref! (int)) {
-    let b = a;
-}
-
-def print (s : string) {
-    for it in s
-	       print (it);       
-}
-
 def main () {
-    for:test (it in ('salut').dup) {
+    for (it in 0 .. -10) {
 	print (it);
+	print ('\n');
     }
-    return 0;
 }
 
 

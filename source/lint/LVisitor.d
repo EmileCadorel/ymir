@@ -10,6 +10,7 @@ import semantic.types.ArrayUtils, std.math, std.stdio, syntax.Keys;
 import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
 import semantic.types.InfoType;
 import lint.LAddr, syntax.Word;
+import semantic.types.RangeInfo, semantic.types.RangeUtils;
 
 class LVisitor {
 
@@ -321,6 +322,7 @@ class LVisitor {
 	if (auto _unop = cast (BefUnary) elem) return visitBefUnary (_unop);
 	if (auto _null = cast (Null) elem) return visitNull (_null);
 	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
+	if (auto _crange = cast (ConstRange) elem) return visitConstRange (_crange);
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
 	if (auto _long = cast (Long) elem) return visitLong (_long);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
@@ -375,6 +377,34 @@ class LVisitor {
 	return inst;
     }
     
+    private LInstList visitConstRange (ConstRange crange) {
+	auto type = cast (RangeInfo) crange.info.type;
+	Array!LExp params;
+	params.insertBack (new LConstQWord  (1, crange.content.size));
+	auto inst = new LInstList;
+	auto aux = new LReg (crange.info.id, type.size);
+	auto exist = (RangeUtils.__CstName__ in LFrame.preCompiled);
+	if (exist is null) RangeUtils.createCstRange ();
+	inst += new LWrite (aux, new LCall (RangeUtils.__CstName__, params, LSize.LONG));
+	
+	auto left = visitExpression (crange.left);
+	auto right = visitExpression (crange.right);
+
+	if (crange.lorr == 1) left = crange.content.lintInst (left);
+	else if (crange.lorr == 2) right = crange.content.lintInst (right);
+	
+	auto regRead = new LRegRead (aux, new LConstDWord (2, LSize.LONG), type.content.size);
+	inst += crange.content.lintInst (new LInstList (regRead), left);
+	regRead = new LRegRead (aux, new LBinop (new LConstDWord (2, LSize.LONG),
+						 new LConstDWord (1, type.content.size), Tokens.PLUS),
+				type.content.size);
+	
+	inst += crange.content.lintInst (new LInstList (regRead), right);
+	inst += aux;			      
+	return inst;
+    }
+    
+
     private LInstList visitNull (Null _null) {
 	return new LInstList (new LConstQWord (0));
     }

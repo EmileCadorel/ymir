@@ -46,8 +46,7 @@ class Visitor {
 		       Tokens.XOR, Tokens.TILDE, Tokens.MINUS,
 		       Tokens.RIGHTD];
 
-	this._highOp = [Tokens.DIV, Tokens.DDOT, Tokens.TDOT,
-			Tokens.AND, Tokens.STAR, Tokens.PERCENT,
+	this._highOp = [Tokens.DIV, Tokens.AND, Tokens.STAR, Tokens.PERCENT,
 			Tokens.DXOR, Tokens.IMPLIQUE];
 	
 	this._suiteElem = [Tokens.LPAR, Tokens.LCRO, Tokens.DOT];
@@ -465,7 +464,10 @@ class Visitor {
     	if (find!"b == a" (_highOp, tok) != []) {
     	    auto right = visitPth ();
     	    return visitHigh (new Binary (tok, left, right));
-    	} else _lex.rewind ();
+    	} else if (tok == Tokens.DDOT) {
+	    auto right = visitPth ();
+	    return visitHigh (new ConstRange (tok, left, right));
+	} else _lex.rewind ();
     	return left;
     }
 
@@ -474,6 +476,9 @@ class Visitor {
 	if (find!"b == a" (_highOp, tok) != []) {
 	    auto right = visitPth ();
 	    return visitHigh (new Binary (tok, left, right));
+	} else if (tok == Tokens.DDOT) {
+	    auto right = visitPth ();
+	    return visitHigh (new ConstRange (tok, left, right));
 	} else _lex.rewind ();
 	return left;
     }
