@@ -10,27 +10,24 @@ def print (i : int) : void {
     }
 }
 
-def print (s : string) {
-    for it in s
-	print (it);
-}
-
 def print (c : char) {
     system (print_c, c);
 }
 
-def test (a : [char]) {
-    for it in a
-	       print (it);
+def test (a : ref!int) {
+    let b = a;
+}
+def print (s : string) {
+    for it in s
+	       print (it);       
 }
 
 
 def main () {
-    let a = cast:[char] ("salut");
-    test (a);
-    let b = [char];
-    print (b[0]);
-    return 0;
+    for (it in "salut") {
+	it = 'r';
+    }
+
 }
 
 

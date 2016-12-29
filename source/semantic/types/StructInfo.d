@@ -260,7 +260,7 @@ class StructInfo : InfoType {
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (this.isSame(_ref.content) && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
-		aux.lintInstS = &StructUtils.InstAddr;
+		aux.lintInstS.insertBack (&StructUtils.InstAddr);
 		return aux;
 	    }
 	}
@@ -269,13 +269,13 @@ class StructInfo : InfoType {
     
     override InfoType ParamOp () {
 	auto ret = this.clone ();
-	ret.lintInstS = &ClassUtils.InstParam;
+	ret.lintInstS.insertBack (&ClassUtils.InstParam);
 	return ret;
     }
 
     override InfoType ReturnOp () {
 	auto ret = this.clone ();
-	ret.lintInstS = &ClassUtils.InstReturn;
+	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return ret;
     }    
     

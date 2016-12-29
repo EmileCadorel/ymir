@@ -348,8 +348,9 @@ class LVisitor {
 	    InfoType cster = carray.casters [it];
 	    LInstList ret;
 	    if (cster) {
-		if (cster.lintInstS is null) ret = visitExpression (carray.params [it]);
-		else ret = cster.lintInst (visitExpression (carray.params [it]));
+		ret = visitExpression (carray.params [it]);
+		foreach (nb ; 0 .. cster.lintInstS.length)
+		    ret = cster.lintInst (ret, nb);		
 	    } else ret = visitExpression (carray.params [it]);
 	    auto regRead = new LRegRead (aux,
 					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (3, LSize.LONG), Tokens.PLUS),
@@ -366,7 +367,10 @@ class LVisitor {
     }
 
     private LInstList visitBefUnary (BefUnary unary) {
-	return unary.info.type.lintInst (visitExpression (unary.elem));
+	auto ret = visitExpression (unary.elem);
+	foreach (it ; 0 .. unary.info.type.lintInstS.length) 
+	    ret = unary.info.type.lintInst (ret, it);
+	return ret;
     }
     
     private LInstList visitStr (String elem) {
@@ -436,10 +440,11 @@ class LVisitor {
 	    foreach (it ; 0 .. par.params.length) {
 		Expression exp = par.params [it];
 		LInstList elist;
-		if (par.score.treat [it] && par.score.treat [it].lintInstS) 
-		    elist = par.score.treat [it].lintInst (visitExpression (exp));
-		else
-		    elist = visitExpression (exp);
+		elist = visitExpression (exp);
+		if (par.score.treat [it]) 
+		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length) 
+			elist = par.score.treat [it].lintInst (elist, nb);
+
 		rights.insertBack (elist);
 	    }
 	    
@@ -452,10 +457,11 @@ class LVisitor {
 	    foreach (it ; 0 .. par.params.length) {
 		Expression exp = par.params [it];
 		LInstList elist;
-		if (par.score.treat [it] && par.score.treat [it].lintInstS) 
-		    elist = par.score.treat [it].lintInst (visitExpression (exp));
-		else
 		elist = visitExpression (exp);
+		if (par.score.treat [it]) 
+		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length)
+			elist = par.score.treat [it].lintInst (elist, nb);
+		
 		exprs.insertBack (elist.getFirst ());
 		list += elist;
 	    }
@@ -527,11 +533,17 @@ class LVisitor {
 	if (bin.info.type.leftTreatment !is null) 
 	    left = bin.info.type.leftTreatment (bin.info.type, bin.left, bin.right);
 	else left = visitExpression (bin.left);
-	
+
+	foreach (nb ; 0 .. bin.info.type.lintInstS.length)
+	    left = bin.info.type.lintInst (left, nb);
+		
 	if (bin.info.type.rightTreatment !is null)
 	    right = bin.info.type.rightTreatment (bin.info.type, bin.left, bin.right);
 	else right = visitExpression (bin.right);
-	    
+	
+	foreach (nb ; 0 .. bin.info.type.lintInstSR.length)
+	    right = bin.info.type.lintInstR (right, nb);
+	
 	auto ret = bin.info.type.lintInst (left, right);
 	ret.back.locus = bin.token.locus;
 	if (bin.info.isDestructible && bin.info.id != 0) {

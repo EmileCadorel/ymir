@@ -18,13 +18,6 @@ class RefUtils {
 	return inst;
     }
 
-    static LInstList InstUnref (LSize size) (InfoType, Expression left, Expression) {
-	auto inst = LVisitor.visitExpressionOutSide (left);
-	auto leftExp = inst.getFirst ();
-	inst += new LRegRead (leftExp, new LConstDWord (0), size);
-	return inst;
-    }    
-
     static LInstList InstUnrefS (LSize size) (LInstList llist) {
 	auto leftExp = llist.getFirst ();
 	return new LInstList (new LRegRead (leftExp, new LConstDWord (0), size));

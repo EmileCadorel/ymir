@@ -95,7 +95,7 @@ class LongInfo : InfoType {
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.MINUS) {
 	    auto ret = new LongInfo;
-	    ret.lintInstS = &LongUtils.InstUnop !(Tokens.MINUS);
+	    ret.lintInstS.insertBack (&LongUtils.InstUnop !(Tokens.MINUS));
 	    return ret;
 	} else if (op == Tokens.AND && !this.isConst) return toPtr ();
 	else if (op == Tokens.DPLUS && !this.isConst) return pplus ();
@@ -107,15 +107,15 @@ class LongInfo : InfoType {
 	if (cast(LongInfo)other !is null) return this;
 	else if (cast(BoolInfo) other !is null) {
 	    auto aux = new BoolInfo;
-	    aux.lintInstS = &LongUtils.InstCastBool;
+	    aux.lintInstS.insertBack (&LongUtils.InstCastBool);
 	    return aux;
 	} else if (cast (CharInfo) other !is null) {
 	    auto aux = new CharInfo;
-	    aux.lintInstS = &LongUtils.InstCastChar;
+	    aux.lintInstS.insertBack (&LongUtils.InstCastChar);
 	    return aux;
 	} else if (cast (IntInfo) other !is null) {
 	    auto aux = new IntInfo ();
-	    aux.lintInstS = &LongUtils.InstCastInt;
+	    aux.lintInstS.insertBack (&LongUtils.InstCastInt);
 	    return aux;
 	}
 	return null;
@@ -129,7 +129,7 @@ class LongInfo : InfoType {
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (LongInfo) _ref.content && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
-		aux.lintInstS = &LongUtils.InstAddr;
+		aux.lintInstS.insertBack (&LongUtils.InstAddr);
 		return aux;
 	    }
 	}
@@ -139,19 +139,19 @@ class LongInfo : InfoType {
     private InfoType toPtr () {
 	auto other = new PtrInfo ();
 	other.content = new LongInfo ();
-	other.lintInstS = &LongUtils.InstAddr;
+	other.lintInstS.insertBack (&LongUtils.InstAddr);
 	return other;
     }
 
     private InfoType pplus () {
 	auto other = new LongInfo ();
-	other.lintInstS = &LongUtils.InstPplus;
+	other.lintInstS.insertBack (&LongUtils.InstPplus);
 	return other;
     }
 
     private InfoType ssub () {
 	auto other = new LongInfo ();
-	other.lintInstS = &LongUtils.InstSsub;
+	other.lintInstS.insertBack (&LongUtils.InstSsub);
 	return other;
     }
 

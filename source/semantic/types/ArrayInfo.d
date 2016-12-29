@@ -123,13 +123,13 @@ class ArrayInfo : InfoType {
 
     override InfoType ParamOp () {
 	auto str = new ArrayInfo (this._content.clone);
-	str.lintInstS = &ClassUtils.InstParam;
+	str.lintInstS.insertBack (&ClassUtils.InstParam);
 	return str;
     }
     
     override InfoType ReturnOp () {
 	auto str = new ArrayInfo (this._content.clone);
-	str.lintInstS = &ClassUtils.InstReturn;
+	str.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return str;
     }
 
@@ -225,7 +225,7 @@ class ArrayInfo : InfoType {
 	    return this;
 	} else if (cast(StringInfo) other && cast(CharInfo) this._content) {
 	    auto _other = new StringInfo ();
-	    _other.lintInstS = &ArrayUtils.InstCastString;
+	    _other.lintInstS.insertBack (&ArrayUtils.InstCastString);
 	    _other.setDestruct (null);
 	    return _other;
 	}

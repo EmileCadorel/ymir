@@ -10,6 +10,7 @@ import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
 import semantic.types.LongInfo, semantic.types.StructInfo;
+import std.container;
 
 alias LInstList function (LInstList, LInstList) InstComp;
 alias LInstList function (LInstList, Array!LInstList) InstCompMult;
@@ -40,7 +41,9 @@ class InfoType {
     private InstPreTreatment _leftTreatment = null;
     private InstPreTreatment _rightTreatment = null;
     private InstComp _lintInst = null;
-    private InstCompS _lintInstS = null;
+    private Array!(InstCompS) _lintInstS;
+    private Array!(InstCompS) _lintInstSR;
+    
     protected InstCompS _destruct = null;
     private InstCompMult _lintInstMult = null;
     private bool _isConst = true;
@@ -200,10 +203,14 @@ class InfoType {
 	return this._lintInst;
     }
 
-    ref InstCompS lintInstS () {
+    ref Array!InstCompS lintInstS () {
 	return this._lintInstS;
     }
-
+    
+    ref Array!InstCompS lintInstSR () {
+	return this._lintInstSR;
+    }
+    
     InfoType destruct () {
 	return null;
     }
@@ -231,8 +238,13 @@ class InfoType {
     }
 
     /// Utilisé pour les operateur unaire
-    LInstList lintInst (LInstList left) {
-	return this._lintInstS (left);
+    LInstList lintInst (LInstList left, ulong nb = 0) {
+	return this._lintInstS [$ - nb - 1] (left);
+    }
+    
+    /// Utilisé pour les operateur unaire
+    LInstList lintInstR (LInstList left, ulong nb = 0) {
+	return this._lintInstSR [$ - nb - 1] (left);
     }
 
     /// Utilisé pour les destructeur

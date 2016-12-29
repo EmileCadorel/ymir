@@ -36,7 +36,7 @@ class BoolInfo : InfoType {
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.NOT) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInstS = &BoolUtils.InstXor;
+	    ret.lintInstS.insertBack (&BoolUtils.InstXor);
 	    return ret;
 	} else if (op == Tokens.AND) return toPtr ();
 	return null;
@@ -45,7 +45,7 @@ class BoolInfo : InfoType {
     private InfoType toPtr () {
 	auto ptr = new PtrInfo ();
 	ptr.content = new BoolInfo ();
-	ptr.lintInstS = &BoolUtils.InstAddr;
+	ptr.lintInstS.insertBack (&BoolUtils.InstAddr);
 	return ptr;
     }
     
@@ -111,11 +111,11 @@ class BoolInfo : InfoType {
 	if (cast(BoolInfo)other) return this;
 	else if (cast (CharInfo) other) {
 	    auto aux = new CharInfo;
-	    aux.lintInstS = &BoolUtils.InstCastChar ;
+	    aux.lintInstS.insertBack (&BoolUtils.InstCastChar);
 	    return aux;
 	} else if (cast (IntInfo) other) {
 	    auto aux = new IntInfo;
-	    aux.lintInstS = &BoolUtils.InstCastInt;
+	    aux.lintInstS.insertBack (&BoolUtils.InstCastInt);
 	    return aux;
 	}
 	return null;

@@ -18,13 +18,13 @@ class StringInfo : InfoType {
     override InfoType CompOp (InfoType other) {
 	if (cast (StringInfo) other || cast (UndefInfo) other) {
 	    auto ret = new StringInfo ();
-	    ret.lintInstS = &StringUtils.InstComp;
+	    ret.lintInstS.insertBack (&StringUtils.InstComp);
 	    ret.lintInst = &StringUtils.InstAffectRight;
 	    return ret;
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (StringInfo) _ref.content  && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
-		aux.lintInstS = &StringUtils.InstAddr;
+		aux.lintInstS.insertBack (&StringUtils.InstAddr);
 		return aux;
 	    }
 	}
@@ -95,7 +95,7 @@ class StringInfo : InfoType {
 	if (type && cast (CharInfo) type.content) {
 	    auto other = new ArrayInfo (new CharInfo);
 	    other.setDestruct (null);
-	    other.lintInstS = &StringUtils.InstCastArray;
+	    other.lintInstS.insertBack (&StringUtils.InstCastArray);
 	    return other;
 	}
 	return null; 
@@ -104,7 +104,7 @@ class StringInfo : InfoType {
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
 	vars [0].info.type = new RefInfo (new CharInfo ());
-	vars [0].info.type.isConst = false;
+	vars [0].info.type.isConst = this.isConst;
 	auto ret = new ArrayInfo (new CharInfo ());
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
 	ret.lintInst = &ArrayUtils.InstApply;
@@ -129,13 +129,13 @@ class StringInfo : InfoType {
 
     override InfoType ParamOp () {
 	auto str = new StringInfo ();
-	str.lintInstS = &ClassUtils.InstParam;
+	str.lintInstS.insertBack (&ClassUtils.InstParam);
 	return str;
     }
 
     override InfoType ReturnOp () {
 	auto str = new StringInfo ();
-	str.lintInstS = &ClassUtils.InstReturn;
+	str.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return str;
     }
     

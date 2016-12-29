@@ -87,11 +87,11 @@ class FloatInfo : InfoType {
 	if (cast(FloatInfo)other !is null) return this;
 	else if (cast (LongInfo) other !is null) {
 	    auto l = new LongInfo ();
-	    l.lintInstS = &FloatUtils.InstCastLong;
+	    l.lintInstS.insertBack (&FloatUtils.InstCastLong);
 	    return l;
 	} else if (cast (IntInfo) other !is null) {
 	    auto i = new IntInfo ();
-	    i.lintInstS = &FloatUtils.InstCastInt;
+	    i.lintInstS.insertBack (&FloatUtils.InstCastInt);
 	    return i;
 	}
 	return null;

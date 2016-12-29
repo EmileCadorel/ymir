@@ -69,7 +69,7 @@ class IntInfo : InfoType {
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.MINUS) {
 	    auto ret = new IntInfo ();
-	    ret.lintInstS = &IntUtils.InstUnop !(Tokens.MINUS);
+	    ret.lintInstS.insertBack (&IntUtils.InstUnop !(Tokens.MINUS));
 	    return ret;
 	} else if (op == Tokens.AND && !this.isConst) return toPtr ();
 	else if (op == Tokens.DPLUS && !this.isConst) return pplus ();
@@ -81,11 +81,11 @@ class IntInfo : InfoType {
 	if (cast(IntInfo)other !is null) return this;
 	else if (cast(BoolInfo) other !is null) {
 	    auto aux = new BoolInfo;
-	    aux.lintInstS = &IntUtils.InstCastBool;
+	    aux.lintInstS.insertBack (&IntUtils.InstCastBool);
 	    return aux;
 	} else if (cast (CharInfo) other !is null) {
 	    auto aux = new CharInfo;
-	    aux.lintInstS = &IntUtils.InstCastChar;
+	    aux.lintInstS.insertBack (&IntUtils.InstCastChar);
 	    return aux;
 	}
 	return null;
@@ -99,7 +99,7 @@ class IntInfo : InfoType {
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (IntInfo) _ref.content && !this.isConst) {
 		auto aux = new RefInfo (this.clone ());
-		aux.lintInstS = &IntUtils.InstAddr;
+		aux.lintInstS.insertBack (&IntUtils.InstAddr);
 		return aux;
 	    }
 	}
@@ -109,19 +109,19 @@ class IntInfo : InfoType {
     private InfoType toPtr () {
 	auto other = new PtrInfo ();
 	other.content = new IntInfo ();
-	other.lintInstS = &IntUtils.InstAddr;
+	other.lintInstS.insertBack (&IntUtils.InstAddr);
 	return other;
     }
 
     private InfoType pplus () {
 	auto other = new IntInfo ();
-	other.lintInstS = &IntUtils.InstPplus;
+	other.lintInstS.insertBack (&IntUtils.InstPplus);
 	return other;
     }
 
     private InfoType ssub () {
 	auto other = new IntInfo ();
-	other.lintInstS = &IntUtils.InstSsub ;
+	other.lintInstS.insertBack (&IntUtils.InstSsub);
 	return other;
     }
     
