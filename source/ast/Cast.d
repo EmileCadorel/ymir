@@ -5,9 +5,16 @@ import ast.Var;
 import syntax.Word, utils.YmirException, utils.exception;
 import semantic.pack.Symbol;
 
+
+/**
+ Classe généré par la syntaxe : 'cast' ':' type '(' exp ')'
+ */
 class Cast : Expression {
-    
+
+    /// Le type vers lequel on cast
     private Var _type;
+
+    /// L'expression a caster
     private Expression _expr;
 
     this (Word begin, Var type, Expression expr) {

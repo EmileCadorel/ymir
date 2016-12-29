@@ -154,6 +154,7 @@ class StringInfo : InfoType {
     private InfoType Dup () {
 	auto str = new StringInfo ();
 	str.lintInst = &StringUtils.InstDup;
+	str.isConst = false;
 	return str;
     }
     

@@ -14,20 +14,20 @@ def print (c : char) {
     system (print_c, c);
 }
 
-def test (a : ref!int) {
+def test (a : ref! (int)) {
     let b = a;
 }
+
 def print (s : string) {
     for it in s
 	       print (it);       
 }
 
-
 def main () {
-    for (it in "salut") {
-	it = 'r';
+    for:test (it in ('salut').dup) {
+	print (it);
     }
-
+    return 0;
 }
 
 

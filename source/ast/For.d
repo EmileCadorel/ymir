@@ -17,7 +17,8 @@ class For : Instruction {
     private Expression _iter;
     private Block _block;
     private InfoType _ret;
-    
+    private Array!Symbol _dest;
+
     this (Word token, Word id, Array!Var var, Expression iter, Block block) {
 	super (token);
 	this._id = id;
@@ -36,6 +37,10 @@ class For : Instruction {
     
     InfoType ret () {
 	return this._ret;
+    }
+
+    ref Array!Symbol dest () {
+	return this._dest;
     }
     
     Block block () {
@@ -66,7 +71,7 @@ class For : Instruction {
 	auto bl = this._block.block;
 	auto res = new For (this._token, this._id, aux, expr, bl);
 	res._ret = type;
-	Table.instance.quitBlock ();
+	res._dest = Table.instance.quitBlock ();
 	return res;
     }
     

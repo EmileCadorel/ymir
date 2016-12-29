@@ -5,12 +5,21 @@ import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 
-class Access : Expression {
 
-    private Word _end;
+/**
+ Classe généré par la syntaxe : expression ('[' ParamList ']')
+
+*/
+class Access : Expression {
+    
+    /// Le token qui contient le crochet fermant pour l'affichage d'erreur plus claire
+    private Word _end; 
+
+    /// Les paramètre contenu entre les crochets
     private ParamList _params;
+
+    /// L'élement auquel on accède
     private Expression _left;
-    private ApplicationScore _score;
 
     this (Word word, Word end, Expression left, ParamList params) {
 	super (word);
@@ -24,6 +33,7 @@ class Access : Expression {
 	this._end = end;
     }
 
+    /// Vérification sémantique
     override Expression expression () {
 	auto aux = new Access (this._token, this._end);
 	aux._params = (cast(ParamList) this._params.expression ());
@@ -38,10 +48,12 @@ class Access : Expression {
 	return aux;
     }
 
+    /// Le getter de l'expression accédé
     Expression left () {
 	return this._left;
     }
-    
+
+    /// le getter de paramètre de l'accés
     Array!Expression params () {
 	return this._params.params;
     }

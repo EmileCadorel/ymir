@@ -5,10 +5,15 @@ import std.stdio, std.string, utils.exception;
 import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList, std.conv;
 
+/**
+ Classe généré par la syntaxe : 'break' exp? ';'
+*/
 class Break : Instruction {
 
     private Word _id;
-    private ulong _nbBlock; // le nombre de block a remonter
+    
+    /// le nombre de block a remonter
+    private ulong _nbBlock; 
     
     this (Word token) {
 	super (token);
@@ -23,7 +28,8 @@ class Break : Instruction {
     ulong nbBlock () {
 	return this._nbBlock;
     }
-    
+
+    /// Vérification sémantique
     override Instruction instruction () {
 	auto aux = new Break (this._token);
 	Table.instance.retInfo.breaked ();

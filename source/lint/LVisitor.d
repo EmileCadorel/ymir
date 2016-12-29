@@ -15,7 +15,10 @@ class LVisitor {
 
     static string __ForEachBody__ = "_YPForEachBody__";
     private LLabel [Instruction] _endLabels;
-    
+
+    /**
+     On visite toutes les frames sémantiques
+     */    
     Array!LFrame visit () {
 	Array!LFrame frames;
 	foreach (it ; FrameTable.instance.finals) {
@@ -32,6 +35,9 @@ class LVisitor {
 	return frames;
     }
 
+    /**
+     On visite une frame généré par l'analyse sémantique et on la transforme en lint
+     */
     private LFrame visit (FinalFrame semFrame) {
 	LLabel entry = new LLabel, end = new LLabel;
 	LReg retReg = null;
@@ -186,7 +192,7 @@ class LVisitor {
 	vrai.insts.clean ();
 	inst += vrai;
 	inst += faux;
-	this._endLabels.remove (_while);
+	this._endLabels.remove (_while.block);
 	return inst;
     }
 
@@ -201,8 +207,15 @@ class LVisitor {
 	auto left = _for.ret.leftTreatment (_for.ret, _for.iter,
 					new ParamList (Word.eof, params));
 
+	this._endLabels [_for.block] = cast (LLabel) left.back ();
 	auto block = visitBlock (_end, retReg, _for.block);
+	this._endLabels.remove (_for.block);
 	inst = _for.ret.lintInst (left, block);
+	
+	foreach (it ; _for.dest) {
+	    inst += it.destruct ();
+	}
+
 	return inst;
     }
     
