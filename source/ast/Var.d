@@ -4,6 +4,7 @@ import syntax.Word, std.container, semantic.types.InfoType;
 import std.stdio, std.string, std.outbuffer, utils.YmirException;
 import semantic.pack.Symbol;
 import utils.exception;
+import semantic.types.ArrayInfo;
 
 class Var : Expression {
 
@@ -25,7 +26,7 @@ class Var : Expression {
 	}
 	writef (")");
     }
-
+    
     override Var expression () {
 	if (!isType && this._templates.length == 0) {
 	    auto aux = new Var (this._token);
@@ -83,6 +84,36 @@ class Var : Expression {
     
     
 }
+
+class ArrayVar : Var {
+
+    private Var _content;
+    
+    this (Word token, Var content) {
+	super (token);
+	this._content = content;
+    }
+
+    override Var expression () {
+	auto content = this._content.asType ();
+	auto tok = Word (this.token.locus, "", false);
+	tok.str = this.token.str ~ this._content.token.str ~ "]";
+	return new Type (tok, new ArrayInfo (content.info.type));
+    }
+    
+    override Type asType () {
+	auto content = this._content.asType ();
+	auto tok = Word (this.token.locus, "", false);
+	tok.str = this.token.str ~ this._content.token.str ~ "]";
+	return new Type (tok, new ArrayInfo (content.info.type));
+    }
+    
+    override bool isType () {
+	return true;
+    }    
+
+}
+
 
 class TypedVar : Var {
 

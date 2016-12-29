@@ -19,9 +19,17 @@ def print (c : char) {
     system (print_c, c);
 }
 
+def test (a : [char]) {
+    for it in a
+	       print (it);
+}
+
 
 def main () {
-    print ("salut\n");
+    let a = cast:[char] ("salut");
+    test (a);
+    let b = [char];
+    print (b[0]);
     return 0;
 }
 

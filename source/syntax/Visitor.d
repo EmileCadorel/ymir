@@ -197,12 +197,19 @@ class Visitor {
 	} else _lex.rewind ();
 	return new Var (ident);
     }
-
+    
     
     /**
      type := Identifiant ('!' (('(' expression (',' expression)* ')') | expression ) 
      */
     private Var visitType () {
+	auto begin = this._lex.next ();
+	if (begin == Tokens.LCRO) {
+	    auto type = visitType ();
+	    auto end = this._lex.next ();
+	    if (end != Tokens.RCRO) throw new SyntaxError (end, [Tokens.RCRO.descr]);
+	    return new ArrayVar (begin, type);
+	} else this._lex.rewind ();
 	auto ident = visitIdentifiant ();
 	auto next = _lex.next ();
 	if (next == Tokens.NOT) {

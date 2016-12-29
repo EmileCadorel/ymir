@@ -19,6 +19,8 @@ class Cast : Expression {
     override Expression expression () {
 	auto type = this._type.asType ();
 	auto expr = this._expr.expression ();
+	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
+	
 	auto info = expr.info.type.CastOp (type.info.type);
 	if (info is expr.info.type) {
 	    Warning.instance.warning_at (this._token.locus,

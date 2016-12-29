@@ -197,6 +197,17 @@ class UseAsType : YmirException {
     }
 }
 
+class UseAsVar : YmirException {
+    this (Word token, Symbol info) {
+	OutBuffer buf = new OutBuffer;
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s : '%s%s%s' est un type : '%s%s%s'", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, info.typeString, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+}
+
 
 class ShadowingVar : YmirException {
     this (Word token, Word token2) {

@@ -7,6 +7,7 @@ import std.stdio, std.string, utils.exception, std.conv;
 import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
 import semantic.types.LongInfo, semantic.types.UndefInfo;
+import ast.Var;
 
 class Int : Expression {
     this (Word word) {
@@ -333,6 +334,17 @@ class ConstArray : Expression  {
 		it = it.expression;
 	    }
 
+	    if (aux._params.length == 1) {
+		auto type = cast (Type) aux._params [0];
+		if (type) {
+		    auto tok = Word (this.token.locus,
+				     this.token.str,
+				     false);
+		    tok.str = this.token.str ~ type.token.str ~ "]";
+		    return new Type (tok, new ArrayInfo (type.info.type));
+		}
+	    }
+	    
 	    auto begin = new Symbol(false, this._token, new UndefInfo ());
 	    foreach (fst ; 0 .. aux._params.length) {		
 		auto cmp = aux._params [fst].info.type.CompOp (begin.type);

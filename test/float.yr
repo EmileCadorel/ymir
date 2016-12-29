@@ -73,7 +73,7 @@ def print (f : float) {
 
 def main () {
     let a = A (1233.);
-    println (float.sqrt);
+    println (a.f.sqrt);
 }
 
 
