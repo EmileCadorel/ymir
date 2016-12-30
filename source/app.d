@@ -6,11 +6,14 @@ import std.container, amd64.AMDVisitor, std.path;
 import syntax.Lexer, target.TRodata, std.process;
 import std.algorithm;
 import utils.Options, std.file;
-
+import semantic.pack.Table;
+import semantic.pack.Frame;
 
 void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
+    Table.instance.purge ();
+    Table.instance.setCurrentSpace (Frame.mangle (file));
     prog.declare ();
     
     auto error = 0;

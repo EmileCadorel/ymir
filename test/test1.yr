@@ -1,15 +1,12 @@
 extern (C) putchar (c : char);
 struct (t : Test) Test;
 
-def fibo (n : int) : long {
+def fibo (n : int) {
     if (n < 2) return n;
     else return fibo (n - 1) + fibo (n - 2);
 }
 
 def main ( ) {
-    if (true) {
-	return 10;
-    }
-    return 1l;
+    let a = fibo (10 + 1);
 }
 

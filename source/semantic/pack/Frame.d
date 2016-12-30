@@ -104,7 +104,7 @@ class Frame {
 	return null;
     }
 
-    string mangle (string name) {
+    static string mangle (string name) {
 	string s = "";
 	foreach (it ; name) {
 	    if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) {
@@ -116,6 +116,10 @@ class Frame {
 
     Function func () {
 	return this._function;
+    }
+
+    Word ident () {
+	return this._function.ident;
     }
     
 }

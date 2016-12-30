@@ -13,3 +13,4 @@ clean:
 
 install: final
 	cp ymir ${HOME}/libs/ymir
+	make clean

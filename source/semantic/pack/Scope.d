@@ -7,8 +7,8 @@ import std.algorithm;
 class Scope {
 
     Symbol [string] _local;
-    Array!Symbol _garbage;
-
+    Array!Symbol _garbage;    
+    
     this () {}
 
     Symbol opIndex (string name) {
@@ -24,7 +24,11 @@ class Scope {
     void garbage (Symbol info) {
 	this._garbage.insertBack (info);
     }
-    
+
+    void clear () {
+	this._local.clear ();
+	this._garbage.clear ();
+    }    
     
     Array!Symbol quit (string namespace) {
 	foreach (key, value; this._local) {

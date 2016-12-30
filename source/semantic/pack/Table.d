@@ -7,6 +7,7 @@ class Table {
 
     private SList!FrameScope _frameTable;
     private Scope _globalScope;
+    private string _namespace;
     
     private this () {
 	_globalScope = new Scope ();
@@ -25,7 +26,10 @@ class Table {
     }
 
     void setCurrentSpace (string space) {
-	this._frameTable.front ().namespace = space;
+	if (!this._frameTable.empty) 
+	    this._frameTable.front ().namespace = space;
+	else
+	    this._namespace = space;
     }
     
     void enterFrame (string space, ulong nbParam) {
@@ -42,7 +46,7 @@ class Table {
     }
 
     string namespace() {
-	if (this._frameTable.empty) return "";
+	if (this._frameTable.empty) return this._namespace;
 	else return this._frameTable.front.namespace;
     }
 
@@ -62,6 +66,11 @@ class Table {
 	else this._globalScope.garbage (info);
     }
 
+    void purge () {
+	this._globalScope.clear ();
+	this._frameTable.clear ();
+    }
+    
     Symbol get (string name) {
 	if (this._frameTable.empty) return this._globalScope [name];
 	auto ret = this._frameTable.front [name];

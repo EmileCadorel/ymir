@@ -46,9 +46,9 @@ class Lexer {
     /**
      Active un token skip
      Params:
-     elem, le token a passe
-     on, active ou non     
-     */
+           elem = le token a passe
+	   on = active ou non     
+    */
     void skipEnable (Token elem, bool on = true) {
 	this._skips [elem] = on;
     }
@@ -56,7 +56,7 @@ class Lexer {
     /**
      Active la suppression des commentaire
      Params:
-     on, active ou desactive
+     on = active ou desactive
      */
     void commentEnable (bool on = true) {
 	this._enableComment = on;
@@ -65,7 +65,7 @@ class Lexer {
     /**
      Recupere le mot suivant
      Params:
-     word, le mot a retourner par reference
+     word = le mot a retourner par reference
      Return le lexer
      */
     Lexer next (ref Word word) {

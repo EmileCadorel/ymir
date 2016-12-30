@@ -501,7 +501,6 @@ class LVisitor {
 	    if (par.info.type.leftTreatment)
 		left = par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
 	    else left = visitExpression (par.left);
-	    std.stdio.writeln (left);
 	    list = par.info.type.lintInst (left, rights);
 	    call = list.getFirst ();
 	} else {

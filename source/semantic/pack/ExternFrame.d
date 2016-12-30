@@ -86,5 +86,9 @@ class ExternFrame : Frame {
     override FrameProto validate (ParamList) {
 	return validate ();
     }
-        
+
+    override Word ident () {
+	return this._proto.ident;
+    }
+    
 }    
