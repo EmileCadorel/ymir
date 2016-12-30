@@ -112,6 +112,14 @@ class LongUtils {
 	inst += new LCast (left, LSize.INT);
 	return inst;
     }
+
+    static LInstList InstCastLong (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += llist;
+	inst += new LCast (left, LSize.LONG);
+	return inst;
+    }
     
     static LInstList InstUnop (Tokens op) (LInstList llist) {
 	auto inst = new LInstList;

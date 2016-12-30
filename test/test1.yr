@@ -1,39 +1,15 @@
 extern (C) putchar (c : char);
 struct (t : Test) Test;
 
-def test (r : range!int) {
-    if r is null
-	     return '';
-    else return  toStr (r.fst) + ' .. ' + toStr (r.scd);
+def fibo (n : int) : long {
+    if (n < 2) return n;
+    else return fibo (n - 1) + fibo (n - 2);
 }
 
-def toStr (c : char) return cast:string ([c]);
-
-def toStr (i : int) : string {
-    let ret = "", inf = false;
-    if (i < 0) {
-	inf = true;
-	i = -i;
+def main ( ) {
+    if (true) {
+	return 10;
     }
-
-    while (i > 9) {
-	ret = toStr((i%10) + '0') + ret;
-	i /= 10;
-    }
-
-    ret = toStr((i%10) + '0') + ret;
-    if (inf) return "-" + ret;        
-    return ret;
-}
-
-
-def println (s : string) {
-    for (it in s) putchar (it);
-    putchar ('\n');
-}
-
-
-def main ( ) {    
-    println (test (0 .. 5));
+    return 1l;
 }
 

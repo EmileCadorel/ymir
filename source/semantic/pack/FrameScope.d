@@ -68,7 +68,7 @@ class TreeInfo {
 		nb ++;
 		allNeed = false;
 		need = "else";
-	    } else if (it._breaked && it._name != "while") {
+	    } else if (it._breaked && it._name != "while" && it._name != "for") {
 		nb ++;
 	    }
 	}
@@ -95,7 +95,7 @@ class TreeInfo {
 		nb ++;
 		allNeed = false;
 		need = "else";
-	    } else if (it._returned && it._name != "while") {
+	    } else if (it._returned && it._name != "while" && it._name != "for") {
 		nb ++;
 	    }
 	}

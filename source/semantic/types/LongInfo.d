@@ -132,6 +132,11 @@ class LongInfo : InfoType {
 		aux.lintInstS.insertBack (&LongUtils.InstAddr);
 		return aux;
 	    }
+	} else if (cast (IntInfo) other) {
+	    auto o = new LongInfo ();
+	    o.lintInst = &LongUtils.InstAffectInt;
+	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
+	    return o;
 	}
 	return null;
     }

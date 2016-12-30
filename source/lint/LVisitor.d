@@ -289,7 +289,13 @@ class LVisitor {
 		rlist = visitExpression (ret.elem);
 		list += rlist;
 	    }
-	    list += (new LWrite (retReg,  rlist.getFirst ()));	    
+	    
+	    if (!ret.instCast.type.isSame (ret.elem.info.type)) {
+		foreach (nb ; 0 .. ret.instCast.type.lintInstS.length) {
+		    list += ret.instCast.type.lintInst (list, nb);
+		}
+	    }
+	    list += (new LWrite (retReg,  list.getFirst ()));	    
 	}
 	
 	foreach (it ; ret.father.dest) {

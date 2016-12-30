@@ -136,8 +136,8 @@ class IncompatibleTypes : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	super.addLine (buf, left.sym.locus);
-	
-	super.addLine (buf, right.sym.locus);
+	if (!right.sym.isEof)
+	    super.addLine (buf, right.sym.locus);
 	msg = buf.toString ();
     }
     

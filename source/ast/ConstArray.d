@@ -49,8 +49,9 @@ class ConstArray : Expression  {
 		}
 	    }
 	    
-	    auto begin = new Symbol(false, this._token, new UndefInfo ());
-	    foreach (fst ; 0 .. aux._params.length) {		
+	    auto begin = new Symbol(false, this._token, new UndefInfo ());	    
+	    foreach (fst ; 0 .. aux._params.length) {
+		if (cast (Type) aux._params [fst]) throw new UseAsVar (aux._params [fst].token, aux._params [fst].info);
 		auto cmp = aux._params [fst].info.type.CompOp (begin.type);
 		aux._casters.insertBack (cmp);
 		if (cmp is null) {
