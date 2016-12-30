@@ -28,7 +28,7 @@ def fibo (n : int) {
 
 def main () {
     let i = 0;
-    while i < 35 {
+    while i < 10 {
 	    print (i);
 	    println (':');
 	    let a = fibo (i);

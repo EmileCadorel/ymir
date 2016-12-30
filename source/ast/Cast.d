@@ -27,24 +27,27 @@ class Cast : Expression {
 	auto type = this._type.asType ();
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
-	
-	auto info = expr.info.type.CastOp (type.info.type);
-	if (info is expr.info.type) {
+
+	if (expr.info.type.isSame (type.info.type)) {
 	    Warning.instance.warning_at (this._token.locus,
 					 "L'element '%s%s%s', est déjà de type '%s%s%s'",
 					 Colors.YELLOW.value,
 					 expr.token.str,
 					 Colors.RESET.value,
 					 Colors.YELLOW.value,
-					 info.typeString (),
+					 type.info.type.typeString (),
 					 Colors.RESET.value);
-	   					
-	} else if (info is null) {
-	    throw new UndefinedOp (this._token, expr.info, type.info);
+
+	    return expr;
+	} else {
+	    auto info = expr.info.type.CastOp (type.info.type);
+	    if (info is null) {
+		throw new UndefinedOp (this._token, expr.info, type.info);
+	    } 
+	    auto aux = new Cast (this._token, type, expr);
+	    aux.info = new Symbol (this._token, info);
+	    return aux;
 	}
-	auto aux = new Cast (this._token, type, expr);
-	aux.info = new Symbol (this._token, info);
-	return aux;
     }
 
     Expression expr () {

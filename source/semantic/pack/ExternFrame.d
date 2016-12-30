@@ -32,9 +32,9 @@ class ExternFrame : Frame {
 		if (cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar)param).getType ();
 		    auto type = params.params [it].info.type.CompOp (info);
-		    if (info.isSame (type)) {
+		    if (type && type.isSame (info)) {
 			score.score += SAME;
-			score.treat.insertBack (null);  
+			score.treat.insertBack (type);  
 		    } else if (type !is null) {
 			score.score += AFF;
 			score.treat.insertBack (type);  

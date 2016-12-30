@@ -24,13 +24,13 @@ class Warning {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column],
+	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
-			line[locus.column .. locus.column + locus.length],
+			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
-			line[locus.column + locus.length .. $]);
+			line[locus.column + locus.length - 1.. $]);
 	    if (line[$-1] != '\n') buf.write ("\n");
-	    foreach (it ; 0 .. locus.column) {
+	    foreach (it ; 0 .. locus.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }

@@ -1,7 +1,16 @@
 extern (C) putchar (c : char);
 
-def main ( ) {
-    let a = -1.;
+def test (c) return cast:string ([c]);
 
+def print (s : string) {
+    for (it in s)
+	putchar (it);
+}
+
+def main ( ) {
+    let a = test ('r');
+    print ("salut");
+    for it in a 
+	print(it.typeid);
 }
 
