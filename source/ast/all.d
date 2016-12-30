@@ -1,5 +1,10 @@
 module ast.all;
 
+
+/**
+ Ce module sert à l'inclusion de tout les modules de l'ast en un seul import
+*/
+
 public import ast.Program;
 public import ast.Declaration;
 public import ast.Function;

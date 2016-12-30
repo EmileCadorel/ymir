@@ -7,11 +7,23 @@ import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList;
 import semantic.pack.Symbol;
 
+/**
+ L'instruction est généré à la syntaxe par.
+ Example:
+ ---
+ 'return' (expression)? ';'
+ ---
+*/
 class Return : Instruction {
 
-    private Expression _elem;
+    /// L'élément à retourner (peut être null)
+    private Expression _elem; 
+
+     /// L'information de cast du type à retourner (peut être null)
     private Symbol _instCast;
-    private InfoType _instComp;
+
+    /// l'information de pre-traitement avant de retourner l'instruction (peut être null)
+    private InfoType _instComp; 
     
     this (Word word) {
 	super (word);
@@ -21,7 +33,15 @@ class Return : Instruction {
 	super (word);
 	this._elem = elem;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste soit l'instruction doit être du type de la fonction courante.
+     Soit 'void' et _elem est null.
+     Throws: 
+     IncompatibleTypes, si les types ne sont pas compatibles.
+     NoValueNonVoidFunction, si on ne retourne rien dans une fonction non-void.
+     */
     override Instruction instruction () {
 	auto aux = new Return (this._token);
 	Table.instance.retInfo.returned ();
@@ -52,18 +72,33 @@ class Return : Instruction {
 	return aux;
     }
     
+
+    /**
+     Returns l'element retourner par l'instruction (peut être null)
+     */
     Expression elem () {
 	return this._elem;
     }
     
+    /**
+     Returns le pre-traitement de l'instruction (peut-être null)
+     */
     InfoType instComp () {
 	return this._instComp;
     }
 
+    /**
+     Returns le caster de l'expression (peut être null)
+     */
     Symbol instCast () {
 	return this._instCast;
     }
-    
+
+    /**
+     Affiche l'instruction sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Return> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

@@ -6,12 +6,25 @@ import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 import utils.exception, semantic.pack.ExternFrame;
 
-
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ 'extern' ('(' Identifiant ')') Identifiant '(' var * ')' (':' type);
+ ---
+ */
 class Proto : Declaration {
 
+    /// L'identifiant du prototype
     private Word _ident;
+
+    /// Le type de retour du prototype (peut être null)
     private Var _type;
+
+    /// Les paramètres du prototype
     private Array!Var _params;
+
+    /// 
     private Word _from;
     
     this (Word ident, Array!Var params) {
@@ -29,18 +42,32 @@ class Proto : Declaration {
 	return this._from;
     }
 
+    /**
+     Returns Le type du prototype
+     */
     Var type () {
 	return this._type;
     }
 
+    /**
+     Returns Les paramètres du prototype
+     */
     Array!Var params () {
 	return this._params;
     }
 
+    /**
+     Returns L'identifiant du prototype
+     */
     Word ident () {
 	return this._ident;
     }
-    
+
+    /**
+     Declare le prototype dans la table des symboles après vérification.
+     Pour être juste le prototype ne doit contenir que des variable typé.
+     Throws: NeedAllType, si il n'y a pas tout les types.
+     */
     override void declare () {
 	auto space = Table.instance.namespace ();
 	foreach (it ; this._params) {
@@ -48,8 +75,7 @@ class Proto : Declaration {
 		throw new NeedAllType (this._ident);
 	    }
 	}
-	
-	
+		
 	auto fr = new ExternFrame (space, this._from.str, this);
 	auto it = Table.instance.get (this._ident.str);
 	if (it !is null) {

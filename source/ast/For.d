@@ -10,13 +10,31 @@ import semantic.pack.Symbol;
 import semantic.types.UndefInfo;
 import std.container;
 
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ 'for' (':' Identifiant)? '(' Identifiant* 'in' expression ')' 
+ ---
+ */
 class For : Instruction {
 
+    /// L'identifiant de boucle (peut-être eof)
     private Word _id;
+
+    /// Les itérateurs
     private Array!Var _var;
+
+    /// L'expression sur laquelle itérer
     private Expression _iter;
+
+    /// Le block à executer à chaque itération
     private Block _block;
+
+    /// L'information de la procédure à suivre (renseigné à la sémantique)
     private InfoType _ret;
+
+    /// Les symboles à détruire à la fin de la boucle for.
     private Array!Symbol _dest;
 
     this (Word token, Word id, Array!Var var, Expression iter, Block block) {
@@ -27,26 +45,46 @@ class For : Instruction {
 	this._block = block;
     }        
 
+    /**
+     Returns la liste des itérateurs
+     */
     Array!Var vars () {
 	return this._var;
     }    
 
+    /**
+     Returns l'expression à itérer
+     */
     Expression iter () {
 	return this._iter;
     }
-    
+
+    /**
+     Returns la procédure à suivre pour itérer
+     */
     InfoType ret () {
 	return this._ret;
     }
 
+    /**
+     Returns La liste des symboles à détruire
+     */
     ref Array!Symbol dest () {
 	return this._dest;
     }
-    
+
+    /**
+     Returns le block de la boucle
+     */
     Block block () {
 	return this._block;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste l'iterable doit avoir surcharger l'operateur (ApplyOp) avec les itérateur.
+     Throws: ShadowingVar, UndefinedOp
+     */
     override Instruction instruction () {
 	Array!Var aux;
 	Table.instance.enterBlock ();

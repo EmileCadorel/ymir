@@ -8,12 +8,28 @@ import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 
 
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ 'def' Identifiant '(' var * ')' (':' type) block
+ ---
+*/
 class Function : Declaration {
+
     
-    private immutable string MAIN = "main";
+    private static immutable string MAIN = "main";
+
+    /// l'identifiant de la fonctions
     private Word _ident;
+
+    /// le type de la fonction
     private Var _type = null;
+
+    /// Les paramètre de la fonctions
     private Array!Var _params;
+
+    /// Le block de la fonction
     private Block _block;
 
     this (Word ident, Array!Var params, Block block) {
@@ -29,18 +45,32 @@ class Function : Declaration {
 	this._block = block;
     }
 
+    /**
+     Returns Le type de la fonction
+     */
     Var type () {
 	return this._type;
     }
 
+    /**
+     Returns les paramètres de la fonction
+     */
     Array!Var params () {
 	return this._params;
     }
-    
+
+    /**
+     Returns le block de la fonction
+     */
     Block block () {
 	return this._block;
     }
 
+    /**
+     Declare la fonction dans la table de symbol après vérification.
+     Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.
+     Throws: ShadowingVar
+     */
     override void declare () {
 	if (this._ident.str == MAIN) {
 	    FrameTable.instance.insert (new PureFrame ("", this));
@@ -64,6 +94,9 @@ class Function : Declaration {
 	}
     }
 
+    /**
+     Verifie que la fonction est une fonction pure ou non.     
+     */
     Frame verifyPure () {
 	auto space = Table.instance.namespace ();
 	foreach (it ; this._params) {
@@ -74,11 +107,19 @@ class Function : Declaration {
 	FrameTable.instance.insert (fr);
 	return fr;
     }
-    
+
+    /**
+     Returns l'identifiant de la fonction
+     */
     Word ident () const {
 	return this._ident;
     }
-    
+
+    /**
+     Affiche la fonction sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writef ("%s<Function> %s(%d, %d) %s ",
 		  rightJustify ("", nb, ' '), 

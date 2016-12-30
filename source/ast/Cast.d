@@ -7,7 +7,11 @@ import semantic.pack.Symbol;
 
 
 /**
- Classe généré par la syntaxe : 'cast' ':' type '(' exp ')'
+ Classe généré par la syntaxe.
+ Example:
+ ---
+ 'cast' ':' type '(' exp ')'
+ ---
  */
 class Cast : Expression {
 
@@ -23,6 +27,12 @@ class Cast : Expression {
 	this._expr = expr;
     }
 
+    /**
+     Vérification sémantique.
+     Pour être juste le contenu doit surcharger l'operateur de 'cast' (CastOp) avec le bon type.
+     Si le contenu est déjà du bon type, un warning est affiché, et le contenu est retourné.
+     Throws: UseAsVar, si le contenu est un type, UndefinedOp.
+     */
     override Expression expression () {
 	auto type = this._type.asType ();
 	auto expr = this._expr.expression ();
@@ -50,6 +60,9 @@ class Cast : Expression {
 	}
     }
 
+    /**
+     Returns Le contenu de l'expression
+     */
     Expression expr () {
 	return this._expr;
     }

@@ -5,11 +5,26 @@ import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 
+
+/**
+ Généré à la syntaxe pour l'operateur multiple.
+ Example:
+ ---
+ expression '(' expression* ')'
+ ---
+ */
 class Par : Expression {
 
+    /// la deuxième parenthèse.
     private Word _end;
+
+    /// Les paramètre contenu entre les parenthèses
     private ParamList _params;
+
+    /// L'expression de gauche
     private Expression _left;
+
+    /// Le score recupéré à l'analyse sémantique
     private ApplicationScore _score;
     
     this (Word word, Word end, Expression left, ParamList params) {
@@ -23,7 +38,15 @@ class Par : Expression {
 	super (word);
 	this._end = end;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste l'expression de gauche doit surcharger l'operateur '()' (CallOp).
+     Et accepter l'expression de droite.
+     Throws:
+     UndefinedOp, si l'expression est fausse.
+     TemplateInferType, si le type de l'expression ne peut être déduit.
+     */
     override Expression expression () {
 	auto aux = new Par (this._token, this._end);
 	aux._params = (cast(ParamList)this._params.expression ());
@@ -43,23 +66,40 @@ class Par : Expression {
 	
 	return aux;
     }
-    
+
+    /**
+     Returns le score retourner par l'analyse sémantique
+     */
     ApplicationScore score () {
 	return this._score;
     }
 
-    Expression left () {
+    /**
+     Returns L'expression de gauche
+     */
+    Expression left () {	
 	return this._left;
     }
 
+    /**
+     Returns Les paramètres de l'expression
+     */
     ParamList paramList () {
 	return this._params;
     }
-    
+
+    /**
+     Returns La liste des paramètres de l'expression
+     */
     Array!Expression params () {
 	return this._params.params;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Par> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

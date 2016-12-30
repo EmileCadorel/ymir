@@ -7,7 +7,11 @@ import semantic.pack.Symbol, std.container;
 
 
 /**
- Classe généré par la syntaxe : expression ('[' ParamList ']')
+ Classe généré par la syntaxe.
+ Example:
+ ---
+ expression '[' ParamList ']'
+ ---
 
 */
 class Access : Expression {
@@ -33,7 +37,13 @@ class Access : Expression {
 	this._end = end;
     }
 
-    /// Vérification sémantique
+    /**
+     Vérification sémantique.
+     L'element de gauche doit surcharger l'operateur '[]' (AccessOp) avec les élément de droite.
+     Throws: UndefinedVar, si l'element de gauche n'existe pas.
+     UninitVar, si l'element de gauche est de type indéfinis
+     UndefinedOp, si l'operateur n'existe pas.
+     */
     override Expression expression () {
 	auto aux = new Access (this._token, this._end);
 	aux._params = (cast(ParamList) this._params.expression ());
@@ -48,16 +58,25 @@ class Access : Expression {
 	return aux;
     }
 
-    /// Le getter de l'expression accédé
+    /**
+     Returns L'élément de gauche de l'expression
+     */
     Expression left () {
 	return this._left;
     }
 
-    /// le getter de paramètre de l'accés
+    /**
+     Returns Les paramètres de l'expression
+     */
     Array!Expression params () {
 	return this._params.params;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Access>%s(%d, %d)",
 		  rightJustify ("", nb, ' '),

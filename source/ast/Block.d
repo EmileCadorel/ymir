@@ -8,7 +8,9 @@ import utils.exception, semantic.pack.Symbol;
 /**
  * Suite d'instruction, ces instructions sont lu a la syntaxe
  * Example:
- * { (instruction | declaration)* }
+ ---
+ { (instruction | declaration)* }
+ ---
 */
 class Block : Instruction {
     
@@ -24,16 +26,24 @@ class Block : Instruction {
 	this._ident.setEof ();
     }
 
+    /**
+     Donne un identifiant de block
+     */
     void setIdent (Word ident) {
 	this._ident = ident;
     }
-    
+
+    /**
+     Vérifications sémantique.
+     */
     Block instructions () {
 	return this.block;
     }
 
     /**
-     * Verification de la semantique
+     * Verification sémantique
+     Pour être juste toutes les instructions doivent être juste.
+     Throws: ErrorOccurs.
      */
     Block block () {
 	Table.instance.enterBlock ();
@@ -69,20 +79,34 @@ class Block : Instruction {
 	block._dest = dest;
 	return block;	
     }
-    
+
+    /**
+     Vérification sémantique.
+     */
     override Instruction instruction () {
 	Table.instance.retInfo.currentBlock = "true";
 	return this.instructions ();
     }
 
+    /**
+     Returns la liste des symboles à supprimer en sortie de block.
+     */
     ref Array!Symbol dest () {
 	return this._dest;
     }
-    
+
+    /**
+     Returns la liste des instructions du block.
+     */
     Array!Instruction insts () {
 	return this._insts;
     }
-    
+
+    /**
+     Affiche le block sous forme d'arbre.
+     Params:
+     nb = l'offset courant.
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Block> : %s(%d, %d) ", rightJustify ("", nb, ' '),
 		this._token.locus.file,

@@ -11,11 +11,24 @@ import utils.exception;
 import std.stdio, std.string;
 import semantic.types.RangeInfo;
 
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ expression '..' expression
+ ---
+ */
 class ConstRange : Expression {
 
+    /// l'élément de gauche
     private Expression _left;
+
+    /// l'élément de droite
     private Expression _right;
+
+    /// le type de l'expression
     private InfoType _content;
+
     private ubyte _lorr = 0;
     
     this (Word token, Expression left, Expression right) {
@@ -24,10 +37,16 @@ class ConstRange : Expression {
 	this._right = right;
     }
 
+    /**
+     Returns l'élément de gauche
+     */
     Expression left () {
 	return this._left;
     }
 
+    /**
+     Returns l'élément de droite
+     */
     Expression right () {
 	return this._right;
     }    
@@ -36,10 +55,18 @@ class ConstRange : Expression {
 	return this._lorr;
     }
 
+    /**
+     Returns l'information type du contenu
+     */
     InfoType content () {
 	return this._content;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être correct, gauche et droite doivent être compatible et de type que l'on peut mettre dans un Range.
+     Throws: UndefinedOp
+    */
     override Expression expression () {
 	auto aux = new ConstRange (this._token, this._left.expression, this._right.expression);
 	auto type = aux._left.info.type.CompOp (aux._right.info.type);

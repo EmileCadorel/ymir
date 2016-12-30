@@ -10,9 +10,20 @@ import ast.Var;
 import utils.exception;
 import std.stdio, std.string;
 
+
+/**
+ Classe généré par la syntaxe.
+ Example:
+ ---
+ '[' expression * ']'
+ ---
+ */
 class ConstArray : Expression  {
 
+    /// Les paramètres de l'expression
     private Array!Expression _params;
+
+    /// Les casters de l'expression (généré à la sémantique)
     private Array!InfoType _casters;
     
     this (Word token, Array!Expression params) {
@@ -20,14 +31,26 @@ class ConstArray : Expression  {
 	this._params = params;
     }
 
+    /**
+     Returns Les paramètres de l'expression
+     */
     Array!Expression params () {
 	return this._params;
     }
-
+    
+    /**
+     Returns Les casters de l'expression
+     */
     Array!InfoType casters () {
 	return this._casters;
     }
-    
+
+    /**
+     Vérification sémantique
+     Pour être juste l'expression ne doit contenir que des expressions de types compatible.
+     Ou, un seul type.
+     Throws: IncompatibleTypes, UseAsVar.
+     */
     override Expression expression () {
 	auto aux = new ConstArray (this._token, this._params);
 	if (aux._params.length == 0) {
@@ -64,7 +87,12 @@ class ConstArray : Expression  {
 	}
 	return aux;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Array> %s(%d, %d) ",
 		  rightJustify ("", nb, ' '),

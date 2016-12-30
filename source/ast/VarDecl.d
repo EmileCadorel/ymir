@@ -5,10 +5,19 @@ import semantic.pack.Table, semantic.pack.Symbol;
 import std.stdio, std.string, std.outbuffer;
 import semantic.types.UndefInfo, utils.exception;
 
-
+/**
+ Cette classe est généré à la syntaxe par
+ Example:
+ ---
+ 'let' var ('=' expression)? (',' var ('=' expression)?)* ';'
+ ---
+ */
 class VarDecl : Instruction {
 
+    /// Les variables déclaré par l'instruction
     private Array!Var _decls;
+
+    /// Les expressions à droite des variables déclarées.
     private Array!Expression _insts;
     
     this (Word word, Array!Var decls, Array!Expression insts) {
@@ -20,7 +29,13 @@ class VarDecl : Instruction {
     this (Word word) {
 	super (word);
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être correct, l'instruction ne doit déclarer que des variables qui n'existe pas.
+     De plus les expressions droite doivent être correct et posséder un operateur d'affectation droite. (BinaryOpRight ('='));
+     Throws: ErrorOccurs, si il y a eu des erreurs lors de l'analyse.
+     */
     override Instruction instruction () {
 	auto auxDecl = new VarDecl (this._token);
 	auto error = 0;
@@ -56,10 +71,18 @@ class VarDecl : Instruction {
 	return auxDecl;
     }
 
+    /**
+     Returns les expressions droites 
+     */
     Array!Expression insts () {
 	return this._insts;
     }
-    
+
+    /**
+     Affiche l'instruction sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<VarDecl> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

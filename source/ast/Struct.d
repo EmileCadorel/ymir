@@ -9,9 +9,19 @@ import std.container, std.stdio, std.string;
 import semantic.types.StructInfo, semantic.types.InfoType;
 
 
+/**
+ Classe généré par la syntaxe.
+ Example:
+ ---
+ 'struct' '(' var * ')' Identifiant ';'
+ ---
+ */
 class Struct : Declaration {
 
+    /// l'identifiant de la structure
     private Word _ident;
+
+    /// Les paramètre de la srtucture
     private Array!Var _params;
 
     this (Word ident, Array!Var params) {
@@ -19,14 +29,25 @@ class Struct : Declaration {
 	this._params = params;
     }
 
+    /**
+     Returns les paramètres de la structure
+     */
     Array!Var params () {
 	return this._params;
     }
 
+    /**
+     Returns L'identifiant de la structure
+     */
     Word ident () const {
 	return this._ident;
     }
-    
+
+    /**
+     Declare la structure après vérification.
+     Pour être juste, la structure doit avoir un identifiant unique.
+     Throws: ShadowingVar, NeedAllType
+     */
     override void declare () {
 	auto exist = Table.instance.get (this._ident.str);
 	if (exist) {
@@ -44,6 +65,11 @@ class Struct : Declaration {
 	}
     }
 
+    /**
+     Affiche la structure sous forme d'arbre
+     Params: 
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Struct> %s(%d, %d) %s",
 		rightJustify ("", nb, ' '),

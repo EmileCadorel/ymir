@@ -9,12 +9,19 @@ import std.stdio, std.string, std.outbuffer, std.algorithm;
 /***
  * Une operation entre deux expression
  * Example:
+ ---
  * a op b
+ ---
 */
 class Binary : Expression {
 
+    /// L'élément gauche de l'operateur
     private Expression _left;
+
+    /// L'élément droit de l'operateur
     private Expression _right;
+
+    /// Est un operateur droit (renseigné à la sémantique)
     private bool _isRight = false;
     
     this (Word word, Expression left, Expression right) {
@@ -27,6 +34,9 @@ class Binary : Expression {
 	super (word);
     }
 
+    /**
+     Returns l'operateur est un operateur droit
+     */
     bool isRight () {
 	return this._isRight;
     }
@@ -48,6 +58,7 @@ class Binary : Expression {
 
     /**
      * Verification particuliere pour l'operateur d'affectation qui peut affecter un type a une variable
+     Throws: UseAsVar, NotLValue, UndefinedOp, UninitVar
      */
     private Expression affect () {
 	auto aux = new Binary (this._token);
@@ -77,6 +88,7 @@ class Binary : Expression {
 
     /**
      Pour les operateur particulier (+=, *= ...)
+     Throws: UninitVar, UndefinedVar, UndefinedOp
      */
     private Expression reaff () {
 	auto aux = new Binary (this._token);
@@ -102,6 +114,7 @@ class Binary : Expression {
     
     /**
      * Operation normale ou les types des deux operande doivent etre connu
+     Throws: UninitVar, UndefinedVar, UndefinedOp
      */
     private Expression normal () {
 	auto aux = new Binary (this._token);
@@ -122,15 +135,26 @@ class Binary : Expression {
 	aux.info = new Symbol (aux._token, type);
 	return aux;	
     }
-    
+
+    /**
+     Returns l'élément gauche de l'operateur
+     */
     ref Expression left () {
 	return this._left;
     }
 
+    /**
+     Return l'élément droit de l'operateur
+     */
     ref Expression right () {
 	return this._right;
     }
 
+    /**
+     Affiche l'expression sous forme d'arbre
+     Params:
+     nb = L'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Binary> : %s(%d, %d) %s  ", rightJustify("", nb, ' '),
 		this._token.locus.file,

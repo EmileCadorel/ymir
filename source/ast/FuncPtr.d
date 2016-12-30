@@ -4,10 +4,22 @@ import ast.Var, syntax.Word;
 import semantic.types.InfoType, semantic.pack.Symbol;
 import syntax.Tokens, syntax.Keys, utils.exception;
 
+/**
+ Classe genere par la syntaxe
+ Example:
+ ---
+ 'function' (type*) ':' type ('(' expression ')')?
+ ---
+*/
 class FuncPtr : Expression {
 
+    /// Les paramètre du pointeur sur fonction
     private Array!Var _params;
+
+    /// Le type de retour du pointeur
     private Var _ret;
+
+    /// Le contenu du pointeur (peut être null)
     private Expression _expr;
 
     this (Word begin, Array!Var params, Var type, Expression expr = null) {
@@ -17,10 +29,18 @@ class FuncPtr : Expression {
 	this._expr = expr;
     }
 
+    /**
+     Returns l'expression contenu dans le pointeur (peut être null)
+     */
     Expression expr () {
 	return this._expr;
     }
-    
+
+    /**
+     Vérification sémantique de l'expression.
+     Pour être juste l'expression contenu doit être compatible avec le pointeur
+     Throws: UndefinedOp, si le contenu n'est pas compatible.
+     */
     override Expression expression () {
 	Expression [] temp;
 	temp.length = this._params.length + 1;

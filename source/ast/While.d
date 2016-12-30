@@ -5,11 +5,25 @@ import semantic.types.BoolInfo, semantic.types.InfoType;
 import utils.exception, semantic.pack.Table;
 import std.stdio, std.string;
 
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ 'while' expression block
+ ---
+ */
 class While : Instruction {
 
+    /// L'identifiant de la boucle
     private Word _name;
+
+    /// le test de la boucle
     private Expression _test;
+
+    /// Le block de la boucle
     private Block _block;
+
+    /// Le caster du test (renseigné à la sémantique)
     private InfoType _info;
 
     this (Word word, Word name, Expression test, Block block) {
@@ -26,18 +40,27 @@ class While : Instruction {
 	this._name.setEof ();
     }
 
-
+    /**
+     Met à jour le père de la boucle
+     Params: 
+     father = le block qui contient l'instruction
+     */
     override void father (Block father) {
 	super._block = father;
 	this._block.father = father;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste le test doit être compatible avec 'bool' (CompOp)
+     Throws: IncompatibleTypes
+     */
     override Instruction instruction () {
 	auto expr = this._test.expression;
 	auto type = expr.info.type.CastOp (new BoolInfo ());
 	auto word = this._token;
 	word.str = "cast";
-	if (type is null) throw new UndefinedOp (word, expr.info, new Symbol (word, new BoolInfo ()));
+	if (type is null) throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo ()));
 	if (!this._name.isEof ())
 	    this._block.setIdent (this._name);
 	Table.instance.retInfo.currentBlock = "while";
@@ -47,18 +70,32 @@ class While : Instruction {
 	return _while;
     }
 
+    /**
+     Returns le test de la boucle
+     */
     Expression test () {
 	return this._test;
     }
 
+    /**
+     Returns le caster du test
+     */
     InfoType info () {
 	return this._info;
     }
 
+    /**
+     Returns le block de la boucle
+     */
     Block block () {
 	return this._block;
     }
-    
+
+    /**
+     Affiche l'instruction sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<While> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

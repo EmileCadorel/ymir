@@ -20,14 +20,23 @@ class Int : Expression {
     this (Word word) {
 	super (word);
     }
-    
+
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Int (this._token);
 	aux.info = new Symbol (this._token, new IntInfo ());
 	aux.info.isConst = true;
 	return aux;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Int> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),
@@ -52,12 +61,21 @@ class Long : Expression {
 	super (word);
     }
 
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Long (this._token);
 	aux.info = new Symbol (this._token, new LongInfo ());
 	return aux;
     }
 
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Long> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),
@@ -82,17 +100,29 @@ class Char : Expression {
 	super (word);
 	this._code = code;
     }
-    
+
+    /**
+     Returns la valeur de la constante.
+     */
     ref ubyte code () {
 	return this._code;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Char (this._token, this._code);
 	aux.info = new Symbol (this._token, new CharInfo (), true);
 	return aux;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+    */
     override void print (int nb = 0) {
 	writefln ("%s<Char> %s(%d, %d) %d"
 		  , rightJustify ("", nb, ' '),
@@ -112,8 +142,11 @@ class Char : Expression {
  ---
  */
 class Float : Expression {
-    
+
+    /// L'élement après la virgule
     private string _suite;
+
+    /// Tout le flottant
     private string _totale;
     
     this (Word word, string suite) {
@@ -131,17 +164,29 @@ class Float : Expression {
 	super (word);
 	this._totale = totale;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Float (this._totale, this._token);
 	aux.info = new Symbol (this._token, new FloatInfo (), true);
 	return aux;
     }
-    
+
+    /**
+     Returns la valeur de la constante sous forme de string
+     */
     string totale () const {
 	return this._totale;
     }
 
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+    */
     override void print (int nb = 0) {
 	writefln ("%s<Float> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),
@@ -175,6 +220,9 @@ class String : Expression {
 			    "\\\"" : '\"', "\\?": '\?'];   
     }
 
+    /**
+     Convertis un escapeChar hexadecimale en nombre
+     */
     private short fromHexa (string elem) {
 	short total = 0;
 	ulong size = elem.length - 1;
@@ -188,6 +236,9 @@ class String : Expression {
 	return total;
     }
 
+    /**
+     Convertis un escapeChar Octal en nombre
+     */
     private short fromOctal (string elem) {
 	short total = 0;
 	ulong size = elem.length - 1;
@@ -201,6 +252,9 @@ class String : Expression {
 	return total;
     }
 
+    /**
+     Récupere un escapeChar Hexa dans la chaine et le convertie en nombre
+     */
     private short getFromLX (ref string elem, ref ulong index) {
 	int size = 0;
 	foreach (it ; elem [2 .. $])
@@ -215,6 +269,9 @@ class String : Expression {
 	return fromHexa (escape);
     }
 
+    /**
+     Récupere un escapeChar Octal dans la chaine et le convertie en nombre
+     */
     private short getFromOc (ref string elem, ref ulong index) {
 	if (elem [1] < '0' || elem [1] > '7') return -1;
 	int size = 0;
@@ -229,6 +286,12 @@ class String : Expression {
     }
     
     
+    /**
+     Vérifie que le pointeur est bien sur un élément de type char.
+     Params:
+     elem = la chaine à vérifier
+     index = le pointeur courant
+     */
     private short isChar (ref string elem, ref ulong index) {
 	if (elem.length == 1) {
 	    char c = elem [0];
@@ -257,7 +320,12 @@ class String : Expression {
 	}
 	return -1;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste la chaine ne doit pas contenir de char qui n'en sont pas.
+     Throws: UndefinedEscapeChar
+     */
     override Expression expression () {
 	ulong index = 0;
 	string begin = this._content, end = "";
@@ -273,10 +341,18 @@ class String : Expression {
 	return aux;       
     }
 
+    /**
+     Returns la valeur de la constante
+     */
     string content () {
 	return this._content;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+    */
     override void print (int nb = 0) {
 	writefln ("%s<String> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),
@@ -293,16 +369,28 @@ class Bool : Expression {
 	super (word);
     }
 
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Bool (this._token);
 	aux.info = new Symbol (this._token, new BoolInfo (), true);
 	return aux;
     }
-    
+
+    /**
+     Returns La valeur de la constante
+     */
     bool value () {
 	return this._token.str == "true";
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+    */
     override void print (int nb = 0) {
 	writefln ("%s<Bool> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),
@@ -321,12 +409,21 @@ class Null : Expression {
 	super (word);
     }
 
+    /**
+     Vérification sémantique.
+     Toujours Ok.
+     */
     override Expression expression () {
 	auto aux = new Null (this._token);
 	aux.info = new Symbol (this._token, new NullInfo (), true);
 	return aux;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre.
+     Params:
+     nb =  l'offset courant
+    */
     override void print (int nb = 0) {
 	writefln ("%s<Null> %s(%d, %d) %s"
 		  , rightJustify ("", nb, ' '),

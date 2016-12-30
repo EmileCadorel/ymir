@@ -4,9 +4,18 @@ import semantic.types.UndefInfo;
 import std.container, syntax.Word;
 import std.stdio, std.string;
 
+/**
+ Une liste de paramètre peut être généré à la syntaxe dans deux cas.
+ Example:
+ ---
+ expression '[' expression ','* ']'
+ // ou
+ expression '(' expression ','* ')'
+ ---
+ */
 class ParamList : Expression {
 
-    private Array!Expression _params;
+    private Array!Expression _params; /// Les paramètres de l'expression
 
     this (Word word, Array!Expression params) {
 	super (word);
@@ -17,6 +26,11 @@ class ParamList : Expression {
 	super (word);
     }
 
+    /**
+     Vérification sémantique.
+     Pour être juste, tous les paramètre doivent être juste.
+     Throws: UninitVar, si un des éléments est de type indéfinis.
+     */
     override Expression expression () {
 	auto aux = new ParamList (this._token);
 	foreach (it ; this._params) {
@@ -26,11 +40,19 @@ class ParamList : Expression {
 	}
 	return aux;
     }
-    
+
+    /**
+     Returns La liste des paramètres
+     */
     Array!Expression params () {
 	return this._params;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre
+     Params:
+     nb = L'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<ParamList> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

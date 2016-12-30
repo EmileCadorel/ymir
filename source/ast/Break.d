@@ -6,10 +6,15 @@ import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList, std.conv;
 
 /**
- Classe généré par la syntaxe : 'break' exp? ';'
+ Classe généré par la syntaxe.
+ Example:
+ ---
+ 'break' (Identifiant)? ';'
+ ---
 */
 class Break : Instruction {
 
+    /// L'identifiant de boucle à casser (peut être eof)
     private Word _id;
     
     /// le nombre de block a remonter
@@ -25,11 +30,20 @@ class Break : Instruction {
 	this._id = id;
     }
 
+    /**
+     Returns le nombre de block à remonter
+     */
     ulong nbBlock () {
 	return this._nbBlock;
     }
 
-    /// Vérification sémantique
+    /**
+     Vérification sémantique.
+     Pour être juste l'instruction doit être dans une scope 'breakable'.
+     Si il contient un identifiant, il doit exister.
+     Throws: BreakOutSideBreakable, si on n'est pas dans un scope 'breakable'.
+     BreakRefUndefined, Si l'indentifiant de boucle n'existe pas.
+     */
     override Instruction instruction () {
 	auto aux = new Break (this._token);
 	Table.instance.retInfo.breaked ();
@@ -47,6 +61,11 @@ class Break : Instruction {
 	return aux;
     }
 
+    /**
+     Affiche l'instruction sous forme d'arbre.
+     Params:
+     nb = 'loffset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Break> %s(%d, %d)",
 		  rightJustify ("", nb, ' '),

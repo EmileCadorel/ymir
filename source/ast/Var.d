@@ -6,8 +6,20 @@ import semantic.pack.Symbol;
 import utils.exception;
 import semantic.types.ArrayInfo;
 
+
+/**
+ Une variable est généré à la syntaxe par un identifiant.
+ Example:
+ ---
+ foo
+ test_de_variable
+ type!(10, int)
+ // ...
+ ---
+ */
 class Var : Expression {
 
+    /// Les arguments templates de la variable
     private Array!Expression _templates;
 
     this (Word ident) {
@@ -19,6 +31,9 @@ class Var : Expression {
 	this._templates = templates;
     }
 
+    /**
+     Affiche la variable sur une seule ligne
+     */
     override void printSimple () {
 	writef ("%s!(", this._token.str);
 	foreach (it ; this._templates) {
@@ -26,7 +41,13 @@ class Var : Expression {
 	}
 	writef (")");
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste le symbole de l'identifiant doit éxister.
+     Il peut être un type, une fonction, une structure ...
+     Throws: UndefinedVar, si l'identifiant n'existe pas
+     */
     override Var expression () {
 	if (!isType && this._templates.length == 0) {
 	    auto aux = new Var (this._token);
@@ -38,16 +59,31 @@ class Var : Expression {
 	} else return asType ();
     }
 
+    /**
+     Met à jour le type de la variable
+     Params:
+     info = le symbole du type à affecter à la variable
+     */
     TypedVar setType (Symbol info) {
 	auto type = new Type (info.sym, info.type.cloneForParam ());
 	return new TypedVar (this._token, type);
     }
-    
+
+    /**
+     Met à jour le type de la variable
+     Params:
+     info = l'information du type à affecter à la variable
+     */
     TypedVar setType (InfoType info) {
 	auto type = new Type (this._token, info.cloneForParam ());
 	return new TypedVar (this._token, type);
     }    
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste la variable doit être un type.
+     Throws: UseAsType, si le type n'existe pas.
+     */
     Type asType () {	
 	if (!InfoType.exist (this._token.str)) throw new UseAsType (this._token);
 	else {
@@ -60,7 +96,10 @@ class Var : Expression {
 	    return new Type (this._token, t_info);
 	}
     }
-    
+
+    /**
+     Returns 'true' si la variable est un type.
+     */
     bool isType () {
 	auto info = Table.instance.get (this._token.str);
 	if (info is null)
@@ -68,7 +107,11 @@ class Var : Expression {
 	return false;
     }
 
-      
+    /**
+     Affiche la variable sous forme d'arbre
+     Params:
+     nb = l'offset courant.
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Var> %s(%d, %d) %s ",
 		  rightJustify ("", nb, ' '),
@@ -81,12 +124,18 @@ class Var : Expression {
 	    it.print (nb + 4);
 	}
     }
-    
-    
 }
 
+/**
+ Cette classe est généré à la syntaxe par.
+ Example:
+ ---
+ Identifiant ':' '[' var ']'
+ ---
+ */
 class ArrayVar : Var {
 
+    /// La variable contenu entre les crochet
     private Var _content;
     
     this (Word token, Var content) {
@@ -94,36 +143,58 @@ class ArrayVar : Var {
 	this._content = content;
     }
 
+    /**
+     Verification sémantique.
+     Pour être juste le contenu doit être un type
+     */
     override Var expression () {
 	auto content = this._content.asType ();
 	auto tok = Word (this.token.locus, "", false);
 	tok.str = this.token.str ~ this._content.token.str ~ "]";
 	return new Type (tok, new ArrayInfo (content.info.type));
     }
-    
+
+    /**
+     Verification sémantique.
+     Pour être juste le contenu doit être un type
+     */    
     override Type asType () {
 	auto content = this._content.asType ();
 	auto tok = Word (this.token.locus, "", false);
 	tok.str = this.token.str ~ this._content.token.str ~ "]";
 	return new Type (tok, new ArrayInfo (content.info.type));
     }
-    
+
+    /**
+     Returns 'true'
+     */
     override bool isType () {
 	return true;
     }    
 
 }
 
-
+/**
+ Variable typée, généré à la syntaxe par.
+ Example:
+ ---
+ var ':' var
+ ---
+ */
 class TypedVar : Var {
 
+    /// Le type de la variable (l'element à droite des deux points)
     private Var _type;
 
     this (Word ident, Var type) {
 	super (ident);
 	this._type = type;
     }
-    
+
+    /**
+     Vérification sémantique.
+     Pour être juste la variable ne doit pas éxister et l'element de droite doit être un type.    
+     */
     override Var expression () {
 	auto aux = new TypedVar (this._token, this._type.asType ());
 	auto info = Table.instance.get (this._token.str);
@@ -133,15 +204,24 @@ class TypedVar : Var {
 	return aux;
     }
 
+    /**
+     Returns le type de la variable
+     */
     Var type () {
 	return this._type;
     }
-    
+
+    /**
+     Returns L'information de type de la variable
+     */
     InfoType getType () {
 	auto type = this._type.asType ();
 	return type.info.type;
     }
-    
+
+    /**
+     Affiche l'expression sous forme d'arbre
+     */
     override void print (int nb = 0) {
 	writef ("%s<TypedVar> %s(%d, %d) %s ",
 		rightJustify ("", nb, ' '),
@@ -155,6 +235,9 @@ class TypedVar : Var {
 
 }
 
+/**
+ Une variable doit on est sur qu'elle est un type.
+ */
 class Type : Var {
     
     this (Word word, InfoType info) {
@@ -162,7 +245,9 @@ class Type : Var {
 	this._info = new Symbol (false, word, info, true);
     }
 
-    
+    /**
+     Returns 'this'
+     */
     override Type asType () {
 	return this;
     }

@@ -6,10 +6,19 @@ import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import std.string;
 
-
+/**
+ Classe généré à la syntaxe par.
+ Example:
+ ---
+ expression '.' Identifiant
+ ---
+ */
 class Dot : Expression {
 
+    /// L'element de gauche de l'expression
     private Expression _left;
+
+    /// L'element de droite de l'expression
     private Var _right;
 
     this (Word word, Expression left, Var right) {
@@ -22,6 +31,11 @@ class Dot : Expression {
 	super (word);
     }
 
+    /**
+     Vérification sémantique.
+     Pour être vrai, le type de l'élément de gauche doit surcharger l'operateur '.' (DotOp) avec l'element de droite.
+     Throws: UndefinedAttribute.
+     */
     override Expression expression () {
 	auto aux = new Dot (this._token);
 	aux._left = this._left.expression ();
@@ -35,14 +49,25 @@ class Dot : Expression {
 	return aux;
     }    
 
+    /**
+     Returns l'élément gauche de l'expression
+     */
     Expression left () {
 	return this._left;
     }
-
+    
+    /**
+     Returns l'élément droit de l'expression
+     */
     Expression right () {
 	return this._right;
     }
-		      
+
+    /**
+     Affiche l'expression sous forme d'arbre
+     Params:
+     nb = l'offset courant
+     */
     override void print (int nb = 0) {
 	writefln ("%s<Dot> : %s(%d, %d) %s  ", rightJustify("", nb, ' '),
 		  this._token.locus.file,
