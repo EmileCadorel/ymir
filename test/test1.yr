@@ -1,6 +1,39 @@
+extern (C) putchar (c : char);
 struct (t : Test) Test;
 
-def main ( ) {
-    let a = Test (null);
+def test (r : range!int) {
+    if r is null
+	     return '';
+    else return  toStr (r.fst) + ' .. ' + toStr (r.scd);
+}
+
+def toStr (c : char) return cast:string ([c]);
+
+def toStr (i : int) : string {
+    let ret = "", inf = false;
+    if (i < 0) {
+	inf = true;
+	i = -i;
+    }
+
+    while (i > 9) {
+	ret = toStr((i%10) + '0') + ret;
+	i /= 10;
+    }
+
+    ret = toStr((i%10) + '0') + ret;
+    if (inf) return "-" + ret;        
+    return ret;
+}
+
+
+def println (s : string) {
+    for (it in s) putchar (it);
+    putchar ('\n');
+}
+
+
+def main ( ) {    
+    println (test (0 .. 5));
 }
 

@@ -7,6 +7,7 @@ import semantic.types.ArrayInfo;
 import semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.StructInfo;
+import semantic.types.RangeInfo;
 
 class NullInfo : InfoType {
 			        
@@ -46,6 +47,10 @@ class NullInfo : InfoType {
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
 	} else if (cast (PtrFuncInfo) other) {
+	    auto ret = other.clone ();
+	    ret.lintInst = &PtrUtils.InstAffect;
+	    return ret;
+	} else if (cast (RangeInfo) other) {
 	    auto ret = other.clone ();
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;

@@ -8,6 +8,7 @@ import std.container, syntax.Keys;
 import semantic.types.LongInfo, semantic.types.IntInfo;
 import semantic.types.FloatInfo, semantic.types.CharInfo;
 import utils.exception, semantic.types.ClassUtils;
+import semantic.types.NullInfo;
 
 class RangeInfo : InfoType {
 
@@ -57,12 +58,15 @@ class RangeInfo : InfoType {
     }
     
     override InfoType BinaryOp (Word token, Expression right) {
+	if (token == Keys.IS) return Is (right);	
+	else if (token == Keys.NOT_IS) return NotIs (right);
+	else if (token == Tokens.EQUAL) return Affect (right);
 	return null;
     }
 
     override InfoType BinaryOpRight (Word token, Expression left) {
 	if (token == Tokens.EQUAL) return AffectRight (left);
-	else if (token == Keys.IN) return In (left);
+	else if (token == Keys.IN) return In (left);       
 	return null;
     }
 
@@ -76,6 +80,46 @@ class RangeInfo : InfoType {
 	return null;
     }
 
+    private InfoType Affect (Expression right) {
+	if (cast (NullInfo) right.info.type) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &ClassUtils.InstAffectNull;
+	    return ret;
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &ClassUtils.InstAffect;
+	    return ret;
+	}
+	return null;
+    }
+    
+    private InfoType Is (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIs;
+	    return ret;
+	}
+	return null;
+    }
+
+    private InfoType NotIs (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIs;
+	    return ret;
+	}
+	return null;
+    }    
+
+    
     private InfoType In (Expression left) {
 	if (this._content.isSame (left.info.type)) {
 	    auto ret = new BoolInfo ();
