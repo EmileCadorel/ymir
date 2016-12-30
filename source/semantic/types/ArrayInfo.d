@@ -4,10 +4,11 @@ import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.ArrayUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
-import semantic.types.UndefInfo, semantic.types.PtrInfo;
+import semantic.types.UndefInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 import lint.LSize, semantic.types.ClassUtils;
 import semantic.types.LongInfo, semantic.types.StructInfo;
+import semantic.types.NullInfo;
 import std.container, semantic.types.RefInfo;
 
 
@@ -52,6 +53,8 @@ class ArrayInfo : InfoType {
 	if (token == Tokens.EQUAL) return Affect (right);
 	else if (token == Tokens.PLUS) return Plus (right);
 	else if (token == Tokens.PLUS_AFF) return PlusAff (right);
+	else if (token == Keys.IS) return Is (right);
+	else if (token == Keys.NOT_IS) return NotIs (right);
 	return null;
     }
 
@@ -112,10 +115,36 @@ class ArrayInfo : InfoType {
 	return null;
     }
     
+    private InfoType Is (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIs;
+	    return ret;
+	}
+	return null;
+    }
+
+    private InfoType NotIs (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIs;
+	    return ret;
+	}
+	return null;
+    }    
+
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto arr = new ArrayInfo (this._content.clone ());
-	    arr.lintInst = &ArrayUtils.InstAffectRight;
+	    arr.lintInst = &ClassUtils.InstAffectRight;
 	    return arr;
 	}
 	return null;
@@ -191,20 +220,17 @@ class ArrayInfo : InfoType {
 	auto type = cast (ArrayInfo) left.info.type;
 	if (type  && type._content.isSame (this._content)) {
 	    auto ret = new ArrayInfo (this._content.clone ());
-	    ret.lintInst = &ArrayUtils.InstAffect;
+	    ret.lintInst = &ClassUtils.InstAffect;
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    this._content = type._content.clone ();
 	    auto ret = new ArrayInfo (this._content.clone ());
-	    ret.lintInst = &ArrayUtils.InstAffect;
+	    ret.lintInst = &ClassUtils.InstAffect;
 	    return ret;
-	} else {
-	    auto ptr = cast (PtrInfo) left.info.type;
-	    if (ptr && cast (VoidInfo) ptr.content) {
-		auto ret = new ArrayInfo (ptr.content.clone ());
-		ret.lintInst = &ArrayUtils.InstAffectNull;
-		return ret;
-	    }
+	} else if (cast (NullInfo) left.info.type) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &ClassUtils.InstAffectNull;
+	    return ret;	    
 	}
 	return null;
     }
@@ -236,11 +262,11 @@ class ArrayInfo : InfoType {
 	auto type = cast (ArrayInfo) other;
 	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
 	    auto ret = new ArrayInfo (this._content.clone ());
-	    ret.lintInst = &ArrayUtils.InstAffectRight;
+	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    auto ret = other.clone ();
-	    ret.lintInst = &ArrayUtils.InstAffectRight;
+	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
 	}
 	return null;

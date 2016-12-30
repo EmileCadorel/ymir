@@ -5,6 +5,9 @@ import semantic.types.BoolInfo;
 import syntax.Tokens, semantic.types.UndefInfo;
 import ast.Var, semantic.types.RangeUtils;
 import std.container, syntax.Keys;
+import semantic.types.LongInfo, semantic.types.IntInfo;
+import semantic.types.FloatInfo, semantic.types.CharInfo;
+import utils.exception, semantic.types.ClassUtils;
 
 class RangeInfo : InfoType {
 
@@ -38,6 +41,19 @@ class RangeInfo : InfoType {
 	    return _r._content.isSame (this._content);
 	}
 	return false;
+    }
+
+    static InfoType create (Word token, Expression [] templates) {
+	if (templates.length != 1 || !(cast (Type) templates [0])) {
+	    throw new UndefinedType (token, "prend un type primitif en template");
+	} else {
+	    auto type = templates [0].info.type;
+	    if (!(cast (FloatInfo)  type) && !(cast (IntInfo) type) &&
+		!(cast (CharInfo) type) && !(cast (LongInfo) type))
+		throw new UndefinedType (token, "prend un type primitif en template");
+	    auto arr = new RangeInfo (templates [0].info.type);
+	    return arr;
+	}
     }
     
     override InfoType BinaryOp (Word token, Expression right) {
@@ -137,6 +153,27 @@ class RangeInfo : InfoType {
 	return ret;
     }
 
+    override InfoType ParamOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstParam);
+	return ret;
+    }
+
+    override InfoType ReturnOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
+	return ret;
+    }
+
+    override InfoType CompOp (InfoType other) {
+	if (cast (UndefInfo) other || this.isSame (other)) {
+	    auto ra = this.clone ();
+	    ra.lintInst = &RangeUtils.InstAffectRight;
+	    return ra;
+	}
+	return null;
+    }
+    
 }
 
 

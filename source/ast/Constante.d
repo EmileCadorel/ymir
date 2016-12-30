@@ -8,6 +8,7 @@ import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
 import semantic.types.LongInfo, semantic.types.UndefInfo;
 import ast.Var;
+import semantic.types.NullInfo;
 
 /**
  Example : 
@@ -322,7 +323,7 @@ class Null : Expression {
 
     override Expression expression () {
 	auto aux = new Null (this._token);
-	aux.info = new Symbol (this._token, new PtrInfo (), true);
+	aux.info = new Symbol (this._token, new NullInfo (), true);
 	return aux;
     }
     

@@ -10,6 +10,7 @@ import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
 import semantic.types.LongInfo, semantic.types.StructInfo;
+import semantic.types.RangeInfo;
 import std.container;
 
 alias LInstList function (LInstList, LInstList) InstComp;
@@ -63,7 +64,8 @@ class InfoType {
 		    "array" : &ArrayInfo.create,
 		    "function" : &PtrFuncInfo.create,
 		    "ref" : &RefInfo.create,
-		    "long" : &LongInfo.create];
+		    "long" : &LongInfo.create,
+		    "range" : &RangeInfo.create];
     }    
     
     static InfoType factory (Word word, Expression [] templates) {

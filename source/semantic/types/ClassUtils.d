@@ -111,8 +111,74 @@ class ClassUtils {
 	llist += leftExp;
 	return llist;
     }
+    
+    static LInstList InstIs (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
+	return inst;
+    }
+    
+    static LInstList InstNotIs (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
+	return inst;
+    }
 
+    static LInstList InstIsNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.DEQUAL);
+	return inst;
+    }
     
+    static LInstList InstNotIsNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.NOT_EQUAL);
+	return inst;
+    }
     
+    static LInstList InstAffect (LInstList llist, LInstList rlist) {
+	LInstList inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, rightExp);
+	return inst;
+    }
+
+    static LInstList InstAffectNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, new LConstQWord (0));
+	return inst;
+    }
+
+    static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
+	LInstList inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createAddRef ();
+	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, rightExp);
+	return inst;
+    }
+
     
 }

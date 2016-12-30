@@ -1,16 +1,6 @@
-extern (C) putchar (c : char);
-
-def test (c) return cast:string ([c]);
-
-def print (s : string) {
-    for (it in s)
-	putchar (it);
-}
+struct (t : Test) Test;
 
 def main ( ) {
-    let a = test ('r');
-    print ("salut");
-    for it in a 
-	print(it.typeid);
+    let a = Test (null);
 }
 

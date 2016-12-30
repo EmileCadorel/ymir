@@ -149,6 +149,7 @@ class StructUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	Array!LExp params;
+	inst += llist;
 	foreach (it ; rlist) {
 	    params.insertBack (it.getFirst ());
 	    inst += it;
@@ -182,6 +183,18 @@ class StructUtils {
 	return inst;
     }
 
+    static LInstList InstAffectNull (LInstList llist, LInstList) {
+	LInstList inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
+	if (it is null) ClassUtils.createDstObj ();
+	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+	inst += new LWrite (leftExp, new LConstQWord (0));
+	return inst;
+    }    
+
+    
     static LInstList InstDestruct (LInstList llist) {
 	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createDstObj ();

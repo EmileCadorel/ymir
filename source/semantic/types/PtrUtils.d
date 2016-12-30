@@ -17,6 +17,14 @@ class PtrUtils {
 	inst += (new LWrite (leftExp, rightExp));
 	return inst;
     }
+    
+    static LInstList InstAffectNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += (new LWrite (leftExp, new LConstQWord (0)));
+	return inst;
+    }
 
     static LInstList InstOp (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
@@ -66,6 +74,22 @@ class PtrUtils {
 	return inst;
     }
 
+    static LInstList InstNotIsNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.NOT_EQUAL);
+	return inst;
+    }
+    
+    static LInstList InstIsNull (LInstList llist, LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.DEQUAL);
+	return inst;
+    }
+    
     static LInstList InstNull (LInstList, LInstList) {
 	auto inst = new LInstList;
 	inst += new LConstQWord (0);

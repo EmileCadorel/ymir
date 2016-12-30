@@ -267,24 +267,6 @@ class ArrayUtils {
 	LReg.lastId = last;
     }    
     
-    static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	if (auto cst = cast (LConstArray) rightExp) {
-	    assert (false, "TODO, a = [...]");
-	    //   return affectConstArray (inst, leftExp, cst);
-	}
-
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
-    }
 
     static LInstList InstAffectNull (LInstList llist, LInstList) {
 	auto inst = new LInstList;

@@ -60,7 +60,7 @@ class FunctionInfo : InfoType {
 		throw new TemplateSpecialisation (goods [0].func.ident, goods [1].func.ident);
 	    auto info = goods [0].validate (params);
 	    right.name = info.name;
-	    right.ret = info.type.type.clone ();
+	    right.ret = info.type.type.cloneForParam ();
 	    return right;
 	} catch (YmirException exp) {
 	    exp.print ();

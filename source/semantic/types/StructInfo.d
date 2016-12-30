@@ -5,7 +5,7 @@ import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.StructUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
-import semantic.types.PtrInfo, std.stdio;
+import semantic.types.NullInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
@@ -189,12 +189,10 @@ class StructInfo : InfoType {
 	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstTrue;
 	    else b.lintInst = &BoolUtils.InstFalse;
 	    return b;
-	} else if (auto _ptr = cast (PtrInfo) right.info.type) {
-	    if (_ptr && cast (VoidInfo) _ptr.content) {
-		auto b = new BoolInfo ();
-		b.lintInst = &StructUtils.InstEqual;
-		return b;
-	    }
+	} else if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &StructUtils.InstEqual;
+	    return b;	    
 	}
 	return null;
     }    
@@ -209,12 +207,10 @@ class StructInfo : InfoType {
 	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstFalse;
 	    else b.lintInst = &BoolUtils.InstTrue;
 	    return b;
-	} else if (auto _ptr = cast (PtrInfo) right.info.type) {
-	    if (_ptr && cast (VoidInfo) _ptr.content) {
-		auto b = new BoolInfo ();
-		b.lintInst = &StructUtils.InstNotEqual;
-		return b;
-	    }
+	} else if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto b = new BoolInfo ();
+	    b.lintInst = &StructUtils.InstNotEqual;
+	    return b;
 	}
 	return null;
     }    
@@ -225,15 +221,18 @@ class StructInfo : InfoType {
 	    auto other = this.clone ();
 	    other.lintInst = &StructUtils.InstAffect;
 	    return other;
+	} else if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto other = this.clone ();
+	    other.lintInst = &StructUtils.InstAffectNull;
+	    return other;	    
 	}
 	return null;
     }
     
-
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto other = this.clone ();
-	    other.lintInst = &StructUtils.InstAffectRight;
+	    other.lintInst = &ClassUtils.InstAffectRight;
 	    return other;
 	}
 	return null;

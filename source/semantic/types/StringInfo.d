@@ -8,6 +8,9 @@ import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
 import semantic.types.RefInfo, semantic.types.ClassUtils;
 import semantic.types.LongInfo, std.container;
 import semantic.types.ArrayUtils;
+import semantic.types.NullInfo, semantic.types.BoolInfo;
+import syntax.Keys;
+
 
 class StringInfo : InfoType {
 
@@ -19,7 +22,7 @@ class StringInfo : InfoType {
 	if (cast (StringInfo) other || cast (UndefInfo) other) {
 	    auto ret = new StringInfo ();
 	    ret.lintInstS.insertBack (&StringUtils.InstComp);
-	    ret.lintInst = &StringUtils.InstAffectRight;
+	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (StringInfo) _ref.content  && !this.isConst) {
@@ -45,6 +48,8 @@ class StringInfo : InfoType {
 	if (token == Tokens.EQUAL) return Affect (right);
 	else if (token == Tokens.PLUS) return Plus (right);
 	else if (token == Tokens.PLUS_AFF) return PlusAff (right);
+	else if (token == Keys.IS) return Is (right);
+	else if (token == Keys.NOT_IS) return NotIs (right);
 	else return null;
     }
 
@@ -56,12 +61,42 @@ class StringInfo : InfoType {
     private InfoType Affect (Expression right) {
 	if (cast(StringInfo)right.info.type) {
 	    auto str = new StringInfo ();
-	    str.lintInst = &StringUtils.InstAffect;
+	    str.lintInst = &ClassUtils.InstAffect;
 	    return str;
+	} else if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new StringInfo ();
+	    ret.lintInst = &ClassUtils.InstAffectNull;
+	    return ret;	    
 	}
 	return null;
     }    
 
+    private InfoType Is (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstIs;
+	    return ret;
+	}
+	return null;
+    }
+
+    private InfoType NotIs (Expression right) {
+	if (auto _ptr = cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIsNull;
+	    return ret;	    
+	} else if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &ClassUtils.InstNotIs;
+	    return ret;
+	}
+	return null;
+    }    
+    
     private InfoType PlusAff (Expression right) {
 	if (cast (StringInfo) right.info.type) {
 	    auto str = new StringInfo ;
@@ -83,7 +118,7 @@ class StringInfo : InfoType {
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto str = new StringInfo ();
-	    str.lintInst = &StringUtils.InstAffectRight;
+	    str.lintInst = &ClassUtils.InstAffectRight;
 	    return str;
 	}
 	return null;

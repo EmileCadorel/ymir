@@ -7,6 +7,7 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.StringInfo;
 import semantic.types.StructInfo;
+import semantic.types.NullInfo;
 
 class PtrInfo : InfoType {
 
@@ -71,6 +72,10 @@ class PtrInfo : InfoType {
 	} else if (type && cast (VoidInfo) type.content) {
 	    auto ret = new PtrInfo (type.content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect;
+	    return ret;
+	} else if (cast (NullInfo) right.info.type) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &PtrUtils.InstAffectNull;
 	    return ret;
 	}
 	return null;
@@ -149,7 +154,11 @@ class PtrInfo : InfoType {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &PtrUtils.InstIs;
 	    return ret;
-	} 
+	} else if (cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &PtrUtils.InstIsNull;
+	    return ret;
+	}
 	return null;
     }
 
@@ -158,7 +167,11 @@ class PtrInfo : InfoType {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &PtrUtils.InstNotIs;
 	    return ret;
-	} 
+	} else if (cast (NullInfo) right.info.type) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &PtrUtils.InstNotIsNull;
+	    return ret;
+	}
 	return null;
     }    
     
@@ -239,14 +252,7 @@ class PtrInfo : InfoType {
 	    auto ptr = this.clone ();
 	    ptr.lintInst = &PtrUtils.InstAffect;
 	    return ptr;
-	} else if (auto str = cast (StructInfo) other) {
-	    if (cast (VoidInfo) this._content) {
-		auto ret = other.clone ();
-		ret.lintInst = &PtrUtils.InstAffect;
-		return ret;
-	    }	    
-	}
-	       
+	}	       
 	return null;
     }
     

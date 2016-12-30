@@ -5,7 +5,7 @@ import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.PtrFuncUtils, syntax.Keys;
 import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
-import semantic.types.PtrInfo, std.stdio;
+import semantic.types.NullInfo, std.stdio;
 import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 
@@ -69,10 +69,9 @@ class PtrFuncInfo : InfoType {
 	    ret.lintInst = &PtrFuncUtils.InstAffect;
 	    ret.rightTreatment = &PtrFuncUtils.InstConstFunc;
 	    return ret;
-	} else if (auto ptr = cast (PtrInfo) right.info.type) {
-	    if (!cast (VoidInfo) ptr.content) return null;
+	} else if (cast (NullInfo) right.info.type) {
 	    auto ret = this.clone ();
-	    ret.lintInst = &PtrFuncUtils.InstAffect;
+	    ret.lintInst = &PtrFuncUtils.InstAffectNull;
 	    return ret;
 	}
 	return null;
@@ -91,7 +90,7 @@ class PtrFuncInfo : InfoType {
     }
 
     private InfoType Is (Expression right) {
-	if (cast (PtrInfo) right.info.type) {
+	if (cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &PtrFuncUtils.InstIs;
 	    return ret;
@@ -104,7 +103,7 @@ class PtrFuncInfo : InfoType {
     }
 
     private InfoType NotIs (Expression right) {
-	if (cast (PtrInfo) right.info.type) {
+	if (cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &PtrFuncUtils.InstNotIs;
 	    return ret;
@@ -148,7 +147,7 @@ class PtrFuncInfo : InfoType {
 	foreach (it ; 0 .. this._params.length) {
 	    InfoType info = this._params [it];	    
 	    auto type = params.params [it].info.type.CompOp (info);
-	    if (type.isSame(info)) {
+	    if (type && type.isSame(info)) {
 		score.score += Frame.SAME;
 		score.treat.insertBack (type);
 	    } else if (type !is null) {
@@ -157,7 +156,7 @@ class PtrFuncInfo : InfoType {
 	    } else return null;
 	}
 	
-	auto ret = this._ret.clone ();
+	auto ret = this._ret.cloneForParam ();
 	score.dyn = true;
 	score.ret = ret;
 	return score;
