@@ -50,14 +50,14 @@ class Dot : Expression {
     }    
 
     /**
-     Returns l'élément gauche de l'expression
+     Returns: l'élément gauche de l'expression
      */
     Expression left () {
 	return this._left;
     }
     
     /**
-     Returns l'élément droit de l'expression
+     Returns: l'élément droit de l'expression
      */
     Expression right () {
 	return this._right;

@@ -78,28 +78,28 @@ class If : Instruction {
     }
 
     /**
-     Returns le test de l'instruction
+     Returns: le test de l'instruction
      */
     Expression test () {
 	return this._test;
     }
 
     /**
-     Returns le caster de l'instruction 
+     Returns: le caster de l'instruction 
      */
     InfoType info () {
 	return this._info;
     }
 
     /**
-     Returns Le block a éxecuter si l'expression est évalué à vrai
+     Returns: Le block a éxecuter si l'expression est évalué à vrai
      */
     Block block () {
 	return this._block;
     }
 
     /**
-     Returns l'instruction 'else' du 'if' (peut être null)
+     Returns: l'instruction 'else' du 'if' (peut être null)
      */
     Else else_ () {
 	return this._else;
@@ -248,21 +248,21 @@ class ElseIf : Else {
     }
     
     /**
-     Returns Le test de l'instruction
+     Returns: Le test de l'instruction
      */
     Expression test () {
 	return this._test;
     }
 
     /**
-     Returns Le 'else' de l'instruction (peut être null)
+     Returns: Le 'else' de l'instruction (peut être null)
      */
     Else else_ () {
 	return this._else;
     }
 
     /**
-     Returns Le caster du test (peut être null)
+     Returns: Le caster du test (peut être null)
      */
     InfoType info () {
 	return this._info;

@@ -98,7 +98,7 @@ class Var : Expression {
     }
 
     /**
-     Returns 'true' si la variable est un type.
+     Returns: 'true' si la variable est un type.
      */
     bool isType () {
 	auto info = Table.instance.get (this._token.str);
@@ -166,7 +166,7 @@ class ArrayVar : Var {
     }
 
     /**
-     Returns 'true'
+     Returns: 'true'
      */
     override bool isType () {
 	return true;
@@ -205,14 +205,14 @@ class TypedVar : Var {
     }
 
     /**
-     Returns le type de la variable
+     Returns: le type de la variable
      */
     Var type () {
 	return this._type;
     }
 
     /**
-     Returns L'information de type de la variable
+     Returns: L'information de type de la variable
      */
     InfoType getType () {
 	auto type = this._type.asType ();
@@ -246,7 +246,7 @@ class Type : Var {
     }
 
     /**
-     Returns 'this'
+     Returns: 'this'
      */
     override Type asType () {
 	return this;

@@ -30,14 +30,14 @@ class Struct : Declaration {
     }
 
     /**
-     Returns les paramètres de la structure
+     Returns: les paramètres de la structure
      */
     Array!Var params () {
 	return this._params;
     }
 
     /**
-     Returns L'identifiant de la structure
+     Returns: L'identifiant de la structure
      */
     Word ident () const {
 	return this._ident;

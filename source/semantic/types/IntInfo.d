@@ -6,21 +6,44 @@ import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
 import semantic.types.RefInfo, semantic.types.StringInfo;
 
+/**
+ Cette classe regroupe les informations de type du type int.
+ */
 class IntInfo : InfoType {
 
     this () {
     }
 
+    /**
+     Params: 
+     other = le deuxieme type.
+     Returns: les deux type sont il identique ?
+     */
     override bool isSame (InfoType other) {
 	return (cast (IntInfo) other) !is null;
     }
-    
+
+    /**
+     Créé une instance de int.
+     Params:
+     token = l'identifiant du créateur.
+     templates = les template de l'identifiant.
+     Returns: une instance de int.
+     Throws: NotATemplates.
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0) 
 	    throw new NotATemplate (token);
 	return new IntInfo ();
     }
 
+    /**
+     La surcharge de operateur binaire de int.
+     Params:
+     token = l'operateur.
+     right = l'operande droite.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOp (Word token, Expression right) {
 	switch (token.str) {
 	case Tokens.EQUAL.descr: return Affect (right);
@@ -61,11 +84,24 @@ class IntInfo : InfoType {
 	}
     }
 
+    /**
+     Surcharge des operateur binaire à droite.
+     Params:
+     op = l'operateur.
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOpRight (Word op, Expression left) {
 	if (op == Tokens.EQUAL) return AffectRight (left);
 	return null;
     }
-    
+
+    /**
+     Surcharge des operateur unaire.
+     Params:
+     op = l'operateur.
+     Returns: le type résultat ou null.
+     */
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.MINUS) {
 	    auto ret = new IntInfo ();
@@ -76,7 +112,13 @@ class IntInfo : InfoType {
 	else if (op == Tokens.DMINUS && !this.isConst) return ssub ();
 	return null;
     }
-    
+
+    /**
+     Surcharge de l'operateur de cast.
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: Le type résultat ou null.
+     */
     override InfoType CastOp (InfoType other) {
 	if (cast(IntInfo)other !is null) return this;
 	else if (cast(BoolInfo) other !is null) {
@@ -91,6 +133,12 @@ class IntInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur de cast automatique
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || cast (IntInfo) other) {
 	    auto ret = new IntInfo ();
@@ -105,7 +153,11 @@ class IntInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Operateur '&'
+     Returns: un pointeur sur int.     
+     */
     private InfoType toPtr () {
 	auto other = new PtrInfo ();
 	other.content = new IntInfo ();
@@ -113,18 +165,32 @@ class IntInfo : InfoType {
 	return other;
     }
 
+    /**
+     Operateur '++'
+     Returns: un int.
+     */    
     private InfoType pplus () {
 	auto other = new IntInfo ();
 	other.lintInstS.insertBack (&IntUtils.InstPplus);
 	return other;
     }
 
+    /**
+     Operateur '--'.
+     Returns: un int.
+     */
     private InfoType ssub () {
 	auto other = new IntInfo ();
 	other.lintInstS.insertBack (&IntUtils.InstSsub);
 	return other;
     }
-    
+
+    /**
+     Operateur '='.
+     Params:
+     right = l'operande droite
+     Returns: le type résultat ou null.
+     */
     private InfoType Affect (Expression right) {
 	if (cast(IntInfo)right.info.type !is null) {
 	    auto i = new IntInfo ();
@@ -134,8 +200,14 @@ class IntInfo : InfoType {
 	return null;
     }
 
-    private InfoType AffectRight (Expression right) {
-	if (cast(UndefInfo) right.info.type !is null) {
+    /**
+     Operateur '=' à droite.
+     Params:
+     left = l'operande gauche.
+     Returns: le type résultat ou null.
+     */
+    private InfoType AffectRight (Expression left) {
+	if (cast(UndefInfo) left.info.type !is null) {
 	    auto i = new IntInfo ();
 	    i.lintInst = &IntUtils.InstAffect;
 	    return i;
@@ -143,6 +215,13 @@ class IntInfo : InfoType {
 	return null;
     }
     
+    /**
+     Operateur d'affectation.
+     Params:
+     op = l'operateur.
+     right = l'operande droite.
+     Returns: le type résultat ou null.
+     */
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast(IntInfo) right.info.type) {
 	    auto i = new IntInfo ();
@@ -151,7 +230,14 @@ class IntInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Operateur de test.
+     Params:
+     op = l'operateur.
+     right = l'operande droite.
+     Returns: le type résultat ou null.
+     */
     private InfoType opTest (Tokens op) (Expression right) {
 	if (cast(IntInfo) right.info.type) {
 	    auto b = new BoolInfo ();
@@ -160,7 +246,14 @@ class IntInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Tous les autres operateur.
+     Params:
+     op = l'operateur.
+     right = l'operande droite.
+     Returns: le type résultat ou null.
+     */
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast (IntInfo) right.info.type !is null) {
 	    auto i = new IntInfo ();
@@ -170,15 +263,12 @@ class IntInfo : InfoType {
 	return null;
     }
 
-    private InfoType opNormInv (Tokens op) (Expression right) {
-	if (cast (IntInfo) right.info.type !is null) {
-	    auto i = new IntInfo ();
-	    i.lintInst = &IntUtils.InstOpInv!(op);
-	    return i;
-	}
-	return null;
-    }
-
+    /**
+     Operateur '^^='
+     Params:
+     right = l'operande droite de l'expression
+     Returns: le type résultat ou null.
+     */
     private InfoType dxorAffOp (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto i = new IntInfo ();
@@ -187,7 +277,13 @@ class IntInfo : InfoType {
 	}
 	return null;	
     }
-    
+
+    /**
+     Operateur '^^'
+     Params:
+     right = l'operateur droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType dxorOp (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto i = new IntInfo ();
@@ -197,7 +293,12 @@ class IntInfo : InfoType {
 	return null;
     }
 
-
+    /**
+     Operateur d'attribut.
+     Params:
+     var = l'attribut auquel on veut acceder
+     Returns: Le type résultat ou null.
+     */
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "max") return Max ();
@@ -207,30 +308,51 @@ class IntInfo : InfoType {
 	return null;
     }
 
+    
+    /**
+     La constante d'init de int
+     Returns: un int.
+     */
     private InfoType Init () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &IntUtils.IntInit;
 	return _int;
     }
 
+    /**
+     La constante max de int
+     Returns: un int.
+     */
     private InfoType Max () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &IntUtils.IntMax;
 	return _int;
     }
-
+    
+    /**
+     La constante min de int
+     Returns: un int.
+     */
     private InfoType Min () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &IntUtils.IntMin;
 	return _int;
     }
 
+    /**
+     La constante de taille de int
+     Returns: un int.
+     */
     private InfoType SizeOf () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &IntUtils.IntSizeOf ;
 	return _int;
     }
 
+    /**
+     La constante de nom de int
+     Returns: un string.
+     */
     private InfoType StringOf () {
 	auto _str = new StringInfo ();
 	if (this.isConst) 
@@ -239,23 +361,38 @@ class IntInfo : InfoType {
 	    _str.lintInst = &IntUtils.IntStringOf;
 	return _str;
     }
-    
+
+    /**
+     Returns: le nom du type int.
+     */
     override string typeString () {
 	return "int";
     }
 
+    /**
+     Returns: une nouvelle instance de int.
+     */
     override InfoType clone () {
 	return new IntInfo ();
     }
 
+    /**
+     Returns: une nouvelle instance de int.
+    */
     override InfoType cloneForParam () {
 	return new IntInfo ();
     }
 
+    /**
+     Returns: la taille en mémoire du type int.
+     */
     override LSize size () {
 	return LSize.INT;
     }
 
+    /**
+     Returns: la taille en mémoire du type int.
+     */
     static LSize sizeOf () {
 	return LSize.INT;
     }

@@ -43,21 +43,21 @@ class Proto : Declaration {
     }
 
     /**
-     Returns Le type du prototype
+     Returns: Le type du prototype
      */
     Var type () {
 	return this._type;
     }
 
     /**
-     Returns Les paramètres du prototype
+     Returns: Les paramètres du prototype
      */
     Array!Var params () {
 	return this._params;
     }
 
     /**
-     Returns L'identifiant du prototype
+     Returns: L'identifiant du prototype
      */
     Word ident () {
 	return this._ident;

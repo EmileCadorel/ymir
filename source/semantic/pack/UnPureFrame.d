@@ -6,15 +6,30 @@ import semantic.pack.Table, semantic.pack.Symbol;
 import semantic.types.UndefInfo, semantic.types.VoidInfo;
 import semantic.pack.FrameTable, syntax.Word;
 
+/**
+ Cette classe est une instance de frame impure.
+ */
 class UnPureFrame : Frame {
-    
+
+    /** Le nom de la frame */
     private string _name;    
-    
+
+    /**
+     Params:
+     namespace = le contexte de la frame.
+     func = la fonction associé à la frame.
+     */
     this (string namespace, Function func) {
 	super (namespace, func);
 	this._name = func.ident.str;
     }
 
+    /**
+     Analyse sémantique de la frame.
+     Params:
+     params = Les informations de type à appliqué à la frame.
+     Returns: le prototype de la frame analysé.
+     */
     override FrameProto validate (Array!InfoType params) {
 	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
@@ -77,7 +92,13 @@ class UnPureFrame : Frame {
 	Table.instance.quitFrame ();
 	return proto;	
     }
-    
+
+    /**
+     Analyse sémantique de la frame.
+     Params:
+     params = Les informations de type à appliqué à la frame.
+     Returns: le prototype de la frame analysé.
+    */
     override FrameProto validate (ParamList params) {
 	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;

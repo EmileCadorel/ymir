@@ -61,7 +61,7 @@ class Cast : Expression {
     }
 
     /**
-     Returns Le contenu de l'expression
+     Returns: Le contenu de l'expression
      */
     Expression expr () {
 	return this._expr;

@@ -6,21 +6,46 @@ import semantic.pack.Table, semantic.pack.Symbol;
 import semantic.types.UndefInfo, semantic.types.VoidInfo;
 import semantic.pack.FrameTable, syntax.Word, ast.Proto;
 
+/**
+ Les frames externs sont uniquement des prototypes, elle sont obtenu pas import, ou déclaration. 
+ */
 class ExternFrame : Frame {
 
+    /** Le nom de la frame */
     private string _name;
+
+    /** Le namespace de la frame (module et fonction parent) */
     private string _namespace;
+
+    /** Le protocole de la frame */
     private Proto _proto;
+
+    /** L'identifiant de mangling (si 'C' aucun mangle ne sera fait) */
     private string _from;
+
+    /** Le protocole créé à la sémantique */
     private FrameProto _fr;
-    
+
+
+    /** 
+     Params:
+     namespace = le contexte du prototype
+     from = l'information pour le mangling
+     func = le prototype
+    */
     this (string namespace, string from, Proto func) {
 	super (namespace, null);
 	this._name = func.ident.str;
 	this._from = from;
 	this._proto = func;
     }
-    
+
+    /**
+     Le prototype de fonction peut-il servir à l'appel 
+     Params:
+     params = les paramètres de l'appel
+     Returns: Un score d'application (null si non applicable)
+     */
     override ApplicationScore isApplicable (ParamList params) {
 	auto score = new ApplicationScore (this._proto.ident);
 	if (params.params.length == 0 && this._proto.params.length == 0) {
@@ -50,6 +75,10 @@ class ExternFrame : Frame {
 	return null;
     }
 
+    /**
+     Créée le prototype pour la génération de code intérmédiaire.
+     Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')
+     */
     override FrameProto validate () {
 	string name = this._name;
 	if (this._from is null || this._from != "C") {
@@ -83,10 +112,17 @@ class ExternFrame : Frame {
 	return this._fr;
     }
 
+    /**
+     Créée le prototype pour la génération de code intérmédiaire.
+     Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')
+    */
     override FrameProto validate (ParamList) {
 	return validate ();
     }
-
+    
+    /**
+     Returns: l'identifiant du prototype
+     */
     override Word ident () {
 	return this._proto.ident;
     }

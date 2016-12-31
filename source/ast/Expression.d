@@ -15,7 +15,7 @@ class Expression : Instruction {
     }
 
     /**
-     Returns les informations de l'expression
+     Returns: les informations de l'expression
      */
     ref Symbol info () {
 	return this._info;

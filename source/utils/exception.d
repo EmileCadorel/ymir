@@ -3,8 +3,15 @@ public import utils.YmirException;
 import syntax.Word, semantic.pack.Symbol, std.outbuffer, ast.ParamList;
 import ast.Var;
 
+/**
+ La variable est de type indéfinis mais est utilisé.
+ */
 class UninitVar : YmirException {
-    
+
+    /**
+     Params:
+     token = Le token de la variable
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -16,8 +23,17 @@ class UninitVar : YmirException {
 
 }
 
+/**
+ Le type x n'a pas d'attribut y
+ */
 class UndefinedAttribute : YmirException {
 
+    /**
+     Params:
+     token = l'operateur '.'
+     left = l'element de gauche
+     right = l'element de droite
+    */
     this (Word token, Symbol left, Var right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -30,7 +46,16 @@ class UndefinedAttribute : YmirException {
     
 }
 
+/**
+ La fonction se termine sans d'instruction 'return', mais ne retourne pas void
+ */
 class NoReturnStmt : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de la fonction
+     type = le type que la fonction doit retourner
+     */
     this (Word token, Symbol type) {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -43,8 +68,17 @@ class NoReturnStmt : YmirException {
     }
 }
 
+/**
+ Le char d'échappement x n'existe pas
+ */
 class UndefinedEscapeChar : YmirException {
 
+    /**
+     Params:
+     token = emplacement de la chaine
+     index = index dans la chaine
+     elem = char qui n'existe pas
+     */
     this (Word token, ulong index, string elem) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -58,9 +92,17 @@ class UndefinedEscapeChar : YmirException {
     
 }
 
-
+/**
+ L'operateur op n'existe pas entre les types x et y
+ */
 class UndefinedOp : YmirException {
 
+    /**
+     Params:
+     token = l'operateur
+     left = l'element gauche
+     right = l'element droit
+     */
     this (Word token, Symbol left, Symbol right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -73,6 +115,12 @@ class UndefinedOp : YmirException {
 	msg = buf.toString();        
     }
 
+    /**
+     Pour les operateurs unaire
+     Params:
+     token = l'operateur
+     left = l'element
+     */
     this (Word token, Symbol left) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -85,7 +133,13 @@ class UndefinedOp : YmirException {
 	msg = buf.toString();        
     }
 
-    
+    /**
+     Pour les operateur multiple
+     Params:
+     token = l'operateur
+     left = l'element de gauche
+     right = l'element de droite
+     */
     this (Word token, Symbol left, ParamList right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -104,6 +158,13 @@ class UndefinedOp : YmirException {
 	msg = buf.toString();        
     }
 
+    /**
+     Params:
+     token = l'operateur
+     token2 = la fin de l'operateur
+     left = l'element de gauche
+     right = l'element de droite
+     */
     this (Word token, Word token2, Symbol left, ParamList right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -121,13 +182,20 @@ class UndefinedOp : YmirException {
 	super.addLine (buf, token.locus, token2.locus);
 	msg = buf.toString();        
     }
-
     
     
 }
 
+/**
+ Les types x et y ne sont pas compatible
+ */
 class IncompatibleTypes : YmirException {
 
+    /**
+     Params:
+     left = le premier type
+     right = le second type
+     */
     this (Symbol left, Symbol right) {
 	auto buf = new OutBuffer;
 	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
@@ -139,14 +207,19 @@ class IncompatibleTypes : YmirException {
 	if (!right.sym.isEof)
 	    super.addLine (buf, right.sym.locus);
 	msg = buf.toString ();
-    }
-    
-
+    }    
 }
 
-
+/**
+ l'element x n'est pas une lvalue
+ */
 class NotLValue : YmirException {
 
+    /**
+     Params:
+     token = l'identifiant de l'element
+     type = le type de l'element
+     */
     this (Word token, Symbol type) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -160,8 +233,15 @@ class NotLValue : YmirException {
     
 }
 
-
+/**
+ L'instruction x n'est pas atteignable
+ */
 class UnreachableStmt : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de l'instruction
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -173,9 +253,15 @@ class UnreachableStmt : YmirException {
     }
 }
 
-
+/**
+ La variable x n'existe pas
+ */
 class UndefinedVar : YmirException {
 
+    /**
+     Params:
+     token = l'identifiant de la variable
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -187,7 +273,15 @@ class UndefinedVar : YmirException {
     
 }
 
+/**
+ La variable x n'est pas un type
+ */
 class UseAsType : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de la variable
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -197,7 +291,16 @@ class UseAsType : YmirException {
     }
 }
 
+/**
+ La variable x est un type
+ */
 class UseAsVar : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de la variable
+     info = le type de la variable
+     */
     this (Word token, Symbol info) {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -209,7 +312,16 @@ class UseAsVar : YmirException {
 }
 
 
+/**
+ La variable x est déjà définis
+ */
 class ShadowingVar : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de la variable
+     token2 = l'identifiant de la première définition
+     */
     this (Word token, Word token2) {
 	OutBuffer buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -224,8 +336,16 @@ class ShadowingVar : YmirException {
     }
 }
 
-
+/**
+ L'identifiant de boucle x est déjà utilisé
+ */
 class MultipleLoopName : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant de boucle
+     token2 = l'identifiant de la première définition
+     */
     this (Word token, Word token2) {
 	auto buf = new OutBuffer;
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -241,10 +361,15 @@ class MultipleLoopName : YmirException {
     }
 }
 
-
-
+/**
+ Le type x n'est pas un template
+ */
 class NotATemplate : YmirException {
 
+    /**
+     Params:
+     token = l'identifiant du type
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%sErreur%s: Le type %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
@@ -252,24 +377,36 @@ class NotATemplate : YmirException {
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
 
-    }
-    
+    }   
 }
 
+/**
+ Le type x n'existe pas
+ */
 class UndefinedType : YmirException {
+
+    /**
+     Params:
+     token = l'identifiant du type
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Le type '%s%s%s' n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
     }
 
-    this (Word token, string elem) {
+    /**
+     Params:
+     token = l'identifiant du type
+     msg = le message (exemple: 'prend 2 type en template')
+     */
+    this (Word token, string msg) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%sErreur%s: Le type %s'%s'%s %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, elem);
-	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Le type '%s%s%s' %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, msg);
 
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
@@ -277,24 +414,40 @@ class UndefinedType : YmirException {
     
 }
 
+/**
+ La fonction ne retourne pas void mais on a trouvé 'return;'
+ */
 class NoValueNonVoidFunction : YmirException {
 
+    /**
+     Params:
+     token = emplacement du retour
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%sErreur%s: La fonction ne retourne pas void :",
+	buf.writef ("%s:(%d,%d): ",
+		      token.locus.file, token.locus.line, token.locus.column);
+	
+	buf.writefln ("%sErreur%s: La fonction ne retourne pas void :",
 		    Colors.RED.value,
 		    Colors.RESET.value);
-	buf.writefln ("%s:(%d,%d): ",
-		      token.locus.file, token.locus.line, token.locus.column);
+
 
 	super.addLine (buf, token.locus);
 	msg = buf.toString ();
     }
-
 }
 
+/**
+ Impossible de départager les définitions
+ */
 class TemplateSpecialisation : YmirException {
 
+    /**
+     Params:
+     first = la première définition
+     second = la seconde définition
+     */
     this (Word first, Word second) {
 	OutBuffer buf = new OutBuffer ();
 	buf.writef ("%s(%d,%d): ", first.locus.file, first.locus.line, first.locus.column);
@@ -311,9 +464,16 @@ class TemplateSpecialisation : YmirException {
     
 }
 
-
+/**
+ C'est une note.
+ Les erreurs précédentes sont arrivées lors de la création de la fonction template x.
+ */
 class TemplateCreation : YmirException {
 
+    /**
+     Params:
+     token = l'emplacement de l'appel
+     */
     this (Word token) {
 	OutBuffer buf = new OutBuffer ();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -326,7 +486,22 @@ class TemplateCreation : YmirException {
 
 }
 
+/**
+ La fonction utilise un type de retour qu'elle définis elle même.
+ Example:
+ ---
+ def test (n) {
+    return test (n - 1) + n;
+ }
+ ---
+ */
 class TemplateInferType : YmirException {
+
+    /**
+     Params:
+     token = L'emplacement de l'appel
+     func = La fonction impossible à déduire
+     */
     this (Word token, Word func) {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -343,7 +518,16 @@ class TemplateInferType : YmirException {
     }
 }
 
+/**
+ La définition de x nécessite la connaissance de tout les types.
+ */
 class NeedAllType : YmirException {
+
+    /**
+     Params:
+     token = l'emplacement de la définition
+     type = le type de définition
+     */
     this (Word token, string type = "fonction") {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -355,8 +539,15 @@ class NeedAllType : YmirException {
     }
 }
 
-
+/**
+ on a trouvé un break en dehors d'un scope 'breakable'.
+ */
 class BreakOutSideBreakable : YmirException {
+
+    /**
+     Params:
+     token = l'emplacement du break;
+     */
     this (Word token) {
 	auto buf = new OutBuffer ();
 	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -367,7 +558,16 @@ class BreakOutSideBreakable : YmirException {
     }
 }
 
+/**
+ l'identifiant de boucle x n'existe pas.
+*/
 class BreakRefUndefined : YmirException {
+
+    /**
+     Params:
+     token = l'emplacement du break;
+     name = l'identifiant de boucle
+     */
     this (Word token, string name) {
 	auto buf = new OutBuffer ();
 	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
@@ -380,8 +580,15 @@ class BreakRefUndefined : YmirException {
     }
 }
 
+/**
+ Division par zero.
+*/
 class FloatingPointException : YmirException {
 
+    /**
+     Params:
+     locus = l'emplacement de la division
+     */
     this (Location locus) {
 	auto buf = new OutBuffer;
 	buf.writefln ("%s:(%d, %d): %sErreur%s Division par zero ",

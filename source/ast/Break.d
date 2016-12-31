@@ -31,7 +31,7 @@ class Break : Instruction {
     }
 
     /**
-     Returns le nombre de block à remonter
+     Returns: le nombre de block à remonter
      */
     ulong nbBlock () {
 	return this._nbBlock;

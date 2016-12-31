@@ -9,6 +9,10 @@ import semantic.types.ClassUtils, semantic.types.InfoType;
 import ast.Expression, lint.LVisitor, semantic.types.ArrayInfo;
 import ast.Constante, syntax.Word, ast.ParamList;
 
+
+/**
+ Cette classe contient un ensemble de fonctions statique qui permettent la transformation d'un tableau en lint.
+ */
 class ArrayUtils {
 
     static immutable string __CstName__ = "_YPCstArray";
@@ -18,14 +22,21 @@ class ArrayUtils {
     static immutable string __DstArray__ = "_YPDstArray";
     
     
-    /**
-     def cstArray (size : int, ofsize : int) {
-     let arr = malloc (size + 9);
-     arr.int = 1;
-     (arr + 4).int = size / ofsize;
-     return arr;
-     }
-    */
+    /++
+     + Fonction de construction d'un tableau en lint.
+     + Example:
+     + ---
+     + def cstArray (size : int, ofsize : int) {
+     +    let arr = malloc (size + 3 * long);
+     +    arr.long = 1;
+     +    (arr + long) = $destruct
+     +    (arr + 2 * long).long = size / ofsize;
+     +    return arr;
+     + }
+     + ---
+     + Params:
+     + dstName = le nom du destructeur du tableau.
+     +/
     static void createCstArray (string dstName = "free") {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -59,13 +70,17 @@ class ArrayUtils {
 	LReg.lastId = last;
     }    
     
-    /**
-     def dstArray (a : array!object) {
-        for (i in a) 
-	    dstObj (i);
-	free (a);
-     }
-     */
+    /++
+     + Fonction de destruction du tableau (si il contient des objets).
+     + Example:
+     + ---
+     + def dstArray (a : array!object) {
+     +    for (i in a) 
+     +         dstObj (i);
+     +    free (a);
+     + }
+     + ---     
+     +/
     static void createDstArray () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -92,26 +107,32 @@ class ArrayUtils {
 	LReg.lastId = last;
     }       
 
-    /**
-     def plusArray (a1 : array!int, a2 : array!int) {
-        let arr = malloc (a1.size + a2.size + innerSize);
-	arr.int = 1;
-	(arr + 4).int = a1.size + a2.size;
-	arr = cast:array!(T) (arr);
-	let i = 0;
-	while (i < a1.size) {
-	    arr[i] = a1[i];
-	    i++;
-	}
-	let j = 0;
-	while (j < a2.size) {
-	    arr [i] = a2 [j];
-	    j ++;
-	    i ++;
-	}
-	return arr;
-     }
-     */
+    /++
+     + Fonctions d'addition de deux tableau en lint. 
+     + Example:
+     + ---
+     + def plusArray (a1 : array!T, a2 : array!T) {
+     +    let arr = malloc (a1.size + a2.size + 3 * long);
+     +    arr.long = 1;
+     +    (arr + long).long = (a1 + long).long;
+     +    arr.size = a1.size + a2.size;
+     +    let i = 0;
+     +    while (i < a1.size) {
+     +        arr[i] = a1[i];
+     +        i++;
+     +    }
+     +    let j = 0;
+     +    while (j < a2.size) {
+     +        arr [i] = a2 [j];
+     +        j ++;
+     +        i ++;
+     +    }
+     +    return arr;
+     + }
+     + ---
+     + Params:
+     + _psize = la taille du type contenu dans le tableau.
+     +/
     static void createPlusArray (LSize _psize) {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -188,6 +209,30 @@ class ArrayUtils {
 	LReg.lastId = last;
     }
 
+    /++
+     + Addition de deux tableaux qui contiennent de objets.     
+     + Example:
+     + ---
+     + def plusArray (a1 : array!Object, a2 : array!Object) {
+     +    let arr = malloc (a1.size + a2.size + 3 * long);
+     +    arr.long = 1;
+     +    (arr + long).long = (a1 + long).long;
+     +    arr.size = a1.size + a2.size;
+     +    let i = 0;
+     +    while (i < a1.size) {
+     +        arr[i] = a1[i];
+     +        i++;
+     +    }
+     +    let j = 0;
+     +    while (j < a2.size) {
+     +        arr [i] = a2 [j];
+     +        j ++;
+     +        i ++;
+     +    }
+     +    return arr;
+     + }
+     + ---
+     +/
     static void createPlusArrayObj () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -267,7 +312,10 @@ class ArrayUtils {
 	LReg.lastId = last;
     }    
     
-    
+    /**
+     Affect un tableau (qui n'a pas encore été affecté) à null, .
+     Returns: les instructions du lint.
+     */
     static LInstList InstAffectNullRight (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -275,8 +323,13 @@ class ArrayUtils {
 	inst += new LWrite (leftExp, new LConstQWord (0));
 	return inst;
     }
-    
 
+    /** 
+     Destruit un tableau.
+     Params:
+     llist = les instructions du tableau.
+     Returns: les instructions du lint.
+     */
     static LInstList InstDestruct (LInstList llist) {
 	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createDstObj ();
@@ -286,7 +339,13 @@ class ArrayUtils {
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
     }
-
+    
+    /**
+     Recherche la taille du tableau.
+     Params:
+     list = les instructions du tableaux.
+     Returns: les instructions du lint.
+     */
     static LInstList InstLength (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
@@ -295,6 +354,12 @@ class ArrayUtils {
 	return inst;
     }
 
+    /**
+     Recherche le nombre de reference du tableau.
+     Params:
+     list = les instructions du tableau.
+     Returns: les instructions du lint.
+     */
     static LInstList InstNbRef (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
@@ -304,6 +369,14 @@ class ArrayUtils {
     }
     
 
+    /**
+     Additionne deux tableau.
+     Params:
+     size = la taille du contenu du tableau.
+     llist = les instructions du tableau de gauche.
+     rlist = les instructions du tableau de droite.
+     Returns: les instructions du lint.
+     */
     static LInstList InstPlus (LSize size) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
@@ -314,6 +387,14 @@ class ArrayUtils {
 	return inst;
     }
 
+    /**
+     Additionne et affecte deux tableau (a += b);
+     Params:
+     size = la taille du contenu du tableau.
+     llist = les instructions du tableau de gauche
+     rlist = les instructions du tableau de droite.
+     Returns: la liste d'instruction lint.
+     */
     static LInstList InstPlusAff (LSize size) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
@@ -332,7 +413,14 @@ class ArrayUtils {
 	inst += aux;
 	return inst;
     }
-         
+
+    /**
+     Additionne deux tableaux qui contiennent des objets.
+     Params:
+     llist = les instructions du tableau de gauche.
+     rlist = les instructions du tableau de droite.
+     Returns: Les instructions du lint.
+     */
     static LInstList InstPlusObj (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
@@ -342,7 +430,14 @@ class ArrayUtils {
 	inst += new LCall (__PlusArrayObj__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	return inst;
     }
-    
+
+    /**
+     Additionne et affecte deux tableaux qui contiennent des objets (a += b).
+     Params:
+     llist = les instructions du tableau de gauche.
+     rlist = les instructions du tableau de droite.
+     Returns: Les instructions du lint.
+     */
     static LInstList InstPlusAffObj (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
@@ -360,7 +455,15 @@ class ArrayUtils {
 	inst += aux;
 	return inst;
     }
-    
+
+    /**
+     Accède à une case du tableau.
+     Params:
+     size = la taille du type contenu dans le tableau.
+     llist = les instructions du type de gauche
+     rlists = les instructions des paramètres.
+     Returns: les instructions lint.
+     */
     static LInstList InstAccessS (LSize size) (LInstList llist, Array!LInstList rlists) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
@@ -376,11 +479,23 @@ class ArrayUtils {
 	inst += new LRegRead (elem, new LConstDWord (0), size);	
 	return inst;
     }
-    
+
+    /**
+     Transforme le tableau en string.
+     Params:
+     llist = les instructions du tableau.
+     Returns: les instructions du lint.
+     */
     static LInstList InstCastString (LInstList llist) {
 	return llist;
     }
 
+    /**
+     Recupere le string qui contient le type du tableau.
+     Params:
+     left = l'expression du tableau.
+     Returns: les instructions lint.
+     */
     static LInstList ArrayGetType (InfoType, Expression left, Expression) {
 	auto type = left.info;
 	auto inst = new LInstList;
@@ -391,11 +506,21 @@ class ArrayUtils {
 	return inst;
     }
 
+    /**
+     Returns: Retourne le string qui contient le nom du tableau (necessite ArrayGetType au préalable).     
+     */
     static LInstList ArrayStringOf (LInstList, LInstList left) {
 	return left;
     }
     
-    
+    /**
+     Création de la boucle d'itération du tableau.
+     Params:
+     _type = le type du tableau qui contient les informations utiles (retourner par ApplyOp);
+     _left = l'expression du tableau.
+     _right = un ParamList qui contient les variable itérateurs (ici juste une).
+     Returns: la boucle (le label de fin est accessible avec (.back ())).
+     */
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
 	auto inst = new LInstList;
 	auto type = cast (ArrayInfo) _type;
@@ -422,6 +547,13 @@ class ArrayUtils {
 	return inst;
     }
 
+    /**
+     Remplace le block temporaire (mis en place dans InstApplyPreTreat), par le block à appliqué à chaque itération.
+     Params:
+     func = la boucle itérative.
+     block = le block à mettre en place.
+     Returns: la liste d'instruction de la boucle final.
+     */
     static LInstList InstApply (LInstList func, LInstList block) {
 	return func.replace ("tmp_block", block);
     }

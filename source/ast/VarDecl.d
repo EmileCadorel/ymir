@@ -72,7 +72,7 @@ class VarDecl : Instruction {
     }
 
     /**
-     Returns les expressions droites 
+     Returns: les expressions droites 
      */
     Array!Expression insts () {
 	return this._insts;

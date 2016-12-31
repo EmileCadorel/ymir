@@ -4,33 +4,68 @@ import ast.ParamList, std.container, semantic.pack.UnPureFrame;
 import semantic.pack.Frame;
 import std.stdio, syntax.Word;
 
+/**
+ Classe qui regroupe le information de type des déclarations de fonctions.
+ */
 class FunctionInfo : InfoType {
 
+    /** Le nom des fonctions */
     private string _name;
-    private string _namespace;    
+
+    /** Le contexte du type */
+    private string _namespace;
+
+    /** Les différentes surcharge de fonction */
     private Array!Frame _infos;
-    
+
+    /**
+     Params:
+     namespace = le contexte du type
+     name = le nom des surcharges de fonctions
+     */
     this (string namespace, string name) {
 	this._name = name;
 	this._namespace = namespace;
     }
 
+    /**
+     Returns: `false`
+     */
     override bool isSame (InfoType) {
 	return false;
     }
-    
+
+    /**
+     Insert une nouvelle surcharge de fonction.
+     Params:
+     fr = une surcharge de fonction du même nom que le type.
+     */
     void insert (Frame fr) {
 	this._infos.insertBack (fr);
     }
 
+    /**
+     Returns: `this`.
+     */
     override InfoType clone () {
 	return this;
     }
 
+    /**
+     Throws: Assert, tout le temps.
+     */
     override InfoType cloneForParam () {
 	assert (false, "C'est quoi cette histoire, une fonction en parametre");
     }    
-    
+
+    /**
+     Surcharge de l'operateur d'appel de la fonction (ici utilisé pour récupéré un pointeur sur fonction).
+     Params:
+     func_token = L'identifiant d'appel.
+     params = les types des paramètres voulu pour la surcharge.
+     Returns: un score ou null si non applicable.
+     Throws: TemplateCreation
+     */
     ApplicationScore CallOp (Word func_token, Array!InfoType  params) {
 	ulong id = 0;
 	Array!ApplicationScore total;
@@ -72,6 +107,14 @@ class FunctionInfo : InfoType {
 	}	
     }
     
+    /**
+     Surcharge de l'operateur d'appel de la fonction.
+     Params:
+     func_token = L'identifiant d'appel.
+     params = les types des paramètres voulu pour la surcharge.
+     Returns: un score ou null si non applicable.
+     Throws: TemplateCreation
+     */
     override ApplicationScore CallOp (Word func_token, ParamList params) {
 	ulong id = 0;
 	Array!ApplicationScore total;
@@ -115,6 +158,11 @@ class FunctionInfo : InfoType {
 	
     }
 
+    /**
+     On quitte le scope, donc on supprime toutes les surcharges local à ce scope.
+     Params:
+     namespace = le contexte que l'on quitte.     
+     */
     override void quit (string namespace) {
 	foreach (it; 0 .. this._infos.length) {
 	    if (this._infos [it].namespace == namespace) {		
@@ -122,7 +170,10 @@ class FunctionInfo : InfoType {
 	    }
 	}
     }
-    
+
+    /**
+     Returns: le nom du type fonction
+     */
     override string typeString () {
 	return "function <" ~ this._namespace ~ "." ~ this._name ~ ">";
     }    

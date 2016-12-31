@@ -46,21 +46,21 @@ class Function : Declaration {
     }
 
     /**
-     Returns Le type de la fonction
+     Returns: Le type de la fonction
      */
     Var type () {
 	return this._type;
     }
 
     /**
-     Returns les paramètres de la fonction
+     Returns: les paramètres de la fonction
      */
     Array!Var params () {
 	return this._params;
     }
 
     /**
-     Returns le block de la fonction
+     Returns: le block de la fonction
      */
     Block block () {
 	return this._block;
@@ -109,7 +109,7 @@ class Function : Declaration {
     }
 
     /**
-     Returns l'identifiant de la fonction
+     Returns: l'identifiant de la fonction
      */
     Word ident () const {
 	return this._ident;

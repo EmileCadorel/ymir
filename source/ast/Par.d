@@ -68,28 +68,28 @@ class Par : Expression {
     }
 
     /**
-     Returns le score retourner par l'analyse sémantique
+     Returns: le score retourner par l'analyse sémantique
      */
     ApplicationScore score () {
 	return this._score;
     }
 
     /**
-     Returns L'expression de gauche
+     Returns: L'expression de gauche
      */
     Expression left () {	
 	return this._left;
     }
 
     /**
-     Returns Les paramètres de l'expression
+     Returns: Les paramètres de l'expression
      */
     ParamList paramList () {
 	return this._params;
     }
 
     /**
-     Returns La liste des paramètres de l'expression
+     Returns: La liste des paramètres de l'expression
      */
     Array!Expression params () {
 	return this._params.params;

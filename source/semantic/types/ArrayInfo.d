@@ -12,24 +12,43 @@ import semantic.types.NullInfo;
 import std.container, semantic.types.RefInfo;
 
 
+/**
+ Déclaration d'une information de tableau.
+ */
 class ArrayInfo : InfoType {
 
+    /** Le type contenu dans le tableau */
     private InfoType _content = null;
-    
+
+    /**
+     Initialise le tableau en [void].
+     */
     this () {
 	this._content = new VoidInfo ();
 	this._destruct = &ArrayUtils.InstDestruct;
     }
 
+    /**
+     Params:
+     content = le type contenu dans le tableau
+     */
     this (InfoType content) {
 	this._content = content;
 	this._destruct = &ArrayUtils.InstDestruct;
     }
 
+    /**
+     Returns: Le type contenu dans le tableau
+     */
     InfoType content () {
 	return this._content;
     }
-    
+
+    /**
+     Les deux types sont ils identiques ?
+     Params:
+     other = le deuxieme type
+     */
     override bool isSame (InfoType other) {
 	auto arr = cast (ArrayInfo) other;
 	if (arr is null) return false;
@@ -37,6 +56,15 @@ class ArrayInfo : InfoType {
 	return arr._content.isSame (this._content);
     }
 
+    /**
+     Créé une information de tableau en fonction d'une déclaration template.
+     Pour être correct, templates doit contenir un Type.
+     Params:
+     token = l'identifiant du déclarateur de tableau
+     templates = les informations templates du déclarateur.
+     Returns: Un type tableau
+     Throws: UndefinedType
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0])) {
 	    if (auto _cst = cast (StructCstInfo) templates [0].info.type) {
@@ -49,6 +77,13 @@ class ArrayInfo : InfoType {
 	}
     }
 
+    /**
+     Test des surcharge d'operateur du tableau.
+     Params:
+     token = l'operateur
+     right = l'operande droite de l'expression
+     Returns: Le type résultat de l'operation ou null.
+     */
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
 	else if (token == Tokens.PLUS) return Plus (right);
@@ -58,11 +93,24 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    /**
+     Test de surcharge d'operateur du tableau.
+     Params:
+     token = l'operateur
+     left = l'operande gauche de l'expression
+     Returns: le type résultat de l'operation ou null.
+     */
     override InfoType BinaryOpRight (Word token, Expression left) {
 	if (token == Tokens.EQUAL) return AffectRight (left);
 	return null;
     }
-       
+
+    /**
+     Test de surcharge de l'operateur d'itération.
+     Params:
+     vars = les itérateurs.
+     Returns: l'information résultat de l'operation, ou null.
+     */
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
 	vars [0].info.type = new RefInfo (this._content.clone ());
@@ -73,6 +121,12 @@ class ArrayInfo : InfoType {
 	return ret;
     }
 
+    /**
+     Operateur '+'.
+     Params:
+     right = l'operande droite de l'operation.
+     Returns: le type résultat ou null.
+     */
     private InfoType Plus (Expression right) {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
@@ -94,6 +148,12 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    /**
+     Operateur '+='.
+     Params:
+     right = l'operande droite de l'operation.
+     Returns: le type résultat ou null.
+    */
     private InfoType PlusAff (Expression right) {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
@@ -114,7 +174,14 @@ class ArrayInfo : InfoType {
 	}
 	return null;
     }
+
     
+    /**
+     Operateur 'is'.
+     Params:
+     right = l'operande droite de l'operation.
+     Returns: le type résultat ou null.
+    */
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -128,6 +195,12 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    /**
+     Operateur '!is'.
+     Params:
+     right = l'operande droite de l'operation.
+     Returns: le type résultat ou null.
+    */
     private InfoType NotIs (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -141,6 +214,12 @@ class ArrayInfo : InfoType {
 	return null;
     }    
 
+    /**
+     Operateur '='.
+     Params:
+     left = l'operande gauche de l'operation.
+     Returns: le type résultat ou null.
+    */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto arr = new ArrayInfo (this._content.clone ());
@@ -150,39 +229,64 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    /**
+     l'operation à efféctué lorsqu'on passe le tableau en paramètre (se fait dans la frame appelé).
+     Returns: le type résultat ou null.
+    */
     override InfoType ParamOp () {
 	auto str = new ArrayInfo (this._content.clone);
 	str.lintInstS.insertBack (&ClassUtils.InstParam);
 	return str;
     }
-    
+
+    /**
+     l'operation à efféctué lorsqu'on retourne le tableau.
+     Returns: le type résultat ou null.
+    */
     override InfoType ReturnOp () {
 	auto str = new ArrayInfo (this._content.clone);
 	str.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return str;
     }
 
-
-    override InfoType AccessOp (Word token, ParamList params) {
+    /**
+     L'operateur '[]'.
+     Params:
+     params = la liste des paramètre dans l'operateur.
+     Returns: Le type résultat ou null.
+     */
+    override InfoType AccessOp (Word, ParamList params) {
 	if (params.params.length == 1) {
 	    return Access (params.params [0]);
 	}
 	return null;
     }
-    
+
+    /**
+     L'operateur '.'.
+     Params:
+     var = l'attribut auquel on veut accéder.
+     Returns: le type résultat ou null.
+     */
     override InfoType DotOp (Var var) {
 	if (var.token.str == "nbRef") return NbRef ();
 	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;
 	return null;
     }
-    
+
+    /**
+     Returns: le type résultat de 'array.nbRef'.
+     */
     private InfoType NbRef () {
 	auto l = new LongInfo ();
 	l.lintInst = &ArrayUtils.InstNbRef;
 	return l;
     }
 
+    /**
+     Returns: Le type résultat de 'array.length'
+     */
     private InfoType Length () {
 	if (cast (VoidInfo) this._content) return null; 
 	auto elem = new LongInfo ();
@@ -190,13 +294,22 @@ class ArrayInfo : InfoType {
 	return elem;
     }
 
+    /**
+     Returns: Le type résultat de 'array.typeid'
+     */
     private InfoType StringOf () {
 	auto _str = new StringInfo;
 	_str.leftTreatment = &ArrayUtils.ArrayGetType;
 	_str.lintInst = &ArrayUtils.ArrayStringOf;
 	return _str;
     }
-    
+
+    /**
+     L'operateur '[]' avec un seul paramètre.
+     Params:
+     expr = le paramètre des '[]'.
+     Returns: Le type résultat ou null.
+     */
     private InfoType Access (Expression expr) {
 	if (cast (IntInfo) expr.info.type || cast (LongInfo) expr.info.type) {
 	    auto ch = this._content.clone ();
@@ -215,7 +328,13 @@ class ArrayInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Operateur '='.
+     Params:
+     left = l'operande droite ^^ de l'expression.
+     Returns: Le type résultat ou null.
+     */
     private InfoType Affect (Expression left) {
 	auto type = cast (ArrayInfo) left.info.type;
 	if (type  && type._content.isSame (this._content)) {
@@ -235,16 +354,28 @@ class ArrayInfo : InfoType {
 	return null;
     }
 
+    /**
+     Returns: Clone du type. Les informations de déstruction sont conservées.
+     */
     override InfoType clone () {
 	auto ret = new ArrayInfo (this._content.clone ());
 	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }
-   
+
+    /**
+     Returns: Clone du type. Les informations de déstruction sont remisent à zéro.
+     */
     override InfoType cloneForParam () {
 	return new ArrayInfo (this._content.clone ());
     }
 
+    /**
+     Operateur de 'cast' .
+     Params:
+     other = le type vers lequel on tente le cast.
+     Returns: Le type résultat ou null.
+     */
     override InfoType CastOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
 	if (type && type.content.isSame (this._content)) {
@@ -258,6 +389,12 @@ class ArrayInfo : InfoType {
 	return null;	
     }
 
+    /**
+     Operateur de comparaison (cast automatique).
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
 	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
@@ -271,15 +408,24 @@ class ArrayInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Returns: Le type du tableau sous forme de chaine.
+     */
     override string typeString () {
 	return "array!" ~ this._content.typeString ();
     }
 
+    /**
+     Returns: la place que prend une instance de tableau (sont pointeur).
+     */
     override LSize size () {
 	return LSize.LONG;
     }
 
+    /**
+     Returns: les informations de déstruction du tableau.
+     */
     override InfoType destruct () {
 	if (this._destruct is null) return null;
 	auto ret = this.clone ();

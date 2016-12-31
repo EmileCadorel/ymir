@@ -102,7 +102,7 @@ class Char : Expression {
     }
 
     /**
-     Returns la valeur de la constante.
+     Returns: la valeur de la constante.
      */
     ref ubyte code () {
 	return this._code;
@@ -176,7 +176,7 @@ class Float : Expression {
     }
 
     /**
-     Returns la valeur de la constante sous forme de string
+     Returns: la valeur de la constante sous forme de string
      */
     string totale () const {
 	return this._totale;
@@ -342,7 +342,7 @@ class String : Expression {
     }
 
     /**
-     Returns la valeur de la constante
+     Returns: la valeur de la constante
      */
     string content () {
 	return this._content;
@@ -380,7 +380,7 @@ class Bool : Expression {
     }
 
     /**
-     Returns La valeur de la constante
+     Returns: La valeur de la constante
      */
     bool value () {
 	return this._token.str == "true";

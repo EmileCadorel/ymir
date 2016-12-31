@@ -59,14 +59,14 @@ class Access : Expression {
     }
 
     /**
-     Returns L'élément de gauche de l'expression
+     Returns: L'élément de gauche de l'expression
      */
     Expression left () {
 	return this._left;
     }
 
     /**
-     Returns Les paramètres de l'expression
+     Returns: Les paramètres de l'expression
      */
     Array!Expression params () {
 	return this._params.params;

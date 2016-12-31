@@ -89,14 +89,14 @@ class Block : Instruction {
     }
 
     /**
-     Returns la liste des symboles à supprimer en sortie de block.
+     Returns: la liste des symboles à supprimer en sortie de block.
      */
     ref Array!Symbol dest () {
 	return this._dest;
     }
 
     /**
-     Returns la liste des instructions du block.
+     Returns: la liste des instructions du block.
      */
     Array!Instruction insts () {
 	return this._insts;

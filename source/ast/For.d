@@ -46,35 +46,35 @@ class For : Instruction {
     }        
 
     /**
-     Returns la liste des itérateurs
+     Returns: la liste des itérateurs
      */
     Array!Var vars () {
 	return this._var;
     }    
 
     /**
-     Returns l'expression à itérer
+     Returns: l'expression à itérer
      */
     Expression iter () {
 	return this._iter;
     }
 
     /**
-     Returns la procédure à suivre pour itérer
+     Returns: la procédure à suivre pour itérer
      */
     InfoType ret () {
 	return this._ret;
     }
 
     /**
-     Returns La liste des symboles à détruire
+     Returns: La liste des symboles à détruire
      */
     ref Array!Symbol dest () {
 	return this._dest;
     }
 
     /**
-     Returns le block de la boucle
+     Returns: le block de la boucle
      */
     Block block () {
 	return this._block;

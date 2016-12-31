@@ -35,7 +35,7 @@ class Binary : Expression {
     }
 
     /**
-     Returns l'operateur est un operateur droit
+     Returns: l'operateur est un operateur droit
      */
     bool isRight () {
 	return this._isRight;
@@ -137,14 +137,14 @@ class Binary : Expression {
     }
 
     /**
-     Returns l'élément gauche de l'operateur
+     Returns: l'élément gauche de l'operateur
      */
     ref Expression left () {
 	return this._left;
     }
 
     /**
-     Return l'élément droit de l'operateur
+     Returns: l'élément droit de l'operateur
      */
     ref Expression right () {
 	return this._right;

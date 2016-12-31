@@ -38,14 +38,14 @@ class ConstRange : Expression {
     }
 
     /**
-     Returns l'élément de gauche
+     Returns: l'élément de gauche
      */
     Expression left () {
 	return this._left;
     }
 
     /**
-     Returns l'élément de droite
+     Returns: l'élément de droite
      */
     Expression right () {
 	return this._right;
@@ -56,7 +56,7 @@ class ConstRange : Expression {
     }
 
     /**
-     Returns l'information type du contenu
+     Returns: l'information type du contenu
      */
     InfoType content () {
 	return this._content;

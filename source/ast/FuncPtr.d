@@ -30,7 +30,7 @@ class FuncPtr : Expression {
     }
 
     /**
-     Returns l'expression contenu dans le pointeur (peut être null)
+     Returns: l'expression contenu dans le pointeur (peut être null)
      */
     Expression expr () {
 	return this._expr;

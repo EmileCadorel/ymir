@@ -7,18 +7,43 @@ import syntax.Tokens, semantic.types.BoolUtils;
 import semantic.types.IntInfo, semantic.types.PtrInfo;
 import lint.LSize, ast.Var, semantic.types.StringInfo;
 
+
+/**
+ Classe contenant les informations du type bool.
+ */
 class BoolInfo : InfoType {
 
+    /**
+     Créé une instance du type bool.
+     Pour fonctionner templates doit être vide.
+     Params:
+     token = l'emplacement du créateur
+     templates = les templates utilisé pour créée bool.
+     Returns: Une instance de type bool.
+     Throws: NotATemplate.
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
 	return new BoolInfo ();
     }
 
+    /**
+     Params:
+     other = le deuxième type.
+     Returns: Les deux types sont identique ?
+     */
     override bool isSame (InfoType other) {
 	return cast (BoolInfo) other !is null;
     }
-    
+
+    /**
+     Operateur binaire pour le type bool.
+     Params:
+     op = l'operateur
+     right = l'operande droite de l'expression
+     Returns: Le type résultat ou null.
+     */
     override InfoType BinaryOp (Word op, Expression right) {
 	if (op == Tokens.EQUAL) return Affect (right);
 	if (op == Tokens.DAND) return opNorm !(Tokens.DAND) (right);
@@ -28,11 +53,24 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     Operateur binaire pour le type bool.
+     Params:
+     op = l'operateur
+     left = l'operande gauche de l'expression
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOpRight (Word op, Expression left) {
 	if (op == Tokens.EQUAL) return AffectRight (left);
 	return null;
     }
 
+    /**
+     Opérateur unaire.
+     Params:
+     op = l'operateur.
+     Returns: le type résultat ou null.
+     */
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.NOT) {
 	    auto ret = new BoolInfo ();
@@ -42,13 +80,23 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     Récupère un pointeur sur le type bool, opérateur '&'.
+     Returns: le type ptr!bool
+     */
     private InfoType toPtr () {
 	auto ptr = new PtrInfo ();
 	ptr.content = new BoolInfo ();
 	ptr.lintInstS.insertBack (&BoolUtils.InstAddr);
 	return ptr;
     }
-    
+
+    /**
+     Operateur '='.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType Affect (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
 	    auto b = new BoolInfo ();
@@ -58,6 +106,12 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     Operateur '='.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: Le type résultat ou null.
+     */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto b = new BoolInfo ();
@@ -66,7 +120,14 @@ class BoolInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Opérateur standart du type bool.
+     Params:
+     op = l'operateur.
+     right = l'operande droite de l'expression.
+     Returns: Le type résultat ou null.
+     */
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
 	    auto b = new BoolInfo ();
@@ -76,10 +137,19 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     Returns: le nom du type.
+     */
     override string typeString () {
 	return "bool";
     }
 
+    /**
+     L'operateur '.'.
+     Params:
+     var = l'attribut auquel on veut accéder.
+     Returns: le type résultat ou null.
+     */
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "sizeof") return SizeOf ();
@@ -87,18 +157,30 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     La valeur d'initialisation d'un type bool (bool.init).
+     Returns: un type bool.
+     */
     private InfoType Init () {
 	auto _bl = new BoolInfo ();
 	_bl.lintInst = &BoolUtils.BoolInit;
 	return _bl;
     }
 
+    /**
+     La taille d'un type bool (bool.sizeof).
+     Returns: Un type int (TODO passer ça en type ubyte).
+     */
     private InfoType SizeOf () {
 	auto _int = new IntInfo ();
 	_int.lintInst = &BoolUtils.BoolSize;
 	return _int;
     }
 
+    /**
+     Le nom du type bool (bool.typeid).
+     Returns: un type string.
+     */
     private InfoType StringOf () {
 	auto str = new StringInfo ();
 	str.lintInst = &BoolUtils.BoolStringOf;
@@ -106,7 +188,12 @@ class BoolInfo : InfoType {
 	return str;
     }
     
-    
+    /**
+     Opérateur de cast.
+     Params:
+     other = le type vers lequel on essai de caster.
+     Returns: le type résultat du cast ou null.
+     */
     override InfoType CastOp (InfoType other) {
 	if (cast(BoolInfo)other) return this;
 	else if (cast (CharInfo) other) {
@@ -121,6 +208,12 @@ class BoolInfo : InfoType {
 	return null;
     }
 
+    /**
+     Opérateur de cast automatique.
+     Params:
+     other = le type vers lequel on essai de caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	if (cast (BoolInfo) other || cast (UndefInfo) other) {
 	    auto bl = new BoolInfo;
@@ -129,15 +222,24 @@ class BoolInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Returns: une nouvelle instance du type bool.
+     */
     override InfoType clone () {
 	return new BoolInfo ();
     }
 
+    /**
+     Returns: une nouvelle instance du type bool.
+     */
     override InfoType cloneForParam () {
 	return new BoolInfo ();
     }
 
+    /**
+     Returns: la taille en mémoire du type bool.
+     */
     override LSize size () {
 	return LSize.BYTE;
     }

@@ -3,10 +3,20 @@ import utils.YmirException, utils.Singleton;
 import syntax.Word, std.outbuffer, std.stdio, std.conv;
 import std.string;
 
+/**
+ Affiche des message d'avertissement.
+ */
 class Warning {
 
     string RESET = "\u001B[0m";
-    
+
+    /**
+     Affiche un message d'avertissement en fonction d'une position.
+     Params:
+     locus = l'emplacement de l'avertissement
+     msg = un message sous forme de format
+     params = les paramètres du format
+     */
     void warning_at (TArgs...) (Location locus, string msg, TArgs params) {
 	OutBuffer buf = new OutBuffer();
 	string line;
@@ -19,7 +29,12 @@ class Warning {
 	write (buf.toString);
     }
 
-
+    /**
+     Ajoute une ligne avec l'erreur surligné en Jaune.
+     Params:
+     buf = le buffer ou l'on veut ajouter la ligne
+     locus = l'emplacement de l'erreur
+     */
     protected void addLine (ref OutBuffer buf, Location locus) {
 	auto line = getLine (locus);
 	if (line.length > 0) {
@@ -41,6 +56,11 @@ class Warning {
     } 
 
     
+    /**
+     Recupère une ligne dans un fichier
+     Params:
+     locus = l'emplacement
+     */
     private string getLine (Location locus) {
 	auto file = File (locus.file, "r");
 	string cline = null;

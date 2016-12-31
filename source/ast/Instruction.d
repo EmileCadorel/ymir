@@ -17,14 +17,14 @@ class Instruction {
     }
 
     /**
-     Returns l'identifiant
+     Returns: l'identifiant
      */
     Word token () {
 	return this._token;
     }
 
     /**
-     Returns le block qui contient l'instruction
+     Returns: le block qui contient l'instruction
      */
     Block father () {
 	return this._block;

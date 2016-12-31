@@ -32,14 +32,14 @@ class ConstArray : Expression  {
     }
 
     /**
-     Returns Les paramètres de l'expression
+     Returns: Les paramètres de l'expression
      */
     Array!Expression params () {
 	return this._params;
     }
     
     /**
-     Returns Les casters de l'expression
+     Returns: Les casters de l'expression
      */
     Array!InfoType casters () {
 	return this._casters;

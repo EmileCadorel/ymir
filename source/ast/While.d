@@ -71,21 +71,21 @@ class While : Instruction {
     }
 
     /**
-     Returns le test de la boucle
+     Returns: le test de la boucle
      */
     Expression test () {
 	return this._test;
     }
 
     /**
-     Returns le caster du test
+     Returns: le caster du test
      */
     InfoType info () {
 	return this._info;
     }
 
     /**
-     Returns le block de la boucle
+     Returns: le block de la boucle
      */
     Block block () {
 	return this._block;

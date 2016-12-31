@@ -2,8 +2,14 @@ module utils.YmirException;
 import syntax.Word, std.stdio, std.typecons;
 import std.outbuffer, std.string;
 
+/**
+ Le tuple Color est definis par une chaine
+ */
 alias Color = Tuple!(string, "value");
 
+/**
+ L'enumeration des couleurs disponible 
+ */
 enum Colors : Color {
     RESET = Color ("\u001B[0m"),
     PURPLE = Color ("\u001B[1;35m"),
@@ -13,7 +19,15 @@ enum Colors : Color {
     GREEN = Color ("\u001B[1;32m")	
 }
 
+/**
+ Exception qui informe que des erreurs sont survenus.
+ */
 class ErrorOccurs : Exception {
+
+    /**
+     Params:
+     nb = le nombre d'erreurs
+     */
     this (ulong nb) {
 	super ("");
 	OutBuffer buf = new OutBuffer;
@@ -22,28 +36,48 @@ class ErrorOccurs : Exception {
 	this._nbError = nb;
     }
 
+    /**
+     Affiche le message d'erreur
+     */
     void print () {
 	writeln (this.msg);
     }
-    
+
+    /**
+     Returns le nombre d'erreur
+     */
     ref ulong nbError () {
 	return this._nbError;
     }
-    
+
+    /// Le nombre d'erreur
     private ulong _nbError;
     
 }
 
+/**
+ Ancêtre des erreurs de compilation.
+*/
 class YmirException : Exception {       
  
     this () {
 	super ("");
     }
-    
+
+    /**
+     Params:
+     msg = Le message de l'erreur
+     */
     this (string msg) {
 	super (msg);
+	this.msg = msg;
     }
 
+    /**
+     Params:
+     locus = l'emplacement de la ligne
+     Returns retourne la ligne x d'un fichier
+     */
     private string getLine (Location locus) {
 	auto file = File (locus.file, "r");
 	string cline = null;
@@ -52,6 +86,12 @@ class YmirException : Exception {
 	return cline;
     }
 
+    /**
+     Ajoute une ligne dans un buffer avec l'erreur en Jaune.
+     Params:
+     buf = le buffer a remplir
+     locus = l'emplacement
+     */
     protected void addLine (ref OutBuffer buf, Location locus) {
 	auto line = getLine (locus);
 	if (line.length > 0) {
@@ -73,6 +113,13 @@ class YmirException : Exception {
     } 
 
 
+    /**
+     Ajoute une ligne dans un buffer avec l'erreur en Jaune.
+     Params:
+     buf = le buffer a remplir
+     locus = le debut de l'emplacement
+     locus2 = le deuxième emplacement
+     */
     protected void addLine (ref OutBuffer buf, Location locus, Location locus2) {
 	auto line = getLine (locus);
 	if (line.length > 0) {
@@ -103,7 +150,14 @@ class YmirException : Exception {
 	}
     } 
 
-    
+    /**
+     Ajoute une ligne dans un buffer avec l'erreur en Jaune.
+     Params:
+     buf = le buffer a remplir
+     locus = le debut de l'emplacement
+     index = le decalage par rapport à l'emplacement
+     lenght = la longueur de l'erreur
+     */
     protected void addLine (ref OutBuffer buf, Location locus, ulong index, ulong length) {
 	auto line = getLine (locus);
 	if (line.length > 0) {
@@ -124,7 +178,9 @@ class YmirException : Exception {
 	}
     } 
 
-    
+    /**
+     Affiche le message d'erreur
+     */
     void print () {
 	writeln (this.msg);
     }

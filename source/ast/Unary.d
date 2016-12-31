@@ -41,7 +41,7 @@ class BefUnary : Expression {
     }
 
     /**
-     Returns l'élément de l'expression
+     Returns: l'élément de l'expression
      */
     Expression elem () {
 	return this._elem;

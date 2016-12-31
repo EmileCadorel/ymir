@@ -42,7 +42,7 @@ class System : Expression {
     }
 
     /**
-     Returns les paramètres de l'expression
+     Returns: les paramètres de l'expression
      */
     Array!Expression params () {
 	return this._params;

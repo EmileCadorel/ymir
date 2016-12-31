@@ -74,21 +74,21 @@ class Return : Instruction {
     
 
     /**
-     Returns l'element retourner par l'instruction (peut être null)
+     Returns: l'element retourner par l'instruction (peut être null)
      */
     Expression elem () {
 	return this._elem;
     }
     
     /**
-     Returns le pre-traitement de l'instruction (peut-être null)
+     Returns: le pre-traitement de l'instruction (peut-être null)
      */
     InfoType instComp () {
 	return this._instComp;
     }
 
     /**
-     Returns le caster de l'expression (peut être null)
+     Returns: le caster de l'expression (peut être null)
      */
     Symbol instCast () {
 	return this._instCast;

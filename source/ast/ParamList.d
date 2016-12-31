@@ -42,7 +42,7 @@ class ParamList : Expression {
     }
 
     /**
-     Returns La liste des paramètres
+     Returns: La liste des paramètres
      */
     Array!Expression params () {
 	return this._params;
