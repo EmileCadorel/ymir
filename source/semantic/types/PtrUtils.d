@@ -8,8 +8,18 @@ import lint.LConst, ast.Constante, syntax.Word;
 import lint.LVisitor, semantic.types.InfoType;
 import ast.Expression;
 
+/**
+ Cette classe regroupe les fonctions nécéssaire à la transformation de ptr vers le lint.
+ */
 class PtrUtils {
 
+    /**
+     Affectation d'un pointeur.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: les instructions du lint.
+     */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -18,6 +28,12 @@ class PtrUtils {
 	return inst;
     }
     
+    /**
+     Affectation d'un pointeur à null.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     Returns: les instructions du lint.
+     */
     static LInstList InstAffectNull (LInstList llist, LInstList) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -26,6 +42,15 @@ class PtrUtils {
 	return inst;
     }
 
+    /**
+     Application d'un opérateur entre deux pointeur..
+     Params:
+     size = je sais pas.
+     op = l'operateur.
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: les instructions du lint.
+     */
     static LInstList InstOp (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -33,7 +58,16 @@ class PtrUtils {
 	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
 	return inst;
     }
-
+   
+    /**
+     Application d'un opérateur entre deux pointeur à droite.
+     Params:
+     size = je sais pas.
+     op = l'operateur.
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: les instructions du lint.
+     */
     static LInstList InstOpInv (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -41,7 +75,14 @@ class PtrUtils {
 	inst += (new  LBinop (new LCast (rightExp, LSize.LONG), leftExp, op));
 	return inst;
     }
-    
+
+    /**
+     Application d'un accés à la valeur pointé.
+     Params:
+     size = la taille de l'élément pointé.
+     llist = les instructions de l'operande.
+     Returns: les instructions de l'accés en lint.
+     */
     static LInstList InstUnref (LSize size) (LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -50,6 +91,13 @@ class PtrUtils {
 	return inst;
     }
 
+    /**
+     Application d'un accés à la valeur pointé, (a partir d'un operateur '.').
+     Params:
+     size = la taille de l'élément pointé.
+     llist = les instructions de l'operande.
+     Returns: les instructions de l'accés en lint.     
+     */
     static LInstList InstUnrefDot (LSize size) (LInstList, LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -57,7 +105,14 @@ class PtrUtils {
 	inst += new LRegRead (leftExp, new LConstDWord (0), size);
 	return inst;
     }
-    
+
+    /**
+     Application de l'operateur de test d'egalité.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: la liste d'instruction du test en lint.
+     */
     static LInstList InstIs (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -66,6 +121,14 @@ class PtrUtils {
 	return inst;
     }
 
+    
+    /**
+     Application de l'operateur de test d'inégalité.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: la liste d'instruction du test en lint.
+     */
     static LInstList InstNotIs (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -74,6 +137,12 @@ class PtrUtils {
 	return inst;
     }
 
+    /**
+     Application de l'operateur de test d'inégalité, avec null.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     Returns: la liste d'instruction du test en lint.
+     */
     static LInstList InstNotIsNull (LInstList llist, LInstList) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -81,7 +150,13 @@ class PtrUtils {
 	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.NOT_EQUAL);
 	return inst;
     }
-    
+
+    /**
+     Application de l'operateur de test d'égalité, avec null.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     Returns: la liste d'instruction du test en lint.
+    */
     static LInstList InstIsNull (LInstList llist, LInstList) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -89,17 +164,31 @@ class PtrUtils {
 	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.DEQUAL);
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction de la constante null.
+     */
     static LInstList InstNull (LInstList, LInstList) {
 	auto inst = new LInstList;
 	inst += new LConstQWord (0);
 	return inst;
     }
-    
+
+    /**
+     Params:
+     llist = la liste d'instruction de l'operande.
+     Returns: la liste d'instruction d'un cast d'un pointeur vers un autre (llist).
+     */
     static LInstList InstCast (LInstList llist) {
 	return llist;
     }
 
+    /**
+     Constante du nom du pointeur.
+     Params:
+     left = l'expression dont le type est ptr
+     Returns: la liste d'instruction qui contient la création de la constante.
+     */
     static LInstList GetStringOf (InfoType, Expression left, Expression) {
 	auto type = left.info;
 	auto inst = new LInstList;
@@ -109,6 +198,12 @@ class PtrUtils {
 	return inst;
     }
 
+    /**
+     Constante de nom du pointeur (ne fait rien).
+     Params:
+     left = la liste d'instruction créé par GetStringOf.
+     Returns: left.
+     */
     static LInstList StringOf (LInstList, LInstList left) {
 	return left;
     }

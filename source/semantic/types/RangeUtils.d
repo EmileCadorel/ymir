@@ -11,10 +11,26 @@ import lint.LVisitor, lint.LGoto, lint.LJump;
 import lint.LUnop, ast.ParamList;
 import lint.LCast;
 
+/**
+ Classe contenant les fonctions nécéssaire à la transformation du type range en lint.
+ */
 class RangeUtils {
 
+    /** Le nom du constructeur de range */
     static string __CstName__ = "_YPCstRange";
 
+    /++
+     + Fonction de construction du type range.
+     + Example:
+     + ---
+     + def cstRange (size : int) {
+     +     let ret = alloc (2 * long + 2 * size).as![long];
+     +     ret [0] = 1;
+     +     ret [1] = $free;
+     +     return ret;
+     + }
+     + ---
+     +/
     static void createCstRange () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -30,13 +46,27 @@ class RangeUtils {
 	LFrame.preCompiled [__CstName__] = fr;
 	LReg.lastId = last;
     }
-    
+
+    /**
+     Fonction de récupération de l'attribut 'fst'.
+     Params: 
+     size = la taille du contenu du range.
+     llist = les instruction de l'operande.
+     Returns: les instructions lint de l'accès.
+     */
     static LInstList InstFst (LSize size) (LInstList, LInstList llist) {
 	auto leftExp = llist.getFirst ();
 	llist += new LRegRead (leftExp, new LConstDWord (2, LSize.LONG), size);
 	return llist;
     }
     
+    /**
+     Fonction de récupération de l'attribut 'scd'.
+     Params: 
+     size = la taille du contenu du range.
+     llist = les instruction de l'operande.
+     Returns: les instructions lint de l'accès.
+     */
     static LInstList InstScd (LSize size) (LInstList, LInstList llist) {
 	auto leftExp = llist.getFirst ();
 	llist += new LRegRead (leftExp, new LBinop (new LConstDWord (2, LSize.LONG),
@@ -46,6 +76,13 @@ class RangeUtils {
 	return llist;
     }
 
+    /**
+     Affectation d'un type range, qui n'a jamais été affécté avant.
+     Params:
+     llist = les instructions de l'operande de gauche.
+     rlist = les instructions de l'operande de droite.
+     Returns: les instructions du lint de l'affectation.
+     */
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -56,7 +93,13 @@ class RangeUtils {
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
-    
+
+    /**
+     Destruction d'un objet de type range.
+     Params: 
+     llist = les instructions de l'operande.
+     Returns: les instructions lint de la déstruction.
+     */
     static LInstList InstDestruct (LInstList llist) {
 	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createDstObj ();
@@ -67,7 +110,14 @@ class RangeUtils {
 	return inst;
     }
 
-
+    /**
+     Application de l'operateur 'in' à droite.
+     Params:
+     size = la taille du type contenu dans le type range.
+     llist = la liste d'instruction de l'operande de gauche.
+     rlist = la liste d'instruction de l'operande de droite.
+     Returns: la liste d'instruction du test.
+     */
     static LInstList InstIn (LSize size) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -82,6 +132,14 @@ class RangeUtils {
     }
 
     
+    /**
+     Création de la liste d'instruction de la boucle d'itération sur un type range.
+     Params:
+     _type = le type range résultat de l'analyse sémantique, qui contient des informations éssentiel.
+     _left = l'expression de type range sur laquelle on itére.
+     _right = une ParamList, qui contient les itérateurs à renseigner.
+     Returns: une liste d'instruction qui contient un block temporaire que l'on va remplacer par le contenu de la boucle.
+     */
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
 	auto inst = new LInstList;
 	auto type = cast (RangeInfo) _type;
@@ -125,6 +183,13 @@ class RangeUtils {
 	return inst;
     }
 
+    /**
+     Remplacement du block temporaire par le contenu de la boucle.
+     Params:
+     func = les instructions de la boucle itérative créées par la fonction InstApplyPreTreat
+     block = les instructions contenu dans la boucle.
+     Returns: la boucle final.
+     */
     static LInstList InstApply (LInstList func, LInstList block) {
 	return func.replace ("tmp_block", block);
     }

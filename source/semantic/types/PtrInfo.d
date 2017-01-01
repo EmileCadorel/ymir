@@ -9,25 +9,47 @@ import semantic.types.StringInfo;
 import semantic.types.StructInfo;
 import semantic.types.NullInfo;
 
+
+/**
+ Classe contenant les informations sur un type pointeur.
+ */
 class PtrInfo : InfoType {
 
+    /** le type contenu dans le pointeur */
     private InfoType _content = null;
-    
+
     this () {
 	this._content = new VoidInfo ();
     }
 
+    /** 
+     Params:
+    content = le type à mettre dans le ptr.
+    */
     this (InfoType content) {
 	this._content = content;
     }   
 
+    /**
+     Params:
+     other = le deuxieme type.
+     Returns: les deux types sont identique ?
+     */
     override bool isSame (InfoType other) {
 	auto ptr = cast (PtrInfo) other;
 	if (ptr is null) return false;
 	if (this._content is ptr.content) return true;
 	return ptr.content.isSame (this._content);
     }
-    
+
+    /**
+     Créé une instance de ptr en fonction des paramètre templates.
+     Params:
+     token = l'identificateur de construction.
+     templates = les paramètre templates de l'identificateur.
+     Returns: Une instance de ptr.
+     Throws: UndefinedType
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast(Type)templates[0]))
 	    throw new UndefinedType (token, "prend un type en template");
@@ -37,6 +59,13 @@ class PtrInfo : InfoType {
 	}	
     }
 
+    /**
+     Surcharge des operateurs binaire du type ptr.
+     Params:
+     token = l'operateur.
+     rigth = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
 	else if (token == Tokens.PLUS) return Plus (right);
@@ -46,18 +75,37 @@ class PtrInfo : InfoType {
 	return null;
     }
 
-    override InfoType BinaryOpRight (Word token, Expression right) {
-	if (token == Tokens.EQUAL) return AffectRight (right);
-	if (token == Tokens.PLUS) return PlusRight (right);
-	else if (token == Tokens.MINUS) return SubRight (right);
+    /**
+     Surcharge des operateurs binaire à droite.
+     Params:
+     token = l'operateur.
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
+    override InfoType BinaryOpRight (Word token, Expression left) {
+	if (token == Tokens.EQUAL) return AffectRight (left);
+	if (token == Tokens.PLUS) return PlusRight (left);
+	else if (token == Tokens.MINUS) return SubRight (left);
 	return null;
     }
-    
+
+    /**
+     Surcharge des operateur unaire du type ptr.
+     Params:
+     op = l'operateur.
+     Returns: le type résultat ou null.
+     */
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.STAR) return Unref ();
 	return null;
     }
-    
+
+    /**
+     Surcharge de l'operateur '='.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: la type résultat ou null.
+     */
     private InfoType Affect (Expression right) {
 	auto type = cast (PtrInfo) right.info.type;
 	if (type !is null && type.content.isSame (this._content)) {
@@ -81,6 +129,12 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur '=' à droite.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto ret = new PtrInfo (this._content.clone ());
@@ -89,7 +143,14 @@ class PtrInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Surcharge de l'operateur '+'.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     Bugs: ne marche pas avec les long.
+     */
     private InfoType Plus (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
@@ -105,6 +166,13 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur '-'.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     Bugs: ne marche pas avec les long.
+     */
     private InfoType Sub (Expression right) {
 	if (cast (IntInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
@@ -119,7 +187,14 @@ class PtrInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Surcharge de l'operateur '+' à droite.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     Bugs: ne marche pas avec les long.
+     */
     private InfoType PlusRight (Expression left) {
 	if (cast (IntInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
@@ -135,6 +210,13 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur '-' à droite.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     Bugs: ne marche pas avec les long.
+     */
     private InfoType SubRight (Expression left) {
 	if (cast (IntInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
@@ -149,6 +231,12 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur 'is'.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType Is (Expression right) {
 	if (cast (PtrInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -162,6 +250,12 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur '!is';
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType NotIs (Expression right) {
 	if (cast (PtrInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -174,7 +268,11 @@ class PtrInfo : InfoType {
 	}
 	return null;
     }    
-    
+
+    /**
+     Surcharge de l'operateur unaire '*'.
+     Returns: une instance du type contenu, ou null si le contenu est 'void' ou 'undef'.
+     */
     private InfoType Unref () {
 	if (cast (UndefInfo) this._content) return null;
 	else if (cast (VoidInfo) this._content) return null;
@@ -191,6 +289,12 @@ class PtrInfo : InfoType {
 	return ret;
     }
 
+    /**
+     Surcharge de l'operateur d'accés au attribut.
+     Params:
+     var = l'attribut demandé.
+     Returns: le type résultat ou null.
+     */
     override InfoType DotOp (Var var) {
 	if (var.isType) {
 	    auto type = var.asType ();
@@ -216,11 +320,17 @@ class PtrInfo : InfoType {
 	}
 	return null;  
     }
-    
+
+    /**
+     Returns: le type contenu dans le ptr.
+     */
     ref InfoType content () {
 	return this._content;
     }
-        
+
+    /**
+     Returns une nouvelle instance de ptr
+     */
     override InfoType clone () {
 	if (this._content is null)
 	    return new PtrInfo ();
@@ -231,10 +341,19 @@ class PtrInfo : InfoType {
 	}
     }
 
+    /**
+     Returns: une nouvelle instance de ptr
+     */
     override InfoType cloneForParam () {
 	return clone ();
     }
-    
+
+    /**
+     Surcharge de l'operateur de cast.
+     Params:
+     other = le type ves lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CastOp (InfoType other) {
 	auto type = cast (PtrInfo) other;
 	if (type && type.content.isSame (this._content)) {
@@ -247,6 +366,12 @@ class PtrInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge de l'operateur de cast automatique.
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	if (other.isSame (this) || cast (UndefInfo) other) {
 	    auto ptr = this.clone ();
@@ -255,13 +380,19 @@ class PtrInfo : InfoType {
 	}	       
 	return null;
     }
-    
+
+    /**
+     Returns: le nom du type.
+     */
     override string typeString () {
 	if (this._content is null) {
 	    return "ptr!void";
 	} else return "ptr!" ~ this._content.typeString ();
     }
 
+    /**
+     Returns: la taille mémoire du type.
+     */
     override LSize size () {
 	return LSize.LONG;
     }

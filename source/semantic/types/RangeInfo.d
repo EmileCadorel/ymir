@@ -10,33 +10,55 @@ import semantic.types.FloatInfo, semantic.types.CharInfo;
 import utils.exception, semantic.types.ClassUtils;
 import semantic.types.NullInfo;
 
+/**
+ Classe contenant les informations du type range.
+ */
 class RangeInfo : InfoType {
 
+    /** Le type contenu dans le type range  */
     private InfoType _content;
     
     this () {
 	this._destruct = &RangeUtils.InstDestruct;
     }
 
+    /**
+     Params:
+     content = le type contenu dans le type range.
+     */
     this (InfoType content) {
 	this._destruct = &RangeUtils.InstDestruct;
 	this._content = content;
     }
 
+    /**
+     Returns: le type contenu.
+     */
     InfoType content() {
 	return this._content;
     }
-    
+
+    /**
+     Returns: Une nouvelle instance de range (les informations de destruction sont consérvées).
+     */
     override InfoType clone () {
 	auto ret = new RangeInfo (this._content.clone ());
 	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }
 
+    /**
+     Returns: une nouvelle instance de range (les informations de destruction sont remisent à zéro).
+     */
     override InfoType cloneForParam () {
 	return new RangeInfo (this._content.clone ());
     }
 
+    /**
+     Params:
+     other = le deuxieme type.
+     Returns: les types sont identique ?
+     */
     override bool isSame (InfoType other) {
 	if (auto _r = cast (RangeInfo) other) {
 	    return _r._content.isSame (this._content);
@@ -44,6 +66,14 @@ class RangeInfo : InfoType {
 	return false;
     }
 
+    /**
+     Créé une instance de type range en fonction de ses paramètre templates.
+     Params:
+     token = l'identificateur de création.
+     templates = les paramères templates de l'identificateur.
+     Returns: Une instance de range.
+     Throws: UndefinedType
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0])) {
 	    throw new UndefinedType (token, "prend un type primitif en template");
@@ -56,7 +86,14 @@ class RangeInfo : InfoType {
 	    return arr;
 	}
     }
-    
+
+    /**
+     Surcharge des operateurs binaire du type.
+     Params:
+     token = l'operateur.
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Keys.IS) return Is (right);	
 	else if (token == Keys.NOT_IS) return NotIs (right);
@@ -64,22 +101,40 @@ class RangeInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge des operateurs binaire à droite.
+     Params:
+     token = l'operateur.
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOpRight (Word token, Expression left) {
 	if (token == Tokens.EQUAL) return AffectRight (left);
 	else if (token == Keys.IN) return In (left);       
 	return null;
     }
 
+    /**
+     Operateur '=' à droite.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat de l'expression.
+     */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto ret = this.clone ();
-	    ret.lintInst = &RangeUtils.InstAffectRight;
-
+	    ret.lintInst = &RangeUtils.InstAffectRight;	    
 	    return ret;
 	}
 	return null;
     }
 
+    /**
+     Operateur '='.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat de l'expression.
+     */
     private InfoType Affect (Expression right) {
 	if (cast (NullInfo) right.info.type) {
 	    auto ret = this.clone ();
@@ -92,7 +147,13 @@ class RangeInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Operateur 'is'.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -106,6 +167,12 @@ class RangeInfo : InfoType {
 	return null;
     }
 
+    /**
+     Operateur '!is'.
+     Params:
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+    */
     private InfoType NotIs (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
@@ -119,7 +186,12 @@ class RangeInfo : InfoType {
 	return null;
     }    
 
-    
+    /**
+     Operateur 'in'.
+     Params:
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
     private InfoType In (Expression left) {
 	if (this._content.isSame (left.info.type)) {
 	    auto ret = new BoolInfo ();
@@ -135,13 +207,23 @@ class RangeInfo : InfoType {
 	}
 	return null;
     }
-    
+
+    /**
+     Surcharge de l'operateur d'accés au attributs.
+     Params:
+     var = l'attribut demandé.
+     Returns: le type résultat ou null.
+     */
     override InfoType DotOp (Var var) {
 	if (var.token.str == "fst") return Fst ();
 	if (var.token.str == "scd") return Scd ();
 	return null;
     }
-    
+
+    /**
+     Attribut 'fst'.
+     Returns: une instance du type contenu.
+     */
     private InfoType Fst () {
 	auto cst = this._content.clone ();
 	final switch (cst.size.id) {
@@ -155,6 +237,11 @@ class RangeInfo : InfoType {
 	return cst;
     }
 
+    
+    /**
+     Attribut 'scd'.
+     Returns: une instance du type contenu.
+     */
     private InfoType Scd () {
 	auto cst = this._content.clone ();
 	final switch (cst.size.id) {
@@ -168,6 +255,12 @@ class RangeInfo : InfoType {
 	return cst;
     }
 
+    /**
+     Surcharge de l'operateur d'iteration.
+     Params:
+     vars = les iterateurs.
+     Returns: le type résultat ou null.
+     */
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
 	vars [0].info.type = this._content.clone ();
@@ -177,19 +270,31 @@ class RangeInfo : InfoType {
 	ret.lintInst = &RangeUtils.InstApply;
 	return ret;
     }
-    
+
+    /**
+     Returns: le nom du type.
+     */
     override string typeString () {
 	return "range!(" ~ this._content.typeString ~ ")";
     }
 
+    /**
+     Returns: La taille mémoire du type.
+     */
     override LSize size () {
 	return LSize.LONG;
     }
 
+    /**
+     Returns: la taille mémoire du type.
+     */
     static LSize sizeOf () {
 	return LSize.INT;
     }
-    
+
+    /**
+     Returns: Les informations de destruction du type ou null.
+     */
     override InfoType destruct () {
 	if (this._destruct is null) return null;
 	auto ret = this.clone ();
@@ -197,18 +302,30 @@ class RangeInfo : InfoType {
 	return ret;
     }
 
+    /**
+     Returns: le traitement à éffectuer en début de fonction pour le paramètre de type range.
+     */
     override InfoType ParamOp () {
 	auto ret = this.clone ();
 	ret.lintInstS.insertBack (&ClassUtils.InstParam);
 	return ret;
     }
 
+    /**
+     Returns: le traitment à éffectuer pour l'operateur de retour sur le type range.
+     */
     override InfoType ReturnOp () {
 	auto ret = this.clone ();
 	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return ret;
     }
 
+    /**
+     Surcharge de l'operateur de cast automatique.
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || this.isSame (other)) {
 	    auto ra = this.clone ();
@@ -219,5 +336,3 @@ class RangeInfo : InfoType {
     }
     
 }
-
-

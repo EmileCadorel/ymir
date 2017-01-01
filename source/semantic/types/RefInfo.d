@@ -7,22 +7,38 @@ import semantic.types.IntInfo, semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import ast.ParamList, semantic.types.StructInfo;
 
+/**
+ Classe contenant les informations de type d'une référence.
+ */
 class RefInfo : InfoType {
 
+    /** Le type contenu dans la référence */
     private InfoType _content = null;
     
     this () {
 	this._content = new VoidInfo ();
     }
 
+    /**
+     Params:
+     content = le type contenu dans la référence.
+     */
     this (InfoType content) {
 	this._content = content;
     }
 
+    /**
+     Returns: le type contenu dans la référence.
+     */
     InfoType content () {
 	return this._content;
     }
-    
+
+    /**
+     Params:
+     other = le deuxieme type.
+     Returns: les types sont identiques ?
+     */
     override bool isSame (InfoType other) {
 	auto ptr = cast (RefInfo) other;
 	if (ptr is null) return false;
@@ -30,6 +46,14 @@ class RefInfo : InfoType {
 	return ptr.content.isSame (this._content);
     }
 
+    /**
+     Créé une instance de type ref en fonction de paramètre template.
+     Params:
+     token = l'identificateur du créateur.
+     templates = les paramètres templates du type.
+     Returns: Une instance de ref.
+     Throws: UndefinedType.
+     */
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0]))
 	    if (auto _cst = cast (StructCstInfo) templates [0].info.type) {
@@ -39,6 +63,13 @@ class RefInfo : InfoType {
 	else return new RefInfo (templates [0].info.type);	
     }
 
+    /**
+     Surcharge des operateurs binaire.
+     Params:
+     token = l'operateur.
+     right = l'operande droite de l'expression.
+     Returns: le type résultat ou null.
+     */
     override InfoType BinaryOp (Word token, Expression right) {
 	auto aux = this._content.BinaryOp (token, right);
 	if (aux !is null) {
@@ -53,8 +84,15 @@ class RefInfo : InfoType {
 	return null;
     }
 
-    override InfoType BinaryOpRight (Word token, Expression right) {
-	auto aux = this._content.BinaryOpRight (token, right);
+    /**
+     Surcharge des operateurs binaire à droite.
+     Params:
+     token = l'operateur.
+     left = l'operande gauche de l'expression.
+     Returns: le type résultat ou null.
+     */
+    override InfoType BinaryOpRight (Word token, Expression left) {
+	auto aux = this._content.BinaryOpRight (token, left);
 	if (aux !is null) {
 	    if (this._content.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
 	    else if (this._content.size == LSize.SHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
@@ -67,6 +105,13 @@ class RefInfo : InfoType {
 	return null;
     }
 
+    /**
+     Surcharge des operateurs d'acces.
+     Params:
+     token = l'operateur.
+     params = les operandes droite de l'expression.
+     Returns: le type résultat ou null.
+    */
     override InfoType AccessOp (Word token, ParamList params) {
 	auto aux = this._content.AccessOp (token, params);
 	if (aux !is null) {
@@ -80,7 +125,13 @@ class RefInfo : InfoType {
 	}
 	return null;	
     }
-    
+
+    /**
+     Surcharge des operateurs d'acces aux attributs.
+     Params:
+     var = l'attribut demandé.
+     Returns: le type résultat ou null.
+    */
     override InfoType DotOp (Var var) {
 	auto aux = this._content.DotOp (var);
 	if (aux !is null) {
@@ -95,6 +146,12 @@ class RefInfo : InfoType {
 	return null;	
     }
 
+    /**
+     Surcharge de l'operateur unaire.
+     Params:
+     op = l'operateur.
+     Returns: le type résultat ou null.
+     */
     override InfoType UnaryOp (Word op) {
 	auto aux = this._content.UnaryOp (op);
 	if (aux !is null) {
@@ -108,23 +165,27 @@ class RefInfo : InfoType {
 	}
 	return null;
     }
-    
-    override InfoType ParamOp () {
-	return null;
-    }
 
-    override InfoType ReturnOp () {
-	return null;
-    }
-        
+    /**
+     Returns: une nouvelle instance de ref.
+     */
     override InfoType clone () {
 	return new RefInfo (this._content.clone ());
     }
 
+    /**
+     Returns: une nouvelle instance de ref.
+    */
     override InfoType cloneForParam () {
 	return new RefInfo (this._content.cloneForParam ());
     }
 
+    /**
+     Surcharge de l'operateur de cast automatique.
+     Params:
+     other = le type vers lequel on veut caster.
+     Returns: le type résultat ou null.
+     */
     override InfoType CompOp (InfoType other) {
 	auto ptr = cast (RefInfo) other;
 	if (ptr && ptr.content.isSame (this._content)) {
@@ -145,31 +206,49 @@ class RefInfo : InfoType {
 	    return null;
 	}
     }
-    
+
+    /**
+     Returns: le nom du type.
+     */
     override string typeString () {
 	return "ref!" ~ this._content.typeString ();
     }
 
+    /**
+     Returns: le type est constant ?
+     */
     override ref bool isConst () {
 	return this._content.isConst;
     }
 
+    /**
+     Met à jour le destructeur du type.
+     Params:
+     s = le destructeur
+     */
     override void setDestruct (InstCompS s) {
 	this._content.setDestruct (s);
     }
-    
+
+    /**
+     Returns: le type doit être détruit ?
+     */
     override bool isDestructible () {
 	return this._content.isDestructible ();
     }
-    
+
+    /**
+     Returns: null.
+     */
     override InfoType destruct () {
 	return null;
     }
-    
+
+    /**
+     Returns: la taille mémoire du type ref.
+     */
     override LSize size () {
 	return LSize.LONG;
-    }
-    
-
+    }   
     
 }
