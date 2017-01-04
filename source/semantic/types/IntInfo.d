@@ -5,6 +5,7 @@ import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
 import semantic.types.RefInfo, semantic.types.StringInfo;
+import semantic.types.FloatInfo;
 
 /**
  Cette classe regroupe les informations de type du type int.
@@ -128,6 +129,10 @@ class IntInfo : InfoType {
 	} else if (cast (CharInfo) other !is null) {
 	    auto aux = new CharInfo;
 	    aux.lintInstS.insertBack (&IntUtils.InstCastChar);
+	    return aux;
+	} else if (cast (FloatInfo) other !is null) {
+	    auto aux = new FloatInfo;
+	    aux.lintInstS.insertBack (&IntUtils.InstCastFloat);
 	    return aux;
 	}
 	return null;
@@ -367,6 +372,13 @@ class IntInfo : InfoType {
      */
     override string typeString () {
 	return "int";
+    }
+
+    /**
+     Returns: le nom du type.
+     */
+    override string simpleTypeString () {
+	return "i";
     }
 
     /**

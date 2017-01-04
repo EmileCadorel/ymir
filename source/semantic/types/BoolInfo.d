@@ -145,6 +145,13 @@ class BoolInfo : InfoType {
     }
 
     /**
+     Returns: le nom du type simplifié.
+     */
+    override string simpleTypeString () {
+	return "b";
+    }
+    
+    /**
      L'operateur '.'.
      Params:
      var = l'attribut auquel on veut accéder.

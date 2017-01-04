@@ -215,6 +215,13 @@ class StringInfo : InfoType {
 	return "string";
     }
 
+    /**
+     Returns: le nom simple du type.
+     */
+    override string simpleTypeString () {
+	return "s";
+    }
+    
     override InfoType clone () {
 	auto ret = new StringInfo ();
 	if (this._destruct is null) ret._destruct = null;

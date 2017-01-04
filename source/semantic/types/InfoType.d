@@ -193,6 +193,13 @@ class InfoType {
     }
 
     /**
+     Returns: le nom simplifié du type
+     */
+    abstract string simpleTypeString () {
+	return "";
+    }
+    
+    /**
      Quitte un scope.
      Params:
      namespace = le contexte du scope.

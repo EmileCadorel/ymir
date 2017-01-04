@@ -286,6 +286,18 @@ class PtrFuncInfo : InfoType {
     }
 
     /**
+     Returns: le nom simple du type.
+     */
+    override string simpleTypeString () {
+	auto buf = new OutBuffer;
+	buf.write ("f_");
+	foreach (it ; this._params) {
+	    buf.write (it.simpleTypeString);
+	}
+	return buf.toString ();
+    }
+    
+    /**
      Returns: le score du type (pour la transformation en lint).
      */
     ApplicationScore score () {

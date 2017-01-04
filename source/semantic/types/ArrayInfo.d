@@ -417,6 +417,13 @@ class ArrayInfo : InfoType {
     }
 
     /**
+     Returns: le type du tableau sou forme de chaine simplifié.
+     */    
+    override string simpleTypeString () {
+	return "a_" ~ this._content.simpleTypeString ();
+    }
+    
+    /**
      Returns: la place que prend une instance de tableau (sont pointeur).
      */
     override LSize size () {

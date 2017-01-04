@@ -13,6 +13,10 @@ class UndefInfo : InfoType {
 	return "undef";
     }
 
+    override string simpleTypeString () {
+	return "u";
+    }
+    
     override InfoType clone () {
 	return new UndefInfo ();
     }

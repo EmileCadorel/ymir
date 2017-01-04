@@ -43,9 +43,9 @@ class UnPureFrame : Frame {
 		auto var = this._function.params [it].setType (params [it]);   
 		finalParams.insertBack (var.expression);
 	    } else finalParams.insertBack (this._function.params [it].expression);
-	    auto t = finalParams.back ().info.type.typeString ();
+	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t) ~ to!string (to!short (' '));
+	    name ~= super.mangle (t);
 	}
 
 	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);
@@ -111,9 +111,9 @@ class UnPureFrame : Frame {
 		auto var = this._function.params [it].setType (params.params [it].info);   
 		finalParams.insertBack (var.expression);
 	    } else finalParams.insertBack (this._function.params [it].expression);
-	    auto t = finalParams.back ().info.type.typeString ();
+	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t) ~ to!string (to!short (' '));
+	    name ~= super.mangle (t);
 	}
 	
 	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);

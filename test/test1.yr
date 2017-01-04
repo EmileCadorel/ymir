@@ -1,12 +1,85 @@
 extern (C) putchar (c : char);
-struct (t : Test) Test;
 
-def fibo (n : int) {
-    if (n < 2) return n;
-    else return fibo (n - 1) + fibo (n - 2);
+struct 
+| a : int
+| b : float
+-> Test;
+
+struct
+| f : float
+-> Test2;
+
+def print (i : long) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
 }
 
-def main ( ) {
-    let a = fibo (10 + 1);
+def print (i : int) : void {
+    if (i < 0) {
+	system (print_c, '-');
+	print (- i);
+    } else {
+	if (i > 9) print (i / 10);
+	system (print_c, (i%10) + '0');
+    }
+}
+
+def print (c : char) putchar (c);
+def print (s : string) for it in s print (it);
+def toStr (c) return cast:string ([c]);
+
+def exp (x, y)  {
+    let f = 1l;
+    while (y > 0) {
+	if (y % 2 == 0) {
+	    f *= f;
+	} else f = f * f * x;
+	y = y / 2;
+    }
+    return f;
+}
+
+def print (a : float, prec : int) {
+    let i = cast:long (a * (exp (10, prec)));
+    let ret = "", inf = false;
+    if (i < 0) {
+	inf = true;
+	i = -i;
+    }
+
+    while (i > 9) {
+	ret = toStr((i%10) + '0') + ret;
+	i /= 10;
+	prec --;
+	if (prec == 0) ret = "." + ret;
+    }
+
+    ret = toStr((i%10) + '0') + ret;
+    if (prec >= 1) ret = "." + ret;
+
+    if (inf) print( "-" + ret);
+    else print (ret);    
+}
+
+def print (f : float) {
+    print (f, 3);
+}
+
+def println (elem) {
+    print (elem);
+    print ('\n');
+}
+
+def test () {
+    return 1.;
+}
+
+def main ( ) {    
+    println (test ());
 }
 

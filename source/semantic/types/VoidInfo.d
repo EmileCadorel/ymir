@@ -37,5 +37,9 @@ class VoidInfo : InfoType {
     override string typeString () {
 	return "void";
     }
+
+    override string simpleTypeString () {
+	return "v";
+    }
     
 }

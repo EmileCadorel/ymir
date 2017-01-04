@@ -448,6 +448,13 @@ class FloatInfo : InfoType {
     }
 
     /**
+     Returns: le nom du type float simplifié.
+     */
+    override string simpleTypeString () {
+	return "f";
+    }
+    
+    /**
      Returns: une nouvelle instance de float
      */
     override InfoType clone () {

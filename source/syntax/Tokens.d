@@ -72,7 +72,8 @@ enum Tokens : Token {
     TAB = Token ("\t", 65),
     LCOMM3 = Token ("/*", 66),
     RCOMM3 = Token ("*/", 67),
-    SQRT = Token ("¬", 68) 
+    SQRT = Token ("¬", 68),
+    ARROW = Token ("->",  69)
 }    
 
 

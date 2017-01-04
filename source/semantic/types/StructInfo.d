@@ -101,7 +101,13 @@ class StructCstInfo : InfoType {
 	return score;
     }
 
-    
+    override string simpleTypeString () {
+	if (this._name [0] >= 'a' && this._name [0] <= 'z') {
+	    return "_" ~ this.name;
+	} else 
+	    return this._name;
+    }    
+
     override string typeString () {
 	auto name = this._name ~ "(";
 	if (this._types.empty) {	    
@@ -329,6 +335,13 @@ class StructInfo : InfoType {
 	return name;
     }
 
+    override string simpleTypeString () {
+	if (this._name [0] >= 'a' && this._name [0] <= 'z') {
+	    return "_" ~ this.name;
+	} else 
+	    return this._name;
+    }    
+    
     override InfoType clone () {
 	auto ret = create (this._name, this._attribs, this._params);
 	if (this._destruct is null) ret.setDestruct (null);

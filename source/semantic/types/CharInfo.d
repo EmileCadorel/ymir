@@ -296,6 +296,13 @@ class CharInfo : InfoType {
     }
 
     /**
+     Returns: le nom du type char simplifié
+     */
+    override string simpleTypeString () {
+	return "c";
+    }
+    
+    /**
      Returns: un nouvelle instance du type char.
      */
     override InfoType clone () {

@@ -391,6 +391,13 @@ class PtrInfo : InfoType {
     }
 
     /**
+     Returns: le nom simple du type.
+     */
+    override string simpleTypeString () {
+	return "p_" ~ this._content.typeString ();
+    }
+    
+    /**
      Returns: la taille mémoire du type.
      */
     override LSize size () {

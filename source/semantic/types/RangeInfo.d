@@ -275,9 +275,16 @@ class RangeInfo : InfoType {
      Returns: le nom du type.
      */
     override string typeString () {
-	return "range!(" ~ this._content.typeString ~ ")";
+	return "range!" ~ this._content.typeString;
     }
 
+    /**
+     Returns: le nom simple du type.
+     */
+    override string simpleTypeString () {
+	return "r_" ~ this._content.simpleTypeString;
+    }
+    
     /**
      Returns: La taille mémoire du type.
      */

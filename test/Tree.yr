@@ -1,6 +1,4 @@
 
-struct (left : Tree, right : Tree, key : int, value : string) Tree;
-
 def println (s : string) {
     let i = 0;
     while (i < s.length) {
@@ -47,11 +45,14 @@ def addNode (root : Tree, node : Tree) : void {
     }
 }
 
+struct (left : Tree, right : Tree, key : int, value : string) Tree;
+
 def main () {
     let root = Tree (null, null, 0, "Root");
     addNode (root, Tree (null, null, -1, "Left"));
     addNode (root, Tree (null, null, -3, "Left2"));
     addNode (root, Tree (null, null, 1, "Right"));
+    addNode (root, Tree (null, null, 2, "Right2"));
     println (root, 0);
 }
 

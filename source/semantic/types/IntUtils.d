@@ -90,7 +90,7 @@ class IntUtils {
 	inst += llist;
 	inst += new LCast (left, LSize.BYTE);
 	return inst;
-    }
+    }    
     
     /**
      Instruction de cast en bool d'un int.
@@ -106,6 +106,20 @@ class IntUtils {
 	return inst;
     }
 
+    /**
+     Instruction de cast en float d'un int.
+     Params:
+     llist = la liste d'instruction de l'operande de gauche.
+     Returns: une liste d'instruction du cast.
+     */
+    static LInstList InstCastFloat (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += llist;
+	inst += new LCast (left, LSize.DOUBLE);
+	return inst;
+    }
+    
     /**
      Operateur unaire d'un int.
      Params:

@@ -178,5 +178,12 @@ class FunctionInfo : InfoType {
 	return "function <" ~ this._namespace ~ "." ~ this._name ~ ">";
     }    
 
+    /**
+     Returns: le nom simple du type.
+     */
+    override string simpleTypeString () {
+	return "f_";
+    }
+    
 }
 

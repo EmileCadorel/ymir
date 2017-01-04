@@ -88,24 +88,37 @@ class Visitor {
      struct := 'struct' '(' (var (',' var)*)? ')' Identifiant ';'
      */
     private Struct visitStruct () {
-	auto word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	Word word = this._lex.next (), ident;
 	Array!Var exps;
-	word = this._lex.next ();
-	if (word != Tokens.RPAR) {
-	    _lex.rewind ();
-	    while (1) {
-		exps.insertBack (visitVarDeclaration ());
-		_lex.next (word);
-		if (word == Tokens.RPAR) break;
-		else if (word != Tokens.COMA)
-		    throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+	if (word == Tokens.LPAR) {
+	    word = this._lex.next ();
+	    if (word != Tokens.RPAR) {
+		_lex.rewind ();
+		while (1) {
+		    exps.insertBack (visitVarDeclaration ());
+		    _lex.next (word);
+		    if (word == Tokens.RPAR) break;
+		    else if (word != Tokens.COMA)
+			throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+		}
 	    }
-	}
-	auto ident = visitIdentifiant ();
-	word = this._lex.next ();
-	if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
-	return new Struct (ident, exps);
+	    ident = visitIdentifiant ();
+	    word = this._lex.next ();
+	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	} else if (word == Tokens.PIPE) {
+	    while (true) {
+		exps.insertBack (visitVarDeclaration ());
+		this._lex.next (word);
+		if (word == Tokens.ARROW) break;
+		else if (word != Tokens.PIPE)
+		    throw new SyntaxError (word, [Tokens.PIPE.descr, Tokens.COMA.descr]);
+	    }
+	    ident = visitIdentifiant ();
+	    word = this._lex.next ();
+	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	    
+	} else throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	    return new Struct (ident, exps);
+	    
     }    
 
     /**

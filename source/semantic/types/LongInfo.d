@@ -475,6 +475,13 @@ class LongInfo : InfoType {
     }
 
     /**
+     Returns: le nom du type.
+     */
+    override string simpleTypeString () {
+	return "l";
+    }
+
+    /**
      Returns: une nouvelle instance de long.
      */
     override InfoType clone () {

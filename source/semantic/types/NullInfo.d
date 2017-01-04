@@ -94,5 +94,12 @@ class NullInfo : InfoType {
     override string typeString () {
 	return "null";
     }
+
+    /**
+     Returns: le nom du type.
+     */
+    override string simpleTypeString () {
+	return "n";
+    }
     
 }

@@ -217,6 +217,23 @@ class AMDRegTable {
 	assert (false, "Pas un registre " ~ name);
     }
     
+    static R getRet (AMDSize size) {
+	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
+	    auto reg = __table__ ["xmm0"];	    
+	    auto it = (size in reg);
+	    if (it is null)
+		assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
+	    return *it;	    
+	} else {
+	    auto reg = __table__ ["rax"];
+	    auto it = (size in reg);
+	    if (it is null)
+		assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
+	    return *it;
+	}	    	
+	assert (false, "Erreur" ~ to!string (size));
+    }
+    
     static void reserve (AMDReg elem) {
 	if (elem.isStd && !elem.isOff) {
 	    auto reg = getInfo (elem.name);

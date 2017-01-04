@@ -234,9 +234,9 @@ class PureFrame : Frame {
 		auto info = this._function.params [it].expression;
 		finalParams.insertBack (info);
 		finalParams.back ().info.id = it + 1;
-		auto t = finalParams.back ().info.type.typeString ();
+		auto t = finalParams.back ().info.type.simpleTypeString ();
 		if (name != "main")
-		    name ~= super.mangle (t) ~ to!string (to!short (' '));
+		    name ~= super.mangle (t);
 	    }
 
 	    Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);	    	    

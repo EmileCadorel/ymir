@@ -44,7 +44,7 @@ class AMDVisitor : TVisitor {
 	entry.inst += lbl.inst;
 	entry.inst += visit(frame.returnLbl);
 	if (frame.returnReg !is null) {
-	    auto ret = new AMDReg (REG.getReg ("rax", getSize (frame.returnReg.size)));
+	    auto ret = new AMDReg (REG.getRet (getSize (frame.returnReg.size)));
 	    auto left = visitExpression (frame.returnReg, ret);
 	    entry.inst += left.what;
 	    if (left.where != ret)
@@ -418,12 +418,12 @@ class AMDVisitor : TVisitor {
 	if (lcall.name) inst += new AMDCall (lcall.name);
 	else {
 	    auto expr = visitExpression (lcall.dynFrame);
-	    auto aux = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
+	    auto aux = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	    inst += expr.what;
 	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
 	}
 	
-	auto retReg = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
+	auto retReg = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	return new TInstPaire (retReg, inst);
     }
 
@@ -441,12 +441,12 @@ class AMDVisitor : TVisitor {
 	if (lcall.name) inst += new AMDCall (lcall.name);
 	else {
 	    auto expr = visitExpression (lcall.dynFrame);
-	    auto aux = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
+	    auto aux = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	    inst += expr.what;
 	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
 	}
 	
-	auto retReg = new AMDReg (REG.getReg ("rax", lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
+	auto retReg = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	inst += new AMDMove (retReg, where);
 	return new TInstPaire (where, inst);
     }    
