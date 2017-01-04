@@ -33,7 +33,7 @@ class UndefInfo : InfoType {
 
     
     override InfoType cloneForParam () {
-	assert (false, "Pas normal cette histoire");
+	return new UndefInfo ();
     }
     
 }

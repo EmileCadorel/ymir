@@ -22,6 +22,15 @@ class Program {
 	    it.declare ();
 	}
     }
+
+    /**
+     Declare toutes les informations dans la table des symboles comme étant des éléments externes.
+     */
+    void declareAsExtern () {
+	foreach (it ; this._decls) {
+	    it.declareAsExtern ();
+	}
+    }
     
     /**
      Affiche le programme sous forme d'arbre

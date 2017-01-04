@@ -81,7 +81,24 @@ class Visitor {
      import := 'import' (Identifiant ('.' Identifiant)*) (',' Identifiant ('.' Identifiant))* ';'
      */
     private Import visitImport () {
-	return null;
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	Array!(Word) idents;
+	bool end = true;
+	while (true) {
+	    auto ident = visitIdentifiant ();
+	    if (end) {
+		end = false;
+		idents.insertBack (ident);	    
+	    } else idents.back.str = idents.back.str ~ ident.str;
+	    auto word = this._lex.next ();
+	    if (word == Tokens.DOT) idents.back.str = idents.back.str ~ '/';
+	    else if (word == Tokens.COMA) {
+		end = true;
+	    } else if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.DOT.descr, Tokens.COMA.descr, Tokens.SEMI_COLON.descr]);
+	    else break;
+	}
+	return new Import (begin, idents);
     }
 
     /**

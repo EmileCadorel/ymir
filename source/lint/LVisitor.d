@@ -26,12 +26,12 @@ class LVisitor {
 	    frames.insertBack (this.visit (it));
 	}
 	
-	foreach (key, value ; LFrame.preCompiled) {
-	    if (!value.done) {
-		frames.insertBack (value);
-		value.done = true;
-	    }
-	}
+	// foreach (key, value ; LFrame.preCompiled) {
+	//     if (!value.done) {
+	// 	frames.insertBack (value);
+	// 	value.done = true;
+	//     }
+	// }
 	
 	return frames;
     }
@@ -39,7 +39,7 @@ class LVisitor {
     /**
      On visite une frame généré par l'analyse sémantique et on la transforme en lint
      */
-    private LFrame visit (FinalFrame semFrame) {
+    LFrame visit (FinalFrame semFrame) {
 	LLabel entry = new LLabel, end = new LLabel;
 	LReg retReg = null;
 	LReg.lastId = semFrame.last;

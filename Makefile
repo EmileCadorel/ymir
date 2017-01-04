@@ -6,6 +6,7 @@ final:
 
 clean:
 	dub clean
+	rm __precompiled__.s
 	rm test/*.s
 	rm ymir
 	rm a.out

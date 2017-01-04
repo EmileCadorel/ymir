@@ -6,6 +6,7 @@ import semantic.pack.FrameTable, semantic.pack.Table;
 import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
+import semantic.pack.ExternFrame;
 
 
 /**
@@ -94,6 +95,31 @@ class Function : Declaration {
 	}
     }
 
+
+    /**
+     Declare une fonction dans la table des symboles après vérification.
+     Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.
+     Throws: ShadowingVar
+     */
+    override void declareAsExtern () {
+	if (this._ident.str != MAIN) {
+	    Frame fr = verifyPureAsExtern ();
+	    auto space = Table.instance.namespace;
+	    auto it = Table.instance.get (this._ident.str);
+	    if (it !is null) {
+		auto fun = cast (FunctionInfo) it.type;
+		if (fun is null) throw new ShadowingVar (this._ident, it.sym);
+		fun.insert (fr);
+		Table.instance.insert (it);
+	    } else {
+		auto fun = new FunctionInfo (this._ident.str, space);
+		fun.insert (fr);
+		Table.instance.insert (new Symbol (this._ident, fun, true));
+	    }
+	}
+    }
+
+    
     /**
      Verifie que la fonction est une fonction pure ou non.     
      */
@@ -108,6 +134,21 @@ class Function : Declaration {
 	return fr;
     }
 
+    /**
+     Verifie que la fonction est une fonction pure ou non.     
+     */
+    Frame verifyPureAsExtern () {
+	auto space = Table.instance.namespace ();
+	foreach (it ; this._params) {
+	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
+	    
+	}
+	auto fr = new ExternFrame (space, this);
+	FrameTable.instance.insert (fr);
+	return fr;
+    }
+
+    
     /**
      Returns: l'identifiant de la fonction
      */

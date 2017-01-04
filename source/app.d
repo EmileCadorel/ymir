@@ -13,7 +13,7 @@ void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
     Table.instance.purge ();
-    Table.instance.setCurrentSpace (Frame.mangle (file));
+    Table.instance.setCurrentSpace (Frame.mangle (file [0 .. $ - 3]));
     prog.declare ();
     
     auto error = 0;
@@ -37,6 +37,23 @@ Array!LFrame lintTime () {
 
 Array!TFrame targetTime (Array!LFrame frames) {
     return new AMDVisitor ().target (frames);    
+}
+
+string preCompiled (string name) {    
+    auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
+    toFile (target, name);
+    return name;
+}
+
+string compileTemplates (string name) {
+    Array!LFrame frames;
+    auto visitor = new LVisitor ();
+    foreach (it ; FrameTable.instance.templates) {
+	frames.insertBack (visitor.visit (it));
+    }
+    auto target = targetTime (frames);
+    toFile (target, name);
+    return name;
 }
 
 void toFile (Array!TFrame frames, string filename) {
@@ -64,8 +81,11 @@ void main (string [] args) {
 	foreach (file ; Options.instance.inputFiles) {	
 	    FrameTable.instance.pures.clear ();
 	    FrameTable.instance.finals.clear ();
+	    FrameTable.instance.clearImport ();
+	    
 	    semanticTime (file);
-	    auto list = lintTime ();		
+	    auto list = lintTime ();
+	    
 	    debug {
 		foreach (it ; list) {
 		    writeln (it.toString);
@@ -75,8 +95,11 @@ void main (string [] args) {
 	    
 	    toFile (target, file ~ ".s");
 	    files ~= [file ~ ".s"];
-	}	
+	}
 
+	files ~= [compileTemplates ("__templates__.s")];
+	files ~= [preCompiled ("__precompiled__.s")];
+	
 	if (Options.instance.isOn (OptionEnum.DEBUG)) {
 	    auto pid = spawnProcess (["gcc"] ~ ["-g"] ~ files);
 	    writeln ("linking");

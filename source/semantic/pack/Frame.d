@@ -153,9 +153,11 @@ class Frame {
     static string mangle (string name) {
 	string s = "";
 	foreach (it ; name) {
-	    if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) {
+	    if (it == '/')
+		s ~= to!string (to!ushort ('.'));
+	    else if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) 
 		s ~= to!string(to!short (it));
-	    } else s ~= it;
+	    else s ~= it;
 	}
 	return s;
     }
@@ -194,7 +196,8 @@ class PureFrame : Frame {
      */
     this (string namespace, Function func) {
 	super (namespace, func);
-	this._name = func.ident.str;
+	if (func)
+	    this._name = func.ident.str;
     }
 
     /**

@@ -65,6 +65,11 @@ class Struct : Declaration {
 	}
     }
 
+    override void declareAsExtern () {
+	return this.declare ();
+    }
+    
+    
     /**
      Affiche la structure sous forme d'arbre
      Params: 

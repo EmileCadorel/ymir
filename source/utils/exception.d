@@ -600,3 +600,22 @@ class FloatingPointException : YmirException {
     
 
 }
+
+class ImportError : YmirException {
+
+    /**
+     Params: 
+     locus = l'identifiant de l'import
+     */
+    this (Word locus) {
+	auto buf = new OutBuffer;
+	buf.writefln ("%s:(%d, %d): %sErreur%s Fichier importe inexistant '%s%s.yr%s'",
+		      locus.locus.file, locus.locus.line, locus.locus.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, locus.str, Colors.RESET.value);
+	
+	super.addLine (buf, locus.locus);
+	msg = buf.toString ();
+    }
+    
+}

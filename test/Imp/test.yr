@@ -1,0 +1,16 @@
+import test.Imp.stdio;
+import test.Imp.math;
+
+def main () {
+    for (i in 1. .. 100.) {
+	print ("Pour ");
+	println (i);
+	print ("\tAlgo : ");
+	print (sqrt (i, 6), 9);
+	println ('');
+	
+	print ("\tProc : ");
+	print ((i).sqrt, 9);
+	println ('');
+    }
+}

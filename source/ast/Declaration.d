@@ -11,6 +11,11 @@ class Declaration {
     abstract void declare ();
 
     /**
+     Fonction à surcharger pour se déclarer dans la table des symboles comme données externes.
+     */
+    void declareAsExtern () {}
+    
+    /**
      Fonction à surcharger pour l'affichage
      */
     void print (int nb = 0) {}

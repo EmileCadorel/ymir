@@ -1,5 +1,8 @@
 extern (C) putchar (c : char);
 
+/**
+   Affiche un int.   
+ */
 def print (i : long) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -10,6 +13,9 @@ def print (i : long) : void {
     }
 }
 
+/**
+   Affiche un long
+ */
 def print (i : int) : void {
     if (i < 0) {
 	system (print_c, '-');
@@ -20,11 +26,29 @@ def print (i : int) : void {
     }
 }
 
-def print (c : char) putchar (c);
-def print (s : string) for it in s print (it);
-def toStr (c) return cast:string ([c]);
+/**
+   Affiche un char.
+ */
+def print (c : char)
+    putchar (c);
+
+/**
+   Affiche un string.
+ */
+def print (s : string)
+    for (it in s)
+	print (it);
+
+/**
+   Transforme un char en string
+ */
+def toStr (c : char) 
+    return cast:string ([c]);
 
 
+/**
+   Todo, ca marche pas pour les grande précision.
+ */
 def print (a : float, prec : int) {
     let i = cast:long (a * (exp (10, prec)));
     let ret = "", inf = false;
@@ -32,7 +56,7 @@ def print (a : float, prec : int) {
 	inf = true;
 	i = -i;
     }
-
+    
     while (i > 9) {
 	ret = toStr((i%10) + '0') + ret;
 	i /= 10;
@@ -42,20 +66,32 @@ def print (a : float, prec : int) {
 
     ret = toStr((i%10) + '0') + ret;
     if (prec >= 1) ret = "." + ret;
-
+    
     if (inf) print( "-" + ret);
     else print (ret);    
 }
 
-def print (f : float) {
-    print (f, 3);
+/**
+   Returns: x ^^ n
+ */
+def exp (x, n) {
+    let aux = x;
+    for (i in 0 .. (n - 1))
+	aux *= x;
+    return aux;
 }
 
+/**
+   Affiche in float
+ */
+def print (f : float) {
+    print (f, 5);
+}
+
+/**
+   Affiche elem, suivi de '\n'
+ */
 def println (elem) {
     print (elem);
     print ('\n');
-}
-
-def main () {
-    print (round (3.1111111111, 3), 9);
 }
