@@ -66,11 +66,26 @@ class Visitor {
     Program visit () {
 	Word word = this._lex.next ();
 	Array!Declaration decls;
+	bool pub = false;
 	while (!word.isEof ()) {
-	    if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
-	    else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
-	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
-	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+	    if (word == Keys.DEF) {
+		if(pub) throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
+		decls.insertBack (this.visitFunction ());
+	    } else if (word == Keys.IMPORT) {
+		decls.insertBack (this.visitImport ());
+		if (pub) decls.back ().isPublic = true;
+		pub = false;
+	    } else if (word == Keys.EXTERN) {
+		decls.insertBack (this.visitExtern ());
+		if (pub) decls.back ().isPublic = true;
+		pub = false;
+	    } else if (word == Keys.STRUCT) {
+		if (pub) throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
+		decls.insertBack (this.visitStruct ());
+	    } else if (word == Keys.PUBLIC) {
+		if (pub)  throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
+		pub = true;
+	    }
 	    else throw new SyntaxError (word);
 	    _lex.next (word);
 	}

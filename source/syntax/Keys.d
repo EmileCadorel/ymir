@@ -33,6 +33,7 @@ enum Keys : Token {
     ANTI = Token ("\\", 28),
     LX = Token ("x", 29),
     SYSTEM = Token ("system", 30),
-	EXTERN = Token ("extern", 31),
-	MAIN = Token ("main", 32)
+    EXTERN = Token ("extern", 31),
+    MAIN = Token ("main", 32),
+    PUBLIC = Token ("public", 33)
 }

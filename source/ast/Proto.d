@@ -90,5 +90,14 @@ class Proto : Declaration {
 	
     }
 
+    /**
+     Declare le prototype dans la table des symboles, si l'élément est déclaré comme publique.     
+     */
+    override void declareAsExtern () {
+	if (this._isPublic) {
+	    this.declare ();
+	}
+    }
+    
     
 }

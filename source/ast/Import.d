@@ -44,4 +44,10 @@ class Import : Declaration {
 	Table.instance.setCurrentSpace (space);
     }
            
+    override void declareAsExtern () {
+	if (this._isPublic) {
+	    this.declare ();
+	}
+    }
+    
 }
