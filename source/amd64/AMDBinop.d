@@ -28,7 +28,7 @@ class AMDBinop : TInst {
     }
 
     private bool isNormCom () {
-	return find ([Tokens.PLUS, Tokens.STAR, Tokens.XOR, Tokens.DAND], this._op) != [];
+	return find ([Tokens.PLUS, Tokens.STAR, Tokens.XOR, Tokens.DAND, Tokens.SQRT], this._op) != [];
     }
 
     private bool isNorm () {
@@ -155,7 +155,13 @@ class AMDBinop : TInst {
     private void opTest (AMDSetType type) {
 	AMDReg lreg, rreg;
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
-	auto fin = new AMDReg (REG.getReg ((cast (AMDReg)this._res).name, AMDSize.BYTE));
+	AMDReg fin;
+	if (auto reg = cast (AMDReg) this._res) {
+	    if (!reg.isOff)
+		fin = new AMDReg (REG.getReg ((cast (AMDReg)this._res).name, AMDSize.BYTE));
+	    else fin = reg;
+	}
+	
 	if (ret == lreg) {
 	    this._insts += new AMDCmp (this._right, ret);
 	    this._insts += new AMDSet (fin, type);

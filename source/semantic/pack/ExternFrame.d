@@ -27,7 +27,6 @@ class ExternFrame : PureFrame {
     /** Le protocole créé à la sémantique */
     private FrameProto _fr;
 
-
     /** 
      Params:
      namespace = le contexte du prototype
@@ -57,7 +56,8 @@ class ExternFrame : PureFrame {
      */
     override ApplicationScore isApplicable (ParamList params) {
 	if (this._proto is null) return super.isApplicable (params);
-	auto score = new ApplicationScore (this._proto.ident);
+	auto score = new ApplicationScore (this._proto.ident, this._proto.isVariadic);
+	if (this._proto.isVariadic) return isApplicableVariadic (params);
 	if (params.params.length == 0 && this._proto.params.length == 0) {
 	    score.score = 10; return score;
 	} else if (params.params.length == this._proto.params.length) {
@@ -85,6 +85,42 @@ class ExternFrame : PureFrame {
 	return null;
     }
 
+    private ApplicationScore isApplicableVariadic (ParamList params) {
+	auto score = new ApplicationScore (this._proto.ident, true);
+	if (params.params.length == 0 && this._proto.params.length == 0) {
+	    score.score = 10; return score;
+	} else if (params.params.length >= this._proto.params.length) {
+	    int it = 0;
+	    for (; it < this._proto.params.length; it ++) {
+		auto param = this._proto.params [it];
+		InfoType info = null;
+		if (cast (TypedVar) param !is null) {
+		    info = (cast(TypedVar)param).getType ();
+		    auto type = params.params [it].info.type.CompOp (info);
+		    if (type && type.isSame (info)) {
+			score.score += SAME;
+			score.treat.insertBack (type);  
+		    } else if (type !is null) {
+			score.score += AFF;
+			score.treat.insertBack (type);  
+		    } else return null;
+		    
+		} else {
+		    score.score += AFF;
+		    score.treat.insertBack (null);
+		}		
+	    }
+	    for (; it < params.params.length ; it ++) {
+		score.score += SAME;
+		score.treat.insertBack (null);
+	    }
+	    return score;
+	}
+	return null;
+    }
+
+
+    
     /**
      Créée le prototype pour la génération de code intérmédiaire.
      Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')

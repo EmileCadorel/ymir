@@ -54,6 +54,7 @@ class Struct : Declaration {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
 	    auto str = new StructCstInfo (this._ident.str);
+	    FrameTable.instance.insert (str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
 	    InfoType.addCreator (this._ident.str);
@@ -66,7 +67,21 @@ class Struct : Declaration {
     }
 
     override void declareAsExtern () {
-	return this.declare ();
+	auto exist = Table.instance.get (this._ident.str);
+	if (exist) {
+	    throw new ShadowingVar (this._ident, exist.sym);
+	} else {
+	    auto str = new StructCstInfo (this._ident.str);
+	    str.isExtern = true;
+	    auto sym = new Symbol(this._ident, str);
+	    Table.instance.insert (sym);
+	    InfoType.addCreator (this._ident.str);
+	    foreach (it ; this._params) {
+		if (auto ty = cast (TypedVar) it) {
+		    str.addAttrib (ty);
+		} else throw new NeedAllType (this._ident, "structure");		
+	    }
+	}
     }
     
     

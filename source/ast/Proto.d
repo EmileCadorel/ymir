@@ -26,16 +26,20 @@ class Proto : Declaration {
 
     /// 
     private Word _from;
+
+    private bool _isVariadic;
     
-    this (Word ident, Array!Var params) {
+    this (Word ident, Array!Var params, bool isVariadic) {
 	this._ident = ident;
 	this._params = params;
+	this._isVariadic = isVariadic;
     }
     
-    this (Word ident, Var type, Array!Var params) {
+    this (Word ident, Var type, Array!Var params, bool isVariadic) {
 	this._ident = ident;
 	this._type = type;
 	this._params = params;
+	this._isVariadic = isVariadic;
     }
     
     ref Word from () {
@@ -63,6 +67,13 @@ class Proto : Declaration {
 	return this._ident;
     }
 
+    /**
+     Returns: le prototype est variadic
+     */
+    bool isVariadic () {
+	return this._isVariadic;
+    }
+    
     /**
      Declare le prototype dans la table des symboles après vérification.
      Pour être juste le prototype ne doit contenir que des variable typé.

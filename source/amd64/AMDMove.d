@@ -15,7 +15,7 @@ class AMDMove : TInst {
 	auto l = cast (AMDReg) left;
 	auto r = cast (AMDReg) right;
 	if (r && l && r.isOff && l.isOff) {
-	    this._aux = new AMDReg (REG.getReg ("r14", r.sizeAmd));
+	    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
 	} else if (r && r.isOff && cast (AMDConstDouble) left) {
 	    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
 	}

@@ -36,8 +36,9 @@ class AMDVisitor : TVisitor {
 	entry.inst += new AMDMove (rsp, rbp);
 	entry.inst += new AMDCfiDefCfaRegister (6);
 	entry.inst += new AMDBinop (stack, rsp, Tokens.MINUS);
+	ulong nbInt, nbFloat;
 	foreach (it ; 0 .. frame.args.length) {
-	    entry.inst += new AMDMove (new AMDReg (REG.param (it, getSize (frame.args[it].size))),
+	    entry.inst += new AMDMove (new AMDReg (REG.param (nbInt, nbFloat, getSize (frame.args[it].size))),
 				       new AMDReg (frame.args[it].id,
 						   getSize (frame.args[it].size)));
 	}
@@ -50,7 +51,7 @@ class AMDVisitor : TVisitor {
 	    if (left.where != ret)
 		entry.inst += new AMDMove (cast (AMDObj)left.where, ret);
 	}
-	stack.value = AMDReg.globalOff + (8 - AMDReg.globalOff % 8);
+	stack.value = AMDReg.globalOff + (16 - AMDReg.globalOff % 16);
 	if (stack.value == 0)
 	    entry.inst += new AMDPop (rbp);
 	else
@@ -91,9 +92,10 @@ class AMDVisitor : TVisitor {
     override protected TInstList visitSys (LSysCall lsys) {
 	auto inst = new TInstList;
 	auto sys = new AMDSysCall (lsys.name);
+	ulong nbInt, nbFloat;
 	foreach (it ; 0 .. lsys.params.length) {
 	    auto par = visitExpression (lsys.params [it]);
-	    auto reg = new AMDReg (REG.param (it, (cast(AMDObj)par.where).sizeAmd));
+	    auto reg = new AMDReg (REG.param (nbInt, nbFloat, (cast(AMDObj)par.where).sizeAmd));
 	    inst += par.what;
 	    inst += new AMDMove (cast(AMDObj)par.where, reg);
 	}
@@ -407,12 +409,18 @@ class AMDVisitor : TVisitor {
     
     override protected TInstPaire visitCall (LCall lcall) {
 	auto inst = new TInstList;
+	ulong nbInt, nbFloat;
 	foreach (it ; 0 .. lcall.params.length) {
-	    auto reg = new AMDReg (REG.param (it, getSize (lcall.params [it].size)));
+	    auto reg = new AMDReg (REG.param (nbInt, nbFloat, getSize (lcall.params [it].size)));
 	    auto par = visitExpression (lcall.params [it], reg);
 	    inst += par.what;
 	    if (par.where != reg)
 		inst += new AMDMove (cast (AMDObj)par.where, reg);
+	}
+	
+	if (lcall.isVariadic) {
+	    auto rax = new AMDReg (REG.getReg ("rax"));	    
+	    inst += new AMDMove (new AMDConstQWord (nbFloat), rax);
 	}
 	
 	if (lcall.name) inst += new AMDCall (lcall.name);
@@ -430,14 +438,20 @@ class AMDVisitor : TVisitor {
     override protected TInstPaire visitCall (LCall lcall, TExp twhere) {
 	auto where = cast (AMDReg) twhere;
 	auto inst = new TInstList;
+	ulong nbInt, nbFloat;	
 	foreach (it ; 0 .. lcall.params.length) {
-	    auto reg = new AMDReg (REG.param (it, getSize (lcall.params [it].size)));
+	    auto reg = new AMDReg (REG.param (nbInt, nbFloat, getSize (lcall.params [it].size)));
 	    auto par = visitExpression (lcall.params [it], reg);
 	    inst += par.what;
 	    if (par.where != reg)
 		inst += new AMDMove (cast (AMDObj)par.where, reg);
 	}
 	
+	if (lcall.isVariadic) {
+	    auto rax = new AMDReg (REG.getReg ("rax"));	    
+	    inst += new AMDMove (new AMDConstQWord (nbFloat), rax);
+	}
+
 	if (lcall.name) inst += new AMDCall (lcall.name);
 	else {
 	    auto expr = visitExpression (lcall.dynFrame);
@@ -523,15 +537,34 @@ class AMDVisitor : TVisitor {
     }
 
     override protected TInstPaire visitUnop (LUnop unop, TExp where) {
-	auto inst = new TInstList;
-	auto res = cast (AMDReg) where;
-	res.resize (getSize (unop.size));
-	auto exp = visitExpression (unop.elem, res);
-	inst += exp.what;
-	if (res != exp.where)
-	    inst += new AMDMove (cast (AMDObj) exp.where, res);
-	inst += new AMDUnop (res, unop.op);
-	return new TInstPaire (res, inst);
+	if (unop.op != Tokens.SQRT) {
+	    auto inst = new TInstList;
+	    auto res = cast (AMDReg) where;
+	    res.resize (getSize (unop.size));
+	    auto exp = visitExpression (unop.elem, res);
+	    inst += exp.what;
+	    if (res != exp.where)
+		inst += new AMDMove (cast (AMDObj) exp.where, res);
+	    inst += new AMDUnop (res, unop.op);
+	    return new TInstPaire (res, inst);
+	} else {
+	    auto inst = new TInstList;
+	    auto res = new AMDReg (REG.aux (getSize (unop.elem.size)));
+	    auto exp = visitExpression (unop.elem, res);
+	    REG.free (res);
+	    inst += exp.what;	    
+	    if (res != exp.where && !res.isOff)
+		inst += new AMDMove (cast (AMDObj) exp.where, res);
+	    if (res.isOff) {
+		auto aux = new AMDReg (REG.getSwap (res.sizeAmd));
+		inst += new AMDMove (cast (AMDObj) exp.where, aux);
+		inst += new AMDUnop (aux, unop.op);
+		inst += new AMDMove (aux, res);
+		return new TInstPaire (res, inst);
+	    } 
+	    inst += new AMDUnop (res, unop.op);
+	    return new TInstPaire (res, inst);
+	}
     }
 
     override protected TInstPaire visitAddr (LAddr addr) {

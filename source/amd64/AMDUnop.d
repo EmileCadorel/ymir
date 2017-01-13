@@ -42,8 +42,9 @@ class AMDUnop : TInst {
 			this._obj.sizeAmd.id,
 			this._obj.toString (),
 			this._obj.toString ());
-	} else 
+	} else {
 	    buf.writef ("\t%s%s\t%s", op, this._obj.sizeAmd.id, this._obj.toString ());
+	}
 	return buf.toString ();
     }
     

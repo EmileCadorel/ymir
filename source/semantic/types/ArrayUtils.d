@@ -8,7 +8,7 @@ import semantic.types.StringUtils, lint.LSize, lint.LUnop;
 import semantic.types.ClassUtils, semantic.types.InfoType;
 import ast.Expression, lint.LVisitor, semantic.types.ArrayInfo;
 import ast.Constante, syntax.Word, ast.ParamList;
-
+import std.traits;
 
 /**
  Cette classe contient un ensemble de fonctions statique qui permettent la transformation d'un tableau en lint.
@@ -20,6 +20,17 @@ class ArrayUtils {
     static immutable string __PlusArray__ = "_YPPlusArray";
     static immutable string __PlusArrayObj__ = "_YPPlusArrayObj";
     static immutable string __DstArray__ = "_YPDstArray";
+
+    static void createFunctions () {
+	createCstArray ();
+	createCstArray (__DstArray__);
+	createDstArray ();
+	foreach (it ; [EnumMembers!LSize]) {
+	    if (it != LSize.NONE)
+		createPlusArray (it);
+	}
+	createPlusArrayObj ();
+    }
     
     
     /++

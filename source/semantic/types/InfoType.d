@@ -34,9 +34,10 @@ class ApplicationScore {
 	this.score = 0;
     }
 
-    this (Word token) {
+    this (Word token, bool variadic = false) {
 	this.score = 0;
 	this.token = token;
+	this.isVariadic = variadic;
     }
 
     /** le score de la surcharge */
@@ -56,6 +57,9 @@ class ApplicationScore {
 
     /** Le cast à appliquer à chaque paramètre avant l'appel */
     Array!InfoType treat;    
+
+    /** Le prototype est variadic */
+    bool isVariadic;
 }
 
 
@@ -135,7 +139,6 @@ class InfoType {
      Throws: Assert, si le nom existe déjà.
      */
     static void addCreator (string name) {
-	if (name in creators) assert (false, "Pas possible !!");
 	creators [name] = &StructCstInfo.create;
     }
 

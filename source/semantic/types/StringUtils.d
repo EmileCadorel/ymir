@@ -16,6 +16,12 @@ class StringUtils {
     static immutable string __DupString__ = "_YPDupString";
     static immutable string __PlusString__ = "_YPPlusString";
 
+    static void createFunctions () {
+	createCstString ();
+	createCstStringNoRef ();
+	createDupString ();
+	createPlusString ();
+    }    
 
     /**
      def cstString (size : long, val : ptr!char) : string {
@@ -369,6 +375,15 @@ class StringUtils {
 	return inst;
     }
 
+    static LInstList InstPtr (LInstList, LInstList list) {
+	auto inst = new LInstList;
+	auto leftExp = list.getFirst ();
+	inst += list;
+	inst += new LBinop (cast (LExp) leftExp, new LConstDWord (3, LSize.LONG), Tokens.PLUS);
+	return inst;
+    }
+
+    
     static LInstList InstNbRef (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();

@@ -6,6 +6,8 @@ import syntax.Tokens, utils.exception, semantic.types.BoolInfo;
 import ast.Var, semantic.types.PtrInfo, semantic.types.UndefInfo;
 import semantic.types.RefInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo;
+import semantic.types.LongInfo, semantic.types.LongUtils;
+
 
 /**
  Cette classe regroupe les informations de type du type int.
@@ -155,6 +157,11 @@ class IntInfo : InfoType {
 		aux.lintInstS.insertBack (&IntUtils.InstAddr);
 		return aux;
 	    }
+	} else if (cast (LongInfo) other) {
+	    auto o = new LongInfo ();
+	    o.lintInst = &LongUtils.InstAffectInt;
+	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
+	    return o;
 	}
 	return null;
     }

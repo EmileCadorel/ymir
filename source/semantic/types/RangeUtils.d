@@ -19,6 +19,11 @@ class RangeUtils {
     /** Le nom du constructeur de range */
     static string __CstName__ = "_YPCstRange";
 
+
+    static void createFunctions () {
+	createCstRange ();
+    }
+    
     /++
      + Fonction de construction du type range.
      + Example:

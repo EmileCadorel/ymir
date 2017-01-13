@@ -8,19 +8,21 @@ class LCall : LExp {
     private Array!LExp _params;
     private LSize _size;
     private LExp _dynFrame;
+    private bool _isVariadic;
 
-
-    this (LExp dyn, Array!LExp params, LSize size) {
+    this (LExp dyn, Array!LExp params, LSize size, bool variadic = false) {
 	this._dynFrame = dyn;
 	this._params = params;
 	this._size = size;
 	this._frame = null;
+	this._isVariadic = variadic;
     }
     
-    this (string frame, Array!LExp params, LSize size) {
+    this (string frame, Array!LExp params, LSize size, bool variadic = false) {
 	this._frame = frame;
 	this._params = params;
 	this._size = size;
+	this._isVariadic = variadic;
     }
     
     LExp dynFrame () {
@@ -43,6 +45,10 @@ class LCall : LExp {
 	return true;
     }
 
+    bool isVariadic () {
+	return this._isVariadic;
+    }
+    
     override string toString () {
 	auto buf = new OutBuffer ();
 	buf.writef ("Call(%s, [",

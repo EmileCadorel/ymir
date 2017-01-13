@@ -7,6 +7,8 @@ import syntax.Visitor;
 import semantic.pack.Frame;
 import utils.exception;
 import semantic.pack.FrameTable;
+import std.file;
+import utils.Options;
 
 /**
  TODO
@@ -31,11 +33,21 @@ class Import : Declaration {
 	foreach (it ; this._params) {
 	    if (!FrameTable.instance.wasImported (it.str)) {
 		try {		
-		    auto visitor = new Visitor (it.str ~ ".yr");
-		    Table.instance.setCurrentSpace (Frame.mangle (it.str));
-		    FrameTable.instance.addImport (it.str);
-		    auto prog = visitor.visit ();
-		    prog.declareAsExtern ();
+		    if (exists (it.str ~ ".yr")) {
+			auto visitor = new Visitor (it.str ~ ".yr");
+			Table.instance.setCurrentSpace (Frame.mangle (it.str));
+			FrameTable.instance.addImport (it.str);
+			auto prog = visitor.visit ();
+			prog.declareAsExtern ();
+		    } else {
+			string path = Options.instance.getPath ();
+			if (path[$ - 1] != '/') path ~= "/";
+			auto visitor = new Visitor (path ~ it.str ~ ".yr");
+			Table.instance.setCurrentSpace (Frame.mangle (it.str));
+			FrameTable.instance.addImport (it.str);
+			auto prog = visitor.visit ();
+			prog.declareAsExtern ();
+		    }
 		} catch (YmirException) {
 		    throw new ImportError (it);
 		}

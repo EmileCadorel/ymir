@@ -120,7 +120,8 @@ class AMDRegTable {
 	__auxFloat__.insertBack (__table__ ["xmm6"]);
 	__auxFloat__.insertBack (__table__ ["xmm7"]);
 
-	
+
+	__paramsFloat__.insertBack (__table__ ["xmm0"]);
 	__paramsFloat__.insertBack (__table__ ["xmm1"]);
 	__paramsFloat__.insertBack (__table__ ["xmm2"]);
 	__paramsFloat__.insertBack (__table__ ["xmm3"]);
@@ -135,6 +136,7 @@ class AMDRegTable {
     }
 
     static R getReg (string name, AMDSize size = AMDSize.QWORD) {
+	if (name == "rbp" && size == AMDSize.BYTE) assert (false);
 	auto elem = (name in __table__);
 	if (elem is null) {
 	    foreach (key, value ; __table__) {
@@ -157,16 +159,18 @@ class AMDRegTable {
 	}
     }
        
-    static R param (ulong nb, AMDSize size = AMDSize.QWORD) {
+    static R param (ref ulong nbInt, ref ulong nbFloat, AMDSize size = AMDSize.QWORD) {
 	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
-	    if (nb < __paramsFloat__.length) {
-		auto reg = (size in (__paramsFloat__ [nb]));
+	    if (nbFloat < __paramsFloat__.length) {
+		auto reg = (size in (__paramsFloat__ [nbFloat]));
+		nbFloat ++;
 		if (reg is null) assert (false);
 		return *reg;
 	    } return AMDRegInfo.empty (size);
 	} else {
-	    if (nb < __params__.length) {
-		auto reg = (size in (__params__ [nb]));
+	    if (nbInt < __params__.length) {
+		auto reg = (size in (__params__ [nbInt]));
+		nbInt++;
 		if (reg is null) assert (false);
 		return *reg;
 	    } return AMDRegInfo.empty (size);
@@ -355,9 +359,9 @@ class AMDReg : AMDObj {
 	auto off = this._id in __offsets__;
 	long o;
 	if (off is null) {	    
-	    auto res = __globalOffset__ % 8;
-	    if (res + abs (this._size.size) > 8) {
-		res =  (8 - res);
+	    auto res = __globalOffset__ % this._size.size;
+	    if (res  != 0) {
+		res =  (this._size.size - res);
 		__globalOffset__ += res;
 	    }
 	    o = __globalOffset__ + abs (this._size.size);

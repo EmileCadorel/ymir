@@ -540,6 +540,27 @@ class NeedAllType : YmirException {
 }
 
 /**
+ X doit être uniquement un type
+ */
+class OnlyTypeNeeded : YmirException {
+
+    /**
+     Params:
+     token = l'emplacement de la définition
+     */
+    this (Word token) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sError%s : Pas d'indentifiant de variable requis dans une prototype de ptr!function : ",
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	
+	msg = buf.toString ();
+    }
+}
+
+
+/**
  on a trouvé un break en dehors d'un scope 'breakable'.
  */
 class BreakOutSideBreakable : YmirException {

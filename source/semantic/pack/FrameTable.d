@@ -2,6 +2,7 @@ module semantic.pack.FrameTable;
 import utils.Singleton, semantic.pack.Frame;
 import std.container, std.algorithm;
 import std.array;
+import semantic.types.StructInfo;
 
 /**
  Cette classe est un singleton qui contient toutes les instances de frames.
@@ -15,7 +16,6 @@ class FrameTable {
     /** Les frames analysées sémantiquement */
     private Array!FinalFrame _finals;
 
-
     /** Les frames analysées sémantiquement résultat de templates */
     private Array!FinalFrame _finalTemplates;
     
@@ -25,6 +25,9 @@ class FrameTable {
     /** La liste des fichiers déjà importé */
     private Array!string _imported;
 
+    /** La liste des structures declaré */
+    private Array!StructCstInfo _structs;
+    
     /**
      Ajoute un fichier importe
      Params:
@@ -63,7 +66,15 @@ class FrameTable {
 	this._finals.insertBack (frame);
     }
 
-
+    /**
+     Insertion d'une struct
+     Params:
+     str = la structure
+     */
+    void insert (StructCstInfo str) {
+	this._structs.insertBack (str);
+    }    
+    
     /**
      Insertion d'une frame analysée sémantiquement résultat d'un template.
      Params:
@@ -111,6 +122,13 @@ class FrameTable {
 	return null;
     }
 
+    /**
+     Returns: la liste des structures
+     */
+    ref Array!StructCstInfo structs () {
+	return this._structs;
+    }
+    
     /**
      Returns: La liste des frames pures
      */

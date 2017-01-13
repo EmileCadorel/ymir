@@ -10,7 +10,7 @@ import std.stdio;
 class Symbol {
 
     /** L'identifiant numérique du symbole (pour la transformation en lint) */
-    private ulong _id;
+    private ulong _id = 0;
 
     /** L'identifiant du symbole */
     private Word _sym;
@@ -175,9 +175,11 @@ class Symbol {
      Charge l'identifiant numérique du symbole, en fonction des informations numérique de la frame.
      */
     void setId () {
-	if (__last__.empty) __last__.insertFront (1);
-	this._id = __last__.front ();
-	__last__.front ()++;
+	if (this._id == 0) {
+	    if (__last__.empty) __last__.insertFront (1);
+	    this._id = __last__.front ();
+	    __last__.front ()++;
+	}
     }
     
 }

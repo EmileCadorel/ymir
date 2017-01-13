@@ -20,11 +20,16 @@ class StructCstInfo : InfoType {
     private Array!TypedVar _params;
     private Array!InfoType _types;
     private Array!string _names;
+    private bool _extern;
     
     this (string name) {
 	this._name = name;
     }
 
+    ref bool isExtern () {
+	return this._extern;
+    }
+    
     void addAttrib (TypedVar type) {
 	this._params.insertBack (type);
     }
@@ -56,7 +61,9 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	return StructInfo.create (cst._name, cst._names, cst._types);
+	auto ret = cast (StructInfo) StructInfo.create (cst._name, cst._names, cst._types);
+	ret.isExtern = cst._extern;
+	return ret;
     }
     
     override bool isSame (InfoType) {
@@ -95,7 +102,10 @@ class StructCstInfo : InfoType {
 	
 	auto ret = StructInfo.create (this._name, names, types);
 	ret.lintInstMult = &StructUtils.InstCall;
-	ret.leftTreatment = &StructUtils.InstCreateCst;
+	if (this._extern) 
+	    ret.leftTreatment = &StructUtils.InstCreateCst!true;
+	else
+	    ret.leftTreatment = &StructUtils.InstCreateCst!false;
 	score.dyn = true;
 	score.ret = ret;
 	return score;
@@ -151,13 +161,18 @@ class StructInfo : InfoType {
     private Array!InfoType _params;
     private Array!string _attribs;
     private string _name;
-    
+    private bool _extern;
+
     private this (string name, Array!string names, Array!InfoType params) {
 	this._name = name;
 	this._attribs = names;
 	this._params = params;
 	this._destruct = &StructUtils.InstDestruct;
-    }    
+    }
+
+    ref bool isExtern () {
+	return this._extern;
+    }
     
     static InfoType create (string name, Array!string names, Array!InfoType params) {
 	return new StructInfo (name, names, params);

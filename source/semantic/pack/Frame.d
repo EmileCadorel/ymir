@@ -65,7 +65,7 @@ class Frame {
      Vérifie que la frame s'est bien terminé sur un retour, ou qu'elle de type `void`
      Throws: NoReturnStmt
      */
-    void verifyReturn (Word token, Symbol ret, FrameReturnInfo infos) {
+    static void verifyReturn (Word token, Symbol ret, FrameReturnInfo infos) {
 	if (!(cast (VoidInfo) ret.type) && !(cast(UndefInfo) ret.type)) {
 	    if (!infos.retract) {
 		throw new NoReturnStmt (token, ret);

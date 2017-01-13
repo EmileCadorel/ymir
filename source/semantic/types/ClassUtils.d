@@ -14,6 +14,11 @@ class ClassUtils {
 
     static immutable string __AddRef__ = "_YPAddRefObj";
     static immutable string __DstName__ = "_YPDstObj";
+
+    static void createFunctions () {
+	createAddRef ();
+	createDstObj ();
+    }
     
     /++
      + Fonction d'ajout d'un référence à un objet.

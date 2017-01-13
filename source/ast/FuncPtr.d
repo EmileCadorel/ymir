@@ -46,6 +46,8 @@ class FuncPtr : Expression {
 	temp.length = this._params.length + 1;
 	temp [0] = this._ret.asType ();
 	foreach (it ; 0 .. this._params.length) {
+	    if (cast(TypedVar) this._params [it])
+		throw new OnlyTypeNeeded (this._params [it].token);
 	    temp [it + 1] = this._params [it].asType ();
 	}
 

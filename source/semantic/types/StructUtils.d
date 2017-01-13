@@ -77,6 +77,7 @@ class StructUtils {
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
 	entry.insts += interne;
 	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
+	fr.isStd = false;
 	LFrame.preCompiled [__CstName__ ~ name] = fr;	
 	LReg.lastId = last;
     }
@@ -130,16 +131,19 @@ class StructUtils {
 	}
 	entry.insts += new LSysCall ("free", make!(Array!LExp) ([addr]), null);
 	auto fr = new LFrame (__DstName__ ~ name, entry, end, null, make!(Array!LReg) ([addr]));
+	fr.isStd = false;
 	LFrame.preCompiled [__DstName__ ~ name] = fr;
 	LReg.lastId = last;	     
     }
     
-    static LInstList InstCreateCst (InfoType _type, Expression, Expression) {
+    static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
 	auto type = cast (StructInfo) _type;
-	auto it = (__CstName__ ~ type.name) in LFrame.preCompiled;
-	if (it is null) createCstStruct (type.name, type.params);
-	it = (__DstName__ ~ type.name) in LFrame.preCompiled;
-	if (it is null) createDstStruct (type.name, type.params);
+	if (!_extern) {
+	    auto it = (__CstName__ ~ type.name) in LFrame.preCompiled;
+	    if (it is null) createCstStruct (type.name, type.params);
+	    it = (__DstName__ ~ type.name) in LFrame.preCompiled;
+	    if (it is null) createDstStruct (type.name, type.params);
+	}
 	auto inst = new LInstList ();
 	inst += new LConstFunc (__CstName__ ~ type.name);
 	return inst;

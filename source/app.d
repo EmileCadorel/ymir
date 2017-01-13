@@ -4,10 +4,16 @@ import target.TFrame;
 import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
 import syntax.Lexer, target.TRodata, std.process;
-import std.algorithm;
+import std.algorithm, syntax.Word;
 import utils.Options, std.file;
 import semantic.pack.Table;
 import semantic.pack.Frame;
+import semantic.types.ArrayUtils;
+import semantic.types.StringUtils;
+import semantic.types.ClassUtils;
+import semantic.types.RangeUtils;
+import semantic.types.StructUtils;
+import semantic.types.StructInfo;
 
 void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
@@ -17,6 +23,14 @@ void semanticTime (string file) {
     prog.declare ();
     
     auto error = 0;
+    foreach (it ; FrameTable.instance.structs) {
+	auto name = Word.eof;
+	name.str = it.name;
+	auto type = cast (StructInfo) it.create (name, []);
+	StructUtils.createCstStruct (type.name, type.params);
+	StructUtils.createDstStruct (type.name, type.params);
+    }
+    
     foreach (it ; FrameTable.instance.pures) {		
 	try {
 	    it.validate ();		
@@ -40,9 +54,17 @@ Array!TFrame targetTime (Array!LFrame frames) {
 }
 
 string preCompiled (string name) {    
-    auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
-    toFile (target, name);
-    return name;
+    if (Options.instance.isOn (OptionEnum.STD_COMPILATION)) {
+	ArrayUtils.createFunctions ();
+	StringUtils.createFunctions ();
+	ClassUtils.createFunctions ();
+	RangeUtils.createFunctions ();
+	
+	auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
+	toFile (target, name);
+	return name;
+    } 
+    return null;
 }
 
 string compileTemplates (string name) {
@@ -98,22 +120,29 @@ void main (string [] args) {
 	}
 
 	files ~= [compileTemplates ("__templates__.s")];
-	files ~= [preCompiled ("__precompiled__.s")];
+	if (auto name = preCompiled ("__precompiled__.s"))
+	    files ~= [name];
+
+	string [] options;
+	if (Options.instance.isOn (OptionEnum.DEBUG))
+	    options ~= ["-g"];
+	if (Options.instance.isOn (OptionEnum.ASSEMBLE))
+	    options ~= ["-c"];
 	
-	if (Options.instance.isOn (OptionEnum.DEBUG)) {
-	    auto pid = spawnProcess (["gcc"] ~ ["-g"] ~ files);
-	    writeln ("linking");
-	    if (wait (pid) != 0) assert ("Compilation raté");
-	} else {
-	    auto pid = spawnProcess (["gcc"] ~ files);
-	    writeln ("linking");
-	    if (wait (pid) != 0) assert ("Compilation raté");
+	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
+	    auto pid = spawnProcess (["gcc"] ~
+				     options ~
+				     files ~
+				     Options.instance.libs);
+	    if (wait (pid) != 0) assert ("Compilation raté");	
 	}
-	   	
+	
 	bool del = true;
-	debug del = false;
-	if (del) {
-	    foreach (it ; files) std.file.remove (it);		
+	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
+	    debug del = false;
+	    if (del) {
+		foreach (it ; files) std.file.remove (it);		
+	    }
 	}
 	
 	

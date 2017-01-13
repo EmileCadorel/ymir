@@ -9,7 +9,7 @@ import semantic.types.RefInfo, semantic.types.ClassUtils;
 import semantic.types.LongInfo, std.container;
 import semantic.types.ArrayUtils;
 import semantic.types.NullInfo, semantic.types.BoolInfo;
-import syntax.Keys;
+import syntax.Keys, semantic.types.PtrInfo;
 
 
 class StringInfo : InfoType {
@@ -159,6 +159,7 @@ class StringInfo : InfoType {
 	if (var.token.str == "length") return Length ();
 	else if (var.token.str == "dup") return Dup ();
 	else if (var.token.str == "typeid") return StringOf ();
+	else if (var.token.str == "ptr") return Ptr ();
 	return null;
     }
 
@@ -185,12 +186,18 @@ class StringInfo : InfoType {
 	_int.lintInst = &StringUtils.InstLength ;
 	return _int;
     }
-
+       
     private InfoType Dup () {
 	auto str = new StringInfo ();
 	str.lintInst = &StringUtils.InstDup;
 	str.isConst = false;
 	return str;
+    }
+
+    private InfoType Ptr () {
+	auto ret = new PtrInfo (new CharInfo);
+	ret.lintInst = &StringUtils.InstPtr;
+	return ret;
     }
     
     private InfoType StringOf () {

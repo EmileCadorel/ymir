@@ -186,6 +186,7 @@ class Visitor {
      */
     private Proto visitExtern () {
 	auto word = _lex.next ();
+	bool isVariadic = false;
 	Word from = Word.eof;
 	if (word == Tokens.LPAR) {
 	    from = visitIdentifiant ();
@@ -201,6 +202,13 @@ class Visitor {
 	if (word != Tokens.RPAR) {
 	    _lex.rewind ();
 	    while (1) {
+		word = this._lex.next ();
+		if (word == Tokens.TDOT) {
+		    isVariadic = true;
+		    word = this._lex.next ();
+		    if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+		    break;
+		} else this._lex.rewind ();
 		exps.insertBack (visitVarDeclaration ());
 		_lex.next (word);
 		if (word == Tokens.RPAR) break;
@@ -216,7 +224,7 @@ class Visitor {
 	}
 	
 	if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	
-	auto ret = new Proto (ident, type, exps);
+	auto ret = new Proto (ident, type, exps, isVariadic);
 	ret.from = from;
 	return ret;
     }
@@ -770,7 +778,7 @@ class Visitor {
 	if (word != Tokens.RPAR) {
 	    this._lex.rewind ();
 	    while (true) {
-		params.insertBack (visitType ());
+		params.insertBack (visitVarDeclaration ());
 		word = this._lex.next ();
 		if (word == Tokens.RPAR) break;
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
@@ -785,6 +793,10 @@ class Visitor {
 	    word = this._lex.next ();
 	    if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
 	    return new FuncPtr (begin, params, ret, expr);
+	} else if (word == Tokens.LACC) {
+	    this._lex.rewind ();
+	    auto block = visitBlock ();
+	    return new LambdaFunc (begin, params, ret, block);
 	} else this._lex.rewind ();
 	return new FuncPtr (begin, params, ret);
     }

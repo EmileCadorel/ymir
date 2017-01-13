@@ -26,12 +26,11 @@ class LVisitor {
 	    frames.insertBack (this.visit (it));
 	}
 	
-	// foreach (key, value ; LFrame.preCompiled) {
-	//     if (!value.done) {
-	// 	frames.insertBack (value);
-	// 	value.done = true;
-	//     }
-	// }
+	foreach (key, value ; LFrame.preCompiled) {
+	    if (!value.isStd) {
+		frames.insertBack (value);
+	    }
+	}
 	
 	return frames;
     }
@@ -331,9 +330,16 @@ class LVisitor {
 	if (auto _crange = cast (ConstRange) elem) return visitConstRange (_crange);
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
 	if (auto _long = cast (Long) elem) return visitLong (_long);
+	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitLambda (LambdaFunc _lmd) {
+	auto inst = new LInstList;
+	inst += new LConstFunc (_lmd.proto.name);
+	return inst;
+    }
+    
     private LInstList visitFuncPtr (FuncPtr fptr) {
 	auto inst = new LInstList;
 	if (fptr.expr is null) {
@@ -519,9 +525,9 @@ class LVisitor {
 	    if (par.score.dyn) {
 		auto left = visitExpression (par.left);
 		list += left;
-		call = new LCall (left.getFirst (), exprs, par.score.ret.size);
+		call = new LCall (left.getFirst (), exprs, par.score.ret.size, par.score.isVariadic);
 	    } else {		
-		call = new LCall (par.score.name, exprs, par.score.ret.size);
+		call = new LCall (par.score.name, exprs, par.score.ret.size, par.score.isVariadic);
 	    }
 	}
 	

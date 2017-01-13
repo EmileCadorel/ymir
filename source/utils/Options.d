@@ -2,7 +2,8 @@ module utils.Options;
 import utils.Singleton;
 import std.traits, utils.YmirException;
 import std.typecons, std.algorithm, std.string;
-import std.path;
+import std.path, std.process;
+import std.file;
 
 /**
  le tuple Option est composé :
@@ -28,7 +29,13 @@ enum OptionEnum : Option {
 	/** ne va pas jusqu'a l'edition de lien, génére des .o */
     ASSEMBLE = Option ("assemble", "-c", "-c", 0),
 	/** ne va pas jusqu'a l'édition de lien, génére des .s */
-    COMPILE = Option ("compile", "-S", "-S", 0)
+    COMPILE = Option ("compile", "-S", "-S", 0),
+	/** Ajoute un dossier d'importation de fichier */
+    INCLUDE = Option ("include", "-I", "-I", 1),
+	/** Surcharge la variable d'envirronement YS_HOME */
+    YS_PATH = Option ("ys_path", "--YS_PATH", "--YS_PATH", 1),
+	/** On compile la std*/
+    STD_COMPILATION = Option ("std_compil", "--std", "--std", 0)
 }
 
 /**
@@ -47,9 +54,20 @@ class Options {
 		parseArgument (it);
 	    } else if (extension (it) == ".yr") {		
 		this._inputFiles ~= [it];
+	    } else if (extension (it) == ".a") {
+		this._libs ~= [it];
+	    } else if (extension (it) == ".o") {
+		this._libs ~= [it];
 	    } else {
 		throw new YmirException ("Format inconnu " ~ extension (it));
 	    }
+	}
+
+	this._ysPath = environment.get ("YS_PATH");	
+	if (!this._ysPath) {
+	    auto it = OptionEnum.YS_PATH in this._options;
+	    if (!it)
+		throw new YmirException ("YS_PATH n'existe pas");
 	}
     }
     
@@ -89,6 +107,23 @@ class Options {
     }
 
     /**
+     Returns: la liste des fichiers libs
+     */
+    const (string []) libs () {
+	string [] libs;
+	string name = this._ysPath;
+	if (this._ysPath.length > 0) {
+	    name = this._ysPath ~ (this._ysPath [$ - 1] == '/' ? "libs/" : "/libs/");
+	}
+	foreach (it ; dirEntries (name, SpanMode.breadth)
+		 .filter!(f => f.name.endsWith (".o"))
+		 .map!(a => a.name)) {
+	    libs ~= [it];
+	}				     
+	return this._libs ~ libs;
+    }
+    
+    /**
      Returns le paramètre de la fonction (si elle n'est pas activé retourne null)
      */
     const (string) getOption (OptionEnum op) {
@@ -98,6 +133,15 @@ class Options {
     }
 
     /**
+     Returns: Le path YS_PATH
+     */
+    const (string) getPath () {
+	auto it = OptionEnum.YS_PATH in this._options;
+	if (it !is null) return *it;
+	return this._ysPath;
+    }
+    
+    /**
      Returns l'option est elle activé ?
      */
     bool isOn (OptionEnum op) {
@@ -106,11 +150,17 @@ class Options {
 	else return false;
     }
     
-    /// Les options activés
+    /**  Les options activés */
     private string [OptionEnum] _options;
 
-    /// les fichiers sources à compiler
+    /**  les fichiers sources à compiler*/
     private string [] _inputFiles;
+
+    /** Fichier .o et .a */
+    private string [] _libs;
+    
+    /** le path YS_PATH */
+    private string _ysPath;
     
     mixin Singleton!Options;
 
