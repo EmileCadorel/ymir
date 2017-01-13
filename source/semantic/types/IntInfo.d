@@ -158,7 +158,7 @@ class IntInfo : InfoType {
 		return aux;
 	    }
 	} else if (cast (LongInfo) other) {
-	    auto o = new LongInfo ();
+	    auto o = new IntInfo ();
 	    o.lintInst = &LongUtils.InstAffectInt;
 	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
 	    return o;

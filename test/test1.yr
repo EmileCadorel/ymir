@@ -1,6 +1,13 @@
 import std.stdio;
 
-def main () {    
-    println (1.234, 2);
+def main () {
+    let a = 0.;
+    let b = 0 .. 1234;
+    for (i in b) {
+	a += 0.12;
+    }
+    
+    println (a);
+    println (b.scd * 0.12);
 }
 
