@@ -1,6 +1,7 @@
 module ast.ParamList;
 import ast.Expression, utils.exception;
 import semantic.types.UndefInfo;
+import semantic.types.InfoType;
 import std.container, syntax.Word;
 import std.stdio, std.string;
 
@@ -46,6 +47,14 @@ class ParamList : Expression {
      */
     Array!Expression params () {
 	return this._params;
+    }
+
+    Array!InfoType paramTypes () {
+	Array!InfoType types;
+	foreach (it ; this._params) {
+	    types.insertBack (it.info.type);
+	}
+	return types;
     }
 
     /**

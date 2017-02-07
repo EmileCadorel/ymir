@@ -253,7 +253,7 @@ class PtrFuncInfo : InfoType {
 	}
 	return null;
     }
-
+    
     /**
      Surcharge de l'operateur d'attribut.
      Params:

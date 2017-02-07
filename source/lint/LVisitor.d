@@ -11,6 +11,8 @@ import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
 import semantic.types.InfoType;
 import lint.LAddr, syntax.Word;
 import semantic.types.RangeInfo, semantic.types.RangeUtils;
+import semantic.types.StructUtils, semantic.types.TupleInfo;
+import semantic.pack.FinalFrame;
 
 class LVisitor {
 
@@ -331,9 +333,43 @@ class LVisitor {
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
 	if (auto _long = cast (Long) elem) return visitLong (_long);
 	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
+	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
+    private LInstList visitConstTuple (ConstTuple _tuple) {
+	Array!LExp exps;
+	auto inst = new LInstList ();	
+	foreach (it; _tuple.params) {
+	    inst += visitExpression (it);
+	    exps.insertBack (inst.getFirst ());
+	}
+
+	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _tuple.info.type.simpleTypeString ());
+	
+	auto it = (StructUtils.__CstName__ ~ tupleName in LFrame.preCompiled);
+	if (it is null) {
+	    StructUtils.createCstStruct (tupleName,
+					 (cast (TupleInfo) _tuple.info.type).params);
+	}
+
+	it = (StructUtils.__DstName__ ~ tupleName in LFrame.preCompiled);
+	if (it is null) {
+	    StructUtils.createDstStruct (tupleName,
+					 (cast (TupleInfo) _tuple.info.type).params);
+	}
+	
+	if (_tuple.info.type.isDestructible) {
+	    auto aux = new LReg (_tuple.info.id, _tuple.info.type.size);
+	    inst += new LWrite (aux, new LCall (StructUtils.__CstName__ ~ tupleName,
+						exps, LSize.LONG));
+	    inst += aux;
+	} else {
+	    inst += new LCall (StructUtils.__CstName__ ~ tupleName, exps, LSize.LONG);
+	}
+	return inst;
+    }
+    
     private LInstList visitLambda (LambdaFunc _lmd) {
 	auto inst = new LInstList;
 	inst += new LConstFunc (_lmd.proto.name);

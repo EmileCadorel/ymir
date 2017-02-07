@@ -3,6 +3,9 @@ import utils.Singleton, semantic.pack.Frame;
 import std.container, std.algorithm;
 import std.array;
 import semantic.types.StructInfo;
+import semantic.pack.PureFrame;
+import semantic.pack.FinalFrame;
+import semantic.pack.FrameProto;
 
 /**
  Cette classe est un singleton qui contient toutes les instances de frames.

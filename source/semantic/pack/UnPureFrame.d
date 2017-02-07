@@ -5,6 +5,8 @@ import std.container, ast.Var, std.conv;
 import semantic.pack.Table, semantic.pack.Symbol;
 import semantic.types.UndefInfo, semantic.types.VoidInfo;
 import semantic.pack.FrameTable, syntax.Word;
+import semantic.pack.FrameProto;
+import semantic.pack.FinalFrame;
 
 /**
  Cette classe est une instance de frame impure.

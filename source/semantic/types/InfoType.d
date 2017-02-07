@@ -11,7 +11,9 @@ import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
 import semantic.types.LongInfo, semantic.types.StructInfo;
 import semantic.types.RangeInfo;
+import semantic.types.TupleInfo;
 import std.container;
+
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
 alias LInstList function (LInstList, LInstList) InstComp;
@@ -113,7 +115,8 @@ class InfoType {
 		    "function" : &PtrFuncInfo.create,
 		    "ref" : &RefInfo.create,
 		    "long" : &LongInfo.create,
-		    "range" : &RangeInfo.create];
+		    "range" : &RangeInfo.create,
+		    "tuple" : &TupleInfo.create];
     }    
 
     /**

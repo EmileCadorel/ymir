@@ -7,6 +7,7 @@ import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 import semantic.pack.ExternFrame;
+import semantic.pack.PureFrame;
 
 
 /**

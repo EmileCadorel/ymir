@@ -9,6 +9,8 @@ import semantic.pack.Table, ast.Var;
 import semantic.types.UndefInfo;
 import semantic.types.VoidInfo;
 import semantic.pack.FrameTable;
+import semantic.pack.FrameProto;
+import semantic.pack.FinalFrame;
 import std.conv;
 
 /**

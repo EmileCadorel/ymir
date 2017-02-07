@@ -548,16 +548,26 @@ class Visitor {
 	    return visitBeforePth (tok);
 	} else {
 	    if (tok == Tokens.LPAR)
-		return visitPthPar ();
+		return visitPthPar (tok);
 	    else return visitPthWPar (tok);
 	}
     }
 
-    private Expression visitPthPar () {
-	auto exp = visitExpressionUlt ();
-	auto tok = _lex.next ();
-	if (tok != Tokens.RPAR)
-	    throw new SyntaxError (tok, [Tokens.RPAR.descr]);
+    private Expression visitPthPar (Word token) {
+	Array!Expression params;
+	Word tok;
+	while (true) {
+	    params.insertBack (visitExpressionUlt ());
+	    tok = _lex.next ();
+	    if (tok == Tokens.RPAR) break; 
+	    else if (tok != Tokens.COMA)
+		throw new SyntaxError (tok, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+	}
+
+	Expression exp;
+	if (params.length != 1) exp = new ConstTuple (token, tok, params);
+	else exp = params[0];
+	
 	tok = _lex.next ();
 	if (find !"b == a" (_suiteElem, tok) != []) {
 	    return visitSuite (tok, exp);

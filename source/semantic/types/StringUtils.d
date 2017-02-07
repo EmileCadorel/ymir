@@ -9,13 +9,27 @@ import semantic.types.ClassUtils;
 import lint.LVisitor, semantic.types.InfoType;
 import ast.Expression, ast.Constante, syntax.Word;
 
+
+/**
+ Classe regroupant toutes les fonctions nécéssaire à la transformation d'un string en lint.
+ */
 class StringUtils {
 
+    /** Le nom du constructeur d'un string */
     static immutable string __CstName__ = "_YPCstString";
+
+    /** Le nom du constructeur d'une string qui ne lui donne aucune reference */    
     static immutable string __CstNameNoRef__ = "_YPCstStringNoRef";
+
+    /** Le nom du duplicateur de string */
     static immutable string __DupString__ = "_YPDupString";
+
+    /** Le nom de la fonction + de deux string */
     static immutable string __PlusString__ = "_YPPlusString";
 
+    /**
+     Créer toutes les fonctions standarts du type string.
+     */
     static void createFunctions () {
 	createCstString ();
 	createCstStringNoRef ();
@@ -23,20 +37,24 @@ class StringUtils {
 	createPlusString ();
     }    
 
-    /**
-     def cstString (size : long, val : ptr!char) : string {
-         str = malloc (size + 8);
-	 str.int = 1;
-	 (str + 4).int = size;
-	 let i = 0;
-	 while (*val) {
-	     *(str + 8 + i) = *val;
-	     i ++;
-	     val ++;
-	 } 
-	 return str;
-     }
-     */
+    /++
+     + Fonction de construction du type string.
+     + Example:
+     + ----
+     + def cstString (size : long, val : ptr!char) : string {
+     +    str = malloc (size + 8);
+     +    str.int = 1;
+     +    (str + 4).int = size;
+     +    let i = 0;
+     +    while (*val) {
+     +        *(str + 8 + i) = *val;
+     +        i ++;
+     +        val ++;
+     +    } 
+     +    return str;
+     + }
+     + ----
+     +/
     static void createCstString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -79,20 +97,24 @@ class StringUtils {
 
 
 
-    /**
-     def cstStringNoRef (size : long, val : ptr!char) : string {
-         str = malloc (size + 8);
-	 str.int = 0;
-	 (str + 4).int = size;
-	 let i = 0;
-	 while (*val) {
-	     *(str + 8 + i) = *val;
-	     i ++;
-	     val ++;
-	 } 
-	 return str;
-     }
-     */
+    /++ 
+     + Fonction de construction d'un string sans lui attribué de référence.
+     + Example:
+     + -----
+     + def cstStringNoRef (size : long, val : ptr!char) : string {
+     +    str = malloc (size + 8);
+     +    str.int = 0;
+     +    (str + 4).int = size;
+     +    let i = 0;
+     +    while (*val) {
+     +        *(str + 8 + i) = *val;
+     +        i ++;
+     +        val ++;
+     +    } 
+     +    return str;
+     + }
+     + ----
+     +/
     static void createCstStringNoRef () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -133,19 +155,23 @@ class StringUtils {
     }
 
     
-    /**
-     def dupString (str:string) {
-         let aux = malloc (str.length + 9);
-	 aux.int = 1;
-	 (aux+4).int = str.length;
-	 let i = 0;
-	 while (i < str.length) {
-	     aux [i] = str [i];
-	     i ++;
-	 }
-	 return aux;
-     }
-     */
+    /++
+     + Fonction de duplication du type string.
+     + Example:
+     + ----
+     + def dupString (str:string) {
+     +    let aux = malloc (str.length + 9);
+     +    aux.int = 1;
+     +    (aux+4).int = str.length;
+     +    let i = 0;
+     +    while (i < str.length) {
+     +        aux [i] = str [i];
+     +        i ++;
+     +    }
+     +    return aux;
+     + }
+     + ----
+     +/
     static void createDupString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -173,10 +199,10 @@ class StringUtils {
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
 
-    auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (3, LSize.LONG), Tokens.PLUS),
+	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR), new LConstQWord (3, LSize.LONG), Tokens.PLUS),
 						Tokens.PLUS),
 				    new LConstDWord (0), LSize.BYTE);
-
+	
 	vrai.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr, new LBinop (index, new LConstQWord (1, LSize.BYTE), Tokens.STAR),
 										Tokens.PLUS),
 								    new LConstQWord (3, LSize.LONG), Tokens.PLUS)
@@ -192,6 +218,21 @@ class StringUtils {
 	
     }
 
+    /++
+     + Fonction d'un plus sur deux string
+     + Example:
+     + ---
+     + def plusString (a : string, b : string) {
+     +    let x = malloc (3 * long + a.length + b.length);
+     +    x.nbRef = 1;
+     +    x.length = a.length + b.length.
+     +    x.dst = $free;
+     +    for (i in 0 .. a.length) x [i] = a [i];
+     +    for (j in 0 .. b.length) x [j + a.length] = b[j];
+     +    return x;
+     + }
+     + ---
+     +/
     static void createPlusString () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
@@ -266,7 +307,10 @@ class StringUtils {
 	LReg.lastId = last;
     }
     
-    
+
+    /**
+     Returns: la liste d'instruction d'un operateur d'affectation sur une string déjà affécté.
+     */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -284,6 +328,9 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Returns: la liste d'instruction d'un operateur plus entre 2 string.
+    */
     static LInstList InstPlus (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst ();
@@ -293,7 +340,10 @@ class StringUtils {
 	inst +=  new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction d'un operateur += entre 2 string.
+    */
     static LInstList InstPlusAffect (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -312,7 +362,10 @@ class StringUtils {
 	inst += aux;
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction d'une affectation entre une string jamais affecté et une string.
+     */
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
@@ -322,7 +375,10 @@ class StringUtils {
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction d'une affectation entre une string jamais affecté et const(ptr!char).
+     */
     private static LInstList affectConstStringRight (LInstList inst, LExp leftExp, LConstString rightExp) {	
 	Array!LExp exps;
 	exps.insertBack (new LConstQWord (rightExp.value.length));
@@ -336,6 +392,9 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Returns: la liste d'instruction d'une affectation entre une string et const(ptr!char).
+    */
     private static LInstList affectConstString (LInstList inst, LExp leftExp, LConstString rightExp) {	
 	Array!LExp exps;
 	exps.insertBack (new LConstQWord (rightExp.value.length));
@@ -349,7 +408,10 @@ class StringUtils {
 	inst += new LWrite (leftExp, new LCall (__CstName__, exps, LSize.LONG));
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction d'un acces à un élément d'un string.
+     */
     static LInstList InstAccessS (LInstList llist, Array!LInstList rlists) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
@@ -362,7 +424,10 @@ class StringUtils {
 	inst += new LRegRead (elem, new LConstDWord (0), LSize.BYTE);
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction de récupération de la taille d'un string.
+     */
     static LInstList InstLength (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
@@ -375,6 +440,9 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Returns: la liste d'instruction de récupération du ptr!char de la string.
+     */
     static LInstList InstPtr (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
@@ -384,6 +452,9 @@ class StringUtils {
     }
 
     
+    /**
+     Returns: la liste d'instruction de récupération du nombre de référence de la string.
+     */
     static LInstList InstNbRef (LInstList, LInstList list) {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
@@ -395,7 +466,10 @@ class StringUtils {
 	}
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction de la déstruction d'une string.
+     */
     static LInstList InstDestruct (LInstList llist) {
 	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
 	if (it is null) {
@@ -407,7 +481,10 @@ class StringUtils {
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
     }
-    
+
+    /**
+     Returns: la liste d'instruction de duplication d'une string.
+     */
     static LInstList InstDup (LInstList, LInstList rlist) {
 	auto inst = new LInstList;
 	auto rightExp = rlist.getFirst ();
@@ -426,11 +503,17 @@ class StringUtils {
 	    return inst;
 	}
     }
-    
+
+    /**
+     Returns: la liste d'instruction de la transformation d'une string en array (llist);
+     */
     static LInstList InstCastArray (LInstList llist) {
 	return llist;
     }
-    
+
+    /**
+     Returns: La liste d'instruction de récupération de l'adresse du string.
+     */
     static LInstList InstAddr (LInstList llist) {
 	auto inst = new LInstList ();
 	auto exp = llist.getFirst ();
@@ -439,6 +522,9 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Returns: la liste d'instruction d'un cast automatique de la chaine vers une string.     
+     */
     static LInstList InstComp (LInstList list) {
 	auto inst = new LInstList;
 	auto rightExp = list.getFirst ();
@@ -454,7 +540,10 @@ class StringUtils {
 	    return inst;
 	}
     }
-    
+
+    /**
+     Returns: la liste d'instruction de récupération du nom du type.
+     */
     static LInstList GetStringOf (InfoType, Expression left, Expression) {
 	auto type = left.info;
 	auto inst = new LInstList;
@@ -465,6 +554,9 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Returns: left.
+     */
     static LInstList StringOf (LInstList, LInstList left) {
 	return left;
     }

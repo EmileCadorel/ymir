@@ -5,7 +5,7 @@ import std.container, ast.Var, std.conv;
 import semantic.pack.Table, semantic.pack.Symbol;
 import semantic.types.UndefInfo, semantic.types.VoidInfo;
 import semantic.pack.FrameTable, syntax.Word, ast.Proto;
-import ast.Function;
+import ast.Function, semantic.pack.PureFrame, semantic.pack.FrameProto;
 
 /**
  Les frames externs sont uniquement des prototypes, elle sont obtenu pas import, ou déclaration. 
@@ -47,7 +47,8 @@ class ExternFrame : PureFrame {
 	this._proto = null;
 	this._namespace = namespace;
     }
-    
+
+        
     /**
      Le prototype de fonction peut-il servir à l'appel 
      Params:
@@ -56,67 +57,30 @@ class ExternFrame : PureFrame {
      */
     override ApplicationScore isApplicable (ParamList params) {
 	if (this._proto is null) return super.isApplicable (params);
-	auto score = new ApplicationScore (this._proto.ident, this._proto.isVariadic);
 	if (this._proto.isVariadic) return isApplicableVariadic (params);
-	if (params.params.length == 0 && this._proto.params.length == 0) {
-	    score.score = 10; return score;
-	} else if (params.params.length == this._proto.params.length) {
-	    foreach (it ; 0 .. params.params.length) {
-		auto param = this._proto.params [it];
-		InfoType info = null;
-		if (cast (TypedVar) param !is null) {
-		    info = (cast(TypedVar)param).getType ();
-		    auto type = params.params [it].info.type.CompOp (info);
-		    if (type && type.isSame (info)) {
-			score.score += SAME;
-			score.treat.insertBack (type);  
-		    } else if (type !is null) {
-			score.score += AFF;
-			score.treat.insertBack (type);  
-		    } else return null;
-
-		} else {
-		    score.score += AFF;
-		    score.treat.insertBack (null);
-		}
-	    }
-	    return score;
-	}
-	return null;
+	else return super.isApplicable (this._proto.ident, this._proto.params, params.paramTypes);
     }
 
+    /**
+     Validation d'un prototype de fonction variadice
+     Params:
+     params = les paramètres passé à l'appel de la fonction
+     Returns: le score d'application (null si non applicable)
+     */
     private ApplicationScore isApplicableVariadic (ParamList params) {
-	auto score = new ApplicationScore (this._proto.ident, true);
-	if (params.params.length == 0 && this._proto.params.length == 0) {
-	    score.score = 10; return score;
-	} else if (params.params.length >= this._proto.params.length) {
-	    int it = 0;
-	    for (; it < this._proto.params.length; it ++) {
-		auto param = this._proto.params [it];
-		InfoType info = null;
-		if (cast (TypedVar) param !is null) {
-		    info = (cast(TypedVar)param).getType ();
-		    auto type = params.params [it].info.type.CompOp (info);
-		    if (type && type.isSame (info)) {
-			score.score += SAME;
-			score.treat.insertBack (type);  
-		    } else if (type !is null) {
-			score.score += AFF;
-			score.treat.insertBack (type);  
-		    } else return null;
-		    
-		} else {
-		    score.score += AFF;
-		    score.treat.insertBack (null);
-		}		
-	    }
-	    for (; it < params.params.length ; it ++) {
-		score.score += SAME;
-		score.treat.insertBack (null);
-	    }
-	    return score;
+	auto ftypes = params.paramTypes;
+	Array!InfoType types;
+	if (ftypes.length >= this._proto.params.length)	    
+	    types = make!(Array!InfoType) (ftypes [0 .. this._proto.params.length]);
+	else types = ftypes;
+	auto ret = super.isApplicable (this._proto.ident, this._proto.params, types);
+
+	foreach (it ; this._proto.params.length .. ftypes.length) {
+	    ret.score += SAME;
+	    ret.treat.insertBack (null);
 	}
-	return null;
+	
+	return ret;
     }
 
 

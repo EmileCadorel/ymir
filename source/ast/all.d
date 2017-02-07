@@ -34,3 +34,4 @@ public import ast.For;
 public import ast.ConstArray;
 public import ast.ConstRange;
 public import ast.LambdaFunc;
+public import ast.Tuple;
