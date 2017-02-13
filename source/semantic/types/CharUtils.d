@@ -211,6 +211,14 @@ class CharUtils {
 	inst += LVisitor.visitExpressionOutSide (str);
 	return inst;
     }
+
+    static LInstList InstCastInt (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += llist;
+	inst += new LCast (left, LSize.INT);
+	return inst;
+    }
     
 
 }

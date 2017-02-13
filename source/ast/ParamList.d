@@ -49,6 +49,14 @@ class ParamList : Expression {
 	return this._params;
     }
 
+    /**
+     Returns: la taille de la liste de parametre
+     */
+    ulong length () {
+	return this._params.length;
+    }
+    
+    
     Array!InfoType paramTypes () {
 	Array!InfoType types;
 	foreach (it ; this._params) {

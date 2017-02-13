@@ -14,7 +14,7 @@ import semantic.pack.FrameProto;
 class FrameTable {
 
     /** Les frames pure présente dans le programme */
-    private Array!PureFrame _pures;
+    private Array!Frame _pures;
 
     /** Les frames analysées sémantiquement */
     private Array!FinalFrame _finals;
@@ -56,7 +56,7 @@ class FrameTable {
      Params:
      frame = la frame a inséré
      */
-    void insert (PureFrame frame) {
+    void insert (Frame frame) {
 	this._pures.insertBack (frame);
     }
 
@@ -135,7 +135,7 @@ class FrameTable {
     /**
      Returns: La liste des frames pures
      */
-    ref Array!PureFrame pures () {
+    ref Array!Frame pures () {
 	return this._pures;
     }
 

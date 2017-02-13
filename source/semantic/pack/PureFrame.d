@@ -33,6 +33,27 @@ class PureFrame : Frame {
 	    this._name = func.ident.str;
     }
 
+
+    override ApplicationScore isApplicable (ParamList params) {
+	if (params.length > this._function.params.length) return this.isApplicableVariadic (params);
+	else return super.isApplicable (params);
+	
+    }
+
+    override ApplicationScore isApplicable (Array!InfoType params) {
+	if (params.length > this._function.params.length) return this.isApplicableVariadic (params);
+	else return super.isApplicable (params);
+    }
+
+    private ApplicationScore isApplicableVariadic (ParamList params) {
+	return null;
+    }
+
+    private ApplicationScore isApplicableVariadic (Array!InfoType params) {
+	return null;
+    }
+    
+    
     /**
      Analyse sémantique de la frame.
      Returns: le prototype de la frame, avec son nom définitif

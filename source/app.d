@@ -59,8 +59,18 @@ string preCompiled (string name) {
 	StringUtils.createFunctions ();
 	ClassUtils.createFunctions ();
 	RangeUtils.createFunctions ();
-	
+
+	debug {
+	    writeln ("----------- PRECOMPILED-----------------");
+	    foreach (it ; make!(Array!LFrame) (LFrame.preCompiled.values)) {
+		writeln (it.toString);
+	    }
+	    writeln ("----------- PRECOMPILED-FIN -----------------");
+	}
+
 	auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
+
+	
 	toFile (target, name);
 	return name;
     } 

@@ -1,0 +1,18 @@
+import std.stdio;
+import std.math;
+
+extern (C) printf (str : ptr!char, ...);
+extern (C) rand () : int;
+extern (C) srand (i : int);
+extern (C) time (i : int) : int;
+
+def main () {
+    srand (time (0));
+    for (i in 0 .. 100) {
+	let a = rand () % 10000;
+	printf (("rand: %d\n").ptr, a);
+	
+    }
+}
+
+

@@ -324,6 +324,11 @@ class CharInfo : InfoType {
      */
     override InfoType CastOp (InfoType other) {
 	if (cast(CharInfo) other) return this;
+	else if (cast (IntInfo) other) {
+	    auto aux = new IntInfo;
+	    aux.lintInstS.insertBack (&CharUtils.InstCastInt);
+	    return aux;
+	}
 	return null;
     }
 
@@ -338,6 +343,6 @@ class CharInfo : InfoType {
      Returns: la taille en mémoire du type char.
      */
     static LSize sizeOf () {
-	return LSize.INT;
+	return LSize.BYTE;
     }
 }

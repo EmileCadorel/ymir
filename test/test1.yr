@@ -3,15 +3,8 @@ import std.math;
 
 extern (C) printf (str : ptr!char, ...);
 
-def test (a : int, b) {
-    println ('la');
-}
-
-def test (a : int, b : float) {
-    println ('ici');
-}
-
 def main () {
-    printf(("salut %d %.3f\n").ptr, 10, 45.45);
+    let a = cast:[char] ('salut');
+    printf (('salut: %d %s\n').ptr, 19, ('salut2').ptr);
 }
 

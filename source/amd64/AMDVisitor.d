@@ -175,7 +175,7 @@ class AMDVisitor : TVisitor {
 	fin.isOff = true;
 	auto res = this.resolve!AMDConstDWord (lread.begin);
 	if (res is null) assert (false, "TODO");
-	fin.offset = -res.value;
+	fin.offset = -res.value;	
 	fin.resize (getSize (lread.size));
 	return new TInstPaire (fin, inst);
     }
