@@ -30,6 +30,8 @@ class ConstRange : Expression {
     private InfoType _content;
 
     private ubyte _lorr = 0;
+
+    private InfoType _caster = null;
     
     this (Word token, Expression left, Expression right) {
 	super (token);
@@ -62,6 +64,10 @@ class ConstRange : Expression {
 	return this._content;
     }
 
+    InfoType caster () {
+	return this._caster;
+    }
+    
     /**
      Vérification sémantique.
      Pour être correct, gauche et droite doivent être compatible et de type que l'on peut mettre dans un Range.
@@ -74,8 +80,15 @@ class ConstRange : Expression {
 	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}
 	
-	if (!type.isSame (aux._left.info.type)) aux._lorr = 1;
-	else if (!type.isSame (aux._right.info.type)) aux._lorr = 2;
+	if (!type.isSame (aux._left.info.type)) {
+	    aux._lorr = 1;
+	    aux._caster = aux._left.info.type.CastTo (type);
+	    writeln (aux._caster.typeString);
+	} else if (!type.isSame (aux._right.info.type)) {
+	    aux._lorr = 2;
+	    aux._caster = aux._right.info.type.CastTo (type);
+	    writeln (aux._caster.typeString);
+	}
 	
 	aux._content = type;
 	aux._info = new Symbol (aux._token, new RangeInfo (type), true);

@@ -1,10 +1,18 @@
 import std.stdio;
 import std.math;
 
-extern (C) printf (str : ptr!char, ...);
+
+def printTab (a : [int], sep : string) {
+    print ('[');
+    for (it in 0 .. a.length) {
+	print (a [it]);
+	if (it != a.length - 1)
+	    print (sep);
+    }
+    println (']');
+}
 
 def main () {
-    let a = cast:[char] ('salut');
-    printf (('salut: %d %s\n').ptr, 19, ('salut2').ptr);
+    printTab ([1l, 2, 3, 4], " : ");
 }
 

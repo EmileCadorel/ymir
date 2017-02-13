@@ -159,13 +159,23 @@ class IntInfo : InfoType {
 	    }
 	} else if (cast (LongInfo) other) {
 	    auto o = new IntInfo ();
-	    o.lintInst = &LongUtils.InstAffectInt;
+	    o.lintInst = &LongUtils.InstAffect;
 	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
 	    return o;
 	}
 	return null;
     }
 
+
+    override InfoType CastTo (InfoType other) {
+	if (cast (LongInfo) other) {
+	    auto o = new LongInfo;
+	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
+	    return o;
+	}
+	return null;
+    }
+    
     /**
      Operateur '&'
      Returns: un pointeur sur int.     

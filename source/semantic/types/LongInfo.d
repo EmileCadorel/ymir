@@ -5,7 +5,7 @@ import semantic.types.CharInfo, semantic.types.BoolInfo;
 import syntax.Tokens, utils.exception, semantic.types.PtrInfo;
 import semantic.types.UndefInfo, semantic.types.RefInfo;
 import semantic.types.StringInfo, ast.Var, semantic.types.IntInfo;
-import lint.LSize;
+import lint.LSize, semantic.types.IntUtils;
 
 /**
  Cette classe regroupe les informations du type long.
@@ -181,14 +181,23 @@ class LongInfo : InfoType {
 		return aux;
 	    }
 	} else if (cast (IntInfo) other) {
-	    auto o = new LongInfo ();
-	    o.lintInst = &LongUtils.InstAffectInt;
-	    o.lintInstS.insertBack (&LongUtils.InstCastLong);
+	    auto o = new IntInfo ();
+	    o.lintInst = &IntUtils.InstAffect;
+	    o.lintInstS.insertBack (&LongUtils.InstCastInt);
 	    return o;
 	}
 	return null;
     }
 
+    override InfoType CastTo (InfoType other) {
+	if (cast (IntInfo) other) {
+	    auto o = new IntInfo ();
+	    o.lintInstS.insertBack (&LongUtils.InstCastInt);
+	    return o;
+	}
+	return null;
+    }
+    
     /**
      Operateur '&'.
      Returns: un pointeur sur long.

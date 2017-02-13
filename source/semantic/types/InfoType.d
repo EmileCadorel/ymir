@@ -291,6 +291,13 @@ class InfoType {
     }
 
     /**
+     Returns: Une information de type avec les informations permettant le cast.
+     */
+    InfoType CastTo (InfoType) {
+	return null;
+    }
+
+    /**
      Surcharge de l'operateur d'attribut.
      Returns: le type résultat ou null.
      */

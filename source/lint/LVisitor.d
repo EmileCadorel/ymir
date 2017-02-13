@@ -437,9 +437,12 @@ class LVisitor {
 	
 	auto left = visitExpression (crange.left);
 	auto right = visitExpression (crange.right);
-
-	if (crange.lorr == 1) left = crange.content.lintInst (left);
-	else if (crange.lorr == 2) right = crange.content.lintInst (right);
+	
+	if (crange.lorr == 1) {
+	    left = crange.caster.lintInst (left);
+	} else if (crange.lorr == 2) {
+	    right = crange.caster.lintInst (right);
+	}
 	
 	auto regRead = new LRegRead (aux, new LConstDWord (2, LSize.LONG), type.content.size);
 	inst += crange.content.lintInst (new LInstList (regRead), left);
