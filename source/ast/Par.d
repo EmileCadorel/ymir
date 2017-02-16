@@ -4,7 +4,8 @@ import syntax.Word, std.stdio, std.string;
 import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
-
+import ast.Tuple, std.array;
+import semantic.types.TupleInfo;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -58,6 +59,10 @@ class Par : Expression {
 	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	}
 	
+	if (type.treat.length != aux._params.length) {
+	    tuplingParams (type, aux);
+	}
+	
 	aux._score = type;
 	aux._info = new Symbol (this._token, type.ret, true);
 	if (cast (UndefInfo) type.ret) {
@@ -66,6 +71,26 @@ class Par : Expression {
 	
 	return aux;
     }
+
+    /**
+     Transforme le dernier type d'un appel en tuple.
+     Params:
+     score = le score retourner par l'operateur CallOp
+     par = l'appel     
+     */
+    private void tuplingParams (ApplicationScore score, ref Par par) {
+	auto ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));
+	auto retType = new TupleInfo ();
+
+	foreach (it ; ctuple.params) {
+	    retType.params.insertBack (it.info.type);
+	}
+
+	ctuple.info = new Symbol (par._token, retType);	
+	par._params.params = make!(Array!Expression) (par._params.params [0 .. score.treat.length - 1].array ());
+	par._params.params.insertBack (ctuple);
+    }
+    
 
     /**
      Returns: le score retourner par l'analyse sémantique

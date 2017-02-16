@@ -1,18 +1,13 @@
 import std.stdio;
 import std.math;
 
-
-def printTab (a : [int], sep : string) {
-    print ('[');
-    for (it in 0 .. a.length) {
-	print (a [it]);
-	if (it != a.length - 1)
-	    print (sep);
-    }
-    println (']');
+def test (a, b) {
+    println (a.typeid);
+    println (b.typeid);
 }
 
 def main () {
-    printTab ([1l, 2, 3, 4], " : ");
+    test (1, 2);
+    test (1, 2, 't');
 }
 

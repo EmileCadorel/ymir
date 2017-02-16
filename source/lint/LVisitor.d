@@ -13,6 +13,7 @@ import lint.LAddr, syntax.Word;
 import semantic.types.RangeInfo, semantic.types.RangeUtils;
 import semantic.types.StructUtils, semantic.types.TupleInfo;
 import semantic.pack.FinalFrame;
+import std.array;
 
 class LVisitor {
 
@@ -523,7 +524,7 @@ class LVisitor {
 	list += new LSysCall (sys.token.str, exprs);
 	return list;
     }
-
+    
     private LInstList visitPar (Par par) {
 	Array!LExp exprs;
 	Array!LInstList rights;
@@ -549,13 +550,15 @@ class LVisitor {
 	    list = par.info.type.lintInst (left, rights);
 	    call = list.getFirst ();
 	} else {
-	    foreach (it ; 0 .. par.params.length) {
-		Expression exp = par.params [it];
+	    
+	    for (auto pit = 0, it = 0 ; pit < par.params.length ; it ++, pit ++) {
+		Expression exp = par.params [pit];
 		LInstList elist;
 		elist = visitExpression (exp);
-		if (par.score.treat [it]) 
+		if (par.score.treat [it]) {
 		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length)
-			elist = par.score.treat [it].lintInst (elist, nb);
+			elist = par.score.treat [it].lintInst (elist, nb);		    
+		}
 		
 		exprs.insertBack (elist.getFirst ());
 		list += elist;

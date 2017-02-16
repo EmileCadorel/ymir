@@ -7,7 +7,7 @@ import std.container;
 import syntax.Tokens;
 import semantic.types.StructUtils;
 import lint.LSize, semantic.types.ClassUtils;
-
+import semantic.types.StringInfo;
 
 class TupleInfo : InfoType {
     
@@ -23,7 +23,7 @@ class TupleInfo : InfoType {
     ref Array!InfoType params () {
 	return this._params;
     }
-    
+        
     /**
      Params:
      other = le deuxieme type
@@ -148,6 +148,23 @@ class TupleInfo : InfoType {
 	return ret;
     }    
 
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "typeid") return StringOf ();
+	return null;
+    }
+   
+    /**
+     Le nom du type tuple ("tupleExp".typeid).
+     Returns: un type string.
+     */
+    private InfoType StringOf () {
+	auto str = new StringInfo ();
+	str.lintInst = &TupleUtils.TupleStringOf;
+	str.leftTreatment = &TupleUtils.TupleGetStringOf;
+	return str;
+    }
+
+    
     override InfoType destruct () {
 	if (this._destruct is null) return null;
 	auto ret = this.clone ();

@@ -161,6 +161,14 @@ class ExternFrame : Frame {
     override FrameProto validate (ParamList) {
 	return validate ();
     }
+
+    /**
+     Créée le prototype pour la génération de code intérmédiaire.
+     Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')
+    */
+    override FrameProto validate (Array!InfoType) {
+	return validate ();
+    }
     
     /**
      Returns: l'identifiant du prototype

@@ -45,10 +45,10 @@ class ParamList : Expression {
     /**
      Returns: La liste des paramètres
      */
-    Array!Expression params () {
+    ref Array!Expression params () {
 	return this._params;
     }
-
+    
     /**
      Returns: la taille de la liste de parametre
      */

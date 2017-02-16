@@ -99,7 +99,7 @@ class Frame {
 		    } else return null;
 		} else {
 		    score.score += CHANGE;
-		    score.treat.insertBack (null);
+		    score.treat.insertBack (args[it]);
 		}
 	    }
 	    return score;

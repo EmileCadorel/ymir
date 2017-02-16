@@ -22,12 +22,11 @@ class ConstTuple : Expression {
 	super (word);
 	this._params = params;
     }
-
+    
     Array!Expression params () {
 	return this._params;
     }
     
-
     /**
      Vérification sémantique.
      Pour être correct, tout les éléments du tuples doivent être correct
