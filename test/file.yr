@@ -1,0 +1,32 @@
+import std.stdio;
+import std.math;
+
+extern (C) fopen (name : ptr!char, mode : ptr!char) : ptr!void;
+extern (C) fread (buf : ptr!char, size : int, len : int, file : ptr!void) : int;
+extern (C) fclose (file : ptr!void);
+
+extern (C) getenv (name : ptr!char) : ptr!char;
+extern (C) printf (str : ptr!char, ...); 
+extern (C) malloc (size : int) : ptr!void;
+extern (C) free (a : ptr!void);
+extern (C) free (a : ptr!char);
+
+def main () {
+    let a = getenv (("PWD").ptr);
+    printf (("%s\n").ptr, a);
+
+    let file = fopen (("Makefile").ptr, ("r").ptr);
+
+    let str = cast:ptr!(char) (malloc (1024 * char.sizeof));
+    let len = fread (str, 1, 1024, file);
+    for (i in 0 .. len)
+	print (*(str + i));
+    
+    
+    free (str);
+    fclose (file);
+    
+}
+
+
+
