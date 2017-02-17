@@ -55,7 +55,7 @@ class UnPureFrame : Frame {
 	    
 	    tuple.params = tuple_types;
 	    score.treat.back () = tuple;
-	    
+	    score.score += AFF - CHANGE;
 	    return score;
 	}
     }

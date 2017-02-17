@@ -59,7 +59,7 @@ string preCompiled (string name) {
 	StringUtils.createFunctions ();
 	ClassUtils.createFunctions ();
 	RangeUtils.createFunctions ();
-
+	
 	debug {
 	    writeln ("----------- PRECOMPILED-----------------");
 	    foreach (it ; make!(Array!LFrame) (LFrame.preCompiled.values)) {
@@ -83,6 +83,22 @@ string compileTemplates (string name) {
     foreach (it ; FrameTable.instance.templates) {
 	frames.insertBack (visitor.visit (it));
     }
+    
+    foreach (key, value ; LFrame.preCompiled) {
+	if (!value.isStd) {
+	    frames.insertBack (value);
+	}
+	LFrame.preCompiled.remove (key);
+    }
+    
+    debug {
+	writeln (" ------------------------ TEMPLATES ------------------------");
+	foreach (it ; frames) {
+	    writeln (it);
+	}
+	writeln (" ------------------------ FIN-TEMPLATES ------------------------");
+    }
+    
     auto target = targetTime (frames);
     toFile (target, name);
     return name;
@@ -123,6 +139,7 @@ void main (string [] args) {
 		    writeln (it.toString);
 		}
 	    }
+	    
 	    auto target = targetTime (list);
 	    
 	    toFile (target, file ~ ".s");
@@ -131,7 +148,7 @@ void main (string [] args) {
 
 	files ~= [compileTemplates ("__templates__.s")];
 	if (auto name = preCompiled ("__precompiled__.s"))
-	    files ~= [name];
+	    files ~= [name];	
 
 	string [] options;
 	if (Options.instance.isOn (OptionEnum.DEBUG))

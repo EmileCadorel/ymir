@@ -4,6 +4,7 @@ import semantic.types.UndefInfo;
 import semantic.types.InfoType;
 import std.container, syntax.Word;
 import std.stdio, std.string;
+import ast.Expand;
 
 /**
  Une liste de paramètre peut être généré à la syntaxe dans deux cas.
@@ -18,6 +19,10 @@ class ParamList : Expression {
 
     private Array!Expression _params; /// Les paramètres de l'expression
 
+    /** Les informations internes d'expansion */
+    private Array!Expand _expands;
+    private Array!ulong _indexes; 
+    
     this (Word word, Array!Expression params) {
 	super (word);
 	this._params = params;
@@ -34,10 +39,22 @@ class ParamList : Expression {
      */
     override Expression expression () {
 	auto aux = new ParamList (this._token);
-	foreach (it ; this._params) {
-	    aux._params.insertBack (it.expression ());
-	    if (cast (UndefInfo) aux._params.back ().info.type)
-		throw new UninitVar (aux._params.back.token);
+	foreach (it ; 0 .. this._params.length) {
+	    Expression ex_it = this._params [it].expression;
+	    if (auto ex = cast (Expand) ex_it) {
+		aux._expands.insertBack (ex);
+		aux._indexes.insertBack (it);
+		foreach (_it ; ex.params) {
+		    aux._expands.insertBack (ex);
+		    aux._indexes.insertBack (it);
+		    aux._params.insertBack (_it);
+		}
+	    } else {
+		aux._expands.insertBack (null);
+		aux._params.insertBack (ex_it);
+		if (cast (UndefInfo) aux._params.back ().info.type)
+		    throw new UninitVar (aux._params.back.token);
+	    }
 	}
 	return aux;
     }
@@ -65,6 +82,15 @@ class ParamList : Expression {
 	return types;
     }
 
+    ref Array!Expand expands () {
+	return this._expands;
+    }
+    
+    ref Array!ulong indexes () {
+	return this._indexes;
+    }
+
+    
     /**
      Affiche l'expression sous forme d'arbre
      Params:

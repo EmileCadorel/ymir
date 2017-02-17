@@ -112,11 +112,11 @@ class TupleInfo : InfoType {
     }
     
     override string simpleTypeString () {
-	auto name = "t";
+	auto name = "t_";
 	foreach (it ; this._params) {
 	    name ~= it.simpleTypeString ();
 	}
-	return name;
+	return name ~ "_";
     }
     
     override InfoType clone () {

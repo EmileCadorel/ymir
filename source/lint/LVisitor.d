@@ -13,6 +13,7 @@ import lint.LAddr, syntax.Word;
 import semantic.types.RangeInfo, semantic.types.RangeUtils;
 import semantic.types.StructUtils, semantic.types.TupleInfo;
 import semantic.pack.FinalFrame;
+import lint.LInst;
 import std.array;
 
 class LVisitor {
@@ -33,6 +34,7 @@ class LVisitor {
 	    if (!value.isStd) {
 		frames.insertBack (value);
 	    }
+	    LFrame.preCompiled.remove (key);
 	}
 	
 	return frames;
@@ -340,10 +342,20 @@ class LVisitor {
 
     private LInstList visitConstTuple (ConstTuple _tuple) {
 	Array!LExp exps;
-	auto inst = new LInstList ();	
+	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
-	    inst += visitExpression (it);
-	    exps.insertBack (inst.getFirst ());
+	    if (auto ex = cast (Expand) it) {
+		auto tupleList = visitExpression (ex.expr);
+		auto tuple = tupleList.getFirst ();
+		inst += tupleList;
+		foreach (_it ; ex.index .. ex.params.length) {
+		    exps.insertBack (visitExpand (ex, tuple, _it));
+		    inst += exps.back ();
+		}
+	    } else {
+		inst += visitExpression (it);
+		exps.insertBack (inst.getFirst ());
+	    }
 	}
 
 	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _tuple.info.type.simpleTypeString ());
@@ -524,25 +536,105 @@ class LVisitor {
 	list += new LSysCall (sys.token.str, exprs);
 	return list;
     }
+
+
+    private void visitParamListMult (ref Array!LExp exprs, ref Array!LInstList rights, Array!InfoType treat, ParamList params) {
+	foreach (it ; 0 .. params.params.length) {
+	    Expression exp = params.params [it];
+	    LInstList elist = visitExpression (exp);
+	    if (treat [it]) 
+		foreach (nb ; 0 .. treat [it].lintInstS.length) 
+		    elist = treat [it].lintInst (elist, nb);
+
+	    rights.insertBack (elist);
+	}
+    }
+
+    private LExp visitExpand (Expand expand, LExp tuple, ulong index) {
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
+	auto type = cast (TupleInfo) expand.expr.info.type;
+	LExp size;
+	foreach (it ; 0 .. index) {
+	    final switch (type.params [it].size.id) {
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }	    
+	}
+	
+	size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
+			   new LBinop (new LConstDWord (nbInt, LSize.INT),
+				       new LBinop (new LConstDWord (nbShort, LSize.SHORT),
+						   new LBinop (new LConstDWord (nbByte, LSize.BYTE),
+							       new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
+									   new LConstDWord (nbDouble, LSize.DOUBLE),
+									   Tokens.PLUS),
+							       Tokens.PLUS),
+						   Tokens.PLUS),
+				       Tokens.PLUS),
+			   Tokens.PLUS);
+	
+	return new LRegRead (tuple, size, type.params[index].size);
+    }
+    
+    private LInstList visitParamList (ref Array!LExp exprs, Array!InfoType treat, ParamList params) {
+	LInstList list = new LInstList;
+	for (auto pit = 0, it = 0 ; pit < params.params.length ; it ++, pit ++) {
+	    if (params.expands [pit]) {
+		auto tupleList = visitExpression (params.expands [pit].expr);
+		auto tuple = tupleList.getFirst ();
+		list += tupleList;
+		auto ex_it = 0;
+		for (; ex_it < params.expands [pit].params.length; ex_it++) {
+		    if (params.expands.length <= pit + ex_it) break;
+		    if (params.expands [pit + ex_it]) {
+			auto elist = new LInstList (visitExpand (params.expands [pit], tuple, ex_it));		    
+			if (treat[it + ex_it]) {
+			    foreach (nb ; 0 .. treat [it + ex_it].lintInstS.length)
+				elist = treat [it + ex_it].lintInst (elist, nb);		    
+			}
+			
+			exprs.insertBack (elist.getFirst ());
+			list += elist;
+		    } else {
+			Expression exp = params.params [pit + ex_it];
+			LInstList elist = visitExpression (exp);
+			if (treat [it]) {
+			    foreach (nb ; 0 .. treat [it].lintInstS.length)
+				elist = treat [it].lintInst (elist, nb);		    
+			}	    
+			exprs.insertBack (elist.getFirst ());
+			list += elist;
+			break;
+		    }
+		}
+		it += ex_it;
+		pit += ex_it;
+	    } else {
+		Expression exp = params.params [pit];
+		LInstList elist = visitExpression (exp);
+		if (treat [it]) {
+		    foreach (nb ; 0 .. treat [it].lintInstS.length)
+			elist = treat [it].lintInst (elist, nb);		    
+		}	    
+		exprs.insertBack (elist.getFirst ());
+		list += elist;
+	    }
+	}
+	return list;
+    }
     
     private LInstList visitPar (Par par) {
 	Array!LExp exprs;
 	Array!LInstList rights;
 	LInstList list = new LInstList;
 	LExp call;
-
+	
 	if (par.info.type.lintInstMult) {
-	    foreach (it ; 0 .. par.params.length) {
-		Expression exp = par.params [it];
-		LInstList elist;
-		elist = visitExpression (exp);
-		if (par.score.treat [it]) 
-		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length) 
-			elist = par.score.treat [it].lintInst (elist, nb);
-
-		rights.insertBack (elist);
-	    }
-	    
+	    visitParamListMult (exprs, rights, par.score.treat, par.paramList);
 	    LInstList left;
 	    if (par.info.type.leftTreatment)
 		left = par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
@@ -550,20 +642,7 @@ class LVisitor {
 	    list = par.info.type.lintInst (left, rights);
 	    call = list.getFirst ();
 	} else {
-	    
-	    for (auto pit = 0, it = 0 ; pit < par.params.length ; it ++, pit ++) {
-		Expression exp = par.params [pit];
-		LInstList elist;
-		elist = visitExpression (exp);
-		if (par.score.treat [it]) {
-		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length)
-			elist = par.score.treat [it].lintInst (elist, nb);		    
-		}
-		
-		exprs.insertBack (elist.getFirst ());
-		list += elist;
-	    }
-	    
+	    list += visitParamList (exprs, par.score.treat, par.paramList);
 	    if (par.score.dyn) {
 		auto left = visitExpression (par.left);
 		list += left;

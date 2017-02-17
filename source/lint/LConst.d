@@ -69,7 +69,7 @@ class LConstDWord : LConst {
     ulong value () { return this._value; }
     
     override string toString () {
-	return "DW[" ~ to!string (this._value) ~ " * " ~ to!string (this._mult) ~ "]";
+	return "$(" ~ to!string (this._value) ~ " * " ~ to!string (this._mult) ~ ")";
     }
     
 }

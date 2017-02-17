@@ -590,10 +590,23 @@ class Visitor {
 	    return new Bool (tok);
 	else if (tok == Keys.NULL)
 	    return new Null (tok);
+	else if (tok == Keys.EXPAND)
+	    return visitExpand ();
 	else _lex.rewind ();
 	return null;
     }
 
+    private Expression visitExpand () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next ();
+	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	next = this._lex.next ();
+	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	return new Expand (begin, expr);
+    }
+    
     private Expression visitNumeric (Word begin) {
 	foreach (it ; 0 .. begin.str.length) {
 	    if (begin.str [it] < '0' || begin.str [it] > '9') {

@@ -279,6 +279,7 @@ struct FrameReturnInfo {
      Quitte un block
      */
     void quitBlock () {
+	if (!this._retInfo) return;
 	this._retInfo = this._retInfo.quitBlock ();
 	if (this._retInfo)
 	    this._currentBlock = this._retInfo.name;

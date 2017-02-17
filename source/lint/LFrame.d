@@ -20,7 +20,7 @@ class LFrame {
     private bool _std = true;
 
     
-    private static LFrame[ulong] __table__;
+    static LFrame[ulong] __table__;
     
     this (ulong number, string name) {
 	this._name = name;

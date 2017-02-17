@@ -35,5 +35,6 @@ enum Keys : Token {
     SYSTEM = Token ("system", 30),
     EXTERN = Token ("extern", 31),
     MAIN = Token ("main", 32),
-    PUBLIC = Token ("public", 33)
+    PUBLIC = Token ("public", 33),
+    EXPAND = Token ("expand", 34)
 }

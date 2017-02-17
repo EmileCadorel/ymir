@@ -6,6 +6,7 @@ import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import ast.Tuple, std.array;
 import semantic.types.TupleInfo;
+import ast.Expand;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -79,16 +80,35 @@ class Par : Expression {
      par = l'appel     
      */
     private void tuplingParams (ApplicationScore score, ref Par par) {
-	auto ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));
-	auto retType = new TupleInfo ();
-
-	foreach (it ; ctuple.params) {
-	    retType.params.insertBack (it.info.type);
+	ConstTuple ctuple;	
+	if (par._params.expands [score.treat.length - 1]) {
+	    auto it = score.treat.length - 1;
+	    ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (new Expand (par._params.expands [it].token,
+												par._params.expands [it].expr,
+												par._params.expands [it].params, 
+												it - par._params.indexes [it])));	    	
+	    auto retType = new TupleInfo ();	
+	    foreach (_it ; (it - par._params.indexes [it]) .. par._params.expands [it].params.length) {
+		auto type = par._params.expands [it].params [_it].info.type;
+		writeln (par._params.expands [it].params [_it].info.id, " ", type.typeString);
+		retType.params.insertBack (type);
+	    }
+	    
+	    ctuple.info = new Symbol (par._token, retType);	    
+	} else {
+	    ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));	
+	    auto retType = new TupleInfo ();	    
+	    foreach (it ; ctuple.params) {
+		auto type = it.info.type;
+		retType.params.insertBack (type);
+	    }	    
+	    ctuple.info = new Symbol (par._token, retType);	
 	}
-
-	ctuple.info = new Symbol (par._token, retType);	
+	
 	par._params.params = make!(Array!Expression) (par._params.params [0 .. score.treat.length - 1].array ());
+	par._params.expands = make!(Array!Expand) (par._params.expands [0 .. score.treat.length - 1].array ());	
 	par._params.params.insertBack (ctuple);
+	par._params.expands.insertBack (null);
     }
     
 

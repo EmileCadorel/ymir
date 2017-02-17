@@ -640,3 +640,29 @@ class ImportError : YmirException {
     }
     
 }
+
+
+/**
+ On tente d'étendre un type qui n'est pas un tuple. 
+ */
+class ExpandNonTuple : YmirException {
+
+    /**
+     Params:
+     locus = l'identifiant du expand.
+     type = le type que l'on tente d'étendre.
+     */
+    this (Word locus, Symbol type) {
+	auto buf = new OutBuffer;
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de développer un type '(%s%s%s)', le type doit être un tuple",
+		      locus.locus.file,
+		      locus.locus.line,
+		      locus.locus.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
+
+	super.addLine (buf, locus.locus);
+	msg = buf.toString ();
+    }
+    
+}
