@@ -1,6 +1,9 @@
 all:
 	dub build --parallel
 
+std: final
+	./std/install.sh
+
 final:
 	dub build --parallel --build=release
 
@@ -14,4 +17,4 @@ clean:
 
 install: final
 	cp ymir ${HOME}/libs/ymir
-	make clean
+	./std/install.sh

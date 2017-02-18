@@ -11,6 +11,18 @@ extern (C) malloc (size : int) : ptr!void;
 extern (C) free (a : ptr!void);
 extern (C) free (a : ptr!char);
 
+def string (a : ptr!char) : string {
+    if (a is null) return '';
+    else if (*a == 0) return ''; 
+    let ret = [*a];
+    a = a + 1;
+    while (*a != 0) {
+	ret += [*a];
+	a = a + 1;
+    }
+    return cast:string (ret);
+}
+
 def main () {
     let a = getenv (("PWD").ptr);
     printf (("%s\n").ptr, a);
@@ -19,9 +31,8 @@ def main () {
 
     let str = cast:ptr!(char) (malloc (1024 * char.sizeof));
     let len = fread (str, 1, 1024, file);
-    for (i in 0 .. len)
-	print (*(str + i));
-    
+    let real = string (str);
+    println (real);
     
     free (str);
     fclose (file);

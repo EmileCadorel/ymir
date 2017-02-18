@@ -1,0 +1,2 @@
+def toStr (c : char) : string
+    return cast:string ([c]);

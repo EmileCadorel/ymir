@@ -1,0 +1,106 @@
+
+/**
+  Retourne la valeur absolue d'un nombre
+ **/
+def abs (value) {
+  if (value < 0)
+    return -value;
+  return value;
+}
+
+def exp(x, n) {
+    let aux = x;
+    for (i in 0l .. (n - 1))
+	aux *= x;
+    return aux;
+}
+
+/**
+   Retourne le nombre x avec n chiffres après la virgule
+ */
+def round (x, n) : float {
+    for (i in 0 .. n)
+	x *= 10.;
+    let aux = cast:int(x);
+    let res = cast:float(aux);
+    for (i in 0 .. n)
+	res /= 10.;
+    return res;
+}
+
+def sqrt (f : float) : float {
+    return (f).sqrt;
+}
+
+/**
+   Retourne la racine carré d'un nombre avec une précision de 2
+ **/
+def sqrt(value) : float {
+    if (value < 0) {
+	return -1.;
+    }
+    
+    let x = 1.;
+    for (i in 0 .. 2) {  
+	x = (x + value / x) / 2.;
+    }
+    
+    return x;
+}
+
+/**
+   Retourne la racine carré d'un nombre
+
+   Params:
+      prec = précision désirée
+ **/
+def sqrt(value, prec : int) : float {
+  if (value < 0)
+    return -1.;
+
+  let x = 1.;
+  for (i in 0 .. prec) 
+      x = (x + value / x) / 2.;  
+
+  return x;
+}
+
+/**
+   Retourne la racine cubique avec une précision de 2
+ **/
+def cqrt(value) : float {
+  if (value < 0)
+    return -1.;
+
+  let x = 1.;
+  for (i in 0 .. 2) {
+      x = (x + (cast:float(value) / (x*x))) / 2.;
+  }
+  
+  return x;
+}
+
+def cqrt(value, prec : int) : float {
+  if (value < 0)
+    return -1.;
+
+  let x = 1.;
+  for (i in 0 .. prec) {
+      x = (x + (cast:float(value) / (x*x))) / 2.;
+  }
+  
+  return x;
+}
+
+/**
+   Retourne le factoriel du nombre
+ */
+def facto(x : int) : int {
+    let n = x;
+    let aux = n - 1;
+    for (i in 0 .. (n - 1)) {
+	x *= aux;
+	aux--;
+    }
+    return x;
+}

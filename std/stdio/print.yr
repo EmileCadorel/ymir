@@ -1,0 +1,45 @@
+
+extern (C) putchar (c : char);
+extern (C) printf (c : ptr!char, ...);
+
+def print (c : char) : void
+    putchar (c);
+
+def print (s : string) : void
+    for (it in s) putchar (it);
+
+def print (i : int) : void {
+    printf (("%d").ptr, i);
+}
+
+def print (i : long) : void {
+    printf (("%d").ptr, i);
+}
+
+def print (a : float, prec : long) {
+    printf (('%.*lf').ptr, prec, a);
+}
+
+def print (f : float) {
+    printf (('%lf').ptr, f);
+}
+
+def print (b : bool) {
+    if (b) print ('true');
+    else print ('false');
+}
+
+def println (i) {
+    print (expand (i));
+    print ('\n');
+}
+
+def print (i, nexts) {
+    print (i);
+    print (expand (nexts));
+}
+
+def println (f : float, i) {
+    print (f, i);
+    print ('\n');
+}

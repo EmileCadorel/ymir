@@ -1,0 +1,12 @@
+
+def string (a : ptr!char) : string {
+    if (a is null) return '';
+    else if (*a == 0) return ''; 
+    let ret = [*a];
+    a = a + 1;
+    while (*a != 0) {
+	ret += [*a];
+	a = a + 1;
+    }
+    return cast:string (ret);
+}

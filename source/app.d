@@ -41,6 +41,7 @@ void semanticTime (string file) {
 	    error += occurs.nbError;
 	}
     }
+      
     if (error > 0) throw new ErrorOccurs (error);    
 }
 
@@ -130,6 +131,7 @@ void main (string [] args) {
 	    FrameTable.instance.pures.clear ();
 	    FrameTable.instance.finals.clear ();
 	    FrameTable.instance.clearImport ();
+	    FrameTable.instance.structs.clear ();
 	    
 	    semanticTime (file);
 	    auto list = lintTime ();
