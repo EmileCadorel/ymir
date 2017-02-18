@@ -83,11 +83,9 @@ class ConstRange : Expression {
 	if (!type.isSame (aux._left.info.type)) {
 	    aux._lorr = 1;
 	    aux._caster = aux._left.info.type.CastTo (type);
-	    writeln (aux._caster.typeString);
 	} else if (!type.isSame (aux._right.info.type)) {
 	    aux._lorr = 2;
 	    aux._caster = aux._right.info.type.CastTo (type);
-	    writeln (aux._caster.typeString);
 	}
 	
 	aux._content = type;

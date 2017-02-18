@@ -97,6 +97,7 @@ class PtrInfo : InfoType {
      */
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.STAR) return Unref ();
+	else if (op == Tokens.AND && !this.isConst) return toPtr ();
 	return null;
     }
 
@@ -289,6 +290,14 @@ class PtrInfo : InfoType {
 	return ret;
     }
 
+
+    private InfoType toPtr () {
+	auto other = new PtrInfo ();
+	other.content = this.clone ();
+	other.lintInstS.insertBack (&PtrUtils.InstAddr);
+	return other;
+    }
+    
     /**
      Surcharge de l'operateur d'accés au attribut.
      Params:

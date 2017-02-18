@@ -6,7 +6,7 @@ import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LSize;
 import lint.LConst, ast.Constante, syntax.Word;
 import lint.LVisitor, semantic.types.InfoType;
-import ast.Expression;
+import ast.Expression, lint.LAddr;
 
 /**
  Cette classe regroupe les fonctions nécéssaire à la transformation de ptr vers le lint.
@@ -206,6 +206,20 @@ class PtrUtils {
      */
     static LInstList StringOf (LInstList, LInstList left) {
 	return left;
+    }
+
+    /**
+     L'instruction de récuperation de l'addresse d'un ptr.
+     Params:
+     llist = la liste d'instruction de l'operande.
+     Returns: une liste d'instruction du lint.
+     */
+    static LInstList InstAddr (LInstList llist) {
+	auto inst = new LInstList;
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LAddr (exp);
+	return inst;
     }
 
 

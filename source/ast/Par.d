@@ -90,7 +90,6 @@ class Par : Expression {
 	    auto retType = new TupleInfo ();	
 	    foreach (_it ; (it - par._params.indexes [it]) .. par._params.expands [it].params.length) {
 		auto type = par._params.expands [it].params [_it].info.type;
-		writeln (par._params.expands [it].params [_it].info.id, " ", type.typeString);
 		retType.params.insertBack (type);
 	    }
 	    
