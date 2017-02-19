@@ -1,7 +1,7 @@
 all:
 	dub build --parallel
 
-std: final
+std: install
 	./std/install.sh
 
 final:

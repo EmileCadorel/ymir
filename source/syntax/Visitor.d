@@ -57,7 +57,7 @@ class Visitor {
 			      Keys.FOR, Keys.FOREACH, Keys.WHILE, Keys.BREAK, Keys.THROW,
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
-			      Keys.FUNCTION, Keys.LET, Keys.IS];
+			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN];
     }
 
     /**
@@ -330,6 +330,7 @@ class Visitor {
 		auto next = _lex.next ();
 		if (next == Keys.DEF) decls.insertBack (visitFunction ());
 		else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+		else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
 		else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (next == Tokens.LACC) {
 		    this._lex.rewind ();

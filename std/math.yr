@@ -10,8 +10,8 @@ def abs (value) {
 
 def exp(x, n) {
     let aux = x;
-    for (i in 0l .. (n - 1))
-	aux *= x;
+    for (i in 0l .. (n - 1)) 
+	aux = aux * x;
     return aux;
 }
 

@@ -43,3 +43,8 @@ def println (f : float, i) {
     print (f, i);
     print ('\n');
 }
+
+def printf (str : string, nexts) {
+    extern (C) printf (c : ptr!char, ...);
+    printf (str.ptr, expand (nexts));
+}

@@ -1,7 +1,14 @@
-cp -r std/ ${HOME}/libs/ymir_std/std/
+rm -rf ${HOME}/libs/ymir_std/
+mkdir ${HOME}/libs/ymir_std/
+mkdir ${HOME}/libs/ymir_std/std/
+mkdir ${HOME}/libs/ymir_std/libs/
+
+cp -r std/. ${HOME}/libs/ymir_std/std/
+
 cd ${HOME}/libs/ymir_std/
-ymir --std -c std/*.yr
 ymir -c std/stdio/*.yr
-rm -rf libs/
-mkdir libs
+ymir --std -c std/*.yr
+
 mv *.o libs/
+
+
