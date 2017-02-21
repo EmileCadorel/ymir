@@ -235,7 +235,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Dig (LInstList, LInstList) {
-	return new LInstList (new LConstDWord (float.dig));
+	return new LInstList (new LConstDecimal (float.dig, LSize.INT));
     }
 
     /**
@@ -251,7 +251,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList MantDig (LInstList, LInstList) {
-	return new LInstList (new LConstDWord (float.mant_dig));
+	return new LInstList (new LConstDecimal (float.mant_dig, LSize.INT));
     }
 
     /**

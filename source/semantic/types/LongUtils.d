@@ -248,7 +248,7 @@ class LongUtils {
      */    
     static LInstList IntInit (LInstList, LInstList) {
 	auto inst = new LInstList ();
-	inst += new LConstQWord (0);
+	inst += new LConstDecimal (0, LSize.LONG);
 	return inst;
     }
 
@@ -258,7 +258,7 @@ class LongUtils {
      */    
     static LInstList IntMax (LInstList, LInstList) {
 	auto inst = new LInstList ();
-	inst += new LConstQWord (long.max);
+	inst += new LConstDecimal (long.max, LSize.LONG);
 	return inst;
     }
     
@@ -268,7 +268,7 @@ class LongUtils {
      */    
     static LInstList IntMin (LInstList, LInstList) {
 	auto inst = new LInstList ();
-	inst += new LConstQWord (long.min);
+	inst += new LConstDecimal (long.min, LSize.LONG);
 	return inst;
     }
 
@@ -278,7 +278,7 @@ class LongUtils {
      */        
     static LInstList IntSizeOf (LInstList, LInstList) {
 	auto inst = new LInstList ();
-	inst += new LConstDWord (1, LongInfo.sizeOf);
+	inst += new LConstDecimal (1, LSize.INT, LongInfo.sizeOf);
 	return inst;
     }    
 

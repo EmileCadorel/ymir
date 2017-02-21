@@ -126,14 +126,10 @@ abstract class TVisitor {
     }
     
     final protected TInstPaire visitConst (LConst co) {
-	if (auto by = cast(LConstByte) (co))
-	    return visitConstByte (by);
-	else if (auto w = cast (LConstWord) (co)) 
-	    return visitConstWord (w);
-	else if (auto dw = cast(LConstDWord) (co))
-	    return visitConstDWord (dw);
-	else if (auto qw = cast(LConstQWord) (co))
-	    return visitConstQWord (qw);
+	if (auto by = cast(LConstDecimal) (co))
+	    return visitConstDecimal (by);
+	else if (auto by = cast(LConstUDecimal) (co))
+	    return visitConstUDecimal (by);
 	else if (auto lf = cast(LConstFloat) (co))
 	    return visitConstFloat (lf);
 	else if (auto ld = cast(LConstDouble) (co))
@@ -145,14 +141,10 @@ abstract class TVisitor {
 	assert (false, "TODO, visitConst (LConst co)");
     }
     
-    abstract protected TInstPaire visitConstByte (LConstByte);
+    abstract protected TInstPaire visitConstDecimal (LConstDecimal);
 
-    abstract protected TInstPaire visitConstWord (LConstWord);
-
-    abstract protected TInstPaire visitConstDWord (LConstDWord);
-
-    abstract protected TInstPaire visitConstQWord (LConstQWord);
-
+    abstract protected TInstPaire visitConstUDecimal (LConstUDecimal);
+    
     abstract protected TInstPaire visitConstFloat (LConstFloat);
 
     abstract protected TInstPaire visitConstDouble (LConstDouble);
@@ -164,14 +156,10 @@ abstract class TVisitor {
     abstract protected TInstPaire visit (LReg reg);    
 
     final protected TInstPaire visitConst (LConst co, TExp where) {
-	if (auto by = cast(LConstByte) (co))
-	    return visitConstByte (by, where);
-	else if (auto w = cast (LConstWord) (co)) 
-	    return visitConstWord (w, where);
-	else if (auto dw = cast(LConstDWord) (co))
-	    return visitConstDWord (dw, where);
-	else if (auto qw = cast(LConstQWord) (co))
-	    return visitConstQWord (qw, where);
+	if (auto by = cast(LConstDecimal) (co))
+	    return visitConstDecimal (by, where);
+	else if (auto by = cast(LConstUDecimal) (co))
+	    return visitConstUDecimal (by, where);
 	else if (auto lf = cast(LConstFloat) (co))
 	    return visitConstFloat (lf, where);
 	else if (auto ld = cast(LConstDouble) (co))
@@ -183,19 +171,11 @@ abstract class TVisitor {
 	assert (false, "TODO, visitConst (LConst co)");
     }
     
-    protected TInstPaire visitConstByte (LConstByte, TExp) {
+    protected TInstPaire visitConstDecimal (LConstDecimal, TExp) {
 	assert (false);
     }
 
-    protected TInstPaire visitConstWord (LConstWord, TExp) {
-	assert (false);
-    }
-
-    protected TInstPaire visitConstDWord (LConstDWord, TExp) {
-	assert (false);
-    }
-
-    protected TInstPaire visitConstQWord (LConstQWord, TExp) {
+    protected TInstPaire visitConstUDecimal (LConstUDecimal, TExp) {
 	assert (false);
     }
 

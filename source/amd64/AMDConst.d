@@ -7,67 +7,50 @@ import amd64.AMDStd;
 class AMDConst : AMDObj {
 }
 
-class AMDConstByte : AMDConst {
+class AMDConstDecimal : AMDConst {
     private long _value;
-
-    this (long value) {
+    private AMDSize _size;
+    
+    this (long value, AMDSize size) {
 	this._value = value;
-    }
-
-    long value () {
-	return this._value;
-    }
-    
-    override AMDSize sizeAmd () {
-	return AMDSize.BYTE;
-    }
-    
-    override string toString () {
-	return "$" ~ to!string (this._value);
-    }
-    
-}
-
-class AMDConstDWord : AMDConst {
-    private long _value;
-
-    this (long value) {
-	this._value = value;
+	this._size = size;
     }
 
     ref long value () {
 	return this._value;
     }
-    
+
     override AMDSize sizeAmd () {
-	return AMDSize.DWORD;
+	return this._size;
     }
 
     override string toString () {
 	return "$" ~ to!string (this._value);
-    }    
+    }
 }
 
-
-class AMDConstQWord : AMDConst {
+class AMDConstUDecimal : AMDConst {
     private long _value;
-
-    this (long value) {
+    private AMDSize _size;
+    
+    this (long value, AMDSize size) {
 	this._value = value;
+	this._size = size;
     }
 
     ref long value () {
 	return this._value;
     }
-    
+
     override AMDSize sizeAmd () {
-	return AMDSize.QWORD;
+	return this._size;
     }
 
     override string toString () {
 	return "$" ~ to!string (this._value);
-    }    
+    }
 }
+
 
 class AMDConstDouble : AMDConst {
     private double _value;

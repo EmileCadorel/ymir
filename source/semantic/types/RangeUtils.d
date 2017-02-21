@@ -42,11 +42,11 @@ class RangeUtils {
 	auto size = new LReg (LSize.LONG);
 	auto retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel;
-	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (new LConstQWord (2, LSize.LONG),
-									     new LBinop (size, new LConstQWord (2), Tokens.STAR),
-									     Tokens.PLUS)]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG), new LConstQWord (1));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc ("free"));
+	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (new LConstDecimal (2, LSize.LONG, LSize.LONG),
+									      new LBinop (size, new LConstDecimal (2, LSize.LONG), Tokens.STAR),
+									      Tokens.PLUS)]), retReg);
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (1, LSize.LONG));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc ("free"));
 	auto fr = new LFrame (__CstName__, entry, end, retReg, make!(Array!LReg) ([size]));
 	LFrame.preCompiled [__CstName__] = fr;
 	LReg.lastId = last;
@@ -61,7 +61,7 @@ class RangeUtils {
      */
     static LInstList InstFst (LSize size) (LInstList, LInstList llist) {
 	auto leftExp = llist.getFirst ();
-	llist += new LRegRead (leftExp, new LConstDWord (2, LSize.LONG), size);
+	llist += new LRegRead (leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), size);
 	return llist;
     }
     
@@ -74,8 +74,8 @@ class RangeUtils {
      */
     static LInstList InstScd (LSize size) (LInstList, LInstList llist) {
 	auto leftExp = llist.getFirst ();
-	llist += new LRegRead (leftExp, new LBinop (new LConstDWord (2, LSize.LONG),
-						    new LConstDWord (1, size),
+	llist += new LRegRead (leftExp, new LBinop (new LConstDecimal (2, LSize.INT, LSize.LONG),
+						    new LConstDecimal (1, LSize.INT, size),
 						    Tokens.PLUS),
 			       size);
 	return llist;
@@ -127,11 +127,11 @@ class RangeUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto scd = new LRegRead (rightExp, new LBinop (new LConstDWord (2, LSize.LONG),
-						      new LConstDWord (1, size),
-						      Tokens.PLUS),
+	auto scd = new LRegRead (rightExp, new LBinop (new LConstDecimal (2, LSize.INT, LSize.LONG),
+						       new LConstDecimal (1, LSize.INT, size),
+						       Tokens.PLUS),
 				 size);
-	auto fst = new LRegRead (rightExp, new LConstDWord (2, LSize.LONG), size);
+	auto fst = new LRegRead (rightExp, new LConstDecimal (2, LSize.INT, LSize.LONG), size);
 	inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF_EQUAL), Tokens.DAND);
 	return inst;
     }
@@ -155,11 +155,11 @@ class RangeUtils {
 	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
 	auto faux = new LLabel;
 	auto index = new LReg (type.content.size);
-	auto fst = new LRegRead (leftExp, new LConstDWord (2, LSize.LONG), type.content.size);
+	auto fst = new LRegRead (leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), type.content.size);
 	inst += new LWrite (index, fst);
-	auto scd = new LRegRead (leftExp, new LBinop (new LConstQWord (2, LSize.LONG),
-						  new LConstQWord (1, type.content.size),
-						  Tokens.PLUS), type.content.size);
+	auto scd = new LRegRead (leftExp, new LBinop (new LConstDecimal (2, LSize.LONG, LSize.LONG),
+						      new LConstDecimal (1, LSize.LONG, type.content.size),
+						      Tokens.PLUS), type.content.size);
 	    
 	auto test = new LBinop (index,  scd, Tokens.NOT_EQUAL);
 	inst += debut;

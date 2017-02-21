@@ -172,7 +172,7 @@ class CharUtils {
      */
     static LInstList CharInit (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstByte (0);
+	inst += new LConstDecimal (0, LSize.BYTE);
 	return inst;
     }
 
@@ -182,7 +182,7 @@ class CharUtils {
     */    
     static LInstList CharSizeOf (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstDWord (1, CharInfo.sizeOf);
+	inst += new LConstDecimal (1, LSize.INT, CharInfo.sizeOf);
 	return inst;
     }
     

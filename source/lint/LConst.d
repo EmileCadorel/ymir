@@ -8,103 +8,82 @@ abstract class LConst : LExp {
     }
 }
 
-class LConstByte : LConst {
-    private ubyte _value;
 
-    this (ubyte value) {
-	this._value = value;
-    }
-
-    override LSize size () {
-	return LSize.BYTE;
-    }
-    
-    ubyte value () { return this._value; }
-    
-    override string toString () {
-	return "$(" ~ to!string (this._value) ~ ")";
-    }
-}
-
-class LConstWord : LConst {
-    private short _value;
-
-    this (short value) {
-	this._value = value;
-    }
-    
-    override LSize size () {
-	return LSize.SHORT;
-    }
-    
-    short value () { return this._value; }
-}
-
-class LConstDWord : LConst {
-    
-    private ulong _value;
-    private LSize _mult = LSize.NONE;
-    
-    this (int value) {
-	this._value = value;
-    }
-
-    this (ulong value, LSize mult) {
-	this._value = value;
-	this._mult = mult;
-    }
-    
-    this (ulong value) {
-	this._value = value;
-    }
-    
-    override LSize size () {
-	return LSize.INT;
-    }
-    
-    LSize mult () {
-	return this._mult;
-    }
-
-    ulong value () { return this._value; }
-    
-    override string toString () {
-	return "$(" ~ to!string (this._value) ~ " * " ~ to!string (this._mult) ~ ")";
-    }
-    
-}
-
-class LConstQWord : LConst {
+class LConstDecimal : LConst {
     private long _value;
-    private LSize _mult = LSize.NONE;
+    private LSize _size;
+    private LSize _mult;
     
-    this (long value) {
+    this (long value, LSize size) {
 	this._value = value;
+	this._size = size;
     }
 
-    this (long value, LSize mult) {
+    this (long value, LSize size, LSize mult) {
 	this._value = value;
+	this._size = size;
 	this._mult = mult;
+    }
+    
+    override LSize size () {
+	return this._size;
+    }
+
+    long value () {
+	return this._value;
     }
 
     LSize mult () {
 	return this._mult;
     }
-   
-    override LSize size () {
-	return LSize.LONG;
+    
+    override string toString () {
+	if (this._mult != LSize.NONE) {
+	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
+	} else
+	    return "$(" ~ to!string (this._value) ~ ")";
+    }    
+    
+}
+
+class LConstUDecimal : LConst {
+    private ulong _value;
+    private LSize _size;
+    private LSize _mult;
+    
+    this (ulong value, LSize size) {
+	this._value = value;
+	this._size = size;
+    }
+
+    this (ulong value, LSize size, LSize mult) {
+	this._value = value;
+	this._size = size;
+	this._mult = mult;
     }
     
-    long value () { return this._value; }
+    override LSize size () {
+	return this._size;
+    }
+
+    LSize mult () {
+	return this._mult;
+    }
+    
+    ulong value () {
+	return this._value;
+    }
 
     override string toString () {
 	if (this._mult != LSize.NONE) {
 	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
 	} else
 	    return "$(" ~ to!string (this._value) ~ ")";
-    }
+    }    
     
 }
+
+
 
 class LConstFloat : LConst {
     private float _value;

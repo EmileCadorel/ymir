@@ -610,10 +610,15 @@ class Visitor {
     
     private Expression visitNumeric (Word begin) {
 	foreach (it ; 0 .. begin.str.length) {
-	    if (begin.str [it] < '0' || begin.str [it] > '9') {
-		if (it != begin.str.length - 1 || begin.str [it] != 'l') 
-		    throw new SyntaxError (begin);
-		else return new Long (begin);
+	    if (begin.str [it] < '0' || begin.str [it] > '9') {		
+		if (begin.str [it .. $] == "ub") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UBYTE);
+		else if (begin.str [it .. $] == "b") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.BYTE);
+		else if (begin.str [it .. $] == "s") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.SHORT);
+		else if (begin.str [it .. $] == "us") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.USHORT);
+		else if (begin.str [it .. $] == "u") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UINT);
+		else if (begin.str [it .. $] == "ul") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.ULONG);
+		else if (begin.str [it .. $] == "l") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.LONG);
+		else throw new SyntaxError (begin);
 	    }
 	}
 	auto next = _lex.next ();
@@ -629,7 +634,7 @@ class Visitor {
 	    }
 	    return new Float (begin, suite);
 	} else _lex.rewind ();
-	return new Int (begin);
+	return new Decimal (begin, DecimalConst.INT);
     }    
 
     private Expression visitFloat (Word begin) {

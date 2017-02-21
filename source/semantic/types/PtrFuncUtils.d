@@ -39,7 +39,7 @@ class PtrFuncUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += (new LWrite (leftExp, new LConstQWord (0)));
+	inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
 	return inst;
     }
 
@@ -68,7 +68,7 @@ class PtrFuncUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.DEQUAL);
+	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
 	return inst;
     }
 
@@ -82,7 +82,7 @@ class PtrFuncUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.NOT_EQUAL);
+	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
 	return inst;
     }
 

@@ -41,6 +41,8 @@ def print (arr : array!int) {
 
 def main () {
     let t = [1, 3, 4], b = t;
+    println (b.typeid);
+
     b [0] = b [1] + 78;
     println (t);
 

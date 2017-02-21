@@ -68,7 +68,7 @@ class BoolUtils {
 	auto inst = new LInstList;
 	auto left = llist.getFirst ();
 	inst += llist;
-	inst += new LBinop (left, new LConstByte (1), Tokens.XOR);
+	inst += new LBinop (left, new LConstDecimal (1, LSize.BYTE), Tokens.XOR);
 	return inst;
     }
 
@@ -116,7 +116,7 @@ class BoolUtils {
      */
     static LInstList BoolInit (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstByte (0);
+	inst += new LConstDecimal (0, LSize.BYTE);
 	return inst;
     }
 
@@ -126,7 +126,7 @@ class BoolUtils {
      */
     static LInstList BoolSize (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstDWord (1, LSize.BYTE);
+	inst += new LConstDecimal (1, LSize.INT, LSize.BYTE);
 	return inst;
     }
 
@@ -161,7 +161,7 @@ class BoolUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList InstTrue (LInstList, LInstList) {
-	return new LInstList (new LConstByte (1));
+	return new LInstList (new LConstDecimal (1, LSize.BYTE));
     }
     
     /**
@@ -169,7 +169,7 @@ class BoolUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList InstFalse (LInstList, LInstList) {
-	return new LInstList (new LConstByte (0));
+	return new LInstList (new LConstDecimal (0, LSize.BYTE));
     }
 
 }

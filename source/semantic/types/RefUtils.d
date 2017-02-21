@@ -37,7 +37,7 @@ class RefUtils {
      */
     static LInstList InstUnrefS (LSize size) (LInstList llist) {
 	auto leftExp = llist.getFirst ();
-	return new LInstList (new LRegRead (leftExp, new LConstDWord (0), size));
+	return new LInstList (new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size));
     }    
 
     

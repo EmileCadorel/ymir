@@ -23,12 +23,12 @@ class StructUtils {
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	auto interne = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
-	auto size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-				new LBinop (new LConstDWord (nbInt, LSize.INT),
-					    new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-							new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-								    new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-										new LConstDWord (nbDouble, LSize.DOUBLE),
+	auto size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+				new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					    new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+							new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								    new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+										new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
 										Tokens.PLUS),
 								    Tokens.PLUS),
 							Tokens.PLUS),
@@ -57,24 +57,24 @@ class StructUtils {
 		interne += type.lintInst (llist, rlist);
 	    }
 	    	    
-	    size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-				    new LBinop (new LConstDWord (nbInt, LSize.INT),
-						new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-							    new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-									new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-										    new LConstDWord (nbDouble, LSize.DOUBLE),
-										    Tokens.PLUS),
-									Tokens.PLUS),
-							    Tokens.PLUS),
-						Tokens.PLUS),
-				    Tokens.PLUS);	    
+	    size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+			       new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					   new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+						       new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								   new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+									       new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
+									       Tokens.PLUS),
+								   Tokens.PLUS),
+						       Tokens.PLUS),
+					   Tokens.PLUS),
+			       Tokens.PLUS);	    
 	}
 	
 						 
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (0), LSize.LONG),
-				   new LConstQWord (1));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDWord (1, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
+				   new LConstDecimal (1, LSize.LONG));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
 	entry.insts += interne;
 	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
@@ -88,12 +88,12 @@ class StructUtils {
 	auto addr = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
-	auto size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-				new LBinop (new LConstDWord (nbInt, LSize.INT),
-					    new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-							new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-								    new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-										new LConstDWord (nbDouble, LSize.DOUBLE),
+	auto size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+				new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					    new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+							new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								    new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+										new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
 										Tokens.PLUS),
 								    Tokens.PLUS),
 							Tokens.PLUS),
@@ -116,12 +116,12 @@ class StructUtils {
 					  make!(Array!LExp) ([new LBinop (addr, size, Tokens.PLUS)]), LSize.NONE);
 	    }
 
-	    size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-			       new LBinop (new LConstDWord (nbInt, LSize.INT),
-					   new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-						       new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-								   new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-									       new LConstDWord (nbDouble, LSize.DOUBLE),
+	    size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+			       new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					   new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+						       new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								   new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+									       new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
 									       Tokens.PLUS),
 								   Tokens.PLUS),
 						       Tokens.PLUS),
@@ -194,7 +194,7 @@ class StructUtils {
 	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
 	if (it is null) ClassUtils.createDstObj ();
 	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
-	inst += new LWrite (leftExp, new LConstQWord (0));
+	inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
 	return inst;
     }    
 
@@ -223,19 +223,19 @@ class StructUtils {
     }
 
     static LInstList Init (LInstList, LInstList) {
-	return new LInstList (new LConstQWord (0));
+	return new LInstList (new LConstDecimal (0, LSize.LONG));
     }
 
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
 	auto type = cast (StructInfo) (left.info.type);
 	auto inst = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
-	auto size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-				new LBinop (new LConstDWord (nbInt, LSize.INT),
-					    new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-							new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-								    new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-										new LConstDWord (nbDouble, LSize.DOUBLE),
+	auto size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+				new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					    new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+							new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								    new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+										new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
 										Tokens.PLUS),
 								    Tokens.PLUS),
 							Tokens.PLUS),
@@ -252,12 +252,12 @@ class StructUtils {
 	    case LSize.DOUBLE.id: nbDouble ++; break;
 	    }
 
-	    size = new LBinop (new LConstDWord (nbLong + 2, LSize.LONG),
-			       new LBinop (new LConstDWord (nbInt, LSize.INT),
-					   new LBinop (new LConstDWord (nbShort, LSize.SHORT),
-						       new LBinop (new LConstDWord (nbByte, LSize.BYTE),
-								   new LBinop (new LConstDWord (nbFloat, LSize.FLOAT),
-									       new LConstDWord (nbDouble, LSize.DOUBLE),
+	    size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
+			       new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+					   new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+						       new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+								   new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+									       new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
 									       Tokens.PLUS),
 								   Tokens.PLUS),
 						       Tokens.PLUS),

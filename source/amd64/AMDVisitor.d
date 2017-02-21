@@ -20,7 +20,7 @@ class AMDVisitor : TVisitor {
 	auto file =  new AMDFile (frame.file);
 	auto rbp = new AMDReg (REG.getReg ("rbp")), rsp = new AMDReg (REG.getReg ("rsp"));
 	AMDReg.lastId = frame.lastId;
-	auto stack = new AMDConstQWord (0);
+	auto stack = new AMDConstDecimal (0, AMDSize.QWORD);
 	auto list = new TInstList;
 	list += new AMDGlobal (frame.name);
 	list += new AMDType (frame.name, AMDTypes.FUNCTION);
@@ -51,6 +51,7 @@ class AMDVisitor : TVisitor {
 	    if (left.where != ret)
 		entry.inst += new AMDMove (cast (AMDObj)left.where, ret);
 	}
+	
 	stack.value = AMDReg.globalOff + (16 - AMDReg.globalOff % 16);
 	if (stack.value == 0)
 	    entry.inst += new AMDPop (rbp);
@@ -79,11 +80,11 @@ class AMDVisitor : TVisitor {
 	inst += exp.what;
 	if (cast (AMDReg) exp.where) {
 	    auto reg = (cast (AMDReg) exp.where).clone (AMDSize.BYTE);
-	    inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);
+	    inst += new AMDBinop (new AMDConstDecimal (0, AMDSize.BYTE), reg, Tokens.DEQUAL);
 	} else {
 	    auto reg = new AMDReg (REG.aux (AMDSize.BYTE));
 	    inst += new AMDMove (cast (AMDObj) exp.where, reg);
-	    inst += new AMDBinop (new AMDConstByte (0), reg, Tokens.DEQUAL);
+	    inst += new AMDBinop (new AMDConstDecimal (0, AMDSize.BYTE), reg, Tokens.DEQUAL);
 	}
 	inst += new AMDJne (lj.id);
 	return inst;
@@ -173,7 +174,7 @@ class AMDVisitor : TVisitor {
 	inst += new AMDMove ((cast(AMDObj)exp.where), aux);
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
-	auto res = this.resolve!AMDConstDWord (lread.begin);
+	auto res = this.resolve!(AMDConstDecimal) (lread.begin);
 	if (res is null) assert (false, "TODO");
 	fin.offset = -res.value;	
 	fin.resize (getSize (lread.size));
@@ -189,9 +190,9 @@ class AMDVisitor : TVisitor {
 	auto fin = new AMDReg (aux.name, aux.sizeAmd);
 	fin.isOff = true;
 	auto res = this.resolve!(AMDConst) (lread.begin);
-	if (auto _res = cast (AMDConstDWord) (res))
+	if (auto _res = cast (AMDConstDecimal) (res))
 	    fin.offset = -_res.value;
-	else if (auto _res = cast (AMDConstQWord) (res))
+	else if (auto _res = cast (AMDConstDecimal) (res))
 	    fin.offset = -_res.value;      
 	else  assert (false, "TODO");
 	fin.resize (getSize (lread.size));
@@ -420,7 +421,7 @@ class AMDVisitor : TVisitor {
 	
 	if (lcall.isVariadic) {
 	    auto rax = new AMDReg (REG.getReg ("rax"));	    
-	    inst += new AMDMove (new AMDConstQWord (nbFloat), rax);
+	    inst += new AMDMove (new AMDConstDecimal (nbFloat, AMDSize.QWORD), rax);
 	}
 	
 	if (lcall.name) inst += new AMDCall (lcall.name);
@@ -449,7 +450,7 @@ class AMDVisitor : TVisitor {
 	
 	if (lcall.isVariadic) {
 	    auto rax = new AMDReg (REG.getReg ("rax"));	    
-	    inst += new AMDMove (new AMDConstQWord (nbFloat), rax);
+	    inst += new AMDMove (new AMDConstDecimal (nbFloat, AMDSize.QWORD), rax);
 	}
 
 	if (lcall.name) inst += new AMDCall (lcall.name);
@@ -500,17 +501,9 @@ class AMDVisitor : TVisitor {
     }
 
     
-    private AMDObj convToSize (AMDSize size, AMDObj elem) {
-	ulong value;
-	if (elem.sizeAmd == AMDSize.BYTE) value = to!ulong ((cast (AMDConstByte)elem).value);
-	else if (elem.sizeAmd == AMDSize.DWORD) value = to!ulong ((cast (AMDConstDWord)elem).value);
-	else if (elem.sizeAmd == AMDSize.QWORD) value = to!ulong ((cast (AMDConstQWord)elem).value);
+    private AMDObj convToSize (AMDSize size, AMDObj elem) {	
+	if (auto dec = cast (AMDConstDecimal) elem) return new AMDConstDecimal (dec.value, size);
 	else assert (false);
-	
-	if (size == AMDSize.BYTE) return new AMDConstByte (cast (ubyte) value);
-	if (size == AMDSize.DWORD) return new AMDConstDWord (cast (long) value);
-	if (size == AMDSize.QWORD) return new AMDConstQWord (cast (long) value);
-	assert (false);
     }
     
     override protected TInstPaire visitCast (LCast cst, TExp) {
@@ -594,7 +587,7 @@ class AMDVisitor : TVisitor {
     }
 
     private TInstPaire visitAddrFromRegRead (LAddr addr, LRegRead read, TExp where) {
-	auto res = this.resolve!AMDConstDWord (read.begin);
+	auto res = this.resolve!AMDConstDecimal (read.begin);
 	if (res !is null && res.value == 0) {
 	    if (read.data.size == read.size) {		
 		return visitExpression (read.data, where);
@@ -620,10 +613,8 @@ class AMDVisitor : TVisitor {
     }
     
     private T resolve (T) (LExp exp) {
-	if (auto _cb = cast (LConstByte) exp) return cast (T) (resolve (_cb));
-	else if (auto _cw = cast (LConstWord) exp) return cast (T) (resolve (_cw));
-	else if (auto _cdw = cast (LConstDWord) exp) return cast (T) resolve (_cdw);
-	else if (auto _cqw = cast (LConstQWord) exp) return cast (T) resolve (_cqw);
+	if (auto _cd = cast (LConstDecimal) exp) return cast (T) (resolve (_cd));
+	else if (auto _cud = cast (LConstUDecimal) exp) return cast (T) (resolve (_cud));
 	else if (auto _cd = cast (LConstDouble) exp) return cast (T) resolve (_cd);
 	else if (auto _bin = cast (LBinop) exp) return cast (T) resolve (_bin);
 	else if (auto _cst = cast (LCast) exp) return cast (T) resolve (_cst);
@@ -634,15 +625,11 @@ class AMDVisitor : TVisitor {
 	auto elem = resolve!(AMDConst) (cst.what);
 	if (elem) {
 	    long value = 0;
-	    if (auto _e = cast (AMDConstByte) elem) value = _e.value;
-	    else if (auto _e = cast (AMDConstDWord) elem) value = _e.value;
-	    else if (auto _e = cast (AMDConstQWord) elem) value = _e.value;
+	    if (auto _e = cast (AMDConstDecimal) elem) value = _e.value;
 	    else if (auto _e = cast (AMDConstDouble) elem) value = to!long (_e.value);
 	    else return null;
 	    auto size = getSize (cst.size);
-	    if (size == AMDSize.BYTE) return new AMDConstByte (value);
-	    else if (size == AMDSize.DWORD) return new AMDConstDWord (value);
-	    else if (size == AMDSize.QWORD) return new AMDConstQWord (value);
+	    if (size != AMDSize.DPREC && size != AMDSize.SPREC) return new AMDConstDecimal (value, size);
 	    else if (size == AMDSize.DPREC) return new AMDConstDouble (to!double (value));
 	}
 	return null;
@@ -652,15 +639,9 @@ class AMDVisitor : TVisitor {
 	if (op.res is null) {
 	    auto left = resolve!(AMDConst) (op.left);
 	    auto right = resolve!(AMDConst) (op.right);
-	    if (auto _l = cast (AMDConstByte) left) {
-		if (auto _r = cast(AMDConstByte) right)
-		    return resolveFromByte (op, _l.value, _r.value);
-	    } else if (auto _l = cast (AMDConstDWord) left) {
-		if (auto _r = cast(AMDConstDWord) right)
-		    return resolveFromDWord (op, _l.value, _r.value);
-	    } else if (auto _l = cast (AMDConstQWord) left) {
-		if (auto _r = cast(AMDConstQWord) right)
-		    return resolveFromQWord (op, _l.value, _r.value);
+	    if (auto _l = cast (AMDConstDecimal) left) {
+		if (auto _r = cast(AMDConstDecimal) right)
+		    return resolveFromDecimal (op, _l.value, _r.value, _r.sizeAmd);
 	    } else if (auto _l = cast (AMDConstDouble) left) {
 		if (auto _r = cast (AMDConstDouble) right)
 		    return resolveFromDouble (op, _l.value, _r.value);
@@ -669,23 +650,13 @@ class AMDVisitor : TVisitor {
 	return null;
     }
 
-    private AMDObj resolve (LConstByte lb) {
-	auto ret = visitConstByte (lb);
+    private AMDObj resolve (LConstDecimal lb) {
+	auto ret = visitConstDecimal (lb);
 	return cast (AMDObj) ret.where;
     }
 
-    private AMDObj resolve (LConstWord lb) {
-	auto ret = visitConstWord (lb);
-	return cast (AMDObj) ret.where;
-    }
-    
-    private AMDObj resolve (LConstDWord lb) {
-	auto ret = visitConstDWord (lb);
-	return cast (AMDObj) ret.where;
-    }
-    
-    private AMDObj resolve (LConstQWord lb) {
-	auto ret = visitConstQWord (lb);
+    private AMDObj resolve (LConstUDecimal lb) {
+	auto ret = visitConstUDecimal (lb);
 	return cast (AMDObj) ret.where;
     }
 
@@ -693,28 +664,6 @@ class AMDVisitor : TVisitor {
 	return new AMDConstDouble (lb.value);
     }
     
-    private AMDConst resolveFromByte (LBinop op, long left, long right) {
-	if (op.op == Tokens.PLUS) return new AMDConstByte (left + right);
-	else if (op.op == Tokens.MINUS) return new AMDConstByte (left - right);
-	else if (op.op == Tokens.AND) return new AMDConstByte (left & right);
-	else if (op.op == Tokens.PIPE) return new AMDConstByte (left | right);
-	else if (op.op == Tokens.STAR) return new AMDConstByte (left * right);
-	else if (op.op == Tokens.DIV) {
-	    if (right == 0) throw new FloatingPointException (op.locus);
-	    return new AMDConstByte (left / right);
-	}
-	else if (op.op == Tokens.LEFTD) return new AMDConstByte (left << right);
-	else if (op.op == Tokens.RIGHTD) return new AMDConstByte (left >> right);
-	else if (op.op == Tokens.XOR) return new AMDConstByte (left ^ right);
-	else if (op.op == Tokens.SUP) return new AMDConstByte (left > right);
-	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstByte (left >= right);
-	else if (op.op == Tokens.INF) return new AMDConstByte (left < right);
-	else if (op.op == Tokens.INF_EQUAL) return new AMDConstByte (left <= right);
-	else if (op.op == Tokens.DEQUAL) return new AMDConstByte (left == right);
-	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstByte (left != right);
-	else assert (false, "TODO " ~ op.op.descr);
-    }
-
     private AMDConst resolveFromDouble (LBinop op, double left, double right) {
 	if (op.op == Tokens.PLUS) return new AMDConstDouble (left + right);
 	else if (op.op == Tokens.MINUS) return new AMDConstDouble (left - right);
@@ -732,90 +681,60 @@ class AMDVisitor : TVisitor {
 	else assert (false, "TODO " ~ op.op.descr);
     }
     
-    private AMDConst resolveFromDWord (LBinop op, long left, long right) {
-	if (op.op == Tokens.PLUS) return new AMDConstDWord (left + right);
-	else if (op.op == Tokens.MINUS) return new AMDConstDWord (left - right);
-	else if (op.op == Tokens.AND) return new AMDConstDWord (left & right);
-	else if (op.op == Tokens.PIPE) return new AMDConstDWord (left | right);
-	else if (op.op == Tokens.STAR) return new AMDConstDWord (left * right);
+    private AMDConst resolveFromDecimal (LBinop op, long left, long right, AMDSize size) {
+	if (op.op == Tokens.PLUS) return new AMDConstDecimal (left + right, size);
+	else if (op.op == Tokens.MINUS) return new AMDConstDecimal (left - right, size);
+	else if (op.op == Tokens.AND) return new AMDConstDecimal (left & right, size);
+	else if (op.op == Tokens.PIPE) return new AMDConstDecimal (left | right, size);
+	else if (op.op == Tokens.STAR) return new AMDConstDecimal (left * right, size);
 	else if (op.op == Tokens.DIV) {
 	    if (right == 0) throw new FloatingPointException (op.locus);
-	    return new AMDConstDWord (left / right);
+	    return new AMDConstDecimal (left / right, size);
 	}
-	else if (op.op == Tokens.LEFTD) return new AMDConstDWord (left << right);
-	else if (op.op == Tokens.RIGHTD) return new AMDConstDWord (left >> right);
-	else if (op.op == Tokens.XOR) return new AMDConstDWord (left ^ right);
-	else if (op.op == Tokens.SUP) return new AMDConstDWord (left > right);
-	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstDWord (left >= right);
-	else if (op.op == Tokens.INF) return new AMDConstDWord (left < right);
-	else if (op.op == Tokens.INF_EQUAL) return new AMDConstDWord (left <= right);
-	else if (op.op == Tokens.DEQUAL) return new AMDConstDWord (left == right);
-	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstDWord (left != right);
-	else assert (false, "TODO " ~ op.op.descr);
-    }    
-
-    private AMDConst resolveFromQWord (LBinop op, long left, long right) {
-	if (op.op == Tokens.PLUS) return new AMDConstQWord (left + right);
-	else if (op.op == Tokens.MINUS) return new AMDConstQWord (left - right);
-	else if (op.op == Tokens.AND) return new AMDConstQWord (left & right);
-	else if (op.op == Tokens.PIPE) return new AMDConstQWord (left | right);
-	else if (op.op == Tokens.STAR) return new AMDConstQWord (left * right);
-	else if (op.op == Tokens.DIV) {
-	    if (right == 0) throw new FloatingPointException (op.locus);
-	    return new AMDConstQWord (left / right);
-	}
-	else if (op.op == Tokens.LEFTD) return new AMDConstQWord (left << right);
-	else if (op.op == Tokens.RIGHTD) return new AMDConstQWord (left >> right);
-	else if (op.op == Tokens.XOR) return new AMDConstQWord (left ^ right);
-	else if (op.op == Tokens.SUP) return new AMDConstQWord (left > right);
-	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstQWord (left >= right);
-	else if (op.op == Tokens.INF) return new AMDConstQWord (left < right);
-	else if (op.op == Tokens.INF_EQUAL) return new AMDConstQWord (left <= right);
-	else if (op.op == Tokens.DEQUAL) return new AMDConstQWord (left == right);
-	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstQWord (left != right);
+	else if (op.op == Tokens.LEFTD) return new AMDConstDecimal (left << right, size);
+	else if (op.op == Tokens.RIGHTD) return new AMDConstDecimal (left >> right, size);
+	else if (op.op == Tokens.XOR) return new AMDConstDecimal (left ^ right, size);
+	else if (op.op == Tokens.SUP) return new AMDConstDecimal (left > right, size);
+	else if (op.op == Tokens.SUP_EQUAL) return new AMDConstDecimal (left >= right, size);
+	else if (op.op == Tokens.INF) return new AMDConstDecimal (left < right, size);
+	else if (op.op == Tokens.INF_EQUAL) return new AMDConstDecimal (left <= right, size);
+	else if (op.op == Tokens.DEQUAL) return new AMDConstDecimal (left == right, size);
+	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstDecimal (left != right, size);
 	else assert (false, "TODO " ~ op.op.descr);
     }    
     
-    override protected TInstPaire visitConstByte (LConstByte val) {
-	return new TInstPaire (new AMDConstByte (val.value), new TInstList);
+    override protected TInstPaire visitConstUDecimal (LConstUDecimal val) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstUDecimal (val.value * (getSize (val.mult).size), getSize (val.size)), new TInstList);	   
+	} else {
+	    return new TInstPaire (new AMDConstUDecimal (val.value, getSize (val.size)), new TInstList);
+	}
     }
 
-    override protected TInstPaire visitConstByte (LConstByte val, TExp) {
-	return visitConstByte (val);
+    override protected TInstPaire visitConstDecimal (LConstDecimal val) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstDecimal (val.value * (getSize (val.mult).size), getSize (val.size)), new TInstList);	   
+	} else {
+	    return new TInstPaire (new AMDConstDecimal (val.value, getSize (val.size)), new TInstList);
+	}
     }
     
-    override protected TInstPaire visitConstWord (LConstWord) {
-	assert (false, "TODO");
+    override protected TInstPaire visitConstUDecimal (LConstUDecimal val, TExp) {
+	if (val.mult != LSize.NONE) {
+	    return new TInstPaire (new AMDConstUDecimal (val.value * (getSize (val.mult).size), getSize (val.size)), new TInstList);	   
+	} else {
+	    return new TInstPaire (new AMDConstUDecimal (val.value, getSize (val.size)), new TInstList);
+	}
     }
 
-    override protected TInstPaire visitConstDWord (LConstDWord val, TExp) {
+    override protected TInstPaire visitConstDecimal (LConstDecimal val, TExp) {
 	if (val.mult != LSize.NONE) {
-	    return new TInstPaire (new AMDConstDWord (val.value * (getSize (val.mult).size)), new TInstList);
+	    return new TInstPaire (new AMDConstDecimal (val.value * (getSize (val.mult).size), getSize (val.size)), new TInstList);	   
+	} else {
+	    return new TInstPaire (new AMDConstDecimal (val.value, getSize (val.size)), new TInstList);
 	}
-	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
     }
 
-    override protected TInstPaire visitConstDWord (LConstDWord val) {
-	if (val.mult != LSize.NONE) {
-	    return new TInstPaire (new AMDConstDWord (val.value * (getSize (val.mult).size)), new TInstList);
-	}
-	return new TInstPaire (new AMDConstDWord (val.value), new TInstList);	
-    }
-
-    override protected TInstPaire visitConstQWord (LConstQWord val) {
-	if (val.mult != LSize.NONE) {
-	    return new TInstPaire (new AMDConstQWord (val.value * (getSize (val.mult).size)), new TInstList);
-	}
-	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
-    }
-
-    override protected TInstPaire visitConstQWord (LConstQWord val, TExp) {
-	if (val.mult != LSize.NONE) {
-	    return new TInstPaire (new AMDConstQWord (val.value * (getSize (val.mult).size)), new TInstList);
-	}
-	return new TInstPaire (new AMDConstQWord (val.value), new TInstList);
-    }
-    
     override protected TInstPaire visitConstFloat (LConstFloat) {
 	assert (false, "TODO");
     }

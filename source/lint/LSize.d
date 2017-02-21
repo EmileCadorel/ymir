@@ -5,10 +5,14 @@ alias LSizeTuple = Tuple!(string, "value", int, "id");
 
 enum LSize : LSizeTuple {
     BYTE = LSizeTuple ("byte", 1),
-    SHORT = LSizeTuple ("word", 2),
-    INT = LSizeTuple ("int", 3),
-    LONG = LSizeTuple ("long", 4),
-    FLOAT = LSizeTuple ("float", 5),
-    DOUBLE = LSizeTuple ("double", 6),
-    NONE = LSizeTuple ("none", 7)
+    UBYTE = LSizeTuple ("ubyte", 2),
+    SHORT = LSizeTuple ("word", 3),
+    USHORT = LSizeTuple ("uword", 4),
+    INT = LSizeTuple ("int", 5),
+    UINT = LSizeTuple ("uint", 6),
+    LONG = LSizeTuple ("long", 7),
+    ULONG = LSizeTuple ("ulong", 8),
+    FLOAT = LSizeTuple ("float", 9),
+    DOUBLE = LSizeTuple ("double", 10),
+    NONE = LSizeTuple ("none", 11)
 }
