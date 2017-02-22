@@ -1,8 +1,12 @@
 import std.stdio;
 
+extern (C) scanf (str : ptr!char, a : ref!int);
+
 
 def main () {
-    println (1s);
+    let a = 1;
+    scanf (("%d").ptr, a);
+    println (a);
 }
 
 

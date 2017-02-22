@@ -1,0 +1,61 @@
+import std.conv;
+import std.stdio;
+
+public extern (C) socket (domain : int, type : int, protocol : int) : int;
+extern (C) perror (text : ptr!char);
+
+extern (C) my_bind (sock : int, family : int, port : int, s_addr : int) : int;
+public extern (C) listen (sock : int, nb : int) : int;
+extern (C) my_accept (sock : int, addr : ptr!(ptr!char), port : ptr!int) : int;
+extern (C) printf (str : ptr!char, ...);
+extern (C) send (sock : int, msg : ptr!char, len : ulong, flags : int);
+public extern (C) close (what : int);
+
+extern (C) recv (sock : int, buf : ptr!void, len : uint, flags : int) : uint;
+extern (C) malloc (size : uint) : ptr!void;
+extern (C) free (a : ptr!void);
+
+struct
+| family : int
+| port : int
+| s_addr : int
+-> sockaddr_in;
+
+
+def perror (str : string) {
+    perror (str.ptr);
+}
+
+def bind (sock : ref!int, self : sockaddr_in) : int {
+    return my_bind (sock, self.family, self.port, self.s_addr);
+}
+
+def accept (sock : ref!int, addr : ref!string, port : ref!int) : int {
+    let s_addr = ptr!(char).init, s_port = int.init;
+    let clientfd = my_accept (sock, &s_addr, &s_port);
+    port = s_port;
+    addr = toString (s_addr);
+    return clientfd;
+}
+
+def send (sock : int, msg : string) {
+    send (sock, msg.ptr, msg.length, 0);
+}
+
+def recv (sock : int, msg : ref!string) : uint {
+    let str = malloc (1024u * char.sizeof);
+    let len = recv (sock, str, 1024u, 0);
+    if (len > 0u)
+	msg = toString (cast:ptr!(char)(str));
+    free (str);
+    return len;
+}
+
+def recv (sock : int, msg : ref!string, len : uint) {
+    let str = malloc (len * char.sizeof);
+    len = recv (sock, str, len, 0);
+    if (len > 0u) 
+	msg = toString (cast:ptr!(char)(str));
+    free (str);
+    return len;
+}

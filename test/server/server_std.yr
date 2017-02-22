@@ -1,0 +1,41 @@
+import std.socket;
+import std.stdio, std.stdlib;
+
+def main () {
+    srand (time (0));    
+    let MY_PORT = (rand () % 1000) + 8888;
+    println (MY_PORT);
+    let AF_INET = 2, SOCK_STREAM = 1, INADDR_ANY = 0;
+    let sockfd = socket (AF_INET, SOCK_STREAM, 0);
+    
+    if (sockfd < 0) {
+	perror ("Socket");
+	return -1;
+    }
+
+    if (bind (sockfd, sockaddr_in (AF_INET, MY_PORT, INADDR_ANY)) != 0) {
+	perror ("Bind");
+	return -1;
+    }
+    
+    if (listen (sockfd, 5) != 0) {
+	perror ("Listen");
+	return -1;	
+    }
+
+    let addr = "", port = int.init, msg = "";
+    let i = 0;
+    while (i < 5) {
+	let clientfd = accept (sockfd, addr, port);
+	println ("Connecté :", addr, ":", port);
+	send (clientfd, "Hello !!");
+
+	let len = recv (clientfd, msg);
+	println (msg);
+	
+	close (clientfd);
+	i ++;
+    }
+    
+    return 0;    
+}

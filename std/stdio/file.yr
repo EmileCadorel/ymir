@@ -33,7 +33,7 @@ def fread (file : File, len : uint) : string {
     len = fread (str, char.sizeof, len, file.content);
     let ret = '';
     if (len > 0u) 
-	ret = string (str);
+	ret = toString (str);
     
     free (str);    
     return ret;

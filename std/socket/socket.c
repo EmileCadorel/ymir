@@ -1,5 +1,6 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <strings.h>
 
 int my_bind (int socket, int family, int port, int s_addr) {
     struct sockaddr_in self;
