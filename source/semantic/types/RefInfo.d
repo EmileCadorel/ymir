@@ -3,7 +3,7 @@ import semantic.types.InfoType, utils.exception;
 import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.RefUtils, syntax.Keys;
-import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import ast.ParamList, semantic.types.StructInfo;
 

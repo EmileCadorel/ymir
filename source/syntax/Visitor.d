@@ -741,9 +741,7 @@ class Visitor {
 
     private Expression visitLeftOp () {
 	auto word = this._lex.next ();
-	if (word == Keys.SYSTEM) {
-	    return visitSystem ();
-	} else if (word == Keys.CAST) {
+	if (word == Keys.CAST) {
 	    return visitCast ();
 	} else if (word == Tokens.LCRO) {
 	    return visitConstArray ();
@@ -830,25 +828,6 @@ class Visitor {
 	return new FuncPtr (begin, params, ret);
     }
     
-    private Expression visitSystem () {
-	auto word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	auto id = visitIdentifiant ();
-	word = this._lex.next ();
-	Array!Expression exprs;
-	if (word != Tokens.RPAR) {
-	    if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RPAR.descr]);
-	    while (true) {
-		exprs.insertBack (visitExpression ());
-		word = this._lex.next ();
-		if (word == Tokens.RPAR) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word,
-								     [Tokens.RPAR.descr,
-								      Tokens.COMA.descr]);
-	    }
-	}
-	return new System (id, exprs);
-    }
     
     private Expression visitSuite (Word token, Expression left) {
 	if (token == Tokens.LPAR) return visitPar (left);

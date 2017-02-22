@@ -437,9 +437,9 @@ class StringUtils {
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
 	inst += llist + rlists.back ();
 	auto elem = new LBinop (new LConstDecimal (3, LSize.LONG, LSize.LONG),
-			    new LBinop (leftExp, new LCast (rightExp, LSize.LONG),
-					Tokens.PLUS),
-			    Tokens.PLUS);
+				new LBinop (leftExp, new LCast (rightExp, LSize.ULONG),
+					    Tokens.PLUS),
+				Tokens.PLUS);
 	
 	inst += new LRegRead (elem, new LConstDecimal (0, LSize.INT), LSize.BYTE);
 	return inst;
@@ -453,9 +453,9 @@ class StringUtils {
 	auto leftExp = list.getFirst ();
 	inst += list;
 	if (auto str = (cast(LConstString) leftExp)) {
-	    inst += new LConstDecimal (str.value.length, LSize.LONG);
+	    inst += new LConstDecimal (str.value.length, LSize.ULONG);
 	} else {
-	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG);
+	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.ULONG);
 	}
 	return inst;
     }
@@ -480,9 +480,9 @@ class StringUtils {
 	auto leftExp = list.getFirst ();
 	inst += list;
 	if (auto str = (cast(LConstString) leftExp)) {
-	    inst += new LConstDecimal (0, LSize.LONG);
+	    inst += new LConstDecimal (0, LSize.ULONG);
 	} else {
-	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
+	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.ULONG);
 	}
 	return inst;
     }

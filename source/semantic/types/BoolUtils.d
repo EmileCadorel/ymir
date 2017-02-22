@@ -1,7 +1,7 @@
 module semantic.types.BoolUtils;
 import ast.Expression, lint.LWrite, lint.LInstList;
 import lint.LBinop, syntax.Tokens, lint.LCast;
-import semantic.types.IntInfo, lint.LUnop, lint.LAddr;
+import lint.LUnop, lint.LAddr;
 import lint.LConst, lint.LSize;
 import ast.Constante, lint.LVisitor, syntax.Word;
 import semantic.types.InfoType, ast.Var;
@@ -81,19 +81,13 @@ class BoolUtils {
     static LInstList InstCastChar (LInstList llist) {
 	return llist;
     }
-
-    /**
-     Opérateur de cast vers un int du type bool.
-     Params:
-     llist = les instructions de l'élément
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList InstCastInt (LInstList llist) {
-	auto list = new LInstList;
-	auto first = llist.getFirst ();
-	list += llist;
-	list += new LCast (first, LSize.INT);
-	return list;
+    
+    static LInstList InstCast (DecimalConst size) (LInstList llist) {
+	auto inst = new LInstList;
+	auto left = llist.getFirst;
+	inst += llist;
+	inst += new LCast (left, fromDecimalConst (size));
+	return inst;
     }
 
     /**
@@ -126,7 +120,7 @@ class BoolUtils {
      */
     static LInstList BoolSize (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstDecimal (1, LSize.INT, LSize.BYTE);
+	inst += new LConstDecimal (1, LSize.UBYTE, LSize.BYTE);
 	return inst;
     }
 

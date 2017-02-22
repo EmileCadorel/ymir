@@ -503,6 +503,7 @@ class AMDVisitor : TVisitor {
     
     private AMDObj convToSize (AMDSize size, AMDObj elem) {	
 	if (auto dec = cast (AMDConstDecimal) elem) return new AMDConstDecimal (dec.value, size);
+	else if (auto udec = cast (AMDConstUDecimal) elem) return new AMDConstUDecimal (udec.value, size);
 	else assert (false);
     }
     

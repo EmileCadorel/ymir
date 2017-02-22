@@ -3,13 +3,14 @@ import semantic.types.InfoType, utils.exception;
 import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.ArrayUtils, syntax.Keys;
-import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.BoolInfo;
 import semantic.types.UndefInfo;
 import ast.ParamList, semantic.types.StringInfo, semantic.types.CharInfo;
 import lint.LSize, semantic.types.ClassUtils;
-import semantic.types.LongInfo, semantic.types.StructInfo;
+import semantic.types.StructInfo;
 import semantic.types.NullInfo;
 import std.container, semantic.types.RefInfo;
+import semantic.types.DecimalInfo, ast.Constante;
 
 
 /**
@@ -289,7 +290,7 @@ class ArrayInfo : InfoType {
      Returns: le type résultat de 'array.nbRef'.
      */
     private InfoType NbRef () {
-	auto l = new LongInfo ();
+	auto l = new DecimalInfo (DecimalConst.ULONG);
 	l.lintInst = &ArrayUtils.InstNbRef;
 	return l;
     }
@@ -299,7 +300,7 @@ class ArrayInfo : InfoType {
      */
     private InfoType Length () {
 	if (cast (VoidInfo) this._content) return null; 
-	auto elem = new LongInfo ();
+	auto elem = new DecimalInfo (DecimalConst.ULONG);
 	elem.lintInst = &ArrayUtils.InstLength;
 	return elem;
     }
@@ -321,7 +322,7 @@ class ArrayInfo : InfoType {
      Returns: Le type résultat ou null.
      */
     private InfoType Access (Expression expr) {
-	if (cast (IntInfo) expr.info.type || cast (LongInfo) expr.info.type) {
+	if (auto ot = cast (DecimalInfo) expr.info.type) {
 	    auto ch = this._content.clone ();
 	    switch (ch.size.id) {
 	    case LSize.BYTE.id: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.BYTE); break;

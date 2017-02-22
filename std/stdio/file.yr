@@ -1,13 +1,13 @@
 import std.conv;
 
 extern (C) fopen (name : ptr!char, mode : ptr!char) : ptr!void;
-extern (C) fread (buf : ptr!char, size : int, len : int, file : ptr!void) : int;
-extern (C) fwrite (buf : ptr!char, size : int, len : int, file : ptr!void);
+extern (C) fread (buf : ptr!char, size : uint, len : ulong, file : ptr!void) : uint;
+extern (C) fwrite (buf : ptr!char, size : uint, len : ulong, file : ptr!void);
 extern (C) fclose (file : ptr!void);
 
 extern (C) getenv (name : ptr!char) : ptr!char;
 extern (C) printf (str : ptr!char, ...); 
-extern (C) malloc (size : int) : ptr!void;
+extern (C) malloc (size : uint) : ptr!void;
 extern (C) free (a : ptr!void);
 extern (C) free (a : ptr!char);
 
@@ -28,11 +28,11 @@ def fclose (file : File) {
     }
 }
 
-def fread (file : File, len : int) : string {
+def fread (file : File, len : uint) : string {
     let str = cast:ptr!(char) (malloc (len * char.sizeof));
     len = fread (str, char.sizeof, len, file.content);
     let ret = '';
-    if (len > 0) 
+    if (len > 0u) 
 	ret = string (str);
     
     free (str);    

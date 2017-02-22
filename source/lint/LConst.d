@@ -12,7 +12,7 @@ abstract class LConst : LExp {
 class LConstDecimal : LConst {
     private long _value;
     private LSize _size;
-    private LSize _mult;
+    private LSize _mult = LSize.NONE;
     
     this (long value, LSize size) {
 	this._value = value;
@@ -49,7 +49,7 @@ class LConstDecimal : LConst {
 class LConstUDecimal : LConst {
     private ulong _value;
     private LSize _size;
-    private LSize _mult;
+    private LSize _mult = LSize.NONE;
     
     this (ulong value, LSize size) {
 	this._value = value;

@@ -7,7 +7,7 @@ extern (C) my_bind (sock : int, family : int, port : int, s_addr : int) : int;
 extern (C) listen (sock : int, nb : int) : int;
 extern (C) my_accept (sock : int, addr : ptr!(ptr!char), port : ptr!int) : int;
 extern (C) printf (str : ptr!char, ...);
-extern (C) send (sock : int, msg : ptr!char, len : int, flags : int);
+extern (C) send (sock : int, msg : ptr!char, len : ulong, flags : int);
 extern (C) close (what : int);
 
 extern (C) rand () : int;

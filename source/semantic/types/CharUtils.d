@@ -5,6 +5,7 @@ import lint.LExp, lint.LReg, lint.LCast;
 import semantic.types.CharInfo, lint.LVisitor;
 import syntax.Word, ast.Constante;
 import lint.LConst;
+import ast.Constante;
 
 /**
  Cette classe regroupe toutes les fonctions nécéssaire à la transformation du type char en lint.
@@ -182,7 +183,7 @@ class CharUtils {
     */    
     static LInstList CharSizeOf (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstDecimal (1, LSize.INT, CharInfo.sizeOf);
+	inst += new LConstDecimal (1, LSize.UBYTE, CharInfo.sizeOf);
 	return inst;
     }
     
@@ -212,11 +213,11 @@ class CharUtils {
 	return inst;
     }
 
-    static LInstList InstCastInt (LInstList llist) {
+    static LInstList InstCast (DecimalConst size) (LInstList llist) {
 	auto inst = new LInstList;
 	auto left = llist.getFirst;
 	inst += llist;
-	inst += new LCast (left, LSize.INT);
+	inst += new LCast (left, fromDecimalConst (size));
 	return inst;
     }
     

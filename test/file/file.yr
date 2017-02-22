@@ -7,16 +7,16 @@ extern (C) fclose (file : ptr!void);
 
 extern (C) getenv (name : ptr!char) : ptr!char;
 extern (C) printf (str : ptr!char, ...); 
-extern (C) malloc (size : int) : ptr!void;
+extern (C) malloc (size : uint) : ptr!void;
 extern (C) free (a : ptr!void);
 extern (C) free (a : ptr!char);
 
 def string (a : ptr!char) : string {
     if (a is null) return '';
-    else if (*a == 0) return ''; 
+    else if (*a == 0ub) return ''; 
     let ret = [*a];
     a = a + 1;
-    while (*a != 0) {
+    while (*a != 0ub) {
 	ret += [*a];
 	a = a + 1;
     }
@@ -29,7 +29,7 @@ def main () {
 
     let file = fopen (("Makefile").ptr, ("r").ptr);
 
-    let str = cast:ptr!(char) (malloc (1024 * char.sizeof));
+    let str = cast:ptr!(char) (malloc (1024u * char.sizeof));
     let len = fread (str, 1, 1024, file);
     let real = string (str);
     println (real);

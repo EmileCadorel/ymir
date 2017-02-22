@@ -1,38 +1,17 @@
-extern (C) putchar (c : char);
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def println (i) {
-    print (i);
-    print ('\n');
-}
+import std.stdio;
 
 def fibo (n : int) {
     if (n < 2) return n;
-    else {
-	return fibo (n - 1) + fibo (n - 2);
-    }
+    else return fibo (n - 1) + fibo (n - 2);    
 }
 
 def main () {
     let i = 0;
-    while i < 10 {
-	    print (i);
-	    println (':');
-	    let a = fibo (i);
-	    println (a);
-	    i++;
-	}
+    while (i < 10) {
+	print (i);
+	println (':');
+	let a = fibo (i);
+	println (a);
+	i++;
+    }
 }

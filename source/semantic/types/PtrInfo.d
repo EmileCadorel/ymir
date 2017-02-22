@@ -3,12 +3,12 @@ import semantic.types.InfoType, utils.exception;
 import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
 import semantic.types.PtrUtils, syntax.Keys;
-import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.StringInfo;
 import semantic.types.StructInfo;
 import semantic.types.NullInfo;
-
+import semantic.types.DecimalInfo;
 
 /**
  Classe contenant les informations sur un type pointeur.
@@ -153,12 +153,16 @@ class PtrInfo : InfoType {
      Bugs: ne marche pas avec les long.
      */
     private InfoType Plus (Expression right) {
-	if (cast (IntInfo) right.info.type) {
+	if (cast (DecimalInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.BYTE, Tokens.PLUS);
+	    else if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UBYTE, Tokens.PLUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.SHORT, Tokens.PLUS);
+	    else if (this._content.size == LSize.USHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.USHORT, Tokens.PLUS);
 	    else if (this._content.size == LSize.INT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.INT, Tokens.PLUS);
+	    else if (this._content.size == LSize.UINT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UINT, Tokens.PLUS);
 	    else if (this._content.size == LSize.LONG)  ptr.lintInst = &PtrUtils.InstOp !(LSize.LONG, Tokens.PLUS);
+	    else if (this._content.size == LSize.ULONG)  ptr.lintInst = &PtrUtils.InstOp !(LSize.ULONG, Tokens.PLUS);
 	    else if (this._content.size == LSize.FLOAT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.FLOAT, Tokens.PLUS);
 	    else if (this._content.size == LSize.DOUBLE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.DOUBLE, Tokens.PLUS);
 	    else return null;
@@ -175,12 +179,16 @@ class PtrInfo : InfoType {
      Bugs: ne marche pas avec les long.
      */
     private InfoType Sub (Expression right) {
-	if (cast (IntInfo) right.info.type) {
+	if (cast (DecimalInfo) right.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.BYTE, Tokens.MINUS);
+	    else if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UBYTE, Tokens.MINUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.SHORT, Tokens.MINUS);
+	    else if (this._content.size == LSize.USHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.USHORT, Tokens.MINUS);
 	    else if (this._content.size == LSize.INT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.INT, Tokens.MINUS);
+	    else if (this._content.size == LSize.UINT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UINT, Tokens.MINUS);
 	    else if (this._content.size == LSize.LONG)  ptr.lintInst = &PtrUtils.InstOp !(LSize.LONG, Tokens.MINUS);
+	    else if (this._content.size == LSize.ULONG)  ptr.lintInst = &PtrUtils.InstOp !(LSize.ULONG, Tokens.MINUS);
 	    else if (this._content.size == LSize.FLOAT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.FLOAT, Tokens.MINUS);
 	    else if (this._content.size == LSize.DOUBLE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.DOUBLE, Tokens.MINUS);
 	    else return null;
@@ -197,12 +205,16 @@ class PtrInfo : InfoType {
      Bugs: ne marche pas avec les long.
      */
     private InfoType PlusRight (Expression left) {
-	if (cast (IntInfo) left.info.type) {
+	if (cast (DecimalInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.BYTE, Tokens.PLUS);
+	    if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UBYTE, Tokens.PLUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.SHORT, Tokens.PLUS);
+	    else if (this._content.size == LSize.USHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.USHORT, Tokens.PLUS);
 	    else if (this._content.size == LSize.INT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.INT, Tokens.PLUS);
+	    else if (this._content.size == LSize.UINT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UINT, Tokens.PLUS);
 	    else if (this._content.size == LSize.LONG)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.LONG, Tokens.PLUS);
+	    else if (this._content.size == LSize.ULONG)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.ULONG, Tokens.PLUS);
 	    else if (this._content.size == LSize.FLOAT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.FLOAT, Tokens.PLUS);
 	    else if (this._content.size == LSize.DOUBLE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.DOUBLE, Tokens.PLUS);
 	    else return null;
@@ -219,12 +231,16 @@ class PtrInfo : InfoType {
      Bugs: ne marche pas avec les long.
      */
     private InfoType SubRight (Expression left) {
-	if (cast (IntInfo) left.info.type) {
+	if (cast (DecimalInfo) left.info.type) {
 	    auto ptr = new PtrInfo (this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.BYTE, Tokens.MINUS);
+	    if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UBYTE, Tokens.MINUS);
 	    if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.SHORT, Tokens.MINUS);
+	    if (this._content.size == LSize.USHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.USHORT, Tokens.MINUS);
 	    if (this._content.size == LSize.INT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.INT, Tokens.MINUS);
+	    if (this._content.size == LSize.UINT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UINT, Tokens.MINUS);
 	    if (this._content.size == LSize.LONG)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.LONG, Tokens.MINUS);
+	    if (this._content.size == LSize.ULONG)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.ULONG, Tokens.MINUS);
 	    if (this._content.size == LSize.FLOAT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.FLOAT, Tokens.MINUS);
 	    if (this._content.size == LSize.DOUBLE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.DOUBLE, Tokens.MINUS);
 	    return ptr;
@@ -279,9 +295,13 @@ class PtrInfo : InfoType {
 	else if (cast (VoidInfo) this._content) return null;
 	auto ret = this._content.clone ();
 	if (this._content.size == LSize.BYTE)  ret.lintInstS.insertBack(&PtrUtils.InstUnref!(LSize.BYTE));
+	else if (this._content.size == LSize.UBYTE)  ret.lintInstS.insertBack(&PtrUtils.InstUnref!(LSize.UBYTE));
 	else if (this._content.size == LSize.SHORT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.SHORT));
+	else if (this._content.size == LSize.USHORT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.USHORT));
 	else if (this._content.size == LSize.INT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.INT));
+	else if (this._content.size == LSize.UINT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.UINT));
 	else if (this._content.size == LSize.LONG)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.LONG));
+	else if (this._content.size == LSize.ULONG)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.ULONG));
 	else if (this._content.size == LSize.FLOAT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.FLOAT));
 	else if (this._content.size == LSize.DOUBLE)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.DOUBLE));
 	else return null;
@@ -309,9 +329,13 @@ class PtrInfo : InfoType {
 	    auto type = var.asType ();
 	    auto ret = type.info.type;
 	    if (ret.size == LSize.BYTE)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.BYTE);
+	    else if (ret.size == LSize.UBYTE)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.UBYTE);
 	    else if (ret.size == LSize.SHORT)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.SHORT);
+	    else if (ret.size == LSize.USHORT)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.USHORT);
 	    else if (ret.size == LSize.INT)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.INT);
+	    else if (ret.size == LSize.UINT)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.UINT);
 	    else if (ret.size == LSize.LONG)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.LONG);
+	    else if (ret.size == LSize.ULONG)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.ULONG);
 	    else if (ret.size == LSize.FLOAT)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.FLOAT);
 	    else if (ret.size == LSize.DOUBLE)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.DOUBLE);
 	    else return null;
@@ -410,7 +434,7 @@ class PtrInfo : InfoType {
      Returns: la taille mémoire du type.
      */
     override LSize size () {
-	return LSize.LONG;
+	return LSize.ULONG;
     }
     
 }

@@ -1,56 +1,13 @@
-extern (C) putchar (c : char);
+import std.stdio;
 
-def print (i : long) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
+def print (a : array!char) {
+    print ('[');
+    for (it in 0ul .. a.length) {
+	print (a [it]);
+	if (it < a.length - 1u)
+	    print (', ');
     }
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def print (b : bool) {
-    if (b) print ('true');
-    else print ('false');
-}
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
-
-def println (i) {
-    print (i);
-    putchar ('\n');
-}
-
-def print (a) : void {
-    putchar ('[');
-    let i = 0;
-    while (i < a.length) {
-	print (a [i]);
-	if (i < a.length - 1) print (', ');
-	i++;
-    }
-    putchar(']');
-}
-
-def print (s : string) {
-    let i = 0;
-    while (i < s.length) {
-	print (s [i]);
-	i++;
-    }
+    print (']');
 }
 
 def main () {

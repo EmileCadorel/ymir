@@ -1,26 +1,4 @@
-
-def println (s : string) {
-    let i = 0;
-    while (i < s.length) {
-	system (print_c, s[i]);
-	i++;
-    }
-    system (print_c, '\n');
-}
-
-def print (c : char) {
-    system (print_c, c);
-}
-
-def print (i : int) : void {
-    if (i < 0) {
-	system (print_c, '-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
-    }
-}
+import std.stdio;
 
 def println (r : Tree, nb : int) : void {
     let i = 0;
@@ -28,9 +6,8 @@ def println (r : Tree, nb : int) : void {
 	print (' ');
 	i ++;
     }
-    print (r.key);
-    print (':');
-    println (r.value);
+    
+    println (r.key, ':', r.value);
     if (r.left !is null) println (r.left, nb + 4);
     if (r.right !is null) println (r.right, nb + 4);
 }

@@ -322,7 +322,6 @@ class LVisitor {
 	if (auto _dec = cast(Decimal)elem) return visitDec (_dec);
 	if (auto _float = cast(Float)elem) return visitFloat (_float);
 	if (auto _char = cast(Char) elem) return visitChar (_char);
-	if (auto _sys = cast (System)elem) return visitSystem (_sys);
 	if (auto _par = cast (Par) elem) return visitPar (_par);
 	if (auto _cast = cast(Cast) elem) return visitCast (_cast);
 	if (auto _str = cast(String) elem) return visitStr (_str);
@@ -529,19 +528,6 @@ class LVisitor {
 	return new LInstList (new LConstDouble (to!double (elem.totale)));
     }
 
-    private LInstList visitSystem (System sys) {
-	Array!LExp exprs;
-	LInstList list = new LInstList;
-	foreach (it ; sys.params) {
-	    auto elist = visitExpression (it);
-	    exprs.insertBack (elist.getFirst ());
-	    list += elist;
-	}
-	list += new LSysCall (sys.token.str, exprs);
-	return list;
-    }
-
-
     private void visitParamListMult (ref Array!LExp exprs, ref Array!LInstList rights, Array!InfoType treat, ParamList params) {
 	foreach (it ; 0 .. params.params.length) {
 	    Expression exp = params.params [it];
@@ -555,32 +541,25 @@ class LVisitor {
     }
 
     private LExp visitExpand (Expand expand, LExp tuple, ulong index) {
-	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble;
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 	auto type = cast (TupleInfo) expand.expr.info.type;
-	LExp size;
+	
 	foreach (it ; 0 .. index) {
 	    final switch (type.params [it].size.id) {
 	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.ULONG.id: nbUlong ++; break;
 	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.UINT.id: nbUint ++; break;
 	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.USHORT.id: nbUshort ++; break;
 	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.UBYTE.id: nbUbyte ++; break;
 	    case LSize.FLOAT.id: nbFloat ++; break;
 	    case LSize.DOUBLE.id: nbDouble ++; break;
 	    }	    
 	}
-	
-	size = new LBinop (new LConstDecimal (nbLong + 2, LSize.INT, LSize.LONG),
-			   new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
-				       new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
-						   new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
-							       new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
-									   new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
-									   Tokens.PLUS),
-							       Tokens.PLUS),
-						   Tokens.PLUS),
-				       Tokens.PLUS),
-			   Tokens.PLUS);
-	
+
+	auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	return new LRegRead (tuple, size, type.params[index].size);
     }
     

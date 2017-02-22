@@ -1,23 +1,11 @@
-
-extern (C) putchar (c : char);
+import std.stdio;
 
 def test (a : ref!string, b : string) {
     a = "salut";
     b = "comment";
 }
 
-def main () {
-
-    def println (str : string) {
-	let i = 0;
-	while (i < str.length) {
-	    putchar (str [i]);
-	    i ++;
-	}
-	putchar ('\n');
-    }
-    
-    
+def main () {       
     let a = 'comment', b = 'hehe';
     test (a, b);
     println (a);

@@ -482,7 +482,7 @@ class ArrayUtils {
 	inst += llist + rlists.back ();
 	auto elem = new LBinop (new LConstDecimal (3, LSize.LONG, LSize.LONG),
 				new LBinop (leftExp,
-					    new LBinop (new LCast (rightExp, LSize.LONG),
+					    new LBinop (new LCast (rightExp, LSize.ULONG),
 							new LConstDecimal (1, LSize.LONG, size),
 							Tokens.STAR),
 					    Tokens.PLUS),

@@ -1,10 +1,10 @@
 extern (C) putchar (c : char);
 
 def print (str : string) {
-    let i = 0;
+    let i = 0u;
     while (i < str.length) {
 	print (str [i]);
-	i += 1;
+	i += 1u;
     }    
 }
 
@@ -24,11 +24,11 @@ def toStr (i : int) : string {
     }
 
     while (i > 9) {
-	ret = toStr((i%10) + '0') + ret;
+	ret = toStr(cast:char(i % 10) + '0') + ret;
 	i /= 10;
     }
 
-    ret = toStr((i%10) + '0') + ret;
+    ret = toStr(cast:char(i % 10) + '0') + ret;
 
     if (inf) return "-" + ret;        
     return ret;
@@ -40,18 +40,38 @@ def toStrReq (i : int) : string {
     } else {
 	let ret = '';
 	if (i > 9) ret = toStrReq (i / 10);
-	return ret + toStr ((i%10) + '0');
+	return ret + toStr (cast:char(i%10) + '0');
     }
 }
 
 
+def print (i : ulong) : void {
+    if (i < 0ul) {
+	putchar ('-');
+	print (- i);
+    } else {
+	if (i > 9ul) print (i / 10ul);
+	putchar (cast:char(i % 10ul) + '0');
+    }
+}
+
+def print (i : long) : void {
+    if (i < 0l) {
+	putchar ('-');
+	print (- i);
+    } else {
+	if (i > 9l) print (i / 10l);
+	putchar (cast:char(i % 10l) + '0');
+    }
+}
+
 def print (i : int) : void {
     if (i < 0) {
-	system (print_c, '-');
+	putchar ('-');
 	print (- i);
     } else {
 	if (i > 9) print (i / 10);
-	system (print_c, (i%10) + '0');
+	putchar (cast:char(i % 10) + '0');
     }
 }
 
@@ -61,12 +81,12 @@ def println (s) {
 }
 
 def print (arr) {
-    let i = 0;
+    let i = 0ul;
     print ('[');
     while (i < arr.length) {
 	print (arr [i]);
-	if (i < arr.length - 1) print(", ");
-	i += 1;
+	if (i < arr.length - 1ul) print(", ");
+	i += 1u;
     }
     print (']');
 }

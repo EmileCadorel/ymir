@@ -1,28 +1,33 @@
 module ast.Constante;
 import ast.Expression, std.stdio;
 import syntax.Word, semantic.pack.Symbol, syntax.Keys;
-import semantic.types.IntInfo, semantic.types.CharInfo, semantic.types.BoolInfo;
+import semantic.types.CharInfo, semantic.types.BoolInfo;
 import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrInfo;
 import std.stdio, std.string, utils.exception, std.conv;
 import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
-import semantic.types.LongInfo, semantic.types.UndefInfo;
+import semantic.types.DecimalInfo, semantic.types.UndefInfo;
 import ast.Var;
 import semantic.types.NullInfo;
 import std.typecons;
 
-alias DecType = Tuple!(string, "name", int, "id");
+alias DecType = Tuple!(string, "name", string, "sname", int, "id");
 
 enum DecimalConst : DecType {
-    BYTE = DecType ("byte", 0),
-    UBYTE = DecType ("ubyte", 1),
-    SHORT = DecType ("short", 2),
-    USHORT = DecType ("ushort", 3),
-    INT = DecType ("int", 4),
-    UINT = DecType ("uint", 5),
-    LONG = DecType ("long", 6),
-    ULONG = DecType ("ulong", 7)
+    BYTE = DecType ("byte", "bd", 0),
+    UBYTE = DecType ("ubyte", "ub", 1),
+    SHORT = DecType ("short", "sd", 2),
+    USHORT = DecType ("ushort", "us", 3),
+    INT = DecType ("int", "i", 4),
+    UINT = DecType ("uint", "ui", 5),
+    LONG = DecType ("long", "l", 6),
+    ULONG = DecType ("ulong", "ul", 7)
 }
+
+bool isSigned (DecimalConst dec) {
+    return dec.id % 2 == 0;
+}
+
 
 /**
  Example : 
@@ -45,16 +50,7 @@ class Decimal : Expression {
      */
     override Expression expression () {
 	auto aux = new Decimal (this._token, this._type);
-	final switch (this._type.id) {
-	case DecimalConst.BYTE.id : assert (false); // aux.info = new Symbol (this._token, new ByteInfo ()); break;
-	case DecimalConst.UBYTE.id : assert (false); // aux.info = new Symbol (this._token, new UByteInfo ()); break;
-	case DecimalConst.SHORT.id : assert (false); // aux.info = new Symbol (this._token, new ShortInfo ()); break;
-	case DecimalConst.USHORT.id : assert (false); // aux.info = new Symbol (this._token, new UShortInfo ()); break;
-	case DecimalConst.INT.id : aux.info = new Symbol (this._token, new IntInfo ()); break;
-	case DecimalConst.UINT.id : assert (false); // aux.info = new Symbol (this._token, new UIntInfo ()); break;
-	case DecimalConst.LONG.id : aux.info = new Symbol (this._token, new LongInfo ()); break;
-	case DecimalConst.ULONG.id : assert (false); // aux.info = new Symbol (this._token, new ULongInfo ()); break;
-	}
+	aux.info = new Symbol (this._token, new DecimalInfo (this._type));
 	aux.info.isConst = true;
 	return aux;
     }

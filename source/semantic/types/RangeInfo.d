@@ -5,10 +5,11 @@ import semantic.types.BoolInfo;
 import syntax.Tokens, semantic.types.UndefInfo;
 import ast.Var, semantic.types.RangeUtils;
 import std.container, syntax.Keys;
-import semantic.types.LongInfo, semantic.types.IntInfo;
 import semantic.types.FloatInfo, semantic.types.CharInfo;
 import utils.exception, semantic.types.ClassUtils;
 import semantic.types.NullInfo;
+import semantic.types.DecimalInfo;
+import ast.Constante;
 
 /**
  Classe contenant les informations du type range.
@@ -79,8 +80,7 @@ class RangeInfo : InfoType {
 	    throw new UndefinedType (token, "prend un type primitif en template");
 	} else {
 	    auto type = templates [0].info.type;
-	    if (!(cast (FloatInfo)  type) && !(cast (IntInfo) type) &&
-		!(cast (CharInfo) type) && !(cast (LongInfo) type))
+	    if (!(cast (FloatInfo)  type)  && !(cast (CharInfo) type) && !(cast (DecimalInfo) type))
 		throw new UndefinedType (token, "prend un type primitif en template");
 	    auto arr = new RangeInfo (templates [0].info.type);
 	    return arr;
@@ -197,9 +197,13 @@ class RangeInfo : InfoType {
 	    auto ret = new BoolInfo ();
 	    final switch (this._content.size.id) {
 	    case LSize.BYTE.id: ret.lintInst =  (&RangeUtils.InstIn!(LSize.BYTE)); break;
+	    case LSize.UBYTE.id: ret.lintInst =  (&RangeUtils.InstIn!(LSize.UBYTE)); break;
 	    case LSize.SHORT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.SHORT)); break;
+	    case LSize.USHORT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.USHORT)); break;
 	    case LSize.INT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.INT)); break;
+	    case LSize.UINT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.UINT)); break;
 	    case LSize.LONG.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.LONG)); break;
+	    case LSize.ULONG.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.ULONG)); break;
 	    case LSize.FLOAT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.FLOAT)); break;
 	    case LSize.DOUBLE.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.DOUBLE)); break;
 	    }
@@ -228,9 +232,13 @@ class RangeInfo : InfoType {
 	auto cst = this._content.clone ();
 	final switch (cst.size.id) {
 	case LSize.BYTE.id: cst.lintInst =  (&RangeUtils.InstFst!(LSize.BYTE)); break;
+	case LSize.UBYTE.id: cst.lintInst =  (&RangeUtils.InstFst!(LSize.UBYTE)); break;
 	case LSize.SHORT.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.SHORT)); break;
+	case LSize.USHORT.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.USHORT)); break;
 	case LSize.INT.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.INT)); break;
+	case LSize.UINT.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.UINT)); break;
 	case LSize.LONG.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.LONG)); break;
+	case LSize.ULONG.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.ULONG)); break;
 	case LSize.FLOAT.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.FLOAT)); break;
 	case LSize.DOUBLE.id: cst.lintInst = (&RangeUtils.InstFst!(LSize.DOUBLE)); break;		    
 	}
@@ -246,9 +254,13 @@ class RangeInfo : InfoType {
 	auto cst = this._content.clone ();
 	final switch (cst.size.id) {
 	case LSize.BYTE.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.BYTE)); break;
+	case LSize.UBYTE.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.UBYTE)); break;
 	case LSize.SHORT.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.SHORT)); break;
+	case LSize.USHORT.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.USHORT)); break;
 	case LSize.INT.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.INT)); break;
+	case LSize.UINT.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.UINT)); break;
 	case LSize.LONG.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.LONG)); break;
+	case LSize.ULONG.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.ULONG)); break;
 	case LSize.FLOAT.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.FLOAT)); break;
 	case LSize.DOUBLE.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.DOUBLE)); break;		    
 	}
@@ -289,14 +301,14 @@ class RangeInfo : InfoType {
      Returns: La taille mémoire du type.
      */
     override LSize size () {
-	return LSize.LONG;
+	return LSize.ULONG;
     }
 
     /**
      Returns: la taille mémoire du type.
      */
     static LSize sizeOf () {
-	return LSize.INT;
+	return LSize.ULONG;
     }
 
     /**

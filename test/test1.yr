@@ -1,16 +1,8 @@
-import std.math;
 import std.stdio;
 
+
 def main () {
-    let file = fopen ("Makefile", "r");
-    let line = fread (file, 1024);
-
-    println (line);
-    
-    fclose (file);    
-    printf ("func : %.12f, cpu : %.12f\n", sqrt (1234, 7), (1234.).sqrt);
-
-    return 0;
+    println (1s);
 }
 
 

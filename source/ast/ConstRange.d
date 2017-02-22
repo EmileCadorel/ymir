@@ -5,11 +5,13 @@ import semantic.types.InfoType;
 import semantic.pack.Symbol;
 import syntax.Word;
 import ast.Var;
-import semantic.types.FloatInfo, semantic.types.IntInfo;
-import semantic.types.CharInfo, semantic.types.LongInfo;
+import semantic.types.FloatInfo;
+import semantic.types.CharInfo;
 import utils.exception;
 import std.stdio, std.string;
 import semantic.types.RangeInfo;
+import semantic.types.DecimalInfo;
+
 
 /**
  Classe généré à la syntaxe par.
@@ -76,7 +78,7 @@ class ConstRange : Expression {
     override Expression expression () {
 	auto aux = new ConstRange (this._token, this._left.expression, this._right.expression);
 	auto type = aux._left.info.type.CompOp (aux._right.info.type);
-	if (!cast (FloatInfo) type && !cast (IntInfo) type && !cast (CharInfo) type && !cast (LongInfo) type) {
+	if (!cast (FloatInfo) type && !cast (DecimalInfo) type && !cast (CharInfo) type) {
 	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}
 	

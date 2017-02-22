@@ -55,7 +55,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
+	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.ULONG), op));
 	return inst;
     }
    
@@ -72,7 +72,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (new LCast (rightExp, LSize.LONG), leftExp, op));
+	inst += (new  LBinop (new LCast (rightExp, LSize.ULONG), leftExp, op));
 	return inst;
     }
 

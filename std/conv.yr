@@ -1,10 +1,10 @@
 
 def string (a : ptr!char) : string {
     if (a is null) return '';
-    else if (*a == 0) return ''; 
+    else if (*a == 0ub) return ''; 
     let ret = [*a];
     a = a + 1;
-    while (*a != 0) {
+    while (*a != 0ub) {
 	ret += [*a];
 	a = a + 1;
     }
