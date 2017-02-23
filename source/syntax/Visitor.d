@@ -761,13 +761,25 @@ class Visitor {
 	auto begin = this._lex.next ();
 	auto word = this._lex.next ();
 	Array!Expression params;
-	if (word != Tokens.RCRO)  {
+	if (word != Tokens.RCRO) {
 	    this._lex.rewind ();
-	    while (true) {
-		params.insertBack (visitExpression ());
-		word = this._lex.next ();
-		if (word == Tokens.RCRO) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+	    auto fst = visitExpression ();
+	    auto next = _lex.next ();
+	    if (next == Tokens.SEMI_COLON) {
+		if (!cast (Var) fst) throw new SyntaxError (next, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+		auto size = visitExpression ();
+		next = _lex.next ();
+		if (next != Tokens.RCRO) throw new SyntaxError (next, [Tokens.RCRO.descr]);
+		return new ArrayAlloc (begin, cast (Var) fst, size);
+	    } else {
+		params.insertBack (fst);
+		_lex.rewind ();
+		while (true) {
+		    params.insertBack (visitExpression ());
+		    word = this._lex.next ();
+		    if (word == Tokens.RCRO) break; 
+		    else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+		}
 	    }
 	}
 	return new ConstArray (begin, params);

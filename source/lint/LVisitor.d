@@ -336,6 +336,7 @@ class LVisitor {
 	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
 	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
 	if (auto _exp = cast (Expand) elem) return visitExpand (_exp);
+	if (auto _alloc = cast (ArrayAlloc) elem) return visitAlloc (_alloc);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -389,6 +390,43 @@ class LVisitor {
 	return inst;
     }
     
+    private LInstList visitAlloc (ArrayAlloc alloc) {
+	auto type = cast (ArrayInfo) alloc.info.type;
+	Array!LExp params;
+	auto expInst = visitExpression (alloc.size);
+	if (alloc.cster) {
+	    foreach (nb ; 0 .. alloc.cster.lintInstS.length) {
+		expInst = alloc.cster.lintInst (expInst, nb);
+	    }
+	}
+	
+	auto exp = expInst.getFirst ();
+	params.insertBack (new LBinop (new LConstDecimal (1, LSize.LONG, type.content.size),
+				       exp,
+				       Tokens.STAR));
+	
+	params.insertBack (new LConstDecimal (1, LSize.LONG, type.content.size));
+
+	auto inst = new LInstList;	
+	inst += expInst;
+	
+	auto aux = new LReg (alloc.info.id, type.size);
+	if (!type.content.isDestructible) {
+	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+	} else {
+	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
+	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createDstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
+	}
+	
+	inst += aux;
+	return inst;
+    }
+
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;

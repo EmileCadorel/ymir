@@ -1,9 +1,18 @@
 import std.stdio;
 
+def toStr (a : ptr!char, len : ulong) {
+    let ret = [char; len];
+    for (i in 0u .. len) {
+	ret [i] = *(a + i);
+    }
+    return cast:string (ret);
+}
+
 def main () {
-    let a = (65l, 67, 1345);
-    let b = (1, expand (a));
-    println (expand (b));
+    let c = "salut comment va ?";
+    let b = toStr (c.ptr, c.length);
+    println (b);
+
 }
 
 
