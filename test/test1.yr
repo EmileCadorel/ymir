@@ -1,15 +1,9 @@
 import std.stdio;
 
 def main () {
-    let a = (65l, 67, 10b);
-    let b = [expand (a)];
-    for (it in b) {
-	println (cast:char (it));
-	it = 8l;
-    }
-    
-    for (it in b)
-	println (it);
+    let a = (65l, 67, 1345);
+    let b = (1, expand (a));
+    println (expand (b));
 }
 
 

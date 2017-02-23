@@ -5,6 +5,7 @@ import semantic.types.InfoType;
 import std.container;
 import semantic.types.VoidInfo;
 import semantic.types.TupleInfo;
+import ast.ParamList;
 
 /**
 Classe généré par la syntaxe:
@@ -36,8 +37,16 @@ class ConstTuple : Expression {
 	Array!Expression params;
 	auto retType = new TupleInfo ();
 	foreach (it ; this._params) {
-	    params.insertBack (it.expression);
-	    retType.params.insertBack (params.back ().info.type);
+	    auto expr = it.expression;
+	    if (auto par = cast (ParamList) expr) {
+		foreach (exp_it ; par.params) {
+		    params.insertBack (exp_it);
+		    retType.params.insertBack (params.back ().info.type);
+		}
+	    } else {
+		params.insertBack (expr);
+		retType.params.insertBack (params.back ().info.type);
+	    }
 	}
        	
 	auto ret = new ConstTuple (this._token, this._end, params);

@@ -4,6 +4,7 @@ import ast.Var;
 import syntax.Word, utils.YmirException, utils.exception;
 import semantic.pack.Symbol;
 import semantic.types.TupleInfo;
+import semantic.types.UndefInfo;
 import std.container;
 import ast.ParamList;
 
@@ -52,6 +53,7 @@ class Expand : Expression {
 	}
 
 	auto aux = new ParamList (this._token, params);	
+	aux.info = new Symbol (this._token, new UndefInfo ());
 	return aux;
     }
 
