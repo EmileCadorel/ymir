@@ -2,10 +2,11 @@ module semantic.types.FloatInfo;
 import syntax.Word, ast.Expression, semantic.types.FloatUtils;
 import syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
-import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.BoolInfo;
 import semantic.types.UndefInfo;
 import lint.LSize, ast.Var, ast.Constante;
-import semantic.types.StringInfo, semantic.types.LongInfo;
+import semantic.types.StringInfo;
+import semantic.types.DecimalInfo, ast.Constante;
 
 /**
  Cette classe regroupe les informations de type du type float.
@@ -103,9 +104,10 @@ class FloatInfo : InfoType {
 	    auto f = new FloatInfo ();
 	    f.lintInst = &FloatUtils.InstAffect;
 	    return f;
-	} else if (cast (IntInfo) right.info.type) {
+	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    auto f = new FloatInfo ();
-	    f.lintInst = &FloatUtils.InstAffectInt;
+	    f.lintInst = &FloatUtils.InstAffect;
+	    f.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
 	    return f;
 	}
 	return null;
@@ -134,14 +136,19 @@ class FloatInfo : InfoType {
      */
     override InfoType CastOp (InfoType other) {
 	if (cast(FloatInfo)other !is null) return this;
-	else if (cast (LongInfo) other !is null) {
-	    auto l = new LongInfo ();
-	    l.lintInstS.insertBack (&FloatUtils.InstCastLong);
+	else if (auto ot = cast (DecimalInfo) other) {
+	    auto l = ot.clone ();
+	    final switch (ot.size.id) {
+	    case DecimalConst.BYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.BYTE)); break;
+	    case DecimalConst.UBYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UBYTE)); break;
+	    case DecimalConst.SHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.SHORT)); break;
+	    case DecimalConst.USHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.USHORT)); break;
+	    case DecimalConst.INT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.INT)); break;
+	    case DecimalConst.UINT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UINT)); break;
+	    case DecimalConst.LONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.LONG)); break;
+	    case DecimalConst.ULONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.ULONG)); break;
+	    }
 	    return l;
-	} else if (cast (IntInfo) other !is null) {
-	    auto i = new IntInfo ();
-	    i.lintInstS.insertBack (&FloatUtils.InstCastInt);
-	    return i;
 	}
 	return null;
     }
@@ -252,7 +259,7 @@ class FloatInfo : InfoType {
      Returns: un type int.
      */
     private InfoType Dig () {
-	auto fl = new IntInfo ();
+	auto fl = new DecimalInfo (DecimalConst.UINT);
 	fl.lintInst = &FloatUtils.Dig;
 	return fl;
     }
@@ -272,7 +279,7 @@ class FloatInfo : InfoType {
      Returns: un type int.
      */
     private InfoType MantDig () {
-	auto fl = new IntInfo ();
+	auto fl = new DecimalInfo (DecimalConst.UINT);
 	fl.lintInst = &FloatUtils.MantDig;
 	return fl;
     }
@@ -376,14 +383,10 @@ class FloatInfo : InfoType {
 	    auto fl = new FloatInfo ();
 	    fl.lintInst = &FloatUtils.InstOp ! (op);
 	    return fl;
-	} else if (cast (IntInfo) right.info.type) {
+	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    auto fl = new FloatInfo ();
-	    fl.lintInst = &FloatUtils.InstOpInt !(op);
-	    return fl;
-	} else if (cast (LongInfo) right.info.type) {
-	    auto fl = new FloatInfo ();
-	    fl.lintInst = &FloatUtils.InstOpInt !(op);
-	    return fl;
+	    fl.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
+	    fl.lintInst = &FloatUtils.InstOp ! (op);
 	}
 	return null;
     }
@@ -400,10 +403,10 @@ class FloatInfo : InfoType {
 	    auto bl = new BoolInfo ();
 	    bl.lintInst = &FloatUtils.InstOpTest ! (op);
 	    return bl;
-	} else if (cast (IntInfo) right.info.type) {
-	    auto bl = new BoolInfo ();
-	    bl.lintInst = &FloatUtils.InstOpTestInt !(op);
-	    return bl;
+	} else if (cast (DecimalInfo) right.info.type) {
+	    auto bl = new FloatInfo ();
+	    bl.lintInst = &FloatUtils.InstOpTest !(op);
+	    bl.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
 	}
 	return null;
     }
@@ -416,9 +419,10 @@ class FloatInfo : InfoType {
      Returns: le type résultat ou null.
     */
     private InfoType opNormRight (Tokens op) (Expression right) {
-	if (cast (IntInfo) right.info.type) {
+	if (cast (DecimalInfo) right.info.type) {
 	    auto fl = new FloatInfo ();
-	    fl.lintInst = &FloatUtils.InstOpIntRight !(op);
+	    fl.lintInst = &FloatUtils.InstOp !(op);
+	    fl.lintInstS.insertBack (&FloatUtils.InstCastFloat);
 	    return fl;
 	}
 	return null;
@@ -432,9 +436,10 @@ class FloatInfo : InfoType {
      Returns: le type résultat ou null.
     */
     private InfoType opTestRight (Tokens op) (Expression right) {
-	if (cast (IntInfo) right.info.type) {
+	if (cast (DecimalInfo) right.info.type) {
 	    auto bl = new BoolInfo ();
-	    bl.lintInst = &FloatUtils.InstOpTestIntRight !(op);
+	    bl.lintInstS.insertBack (&FloatUtils.InstCastFloat);
+	    bl.lintInst = &FloatUtils.InstOpTest !(op);
 	    return bl;
 	}
 	return null;

@@ -2,10 +2,11 @@ module semantic.types.CharInfo;
 import syntax.Word, ast.Expression;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.CharUtils, syntax.Tokens;
-import semantic.types.BoolInfo, semantic.types.IntInfo;
+import semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import semantic.types.StringInfo, ast.Var;
-import semantic.types.LongInfo;
+import ast.Constante;
+import semantic.types.DecimalInfo;
 
 /**
  La classe qui regroupent les informations de type du type char.
@@ -127,15 +128,13 @@ class CharInfo : InfoType {
 	    auto ch = new BoolInfo ();
 	    ch.lintInst = &CharUtils.InstOpTest !(op);
 	    return ch;
-	} else if (cast (IntInfo) right.info.type) {
-	    auto ch = new BoolInfo ();
-	    ch.lintInst = &CharUtils.InstOpTestInt !(op);
-	    return ch;
-	} else if (cast (LongInfo) right.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpTestInt! (op);
-	    return ch;
-	}
+	} else if (auto ot = cast (DecimalInfo) right.info.type) {
+	    if (ot.type == DecimalConst.UBYTE) {
+		auto ch = new BoolInfo ();
+		ch.lintInst = &CharUtils.InstOpTest !(op);
+		return ch;
+	    }
+	} 
 	return null;
     }
 
@@ -147,14 +146,12 @@ class CharInfo : InfoType {
      Returns: le type résultat ou null.
      */
     private InfoType opTestRight (Tokens op) (Expression left) {
-	if (cast (IntInfo) left.info.type) {
-	    auto ch = new BoolInfo ();
-	    ch.lintInst = &CharUtils.InstOpTestIntRight !(op);
-	    return ch;
-	} else if (cast (LongInfo) left.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpTestIntRight ! (op);
-	    return ch;
+	if (auto ot = cast (DecimalInfo) left.info.type) {
+	    if (ot.type == DecimalConst.UBYTE) {
+		auto ch = new BoolInfo ();
+		ch.lintInst = &CharUtils.InstOpTest !(op);
+		return ch;
+	    }
 	}
 	return null;
     }
@@ -171,14 +168,12 @@ class CharInfo : InfoType {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOpAff !(op);
 	    return ch;
-	} else if (cast (IntInfo) right.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpAffInt!(op);
-	    return ch;
-	} else if (cast (LongInfo) right.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpAffInt! (op);
-	    return ch;
+	} else if (auto ot = cast (DecimalInfo) right.info.type) {
+	    if (ot.type == DecimalConst.UBYTE) {
+		auto ch = new CharInfo ();
+		ch.lintInst = &CharUtils.InstOpAff !(op);
+		return ch;
+	    }
 	}
 	return null;
     }
@@ -195,14 +190,12 @@ class CharInfo : InfoType {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOp !(op);
 	    return ch;
-	} else if (cast (IntInfo) right.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpInt!(op);
-	    return ch;
-	} else if (cast (LongInfo) right.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpInt! (op);
-	    return ch;
+	} else if (auto ot = cast (DecimalInfo) right.info.type) {
+	    if (ot.type == DecimalConst.UBYTE) {
+		auto ch = new CharInfo ();
+		ch.lintInst = &CharUtils.InstOp ! (op);
+		return ch;
+	    }
 	}
 	return null;
     }
@@ -215,15 +208,13 @@ class CharInfo : InfoType {
      Returns: Le type résultat de l'expression.
      */
     private InfoType opNormRight (Tokens op) (Expression left) {
-	if (cast (IntInfo) left.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpIntRight!(op);
-	    return ch;
-	} else if (cast (LongInfo) left.info.type) {
-	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpIntRight! (op);
-	    return ch;
-	}
+	if (auto ot = cast (DecimalInfo) left.info.type) {
+	    if (ot.type == DecimalConst.UBYTE) {
+		auto ch = new CharInfo ();
+		ch.lintInst = &CharUtils.InstOp ! (op);
+		return ch;
+	    }
+	} 
 	return null;
     }
 
@@ -270,7 +261,7 @@ class CharInfo : InfoType {
      Returns: un type int (TODO changer en ubyte).
      */
     private InfoType SizeOf () {
-	auto _int = new IntInfo ();
+	auto _int = new DecimalInfo (DecimalConst.UBYTE);
 	_int.lintInst = &CharUtils.CharSizeOf;
 	return _int;
     }
@@ -324,6 +315,20 @@ class CharInfo : InfoType {
      */
     override InfoType CastOp (InfoType other) {
 	if (cast(CharInfo) other) return this;
+	else if (auto ot = cast (DecimalInfo) other) {
+	    auto aux = ot.clone ();
+	    final switch (ot.type.id) {
+	    case DecimalConst.BYTE.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.BYTE)); break;
+	    case DecimalConst.UBYTE.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.UBYTE)); break;
+	    case DecimalConst.SHORT.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.SHORT)); break;
+	    case DecimalConst.USHORT.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.USHORT)); break;
+	    case DecimalConst.INT.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.INT)); break;
+	    case DecimalConst.UINT.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.UINT)); break;
+	    case DecimalConst.LONG.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.LONG)); break;
+	    case DecimalConst.ULONG.id : aux.lintInstS.insertBack (&CharUtils.InstCast ! (DecimalConst.ULONG)); break;
+	    }
+	    return aux;
+	}
 	return null;
     }
 
@@ -338,6 +343,6 @@ class CharInfo : InfoType {
      Returns: la taille en mémoire du type char.
      */
     static LSize sizeOf () {
-	return LSize.INT;
+	return LSize.BYTE;
     }
 }

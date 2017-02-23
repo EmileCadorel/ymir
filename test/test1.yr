@@ -1,17 +1,19 @@
 import std.stdio;
-import std.math;
 
-extern (C) printf (str : ptr!char, ...);
-
-def test (a : int, b) {
-    println ('la');
-}
-
-def test (a : int, b : float) {
-    println ('ici');
+def toStr (a : ptr!char, len : ulong) {
+    let ret = [char; len];
+    for (i in 0u .. len) {
+	ret [i] = *(a + i);
+    }
+    return cast:string (ret);
 }
 
 def main () {
-    printf(("salut %d %.3f\n").ptr, 10, 45.45);
+    let c = "salut comment va ?";
+    let b = toStr (c.ptr, c.length);
+    println (b);
+
 }
+
+
 

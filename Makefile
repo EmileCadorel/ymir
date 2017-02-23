@@ -6,12 +6,16 @@ final:
 
 clean:
 	dub clean
-	rm *.s
-	rm test/*.s
 	rm ymir
 	rm a.out
-	rm out.s
+	rm *.s
+	rm test/*.s
 
 install: final
 	cp ymir ${HOME}/libs/ymir
-	make clean
+	./std/install.sh
+
+
+uninstall:
+	rm ${HOME}/libs/ymir
+	rm -rf ${HOME}/libs/ymir_std/*

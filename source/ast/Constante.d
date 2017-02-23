@@ -1,14 +1,33 @@
 module ast.Constante;
 import ast.Expression, std.stdio;
 import syntax.Word, semantic.pack.Symbol, syntax.Keys;
-import semantic.types.IntInfo, semantic.types.CharInfo, semantic.types.BoolInfo;
+import semantic.types.CharInfo, semantic.types.BoolInfo;
 import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrInfo;
 import std.stdio, std.string, utils.exception, std.conv;
 import std.math, std.container, semantic.types.InfoType;
 import semantic.types.ArrayInfo, semantic.types.VoidInfo;
-import semantic.types.LongInfo, semantic.types.UndefInfo;
+import semantic.types.DecimalInfo, semantic.types.UndefInfo;
 import ast.Var;
 import semantic.types.NullInfo;
+import std.typecons;
+
+alias DecType = Tuple!(string, "name", string, "sname", int, "id");
+
+enum DecimalConst : DecType {
+    BYTE = DecType ("byte", "bd", 0),
+    UBYTE = DecType ("ubyte", "ub", 1),
+    SHORT = DecType ("short", "sd", 2),
+    USHORT = DecType ("ushort", "us", 3),
+    INT = DecType ("int", "i", 4),
+    UINT = DecType ("uint", "ui", 5),
+    LONG = DecType ("long", "l", 6),
+    ULONG = DecType ("ulong", "ul", 7)
+}
+
+bool isSigned (DecimalConst dec) {
+    return dec.id % 2 == 0;
+}
+
 
 /**
  Example : 
@@ -16,9 +35,13 @@ import semantic.types.NullInfo;
  132
  ---
  */
-class Int : Expression {
-    this (Word word) {
+class Decimal : Expression {
+    
+    private DecimalConst _type;
+    
+    this (Word word, DecimalConst type) {
 	super (word);
+	this._type = type;
     }
 
     /**
@@ -26,65 +49,22 @@ class Int : Expression {
      Toujours Ok.
      */
     override Expression expression () {
-	auto aux = new Int (this._token);
-	aux.info = new Symbol (this._token, new IntInfo ());
+	auto aux = new Decimal (this._token, this._type);
+	aux.info = new Symbol (this._token, new DecimalInfo (this._type));
 	aux.info.isConst = true;
 	return aux;
     }
 
-    /**
-     Affiche l'expression sous forme d'arbre.
-     Params:
-     nb =  l'offset courant
-     */
-    override void print (int nb = 0) {
-	writefln ("%s<Int> %s(%d, %d) %s"
-		  , rightJustify ("", nb, ' '),
-		  this._token.locus.file,
-		  this._token.locus.line,
-		  this._token.locus.column,
-		  this._token.str);	
+    DecType type () {
+	return this._type;
+    }
+
+    string value () {
+	return this._token.str;
     }
     
 }
 
-
-/**
- Example :
- ---
- 123l
- ---
-*/
-class Long : Expression {
-
-    this (Word word) {
-	super (word);
-    }
-
-    /**
-     Vérification sémantique.
-     Toujours Ok.
-     */
-    override Expression expression () {
-	auto aux = new Long (this._token);
-	aux.info = new Symbol (this._token, new LongInfo ());
-	return aux;
-    }
-
-    /**
-     Affiche l'expression sous forme d'arbre.
-     Params:
-     nb =  l'offset courant
-     */
-    override void print (int nb = 0) {
-	writefln ("%s<Long> %s(%d, %d) %s"
-		  , rightJustify ("", nb, ' '),
-		  this._token.locus.file,
-		  this._token.locus.line,
-		  this._token.locus.column,
-		  this._token.str);	
-    }
-}
 
 /**
  Example:

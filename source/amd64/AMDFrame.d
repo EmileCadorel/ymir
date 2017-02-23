@@ -5,10 +5,10 @@ import std.stdio;
 
 class AMDFrame : TFrame {
 
-    private AMDConstQWord _size;
+    private AMDConstDecimal _size;
     private TInstList _inst;
     
-    this (AMDConstQWord size, TInstList inst) {
+    this (AMDConstDecimal size, TInstList inst) {
 	this._size = size;
 	this._inst = inst;
     }

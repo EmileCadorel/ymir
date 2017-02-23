@@ -168,19 +168,18 @@ class FloatUtils {
 	inst += (new LBinop (new LCast (leftExp, LSize.DOUBLE), rightExp, op));
 	return inst;
     }
-
-    
+   
     /**
-     Operateur de cast vers un int
+     Operateur de cast vers un long
      Params:
      llist = les instructions de l'operande.
      Returns: La liste d'instruction du lint.
      */
-    static LInstList InstCastInt (LInstList llist) {
+    static LInstList InstCastFloat (LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LCast (leftExp, LSize.INT);
+	inst += new LCast (leftExp, LSize.DOUBLE);
 	return inst;
     }
 
@@ -190,14 +189,15 @@ class FloatUtils {
      llist = les instructions de l'operande.
      Returns: La liste d'instruction du lint.
      */
-    static LInstList InstCastLong (LInstList llist) {
+    static LInstList InstCastDec (DecimalConst size) (LInstList llist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LCast (leftExp, LSize.LONG);
+	inst += new LCast (leftExp, fromDecimalConst (size));
 	return inst;
     }
 
+    
     /**
      La constante d'init d'un float.
      Returns: la liste d'instruction du lint.
@@ -235,7 +235,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Dig (LInstList, LInstList) {
-	return new LInstList (new LConstDWord (float.dig));
+	return new LInstList (new LConstDecimal (float.dig, LSize.INT));
     }
 
     /**
@@ -251,7 +251,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList MantDig (LInstList, LInstList) {
-	return new LInstList (new LConstDWord (float.mant_dig));
+	return new LInstList (new LConstDecimal (float.mant_dig, LSize.INT));
     }
 
     /**

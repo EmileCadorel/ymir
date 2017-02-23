@@ -17,7 +17,7 @@ import std.stdio, std.string;
 class ParamList : Expression {
 
     private Array!Expression _params; /// Les paramètres de l'expression
-
+    
     this (Word word, Array!Expression params) {
 	super (word);
 	this._params = params;
@@ -34,10 +34,19 @@ class ParamList : Expression {
      */
     override Expression expression () {
 	auto aux = new ParamList (this._token);
-	foreach (it ; this._params) {
-	    aux._params.insertBack (it.expression ());
-	    if (cast (UndefInfo) aux._params.back ().info.type)
-		throw new UninitVar (aux._params.back.token);
+	foreach (it ; 0 .. this._params.length) {
+	    Expression ex_it = this._params [it].expression;
+	    if (auto ex = cast (ParamList) ex_it) {
+		foreach (_it ; ex.params) {
+		    aux._params.insertBack (_it);
+		    if (cast (UndefInfo) aux._params.back ().info.type)
+			throw new UninitVar (aux._params.back.token);
+		}
+	    } else {
+		aux._params.insertBack (ex_it);
+		if (cast (UndefInfo) aux._params.back ().info.type)
+		    throw new UninitVar (aux._params.back.token);
+	    }
 	}
 	return aux;
     }
@@ -45,10 +54,18 @@ class ParamList : Expression {
     /**
      Returns: La liste des paramètres
      */
-    Array!Expression params () {
+    ref Array!Expression params () {
 	return this._params;
     }
-
+    
+    /**
+     Returns: la taille de la liste de parametre
+     */
+    ulong length () {
+	return this._params.length;
+    }
+    
+    
     Array!InfoType paramTypes () {
 	Array!InfoType types;
 	foreach (it ; this._params) {
@@ -57,6 +74,7 @@ class ParamList : Expression {
 	return types;
     }
 
+    
     /**
      Affiche l'expression sous forme d'arbre
      Params:

@@ -1,0 +1,20 @@
+import std.stdio;
+
+struct (f : float) A;
+
+def exp (x, y) {
+    let i = 0;
+    let f = 1l;
+    while (i < y) {
+	f *= x;
+	i ++;
+    }
+    return f;
+}
+
+def main () {
+    let a = A (1233.);
+    println (a.f.sqrt);
+}
+
+

@@ -1,0 +1,57 @@
+import std.stdio;
+
+extern (C) socket (domain : int, type : int, protocol : int) : int;
+extern (C) perror (text : ptr!char);
+
+extern (C) my_bind (sock : int, family : int, port : int, s_addr : int) : int;
+extern (C) listen (sock : int, nb : int) : int;
+extern (C) my_accept (sock : int, addr : ptr!(ptr!char), port : ptr!int) : int;
+extern (C) printf (str : ptr!char, ...);
+extern (C) send (sock : int, msg : ptr!char, len : ulong, flags : int);
+extern (C) close (what : int);
+
+extern (C) rand () : int;
+extern (C) srand (i : int);
+extern (C) time (i : int) : int;
+
+
+def main () {
+
+    srand (time (0));    
+    let MY_PORT = (rand () % 1000) + 8888;
+    println ("Server on : ", MY_PORT);
+    let AF_INET = 2, SOCK_STREAM = 1, INADDR_ANY = 0;
+    let sockfd = socket (AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+	perror (("Socket").ptr);
+	return -1;
+    }
+    
+    if (my_bind (sockfd, AF_INET, MY_PORT, INADDR_ANY) != 0) {
+	perror (("Bind").ptr);
+	return -1;
+    }
+
+    if (listen (sockfd, 20) != 0) {
+	perror (("Listen").ptr);
+	return -1;
+    }
+
+    while (true) {
+	let addr = ptr!(char).init, port = int.init;
+	let clientfd = my_accept (sockfd, &addr, &port);
+	printf (('%s:%d connected\n').ptr, addr, port);
+
+	let buf = "Hello !!\n";
+	
+	send (clientfd, buf.ptr, buf.length, 0);
+	close (clientfd);
+    }
+
+    close (sockfd);
+    
+    return 0;
+}
+
+
+

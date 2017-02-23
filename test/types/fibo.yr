@@ -1,0 +1,17 @@
+import std.stdio;
+
+def fibo (n : int) {
+    if (n < 2) return n;
+    else return fibo (n - 1) + fibo (n - 2);    
+}
+
+def main () {
+    let i = 0;
+    while (i < 10) {
+	print (i);
+	println (':');
+	let a = fibo (i);
+	println (a);
+	i++;
+    }
+}

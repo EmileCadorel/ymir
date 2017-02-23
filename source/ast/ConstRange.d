@@ -5,11 +5,13 @@ import semantic.types.InfoType;
 import semantic.pack.Symbol;
 import syntax.Word;
 import ast.Var;
-import semantic.types.FloatInfo, semantic.types.IntInfo;
-import semantic.types.CharInfo, semantic.types.LongInfo;
+import semantic.types.FloatInfo;
+import semantic.types.CharInfo;
 import utils.exception;
 import std.stdio, std.string;
 import semantic.types.RangeInfo;
+import semantic.types.DecimalInfo;
+
 
 /**
  Classe généré à la syntaxe par.
@@ -30,6 +32,8 @@ class ConstRange : Expression {
     private InfoType _content;
 
     private ubyte _lorr = 0;
+
+    private InfoType _caster = null;
     
     this (Word token, Expression left, Expression right) {
 	super (token);
@@ -62,6 +66,10 @@ class ConstRange : Expression {
 	return this._content;
     }
 
+    InfoType caster () {
+	return this._caster;
+    }
+    
     /**
      Vérification sémantique.
      Pour être correct, gauche et droite doivent être compatible et de type que l'on peut mettre dans un Range.
@@ -70,12 +78,17 @@ class ConstRange : Expression {
     override Expression expression () {
 	auto aux = new ConstRange (this._token, this._left.expression, this._right.expression);
 	auto type = aux._left.info.type.CompOp (aux._right.info.type);
-	if (!cast (FloatInfo) type && !cast (IntInfo) type && !cast (CharInfo) type && !cast (LongInfo) type) {
+	if (!cast (FloatInfo) type && !cast (DecimalInfo) type && !cast (CharInfo) type) {
 	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}
 	
-	if (!type.isSame (aux._left.info.type)) aux._lorr = 1;
-	else if (!type.isSame (aux._right.info.type)) aux._lorr = 2;
+	if (!type.isSame (aux._left.info.type)) {
+	    aux._lorr = 1;
+	    aux._caster = aux._left.info.type.CastTo (type);
+	} else if (!type.isSame (aux._right.info.type)) {
+	    aux._lorr = 2;
+	    aux._caster = aux._right.info.type.CastTo (type);
+	}
 	
 	aux._content = type;
 	aux._info = new Symbol (aux._token, new RangeInfo (type), true);

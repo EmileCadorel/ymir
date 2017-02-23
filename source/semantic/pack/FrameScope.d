@@ -279,6 +279,7 @@ struct FrameReturnInfo {
      Quitte un block
      */
     void quitBlock () {
+	if (!this._retInfo) return;
 	this._retInfo = this._retInfo.quitBlock ();
 	if (this._retInfo)
 	    this._currentBlock = this._retInfo.name;
@@ -288,21 +289,27 @@ struct FrameReturnInfo {
      Returns: le block courant est finis ?
      */
     bool retract () {
-	return this._retInfo.retract ();
+	if (this._retInfo) 
+	    return this._retInfo.retract ();
+	return false;
     }
 
     /** 
      Returns: le block courant contient une instruction de retour ?
      */
     bool hasReturned () {
-	return this._retInfo.hasReturned ();
+	if (this._retInfo) 
+	    return this._retInfo.hasReturned ();
+	else return false;
     }
 
     /** 
      Returns: le block courant contient une instruction de break ?
     */
     bool hasBreaked () {
-	return this._retInfo.hasBreaked ();
+	if (this._retInfo)
+	    return this._retInfo.hasBreaked ();
+	else return false;
     }    
 
     /** 

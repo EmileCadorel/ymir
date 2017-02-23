@@ -41,6 +41,7 @@ void semanticTime (string file) {
 	    error += occurs.nbError;
 	}
     }
+      
     if (error > 0) throw new ErrorOccurs (error);    
 }
 
@@ -60,7 +61,17 @@ string preCompiled (string name) {
 	ClassUtils.createFunctions ();
 	RangeUtils.createFunctions ();
 	
+	debug {
+	    writeln ("----------- PRECOMPILED-----------------");
+	    foreach (it ; make!(Array!LFrame) (LFrame.preCompiled.values)) {
+		writeln (it.toString);
+	    }
+	    writeln ("----------- PRECOMPILED-FIN -----------------");
+	}
+
 	auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
+
+	
 	toFile (target, name);
 	return name;
     } 
@@ -73,6 +84,22 @@ string compileTemplates (string name) {
     foreach (it ; FrameTable.instance.templates) {
 	frames.insertBack (visitor.visit (it));
     }
+    
+    foreach (key, value ; LFrame.preCompiled) {
+	if (!value.isStd) {
+	    frames.insertBack (value);
+	}
+	LFrame.preCompiled.remove (key);
+    }
+    
+    debug {
+	writeln (" ------------------------ TEMPLATES ------------------------");
+	foreach (it ; frames) {
+	    writeln (it);
+	}
+	writeln (" ------------------------ FIN-TEMPLATES ------------------------");
+    }
+    
     auto target = targetTime (frames);
     toFile (target, name);
     return name;
@@ -104,6 +131,7 @@ void main (string [] args) {
 	    FrameTable.instance.pures.clear ();
 	    FrameTable.instance.finals.clear ();
 	    FrameTable.instance.clearImport ();
+	    FrameTable.instance.structs.clear ();
 	    
 	    semanticTime (file);
 	    auto list = lintTime ();
@@ -113,6 +141,7 @@ void main (string [] args) {
 		    writeln (it.toString);
 		}
 	    }
+	    
 	    auto target = targetTime (list);
 	    
 	    toFile (target, file ~ ".s");
@@ -121,7 +150,7 @@ void main (string [] args) {
 
 	files ~= [compileTemplates ("__templates__.s")];
 	if (auto name = preCompiled ("__precompiled__.s"))
-	    files ~= [name];
+	    files ~= [name];	
 
 	string [] options;
 	if (Options.instance.isOn (OptionEnum.DEBUG))

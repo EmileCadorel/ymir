@@ -1,0 +1,47 @@
+import std.conv;
+
+extern (C) fopen (name : ptr!char, mode : ptr!char) : ptr!void;
+extern (C) fread (buf : ptr!char, size : uint, len : ulong, file : ptr!void) : uint;
+extern (C) fwrite (buf : ptr!char, size : uint, len : ulong, file : ptr!void);
+extern (C) fclose (file : ptr!void);
+
+extern (C) getenv (name : ptr!char) : ptr!char;
+extern (C) printf (str : ptr!char, ...); 
+extern (C) malloc (size : uint) : ptr!void;
+extern (C) free (a : ptr!void);
+extern (C) free (a : ptr!char);
+
+
+struct
+| content : ptr!void
+-> File;
+
+def fopen (filename : string, mode : string) : File {
+    let file = fopen (filename.ptr, mode.ptr);
+    if (file is null) return null;
+    return File (file);
+}
+
+def fclose (file : File) {
+    if (file !is null) {
+	fclose (file.content);
+    }
+}
+
+def fread (file : File, len : uint) : string {
+    let str = cast:ptr!(char) (malloc (len * char.sizeof));
+    len = fread (str, char.sizeof, len, file.content);
+    let ret = '';
+    if (len > 0u) 
+	ret = string (str);
+    
+    free (str);    
+    return ret;
+}
+
+def fwrite (file : File, str : string) {
+    fwrite (str.ptr, char.sizeof, str.length, file.content); 
+}
+
+
+

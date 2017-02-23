@@ -13,6 +13,8 @@ import lint.LAddr, syntax.Word;
 import semantic.types.RangeInfo, semantic.types.RangeUtils;
 import semantic.types.StructUtils, semantic.types.TupleInfo;
 import semantic.pack.FinalFrame;
+import lint.LInst;
+import std.array;
 
 class LVisitor {
 
@@ -32,6 +34,7 @@ class LVisitor {
 	    if (!value.isStd) {
 		frames.insertBack (value);
 	    }
+	    LFrame.preCompiled.remove (key);
 	}
 	
 	return frames;
@@ -72,7 +75,7 @@ class LVisitor {
 	
 	if (semFrame.name == Keys.MAIN.descr && retReg is null) {
 	    retReg = new LReg (LSize.LONG);
-	    end.insts += new LWrite (retReg, new LConstQWord (0));
+	    end.insts += new LWrite (retReg, new LConstDecimal (0, LSize.LONG));
 	}
 	
 	auto fr = new LFrame (semFrame.name, entry, end, retReg, args);
@@ -316,10 +319,9 @@ class LVisitor {
     private LInstList visitExpression (Expression elem) {
 	if (auto bin = cast(Binary) elem) return visitBinary (bin);
 	if (auto var = cast(Var)elem) return visitVar (var);
-	if (auto _int = cast(Int)elem) return visitInt (_int);
+	if (auto _dec = cast(Decimal)elem) return visitDec (_dec);
 	if (auto _float = cast(Float)elem) return visitFloat (_float);
 	if (auto _char = cast(Char) elem) return visitChar (_char);
-	if (auto _sys = cast (System)elem) return visitSystem (_sys);
 	if (auto _par = cast (Par) elem) return visitPar (_par);
 	if (auto _cast = cast(Cast) elem) return visitCast (_cast);
 	if (auto _str = cast(String) elem) return visitStr (_str);
@@ -331,18 +333,19 @@ class LVisitor {
 	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
 	if (auto _crange = cast (ConstRange) elem) return visitConstRange (_crange);
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
-	if (auto _long = cast (Long) elem) return visitLong (_long);
 	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
 	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
+	if (auto _exp = cast (Expand) elem) return visitExpand (_exp);
+	if (auto _alloc = cast (ArrayAlloc) elem) return visitAlloc (_alloc);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
     private LInstList visitConstTuple (ConstTuple _tuple) {
 	Array!LExp exps;
-	auto inst = new LInstList ();	
+	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
 	    inst += visitExpression (it);
-	    exps.insertBack (inst.getFirst ());
+	    exps.insertBack (inst.getFirst ());	    
 	}
 
 	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _tuple.info.type.simpleTypeString ());
@@ -379,7 +382,7 @@ class LVisitor {
     private LInstList visitFuncPtr (FuncPtr fptr) {
 	auto inst = new LInstList;
 	if (fptr.expr is null) {
-	    inst += new LConstQWord (0);
+	    inst += new LConstDecimal (0, LSize.LONG);
 	} else {
 	    auto ptr = cast (PtrFuncInfo) fptr.info.type;
 	    inst += new LConstFunc (ptr.score.name);
@@ -387,11 +390,48 @@ class LVisitor {
 	return inst;
     }
     
+    private LInstList visitAlloc (ArrayAlloc alloc) {
+	auto type = cast (ArrayInfo) alloc.info.type;
+	Array!LExp params;
+	auto expInst = visitExpression (alloc.size);
+	if (alloc.cster) {
+	    foreach (nb ; 0 .. alloc.cster.lintInstS.length) {
+		expInst = alloc.cster.lintInst (expInst, nb);
+	    }
+	}
+	
+	auto exp = expInst.getFirst ();
+	params.insertBack (new LBinop (new LConstDecimal (1, LSize.LONG, type.content.size),
+				       exp,
+				       Tokens.STAR));
+	
+	params.insertBack (new LConstDecimal (1, LSize.LONG, type.content.size));
+
+	auto inst = new LInstList;	
+	inst += expInst;
+	
+	auto aux = new LReg (alloc.info.id, type.size);
+	if (!type.content.isDestructible) {
+	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+	} else {
+	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
+	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
+	    if (exist is null) ArrayUtils.createDstArray ();
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
+	}
+	
+	inst += aux;
+	return inst;
+    }
+
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;
-	params.insertBack (new LConstQWord (carray.params.length, type.content.size));
-	params.insertBack (new LConstQWord (1, type.content.size));
+	params.insertBack (new LConstDecimal (carray.params.length, LSize.LONG, type.content.size));
+	params.insertBack (new LConstDecimal (1, LSize.LONG, type.content.size));
 	
 	auto inst = new LInstList;
 	auto aux = new LReg (carray.info.id, type.size);
@@ -416,9 +456,9 @@ class LVisitor {
 		    ret = cster.lintInst (ret, nb);		
 	    } else ret = visitExpression (carray.params [it]);
 	    auto regRead = new LRegRead (aux,
-					 new LBinop (new LConstDWord (it, type.content.size), new LConstDWord (3, LSize.LONG), Tokens.PLUS),
+					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS),
 					 type.content.size);
-	    					 
+	    
 	    inst += cster.lintInst (new LInstList (regRead), ret);
 	}
 	inst += aux;
@@ -428,7 +468,7 @@ class LVisitor {
     private LInstList visitConstRange (ConstRange crange) {
 	auto type = cast (RangeInfo) crange.info.type;
 	Array!LExp params;
-	params.insertBack (new LConstQWord  (1, crange.content.size));
+	params.insertBack (new LConstDecimal  (1, LSize.LONG, crange.content.size));
 	auto inst = new LInstList;
 	auto aux = new LReg (crange.info.id, type.size);
 	auto exist = (RangeUtils.__CstName__ in LFrame.preCompiled);
@@ -437,14 +477,17 @@ class LVisitor {
 	
 	auto left = visitExpression (crange.left);
 	auto right = visitExpression (crange.right);
-
-	if (crange.lorr == 1) left = crange.content.lintInst (left);
-	else if (crange.lorr == 2) right = crange.content.lintInst (right);
 	
-	auto regRead = new LRegRead (aux, new LConstDWord (2, LSize.LONG), type.content.size);
+	if (crange.lorr == 1) {
+	    left = crange.caster.lintInst (left);
+	} else if (crange.lorr == 2) {
+	    right = crange.caster.lintInst (right);
+	}
+	
+	auto regRead = new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), type.content.size);
 	inst += crange.content.lintInst (new LInstList (regRead), left);
-	regRead = new LRegRead (aux, new LBinop (new LConstDWord (2, LSize.LONG),
-						 new LConstDWord (1, type.content.size), Tokens.PLUS),
+	regRead = new LRegRead (aux, new LBinop (new LConstDecimal (2, LSize.INT, LSize.LONG),
+						 new LConstDecimal (1, LSize.INT, type.content.size), Tokens.PLUS),
 				type.content.size);
 	
 	inst += crange.content.lintInst (new LInstList (regRead), right);
@@ -454,7 +497,7 @@ class LVisitor {
     
 
     private LInstList visitNull (Null _null) {
-	return new LInstList (new LConstQWord (0));
+	return new LInstList (new LConstDecimal (0, LSize.LONG));
     }
 
     private LInstList visitBefUnary (BefUnary unary) {
@@ -466,7 +509,7 @@ class LVisitor {
     
     private LInstList visitStr (String elem) {
 	Array!LExp exps;
-	exps.insertBack (new LConstQWord (elem.content.length));
+	exps.insertBack (new LConstDecimal (elem.content.length, LSize.LONG));
 	exps.insertBack (new LConstString (elem.content));
 	auto inst = new LInstList;
 	auto it = (StringUtils.__CstName__ in LFrame.preCompiled);
@@ -489,56 +532,96 @@ class LVisitor {
     }
 
     private LInstList visitBool (Bool elem) {
-	if (elem.value) return new LInstList (new LConstByte (1));
-	else return new LInstList (new LConstByte (0));
+	if (elem.value) return new LInstList (new LConstDecimal (1, LSize.BYTE));
+	else return new LInstList (new LConstDecimal (0, LSize.BYTE));
     }
     
     private LInstList visitChar (Char elem) {
-	return new LInstList (new LConstByte (to!ubyte (elem.code)));
-    }
-    
-    private LInstList visitInt (Int elem) {
-	return new LInstList (new LConstDWord (to!int (elem.token.str)));
+	return new LInstList (new LConstDecimal (to!long (elem.code), LSize.BYTE));
     }
 
-    private LInstList visitLong (Long elem) {
-	return new LInstList (new LConstQWord (to!long (elem.token.str [0 .. $ - 1])));// on enleve le 'l'
+    private LInstList visitDec (Decimal _dec) {
+	final switch (_dec.type.id) {
+	case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.BYTE));
+	case DecimalConst.UBYTE.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UBYTE));
+	case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.SHORT));
+	case DecimalConst.USHORT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.USHORT));
+	case DecimalConst.INT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.INT));
+	case DecimalConst.UINT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UINT));
+	case DecimalConst.LONG.id: return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.LONG));
+	case DecimalConst.ULONG.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.ULONG));
+	}
     }
     
     private LInstList visitFloat (Float elem) {
 	return new LInstList (new LConstDouble (to!double (elem.totale)));
     }
 
-    private LInstList visitSystem (System sys) {
-	Array!LExp exprs;
-	LInstList list = new LInstList;
-	foreach (it ; sys.params) {
-	    auto elist = visitExpression (it);
-	    exprs.insertBack (elist.getFirst ());
-	    list += elist;
+    private void visitParamListMult (ref Array!LExp exprs, ref Array!LInstList rights, Array!InfoType treat, ParamList params) {
+	foreach (it ; 0 .. params.params.length) {
+	    Expression exp = params.params [it];
+	    LInstList elist = visitExpression (exp);
+	    if (treat [it]) 
+		foreach (nb ; 0 .. treat [it].lintInstS.length) 
+		    elist = treat [it].lintInst (elist, nb);
+
+	    rights.insertBack (elist);
 	}
-	list += new LSysCall (sys.token.str, exprs);
-	return list;
     }
 
+    private LInstList visitExpand (Expand expand) {
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	auto type = cast (TupleInfo) expand.expr.info.type;
+	auto inst = new LInstList;
+	
+	auto tupleInst = visitExpression (expand.expr);
+	auto tuple = tupleInst.getFirst ();
+	if (expand.index == 0) 
+	    inst += tupleInst; // on ne construit le tuple que la premiere fois
+	
+	foreach (it ; 0 .. expand.index) {
+	    final switch (type.params [it].size.id) {
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.ULONG.id: nbUlong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.UINT.id: nbUint ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.USHORT.id: nbUshort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.UBYTE.id: nbUbyte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }	    
+	}
+	
+	auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	inst += new LRegRead (tuple, size, type.params[expand.index].size);
+	return inst;	
+    }
+           
+    private LInstList visitParamList (ref Array!LExp exprs, Array!InfoType treat, ParamList params) {
+	LInstList list = new LInstList;
+	for (auto pit = 0, it = 0 ; pit < params.params.length ; it ++, pit ++) {
+	    Expression exp = params.params [pit];
+	    LInstList elist = visitExpression (exp);
+	    if (treat [it]) {
+		foreach (nb ; 0 .. treat [it].lintInstS.length)
+		    elist = treat [it].lintInst (elist, nb);		    
+	    }	    
+	    exprs.insertBack (elist.getFirst ());
+	    list += elist;
+	}	
+	return list;
+    }
+    
     private LInstList visitPar (Par par) {
 	Array!LExp exprs;
 	Array!LInstList rights;
 	LInstList list = new LInstList;
 	LExp call;
-
+	
 	if (par.info.type.lintInstMult) {
-	    foreach (it ; 0 .. par.params.length) {
-		Expression exp = par.params [it];
-		LInstList elist;
-		elist = visitExpression (exp);
-		if (par.score.treat [it]) 
-		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length) 
-			elist = par.score.treat [it].lintInst (elist, nb);
-
-		rights.insertBack (elist);
-	    }
-	    
+	    visitParamListMult (exprs, rights, par.score.treat, par.paramList);
 	    LInstList left;
 	    if (par.info.type.leftTreatment)
 		left = par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
@@ -546,18 +629,7 @@ class LVisitor {
 	    list = par.info.type.lintInst (left, rights);
 	    call = list.getFirst ();
 	} else {
-	    foreach (it ; 0 .. par.params.length) {
-		Expression exp = par.params [it];
-		LInstList elist;
-		elist = visitExpression (exp);
-		if (par.score.treat [it]) 
-		    foreach (nb ; 0 .. par.score.treat [it].lintInstS.length)
-			elist = par.score.treat [it].lintInst (elist, nb);
-		
-		exprs.insertBack (elist.getFirst ());
-		list += elist;
-	    }
-	    
+	    list += visitParamList (exprs, par.score.treat, par.paramList);
 	    if (par.score.dyn) {
 		auto left = visitExpression (par.left);
 		list += left;

@@ -10,7 +10,7 @@ import ast.Function, semantic.pack.PureFrame, semantic.pack.FrameProto;
 /**
  Les frames externs sont uniquement des prototypes, elle sont obtenu pas import, ou déclaration. 
  */
-class ExternFrame : PureFrame {
+class ExternFrame : Frame {
 
     /** Le nom de la frame */
     private string _name;
@@ -82,7 +82,6 @@ class ExternFrame : PureFrame {
 	
 	return ret;
     }
-
 
     
     /**
@@ -160,6 +159,14 @@ class ExternFrame : PureFrame {
      Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')
     */
     override FrameProto validate (ParamList) {
+	return validate ();
+    }
+
+    /**
+     Créée le prototype pour la génération de code intérmédiaire.
+     Returns: le prototype de fonction, avec le nom manglé (ou non si this._from = 'C')
+    */
+    override FrameProto validate (Array!InfoType) {
 	return validate ();
     }
     

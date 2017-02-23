@@ -4,8 +4,9 @@ import semantic.types.CharInfo;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.UndefInfo;
 import syntax.Tokens, semantic.types.BoolUtils;
-import semantic.types.IntInfo, semantic.types.PtrInfo;
+import semantic.types.PtrInfo;
 import lint.LSize, ast.Var, semantic.types.StringInfo;
+import semantic.types.DecimalInfo, ast.Constante;
 
 
 /**
@@ -178,8 +179,8 @@ class BoolInfo : InfoType {
      La taille d'un type bool (bool.sizeof).
      Returns: Un type int (TODO passer ça en type ubyte).
      */
-    private InfoType SizeOf () {
-	auto _int = new IntInfo ();
+    private InfoType SizeOf () {	
+	auto _int = new DecimalInfo (DecimalConst.UBYTE);
 	_int.lintInst = &BoolUtils.BoolSize;
 	return _int;
     }
@@ -207,9 +208,18 @@ class BoolInfo : InfoType {
 	    auto aux = new CharInfo;
 	    aux.lintInstS.insertBack (&BoolUtils.InstCastChar);
 	    return aux;
-	} else if (cast (IntInfo) other) {
-	    auto aux = new IntInfo;
-	    aux.lintInstS.insertBack (&BoolUtils.InstCastInt);
+	} else if (auto ot = cast (DecimalInfo) other) {
+	    auto aux = ot.clone ();
+	    final switch (ot.type.id) {
+	    case DecimalConst.BYTE.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.BYTE)); break;
+	    case DecimalConst.UBYTE.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.UBYTE)); break;
+	    case DecimalConst.SHORT.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.SHORT)); break;
+	    case DecimalConst.USHORT.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.USHORT)); break;
+	    case DecimalConst.INT.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.INT)); break;
+	    case DecimalConst.UINT.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.UINT)); break;
+	    case DecimalConst.LONG.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.LONG)); break;
+	    case DecimalConst.ULONG.id : aux.lintInstS.insertBack (&BoolUtils.InstCast ! (DecimalConst.ULONG)); break;
+	    }
 	    return aux;
 	}
 	return null;

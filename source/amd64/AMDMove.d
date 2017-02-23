@@ -8,6 +8,8 @@ class AMDMove : TInst {
     private AMDObj _left;
     private AMDObj _right;
     private AMDObj _aux;
+    private bool _isAbs;
+
     
     this (AMDObj left, AMDObj right) {
 	this._left = left;
@@ -19,7 +21,20 @@ class AMDMove : TInst {
 	} else if (r && r.isOff && cast (AMDConstDouble) left) {
 	    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
 	}
-	
+
+	if (auto cst = cast (AMDConstDecimal) this._left) {
+	    if (cst.value > int.max || cst.value < int.min) {
+		this._isAbs = true;
+		if (!this._aux)
+		    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
+	    }
+	} else if (auto cst = cast (AMDConstUDecimal) this._left) {
+	    if (cst.value > int.max) {
+		this._isAbs = true;
+		if (!this._aux)
+		    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));
+	    }
+	}	
     }
 
 
@@ -33,7 +48,8 @@ class AMDMove : TInst {
 		       this._left.toString (),
 		       this._right.toString ());
 	} else {
-	    buf.writefln ("\tmov%s\t%s, %s",
+	    buf.writefln ("\tmov%s%s\t%s, %s",
+			  this._isAbs ? "abs" : "",
 			  size.id,
 			  this._left.toString (),
 			  this._aux.toString);

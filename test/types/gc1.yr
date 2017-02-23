@@ -1,0 +1,17 @@
+import std.stdio;
+
+def print (a : array!char) {
+    print ('[');
+    for (it in 0ul .. a.length) {
+	print (a [it]);
+	if (it < a.length - 1u)
+	    print (', ');
+    }
+    print (']');
+}
+
+def main () {
+    let a = "salut comment ca va ?";
+    println (cast:array!(char) (a));
+    println (a.typeid);
+}

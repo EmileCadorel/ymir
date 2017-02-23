@@ -1,0 +1,8 @@
+import std.stdio;
+
+def main ( ) {
+    for (it in 0 .. 256)
+	println ((it * 1.).sqrt);
+    println ("salut");
+}
+

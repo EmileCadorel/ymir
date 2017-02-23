@@ -9,6 +9,8 @@ import semantic.types.TupleInfo;
 import semantic.types.ClassUtils;
 import lint.LFrame, std.container;
 import lint.LWrite, lint.LExp;
+import ast.Expression;
+import ast.Constante, lint.LVisitor;
 
 class TupleUtils {
 
@@ -30,8 +32,33 @@ class TupleUtils {
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
 
+    }       
+
+    /**
+     Constante de nom du type bool.
+     Params:
+     left = l'expression de type bool.
+     Returns: la liste d'instruction du lint.
+     */
+    static LInstList TupleGetStringOf (InfoType, Expression left, Expression) {
+	auto type = left.info;
+	auto inst = new LInstList;
+	auto str = new String (Word.eof, type.typeString).expression;
+	str.info.type.setDestruct (null);
+	inst += LVisitor.visitExpressionOutSide (str);
+	return inst;
     }
 
     
+    /**
+     Constante de nom du type bool (nécessite BoolGetStringOf au préalable).
+     Params:
+     left = l'expression de type bool.
+     Returns: la liste d'instruction du lint.
+     */
+    static LInstList TupleStringOf (LInstList, LInstList left) {
+	return left;
+    }
+
     
 }

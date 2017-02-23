@@ -11,7 +11,7 @@ class LRegRead : LExp {
 
     this (LExp reg) {
 	this._data = reg;
-	this._beginStatic = new LConstDWord (0);
+	this._beginStatic = new LConstDecimal (0, LSize.INT);
 	this._size = reg.size;
     }
     

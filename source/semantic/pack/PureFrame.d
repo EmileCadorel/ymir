@@ -33,6 +33,7 @@ class PureFrame : Frame {
 	    this._name = func.ident.str;
     }
 
+       
     /**
      Analyse sémantique de la frame.
      Returns: le prototype de la frame, avec son nom définitif

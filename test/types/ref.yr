@@ -1,0 +1,13 @@
+import std.stdio;
+
+def test (a : ref!string, b : string) {
+    a = "salut";
+    b = "comment";
+}
+
+def main () {       
+    let a = 'comment', b = 'hehe';
+    test (a, b);
+    println (a);
+    println (b);
+}

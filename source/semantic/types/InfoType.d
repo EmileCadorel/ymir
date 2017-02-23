@@ -1,7 +1,7 @@
 module semantic.types.InfoType;
 import syntax.Word, ast.Expression, utils.YmirException;
 import std.outbuffer, utils.exception;
-import semantic.types.IntInfo, semantic.types.BoolInfo;
+import semantic.types.BoolInfo;
 import semantic.types.CharInfo, semantic.types.StringInfo;
 import semantic.types.FloatInfo, utils.exception;
 import lint.LInstList, std.container;
@@ -9,10 +9,11 @@ import semantic.pack.UnPureFrame, ast.ParamList;
 import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
 import semantic.types.PtrFuncInfo;
 import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
-import semantic.types.LongInfo, semantic.types.StructInfo;
+import semantic.types.DecimalInfo, semantic.types.StructInfo;
 import semantic.types.RangeInfo;
 import semantic.types.TupleInfo;
 import std.container;
+
 
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
@@ -104,7 +105,14 @@ class InfoType {
     static InfoType function (Word, Expression[]) [string] creators;
 
     static this () {
-	creators = ["int" : &IntInfo.create,
+	creators = ["int" : &DecimalInfo.create,
+		    "uint" : &DecimalInfo.create,
+		    "short" : &DecimalInfo.create,
+		    "ushort" : &DecimalInfo.create,
+		    "byte" : &DecimalInfo.create,
+		    "ubyte" : &DecimalInfo.create,
+		    "long" : &DecimalInfo.create,
+		    "ulong" : &DecimalInfo.create,
 		    "bool" : &BoolInfo.create,
 		    "string" : &StringInfo.create,
 		    "float" : &FloatInfo.create,
@@ -114,7 +122,6 @@ class InfoType {
 		    "array" : &ArrayInfo.create,
 		    "function" : &PtrFuncInfo.create,
 		    "ref" : &RefInfo.create,
-		    "long" : &LongInfo.create,
 		    "range" : &RangeInfo.create,
 		    "tuple" : &TupleInfo.create];
     }    
@@ -287,6 +294,13 @@ class InfoType {
      Returns: le type résultat ou null.
      */
     InfoType CompOp (InfoType) {
+	return null;
+    }
+
+    /**
+     Returns: Une information de type avec les informations permettant le cast.
+     */
+    InfoType CastTo (InfoType) {
 	return null;
     }
 

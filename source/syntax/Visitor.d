@@ -57,7 +57,7 @@ class Visitor {
 			      Keys.FOR, Keys.FOREACH, Keys.WHILE, Keys.BREAK, Keys.THROW,
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
-			      Keys.FUNCTION, Keys.LET, Keys.IS];
+			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN];
     }
 
     /**
@@ -330,6 +330,7 @@ class Visitor {
 		auto next = _lex.next ();
 		if (next == Keys.DEF) decls.insertBack (visitFunction ());
 		else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+		else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
 		else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (next == Tokens.LACC) {
 		    this._lex.rewind ();
@@ -590,16 +591,34 @@ class Visitor {
 	    return new Bool (tok);
 	else if (tok == Keys.NULL)
 	    return new Null (tok);
+	else if (tok == Keys.EXPAND)
+	    return visitExpand ();
 	else _lex.rewind ();
 	return null;
     }
 
+    private Expression visitExpand () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next ();
+	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	next = this._lex.next ();
+	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	return new Expand (begin, expr);
+    }
+    
     private Expression visitNumeric (Word begin) {
 	foreach (it ; 0 .. begin.str.length) {
-	    if (begin.str [it] < '0' || begin.str [it] > '9') {
-		if (it != begin.str.length - 1 || begin.str [it] != 'l') 
-		    throw new SyntaxError (begin);
-		else return new Long (begin);
+	    if (begin.str [it] < '0' || begin.str [it] > '9') {		
+		if (begin.str [it .. $] == "ub") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UBYTE);
+		else if (begin.str [it .. $] == "b") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.BYTE);
+		else if (begin.str [it .. $] == "s") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.SHORT);
+		else if (begin.str [it .. $] == "us") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.USHORT);
+		else if (begin.str [it .. $] == "u") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UINT);
+		else if (begin.str [it .. $] == "ul") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.ULONG);
+		else if (begin.str [it .. $] == "l") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.LONG);
+		else throw new SyntaxError (begin);
 	    }
 	}
 	auto next = _lex.next ();
@@ -615,7 +634,7 @@ class Visitor {
 	    }
 	    return new Float (begin, suite);
 	} else _lex.rewind ();
-	return new Int (begin);
+	return new Decimal (begin, DecimalConst.INT);
     }    
 
     private Expression visitFloat (Word begin) {
@@ -722,9 +741,7 @@ class Visitor {
 
     private Expression visitLeftOp () {
 	auto word = this._lex.next ();
-	if (word == Keys.SYSTEM) {
-	    return visitSystem ();
-	} else if (word == Keys.CAST) {
+	if (word == Keys.CAST) {
 	    return visitCast ();
 	} else if (word == Tokens.LCRO) {
 	    return visitConstArray ();
@@ -744,13 +761,25 @@ class Visitor {
 	auto begin = this._lex.next ();
 	auto word = this._lex.next ();
 	Array!Expression params;
-	if (word != Tokens.RCRO)  {
+	if (word != Tokens.RCRO) {
 	    this._lex.rewind ();
-	    while (true) {
-		params.insertBack (visitExpression ());
-		word = this._lex.next ();
-		if (word == Tokens.RCRO) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+	    auto fst = visitExpression ();
+	    auto next = _lex.next ();
+	    if (next == Tokens.SEMI_COLON) {
+		if (!cast (Var) fst) throw new SyntaxError (next, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+		auto size = visitExpression ();
+		next = _lex.next ();
+		if (next != Tokens.RCRO) throw new SyntaxError (next, [Tokens.RCRO.descr]);
+		return new ArrayAlloc (begin, cast (Var) fst, size);
+	    } else {
+		params.insertBack (fst);
+		_lex.rewind ();
+		while (true) {
+		    params.insertBack (visitExpression ());
+		    word = this._lex.next ();
+		    if (word == Tokens.RCRO) break; 
+		    else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+		}
 	    }
 	}
 	return new ConstArray (begin, params);
@@ -811,25 +840,6 @@ class Visitor {
 	return new FuncPtr (begin, params, ret);
     }
     
-    private Expression visitSystem () {
-	auto word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	auto id = visitIdentifiant ();
-	word = this._lex.next ();
-	Array!Expression exprs;
-	if (word != Tokens.RPAR) {
-	    if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.RPAR.descr]);
-	    while (true) {
-		exprs.insertBack (visitExpression ());
-		word = this._lex.next ();
-		if (word == Tokens.RPAR) break;
-		else if (word != Tokens.COMA) throw new SyntaxError (word,
-								     [Tokens.RPAR.descr,
-								      Tokens.COMA.descr]);
-	    }
-	}
-	return new System (id, exprs);
-    }
     
     private Expression visitSuite (Word token, Expression left) {
 	if (token == Tokens.LPAR) return visitPar (left);

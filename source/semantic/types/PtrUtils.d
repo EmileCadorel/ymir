@@ -6,7 +6,7 @@ import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
 import lint.LCast, lint.LSize;
 import lint.LConst, ast.Constante, syntax.Word;
 import lint.LVisitor, semantic.types.InfoType;
-import ast.Expression;
+import ast.Expression, lint.LAddr;
 
 /**
  Cette classe regroupe les fonctions nécéssaire à la transformation de ptr vers le lint.
@@ -38,7 +38,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += (new LWrite (leftExp, new LConstQWord (0)));
+	inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
 	return inst;
     }
 
@@ -55,7 +55,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.LONG), op));
+	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.ULONG), op));
 	return inst;
     }
    
@@ -72,7 +72,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new  LBinop (new LCast (rightExp, LSize.LONG), leftExp, op));
+	inst += (new  LBinop (new LCast (rightExp, LSize.ULONG), leftExp, op));
 	return inst;
     }
 
@@ -87,7 +87,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LRegRead (leftExp, new LConstDWord (0), size);
+	inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
 	return inst;
     }
 
@@ -102,7 +102,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LRegRead (leftExp, new LConstDWord (0), size);
+	inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
 	return inst;
     }
 
@@ -147,7 +147,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.NOT_EQUAL);
+	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
 	return inst;
     }
 
@@ -161,7 +161,7 @@ class PtrUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	inst += new LBinop (leftExp, new LConstQWord (0), Tokens.DEQUAL);
+	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
 	return inst;
     }
 
@@ -170,7 +170,7 @@ class PtrUtils {
      */
     static LInstList InstNull (LInstList, LInstList) {
 	auto inst = new LInstList;
-	inst += new LConstQWord (0);
+	inst += new LConstDecimal (0, LSize.LONG);
 	return inst;
     }
 
@@ -206,6 +206,20 @@ class PtrUtils {
      */
     static LInstList StringOf (LInstList, LInstList left) {
 	return left;
+    }
+
+    /**
+     L'instruction de récuperation de l'addresse d'un ptr.
+     Params:
+     llist = la liste d'instruction de l'operande.
+     Returns: une liste d'instruction du lint.
+     */
+    static LInstList InstAddr (LInstList llist) {
+	auto inst = new LInstList;
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LAddr (exp);
+	return inst;
     }
 
 

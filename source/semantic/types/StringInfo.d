@@ -3,13 +3,15 @@ import lint.LSize;
 import syntax.Word, ast.Expression, syntax.Tokens;
 import semantic.types.InfoType, utils.exception;
 import semantic.types.StringUtils, ast.ParamList;
-import semantic.types.CharInfo, semantic.types.IntInfo;
+import semantic.types.CharInfo;
 import ast.Var, semantic.types.UndefInfo, semantic.types.ArrayInfo;
 import semantic.types.RefInfo, semantic.types.ClassUtils;
-import semantic.types.LongInfo, std.container;
+import std.container;
 import semantic.types.ArrayUtils;
 import semantic.types.NullInfo, semantic.types.BoolInfo;
 import syntax.Keys, semantic.types.PtrInfo;
+import semantic.types.DecimalInfo;
+import ast.Constante;
 
 
 /**
@@ -280,9 +282,9 @@ class StringInfo : InfoType {
     /**
      Le nombre de référence vers le string;
      Returns: un type int.
-     */
+    */
     private InfoType NbRef () {
-	auto _int = new IntInfo;
+	auto _int = new DecimalInfo (DecimalConst.ULONG);
 	_int.lintInst = &StringUtils.InstNbRef;
 	return _int;
     }
@@ -292,7 +294,7 @@ class StringInfo : InfoType {
      Returns: un type long.
      */
     private InfoType Length () {
-	auto _int = new LongInfo ();
+	auto _int = new DecimalInfo (DecimalConst.ULONG);
 	_int.lintInst = &StringUtils.InstLength ;
 	return _int;
     }
@@ -334,7 +336,7 @@ class StringInfo : InfoType {
      Returns: un type char ou null.
      */
     private InfoType Access (Expression expr) {
-	if (cast(IntInfo) expr.info.type || cast (LongInfo) expr.info.type) {
+	if (cast(DecimalInfo) expr.info.type) {
 	    auto ch = new CharInfo;
 	    ch.lintInstMult = &StringUtils.InstAccessS;
 	    ch.isConst = false;
