@@ -1,17 +1,80 @@
 import std.stdio;
+import std.math;
 
-def resize (a : ref!(array!int), len : ulong) {
+def resize (a : ref!([int]), len : ulong) {
     let aux = [int; len];
+    if (len < a.length)
+	for (it in 0ul .. len) aux [it] = a [it];
+    else
+	for (it in 0ul .. a.length) aux [it] = a[it];              
+    a = aux;
+}
 
+def cresize (a : ref!([int]), len : ulong) {
+    let aux = [int; len];
     if (len < a.length) {
-	for (it in 0u .. len)
+	for (it in 0ul .. len)
 	    aux [it] = a [it];
     } else {
-	for (it in 0u .. a.length) aux [it] = a[it];       	
+	for (it in 0ul .. a.length) aux [it] = a[it];       	
 	for (it in (a.length) .. len) aux [it] = int.init;
-    }
-    
+    }    
     a = aux;
+}
 
+def insertBack (a : ref!([int]), elem : int) {
+    let aux = [int; a.length + 1u];
+    for (it in 0ul .. a.length)
+	aux [it] = a [it];
+    aux [a.length] = elem;
+    a = aux;
+}
 
+def removeBack (a : ref!([int])) : int {
+    let ret = a [a.length - 1u];
+    resize (a, a.length - 1u);
+    return ret;
+}
+
+def dup (a : [int]) : [int] {
+    let aux = [int; a.length];
+    for (it in 0ul .. aux.length)
+	aux [it] = a [it];
+    return aux;
+}
+
+def print (a : [int]) {
+    print ('[');
+    for (it in 0ul .. a.length) {
+	print (a [it]);
+	if (it < a.length - 1ul) print (', ');
+    }
+    print (']');
+}
+
+def back (a : [int]) : int {
+    return a [a.length - 1ul];
+}
+
+def front (a : [int]) : int {
+    return a [0];
+}
+
+def clear (a : ref!([int])) {
+    a = [int; 0ul];
+}
+
+def slice (a : [int], rng : range!ulong) : [int] {
+    if (a.length < rng.fst) return null;
+    else if (a.length < rng.scd) return null;
+    else {
+	let size = abs (cast:long(rng.fst) - cast:long(rng.scd));
+	let ret = [int; cast:ulong (size)];
+	let index = 0ul;
+	for (it in rng) {
+	    ret [index] = a [it];
+	    index ++;
+	}
+	return ret;
+    }
 }
