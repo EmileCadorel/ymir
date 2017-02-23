@@ -1,0 +1,5 @@
+
+
+public extern (C) rand () : int;
+public extern (C) srand (i : int);
+public extern (C) time (i : int) : int;

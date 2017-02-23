@@ -27,6 +27,7 @@ class Struct : Declaration {
     this (Word ident, Array!Var params) {
 	this._ident = ident;
 	this._params = params;
+	this._isPublic = true;
     }
 
     /**
@@ -67,19 +68,21 @@ class Struct : Declaration {
     }
 
     override void declareAsExtern () {
-	auto exist = Table.instance.get (this._ident.str);
-	if (exist) {
-	    throw new ShadowingVar (this._ident, exist.sym);
-	} else {
-	    auto str = new StructCstInfo (this._ident.str);
-	    str.isExtern = true;
-	    auto sym = new Symbol(this._ident, str);
-	    Table.instance.insert (sym);
-	    InfoType.addCreator (this._ident.str);
-	    foreach (it ; this._params) {
-		if (auto ty = cast (TypedVar) it) {
-		    str.addAttrib (ty);
-		} else throw new NeedAllType (this._ident, "structure");		
+	if (this._isPublic) {
+	    auto exist = Table.instance.get (this._ident.str);
+	    if (exist) {
+		throw new ShadowingVar (this._ident, exist.sym);
+	    } else {
+		auto str = new StructCstInfo (this._ident.str);
+		str.isExtern = true;
+		auto sym = new Symbol(this._ident, str);
+		Table.instance.insert (sym);
+		InfoType.addCreator (this._ident.str);
+		foreach (it ; this._params) {
+		    if (auto ty = cast (TypedVar) it) {
+			str.addAttrib (ty);
+		    } else throw new NeedAllType (this._ident, "structure");		
+		}
 	    }
 	}
     }

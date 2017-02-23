@@ -1,5 +1,8 @@
 
-def string (a : ptr!char) : string {
+def toString (c : char) : string 
+    return cast:string ([c]);
+
+def toString (a : ptr!char) : string {
     if (a is null) return '';
     else if (*a == 0ub) return ''; 
     let ret = [*a];

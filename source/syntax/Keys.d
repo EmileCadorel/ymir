@@ -36,5 +36,6 @@ enum Keys : Token {
     EXTERN = Token ("extern", 31),
     MAIN = Token ("main", 32),
     PUBLIC = Token ("public", 33),
-    EXPAND = Token ("expand", 34)
+    PRIVATE = Token ("private", 34),
+    EXPAND = Token ("expand", 35)
 }

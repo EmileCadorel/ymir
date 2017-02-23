@@ -74,10 +74,11 @@ class ExternFrame : Frame {
 	    types = make!(Array!InfoType) (ftypes [0 .. this._proto.params.length]);
 	else types = ftypes;
 	auto ret = super.isApplicable (this._proto.ident, this._proto.params, types);
-
-	foreach (it ; this._proto.params.length .. ftypes.length) {
-	    ret.score += SAME;
-	    ret.treat.insertBack (null);
+	if (ret !is null) {	
+	    foreach (it ; this._proto.params.length .. ftypes.length) {
+		ret.score += SAME;
+		ret.treat.insertBack (null);
+	    }
 	}
 	
 	return ret;

@@ -33,11 +33,12 @@ class Function : Declaration {
 
     /// Le block de la fonction
     private Block _block;
-
+    
     this (Word ident, Array!Var params, Block block) {
 	this._ident = ident;
 	this._params = params;
 	this._block = block;
+	this.isPublic = true;
     }
     
     this (Word ident, Var type, Array!Var params, Block block) {
@@ -45,6 +46,7 @@ class Function : Declaration {
 	this._type = type;
 	this._params = params;
 	this._block = block;
+	this.isPublic = true;
     }
 
     /**
@@ -67,7 +69,7 @@ class Function : Declaration {
     Block block () {
 	return this._block;
     }
-
+    
     /**
      Declare la fonction dans la table de symbol après vérification.
      Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.
@@ -103,7 +105,7 @@ class Function : Declaration {
      Throws: ShadowingVar
      */
     override void declareAsExtern () {
-	if (this._ident.str != MAIN) {
+	if (this._ident.str != MAIN && this.isPublic) {
 	    Frame fr = verifyPureAsExtern ();
 	    auto space = Table.instance.namespace;
 	    auto it = Table.instance.get (this._ident.str);

@@ -1,6 +1,10 @@
 all:
 	dub build --parallel
 
+std: all
+	cp ymir ${HOME}/libs/ymir
+	./std/install.sh
+
 final:
 	dub build --parallel --build=release
 

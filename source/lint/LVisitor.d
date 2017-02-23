@@ -657,6 +657,10 @@ class LVisitor {
 	if (access.info.type.leftTreatment)
 	    left = access.info.type.leftTreatment (access.info.type, access.left, null);
 	else left = visitExpression (access.left);
+
+	foreach (nb ; 0 .. access.info.type.lintInstS.length)
+	    left = access.info.type.lintInst (left, nb); 
+	
 	inst += type.lintInst (left, exprs);
 	return inst;
     }
@@ -666,6 +670,10 @@ class LVisitor {
 	if (dot.info.type.leftTreatment) {
 	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
 	} else left = visitExpression (dot.left);
+
+	foreach (nb ; 0 .. dot.info.type.lintInstS.length)
+	    left = dot.info.type.lintInst (left, nb);
+	
 	auto inst = dot.info.type.lintInst (LInstList.init, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
