@@ -1,18 +1,14 @@
 import std.stdio;
 
-def toStr (a : ptr!char, len : ulong) {
-    let ret = [char; len];
-    for (i in 0u .. len) {
-	ret [i] = *(a + i);
-    }
-    return cast:string (ret);
+def test (a : ref!(array!int), len : uint) {
+    a = [int; len];
 }
 
-def main () {
-    let c = "salut comment va ?";
-    let b = toStr (c.ptr, c.length);
-    println (b);
 
+def main () {
+    let a = [1, 2, 3];
+    a.test (10u);
+    println (a.length);
 }
 
 

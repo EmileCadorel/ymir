@@ -43,7 +43,14 @@ class Dot : Expression {
 	if (cast (UndefInfo) (aux._left.info.type)) throw new UninitVar (aux._left.token);
 	auto type = aux._left.info.type.DotOp (aux._right);
 	if (type is null) {
-	    throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
+	    if (InfoType.isPrimitive (aux._left.info.type)) 
+		throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
+	    else {
+		auto call = aux._right.expression ();
+		if (cast (Type) call || cast (UndefInfo) call.info.type)
+		    throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
+		return new DotCall (this._token, call, aux._left);
+	    }
 	}
 	aux.info = new Symbol (aux._token, type);
 	return aux;
@@ -78,5 +85,35 @@ class Dot : Expression {
 	this._right.print (nb + 4);
     }
 
+
+}
+
+class DotCall : Expression {
+
+    /** La fonction a appeler*/
+    private Expression _call;
+
+    /** Le premier paramètre de la fonction */
+    private Expression _firstPar;
+
+    this (Word token, Expression call, Expression firstPar) {
+	super (token);
+	this._call = call;
+	this._firstPar = firstPar;
+    }
+       
+    /**
+     Returns: L'expression de l'appel
+     */
+    Expression call () {
+	return this._call;
+    }
+
+    /**
+     Returns: le premier paramètre de l'appel
+     */
+    Expression firstPar () {
+	return this._firstPar;
+    }
 
 }

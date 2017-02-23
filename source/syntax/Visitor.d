@@ -773,12 +773,12 @@ class Visitor {
 		return new ArrayAlloc (begin, cast (Var) fst, size);
 	    } else {
 		params.insertBack (fst);
-		_lex.rewind ();
+		this._lex.rewind ();
 		while (true) {
-		    params.insertBack (visitExpression ());
 		    word = this._lex.next ();
 		    if (word == Tokens.RCRO) break; 
 		    else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RCRO.descr]);
+		    params.insertBack (visitExpression ());
 		}
 	    }
 	}

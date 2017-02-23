@@ -473,5 +473,13 @@ class InfoType {
     LInstList destruct (LInstList elem) {
 	return this._destruct (elem);
     }
+
+    static bool isPrimitive (InfoType info) {
+	return cast (DecimalInfo) info ||
+	    cast (FloatInfo) info ||
+	    cast (CharInfo) info ||
+	    cast (BoolInfo) info ||
+	    cast (VoidInfo) info;	    
+    }
     
 }

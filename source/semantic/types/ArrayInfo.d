@@ -420,6 +420,14 @@ class ArrayInfo : InfoType {
 	    auto ret = other.clone ();
 	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
+	} else if (auto _ref = cast (RefInfo) other) {
+	    if (auto arr = cast (ArrayInfo) _ref.content) {
+		if (arr.content.isSame (this._content) && !this.isConst) {
+		    auto aux = new RefInfo (this.clone ());
+		    aux.lintInstS.insertBack (&ArrayUtils.InstAddr);
+		    return aux;
+		}
+	    }
 	}
 	return null;
     }

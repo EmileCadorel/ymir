@@ -6,7 +6,7 @@ import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import ast.Tuple, std.array;
 import semantic.types.TupleInfo;
-import ast.Expand;
+import ast.Dot;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -55,6 +55,12 @@ class Par : Expression {
 	aux._left = this._left.expression ();
 	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token);
 	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
+	
+	if (auto dcall = cast (DotCall) aux._left) {
+	    aux._left = dcall.call;
+	    aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
+	}
+
 	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	if (type is null) {
 	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
