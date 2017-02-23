@@ -420,7 +420,7 @@ class LVisitor {
 	    auto regRead = new LRegRead (aux,
 					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS),
 					 type.content.size);
-	    					 
+	    
 	    inst += cster.lintInst (new LInstList (regRead), ret);
 	}
 	inst += aux;

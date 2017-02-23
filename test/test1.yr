@@ -1,12 +1,15 @@
 import std.stdio;
 
-def test (a, b, c) {
-    println (a, ' ', b, ' ', c);
-}
-
-
 def main () {
-    test (expand ((1, 2, 3)));
+    let a = (65l, 67, 10b);
+    let b = [expand (a)];
+    for (it in b) {
+	println (cast:char (it));
+	it = 8l;
+    }
+    
+    for (it in b)
+	println (it);
 }
 
 

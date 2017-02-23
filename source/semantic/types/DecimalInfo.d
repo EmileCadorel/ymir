@@ -196,6 +196,7 @@ class DecimalInfo : InfoType {
 		case DecimalConst.INT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.INT)); break;
 		case DecimalConst.LONG.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.LONG)); break;
 		}
+		ret.lintInst = &DecimalUtils.InstAffect;
 		return ret;				    
 	    } else if (!this._type.isSigned && !ot.type.isSigned && this._type.id < ot.type.id) {
 		auto ret = this.clone ();
@@ -205,6 +206,7 @@ class DecimalInfo : InfoType {
 		case DecimalConst.UINT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UINT)); break;
 		case DecimalConst.ULONG.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.ULONG)); break;
 		}
+		ret.lintInst = &DecimalUtils.InstAffect;
 		return ret;				    
 	    }
 	}
