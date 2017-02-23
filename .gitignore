@@ -10,3 +10,5 @@ ymir
 *.s
 a.out
 *.html
+genDoc/generate
+genDoc/gendoc
