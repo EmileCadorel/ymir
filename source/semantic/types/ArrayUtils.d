@@ -568,6 +568,17 @@ class ArrayUtils {
     static LInstList InstApply (LInstList func, LInstList block) {
 	return func.replace ("tmp_block", block);
     }
-
+    
+    /**
+     Returns: La liste d'instruction de récupération de l'adresse du tableau.
+     */
+    static LInstList InstAddr (LInstList llist) {
+	auto inst = new LInstList ();
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LAddr (exp);
+	return inst;
+    }
+    
 }
 

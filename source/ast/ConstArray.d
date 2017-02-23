@@ -9,6 +9,7 @@ import semantic.types.VoidInfo, semantic.types.UndefInfo;
 import ast.Var;
 import utils.exception;
 import std.stdio, std.string;
+import ast.ParamList;
 
 
 /**
@@ -52,13 +53,16 @@ class ConstArray : Expression  {
      Throws: IncompatibleTypes, UseAsVar.
      */
     override Expression expression () {
-	auto aux = new ConstArray (this._token, this._params);
-	if (aux._params.length == 0) {
+	auto aux = new ConstArray (this._token, make!(Array!Expression));
+	if (this._params.length == 0) {
 	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
 	} else {
 	    InfoType last = null;
-	    foreach (ref it ; aux._params) {
-		it = it.expression;
+	    for (ulong i = 0; i < this._params.length; i++) {
+		auto expr = this._params [i].expression;
+		if (auto par = cast (ParamList) expr) {
+		    foreach (it ; par.params) aux._params.insertBack (it);
+		} else aux._params.insertBack (expr);		
 	    }
 
 	    if (aux._params.length == 1) {
@@ -81,7 +85,8 @@ class ConstArray : Expression  {
 		    throw new IncompatibleTypes (begin,
 						 aux._params [fst].info);
 		}
-		begin.type = cmp;
+		if (fst == 0)
+		    begin.type = cmp;
 	    }
 	    aux._info = new Symbol (aux._token, new ArrayInfo (begin.type.clone ()), true);
 	}

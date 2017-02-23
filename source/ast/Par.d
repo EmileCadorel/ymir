@@ -6,7 +6,7 @@ import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import ast.Tuple, std.array;
 import semantic.types.TupleInfo;
-import ast.Expand;
+import ast.Dot;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -55,6 +55,12 @@ class Par : Expression {
 	aux._left = this._left.expression ();
 	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token);
 	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
+	
+	if (auto dcall = cast (DotCall) aux._left) {
+	    aux._left = dcall.call;
+	    aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
+	}
+
 	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	if (type is null) {
 	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
@@ -81,33 +87,16 @@ class Par : Expression {
      */
     private void tuplingParams (ApplicationScore score, ref Par par) {
 	ConstTuple ctuple;	
-	if (par._params.expands [score.treat.length - 1]) {
-	    auto it = score.treat.length - 1;
-	    ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (new Expand (par._params.expands [it].token,
-												par._params.expands [it].expr,
-												par._params.expands [it].params, 
-												it - par._params.indexes [it])));	    	
-	    auto retType = new TupleInfo ();	
-	    foreach (_it ; (it - par._params.indexes [it]) .. par._params.expands [it].params.length) {
-		auto type = par._params.expands [it].params [_it].info.type;
-		retType.params.insertBack (type);
-	    }
-	    
-	    ctuple.info = new Symbol (par._token, retType);	    
-	} else {
-	    ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));	
-	    auto retType = new TupleInfo ();	    
-	    foreach (it ; ctuple.params) {
-		auto type = it.info.type;
-		retType.params.insertBack (type);
-	    }	    
-	    ctuple.info = new Symbol (par._token, retType);	
-	}
+	ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));	
+	auto retType = new TupleInfo ();	    
+	foreach (it ; ctuple.params) {
+	    auto type = it.info.type;
+	    retType.params.insertBack (type);
+	}	    
+	ctuple.info = new Symbol (par._token, retType);
 	
 	par._params.params = make!(Array!Expression) (par._params.params [0 .. score.treat.length - 1].array ());
-	par._params.expands = make!(Array!Expand) (par._params.expands [0 .. score.treat.length - 1].array ());	
 	par._params.params.insertBack (ctuple);
-	par._params.expands.insertBack (null);
     }
     
 
