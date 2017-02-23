@@ -1,6 +1,10 @@
 import std.stdio;
-import test.test2;
+import std.array;
 
 def main () {
-    test ();
+    let a = [1, 2, 3];
+    a.resize (13u);    
+    for (it in a)
+	print (it, ' ');
+    println ('');
 }

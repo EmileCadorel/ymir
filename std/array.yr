@@ -1,3 +1,17 @@
+import std.stdio;
 
-private foo () {
+def resize (a : ref!(array!int), len : ulong) {
+    let aux = [int; len];
+
+    if (len < a.length) {
+	for (it in 0u .. len)
+	    aux [it] = a [it];
+    } else {
+	for (it in 0u .. a.length) aux [it] = a[it];       	
+	for (it in (a.length) .. len) aux [it] = int.init;
+    }
+    
+    a = aux;
+
+
 }
