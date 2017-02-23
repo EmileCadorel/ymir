@@ -1,1 +1,6 @@
 import std.stdio;
+import test.test2;
+
+def main () {
+    test ();
+}

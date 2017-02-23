@@ -66,25 +66,17 @@ class Visitor {
     Program visit () {
 	Word word = this._lex.next ();
 	Array!Declaration decls;
-	bool pub = false;
 	while (!word.isEof ()) {
-	    if (word == Keys.DEF) {
-		if(pub) throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
-		decls.insertBack (this.visitFunction ());
-	    } else if (word == Keys.IMPORT) {
-		decls.insertBack (this.visitImport ());
-		if (pub) decls.back ().isPublic = true;
-		pub = false;
-	    } else if (word == Keys.EXTERN) {
-		decls.insertBack (this.visitExtern ());
-		if (pub) decls.back ().isPublic = true;
-		pub = false;
-	    } else if (word == Keys.STRUCT) {
-		if (pub) throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
-		decls.insertBack (this.visitStruct ());
-	    } else if (word == Keys.PUBLIC) {
-		if (pub)  throw new SyntaxError (word, [Keys.IMPORT.descr, Keys.EXTERN.descr]);
-		pub = true;
+	    if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
+	    else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+	    else if (word == Keys.PUBLIC) {
+		auto pub_decls = visitPublicBlock ();
+		foreach (it ; pub_decls) decls.insertBack (it);
+	    } else if (word == Keys.PRIVATE) {
+		auto prv_decls = visitPrivateBlock ();
+		foreach (it ; prv_decls) decls.insertBack (it);
 	    }
 	    else throw new SyntaxError (word);
 	    _lex.next (word);
@@ -92,6 +84,57 @@ class Visitor {
 	return new Program (decls);
     }
 
+    Array!Declaration visitPublicBlock () {
+	auto next = this._lex.next ();
+	Array!Declaration decls;
+	if (next == Tokens.LACC) {
+	    while (true) {
+		auto word = this._lex.next ();
+		if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
+		else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+		else if (word == Tokens.RACC) break;
+		else throw new SyntaxError (word);
+		decls.back ().isPublic = true;
+	    }
+	} else {
+	    if (next == Keys.DEF) decls.insertBack (this.visitFunction ());
+	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else throw new SyntaxError (next);
+	    decls.back ().isPublic = true;
+	}
+	return decls;
+    }
+
+    Array!Declaration visitPrivateBlock () {
+	auto next = this._lex.next ();
+	Array!Declaration decls;
+	if (next == Tokens.LACC) {
+	    while (true) {
+		auto word = this._lex.next ();
+		if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
+		else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+		else if (word == Tokens.RACC) break;
+		else throw new SyntaxError (word);
+		decls.back ().isPublic = false;
+	    }
+	} else {	    
+	    if (next == Keys.DEF) decls.insertBack (this.visitFunction ());
+	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
+	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else throw new SyntaxError (next);
+	    decls.back ().isPublic = false;
+	}
+	return decls;
+    }	
+        
+    
     /**
      import := 'import' (Identifiant ('.' Identifiant)*) (',' Identifiant ('.' Identifiant))* ';'
      */
