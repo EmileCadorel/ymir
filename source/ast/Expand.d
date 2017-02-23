@@ -5,6 +5,7 @@ import syntax.Word, utils.YmirException, utils.exception;
 import semantic.pack.Symbol;
 import semantic.types.TupleInfo;
 import std.container;
+import ast.ParamList;
 
 /**
  Classe généré par la syntaxe
@@ -18,9 +19,6 @@ class Expand : Expression {
     /** Le paramètre de l'expand */
     private Expression _expr;
 
-    /** Les parametre développés. */
-    private Array!Expression _types; 
-
     /** Le debut de l'expand */
     private ulong _index;
 
@@ -29,10 +27,9 @@ class Expand : Expression {
 	this._expr = expr;
     }
 
-    this (Word begin, Expression expr, Array!Expression params, ulong index) {
+    this (Word begin, Expression expr, ulong index) {
 	super (begin);
 	this._expr = expr;
-	this._types = params;
 	this._index = index;
     }
     
@@ -45,25 +42,17 @@ class Expand : Expression {
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
 	if (!cast (TupleInfo) (expr.info.type)) return expr;
-	auto aux = new Expand (this._token, expr);
-	auto tuple = cast (TupleInfo) expr.info.type;
 	Array!Expression params;	
+	auto tuple = cast(TupleInfo) expr.info.type;
 	
-	foreach (it ; tuple.params) {
-	    auto var = new Var (Word (this._token.locus, "_", false));
-	    var.info = new Symbol (false, var.token, it);
-	    params.insertBack (var);
+	foreach (it ; 0 .. tuple.params.length) {
+	    auto exp = new Expand (this._token, expr, it);
+	    exp.info = new Symbol (false, exp.token, tuple.params[it].clone);
+	    params.insertBack (exp);
 	}
-	aux._types = params;
-	
-	return aux;
-    }
 
-    /**
-     Returns: Les types contenu dans le tuple qui va etre étendue.     
-     */
-    Array!Expression params () {
-	return this._types;
+	auto aux = new ParamList (this._token, params);	
+	return aux;
     }
 
     /**

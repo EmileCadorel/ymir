@@ -1,8 +1,12 @@
 import std.stdio;
 
+def test (a, b, c) {
+    println (a, ' ', b, ' ', c);
+}
+
 
 def main () {
-    println (1s);
+    test (expand ((1, 2, 3)));
 }
 
 

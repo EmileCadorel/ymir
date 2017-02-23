@@ -335,6 +335,7 @@ class LVisitor {
 	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
 	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
 	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
+	if (auto _exp = cast (Expand) elem) return visitExpand (_exp);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -342,18 +343,8 @@ class LVisitor {
 	Array!LExp exps;
 	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
-	    if (auto ex = cast (Expand) it) {
-		auto tupleList = visitExpression (ex.expr);
-		auto tuple = tupleList.getFirst ();
-		inst += tupleList;
-		foreach (_it ; ex.index .. ex.params.length) {
-		    exps.insertBack (visitExpand (ex, tuple, _it));
-		    inst += exps.back ();
-		}
-	    } else {
-		inst += visitExpression (it);
-		exps.insertBack (inst.getFirst ());
-	    }
+	    inst += visitExpression (it);
+	    exps.insertBack (inst.getFirst ());	    
 	}
 
 	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _tuple.info.type.simpleTypeString ());
@@ -540,11 +531,17 @@ class LVisitor {
 	}
     }
 
-    private LExp visitExpand (Expand expand, LExp tuple, ulong index) {
+    private LInstList visitExpand (Expand expand) {
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 	auto type = cast (TupleInfo) expand.expr.info.type;
+	auto inst = new LInstList;
 	
-	foreach (it ; 0 .. index) {
+	auto tupleInst = visitExpression (expand.expr);
+	auto tuple = tupleInst.getFirst ();
+	if (expand.index == 0) 
+	    inst += tupleInst; // on ne construit le tuple que la premiere fois
+	
+	foreach (it ; 0 .. expand.index) {
 	    final switch (type.params [it].size.id) {
 	    case LSize.LONG.id: nbLong ++; break;
 	    case LSize.ULONG.id: nbUlong ++; break;
@@ -558,55 +555,24 @@ class LVisitor {
 	    case LSize.DOUBLE.id: nbDouble ++; break;
 	    }	    
 	}
-
-	auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
-	return new LRegRead (tuple, size, type.params[index].size);
+	
+	auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	inst += new LRegRead (tuple, size, type.params[expand.index].size);
+	return inst;	
     }
-    
+           
     private LInstList visitParamList (ref Array!LExp exprs, Array!InfoType treat, ParamList params) {
 	LInstList list = new LInstList;
 	for (auto pit = 0, it = 0 ; pit < params.params.length ; it ++, pit ++) {
-	    if (params.expands [pit]) {
-		auto tupleList = visitExpression (params.expands [pit].expr);
-		auto tuple = tupleList.getFirst ();
-		list += tupleList;
-		auto ex_it = 0;
-		for (; ex_it < params.expands [pit].params.length; ex_it++) {
-		    if (params.expands.length <= pit + ex_it) break;
-		    if (params.expands [pit + ex_it]) {
-			auto elist = new LInstList (visitExpand (params.expands [pit], tuple, ex_it));		    
-			if (treat[it + ex_it]) {
-			    foreach (nb ; 0 .. treat [it + ex_it].lintInstS.length)
-				elist = treat [it + ex_it].lintInst (elist, nb);		    
-			}
-			
-			exprs.insertBack (elist.getFirst ());
-			list += elist;
-		    } else {
-			Expression exp = params.params [pit + ex_it];
-			LInstList elist = visitExpression (exp);
-			if (treat [it]) {
-			    foreach (nb ; 0 .. treat [it].lintInstS.length)
-				elist = treat [it].lintInst (elist, nb);		    
-			}	    
-			exprs.insertBack (elist.getFirst ());
-			list += elist;
-			break;
-		    }
-		}
-		it += ex_it;
-		pit += ex_it;
-	    } else {
-		Expression exp = params.params [pit];
-		LInstList elist = visitExpression (exp);
-		if (treat [it]) {
-		    foreach (nb ; 0 .. treat [it].lintInstS.length)
-			elist = treat [it].lintInst (elist, nb);		    
-		}	    
-		exprs.insertBack (elist.getFirst ());
-		list += elist;
-	    }
-	}
+	    Expression exp = params.params [pit];
+	    LInstList elist = visitExpression (exp);
+	    if (treat [it]) {
+		foreach (nb ; 0 .. treat [it].lintInstS.length)
+		    elist = treat [it].lintInst (elist, nb);		    
+	    }	    
+	    exprs.insertBack (elist.getFirst ());
+	    list += elist;
+	}	
 	return list;
     }
     
