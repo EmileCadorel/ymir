@@ -1,11 +1,12 @@
 # Boucles
-
+  <hr>  
  Ymir propose deux types de boucles :
  * Les boucles _While_
  * Les boucles _For_
+<br>
 
-# While
-
+## While
+----------------
  _While_ boucle jusqu'à ce que la condition soit fausse.
 
 ```D
@@ -15,11 +16,13 @@ while i < 101 {
      println ('Pair');
   else 
      println ('Impair');
+  i ++;
 }
 
 ```
-# For
-
+<br>
+## For
+----------------
  La boucle _For_ itère sur un type itérable.
  Les types itérables sont :
   - string

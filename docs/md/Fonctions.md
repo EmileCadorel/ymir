@@ -1,6 +1,8 @@
-## Fonctions
+# Fonctions
+<hr>
 
 Les fonctions peuvent être déclarées sous trois formes.
+<br>
 - **Les fonctions pure :**
 
  Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
@@ -18,6 +20,7 @@ Les fonctions peuvent être déclarées sous trois formes.
 
   Le type de retour des fonctions pures est optionnel, il sera déduit lors de la compilation.
 
+<br>
 - **Les fonctions impures :**
 
  Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
@@ -37,7 +40,7 @@ Les fonctions peuvent être déclarées sous trois formes.
    Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
    Un tuple est créé pour le dernier type, si il est non typé.
 
-```D
+   ```D
    def test (a : int, b) {
        println (b.typeid);
    }
@@ -50,10 +53,9 @@ Les fonctions peuvent être déclarées sous trois formes.
    test (1, 'r', 'salut'); // Ok, '(char, string)'.
    test (1); // Erreur, pas de surcharge de test applicable.
    test ('salut', 2, 3); // Erreur, On n'utilise pas la deuxieme surcharge 'b' est typé.
+   ```
 
-```
-
-
+<br>
 - **Les fonctions externes :**
 
  Les fonctions externes sont des fonctions qui n'ont pas de code, leur code doit être fourni au moment de l'édition des liens.
@@ -66,25 +68,25 @@ Les fonctions peuvent être déclarées sous trois formes.
    let b = foo (10);
    putchar ('Y'); 
    ```
-Elles peuvent également être déclarées comme variadic.
+
+   Elles peuvent également être déclarées comme variadic.
 
     ```D
     extern (C) printf (a : ptr!char, ...)
     
     // ...
-    printf (('salut %s, comment va tu ?').ptr, nom.ptr);
-    ```
+    printf (('salut %s, comment va tu ?').ptr, nom.ptr);```
 
+   Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.
 
- Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.
+    ```D    
+    public extern (C) putchar (c : char);
+     ```
 
- ```D
- public extern (C) putchar (c : char);
- ```
-
-## Cas particuliers.
-
- - Récursivité.
+<br>
+## Cas particuliers
+--------------------
+ - **Récursivité**
 
  Pour les fonctions récursives, il est obligatoire de mettre le type de retour de la fonction, s'il n'est pas déduit avant son appel.
 
@@ -99,12 +101,15 @@ Elles peuvent également être déclarées comme variadic.
     else return 1;
   }
  ```
- - Import
+
+<br>
+ - **Importation**
 
  Les fonctions pures importées qui ne contiennent pas de type de retour, seront considérées comme des fonctions externes void.
 
-
+<br>
 ## Surcharge
+-------------
 
 Les fonctions peuvent être surchargées qu'elle soit pure ou non.
 ```D
@@ -122,7 +127,9 @@ foo ('salut', 10); // la deuxième fonction est appelé
 foo (10, 10); // Erreur, la surcharge fonctionne autant avec les deux prototypes.
 ```
 
+<br>
 ## Fonctions internes
+--------------------
 
 Il est possible de déclarer une fonction dans un bloc. Celle-ci est alors privée à ce bloc.
 
@@ -150,7 +157,9 @@ def main () {
 
 ```
 
+<br>
 La surcharge fonctionne de la même manière avec les fonctions privées. Elles sont en concurrence avec les fonctions de scope plus large.
+<br>
 
 ```D
 def foo () {

@@ -1,9 +1,12 @@
 # Ymir
+ <hr>
 
 Ymir est un langage haut niveau inspiré par D, python et OCaml.
 Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyé dans un linker afin de générer un exécutable natif. 
 
+<br>
 ## Compilation
+------------
 
 La compilation est séparée en plusieurs phases.
 * **Analyse syntaxique :**
@@ -22,8 +25,9 @@ La compilation est séparée en plusieurs phases.
 
  Le langage intermédiaire est transformer en fichier objet, puis sont envoyé à l'éditeur de lien (pour le moment gcc).
 
-
+<br>
 ## Programme
+--------------
 
 Un programme Ymir doit contenir un point d'entrée - la fonction _main_.
 

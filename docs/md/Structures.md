@@ -1,4 +1,5 @@
-#Structure 
+# Structure 
+<hr>
 
 Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.
 
@@ -8,7 +9,7 @@ struct (i : int) A;
 struct (f : float, tab : [int]) B;
 
 ```
-
+<br>
 Ou :
 ```D
 struct 
@@ -17,6 +18,7 @@ struct
 -> B;
 ```
 
+<br>
 Et on les instancie:
 
 ```D
@@ -32,7 +34,10 @@ print (b.f);
 print (b.s); // Erreur, la structure B(float) n'a pas d'attribut 's'
 b.tab += [10];
 ```
+
+<br>
 ## Appel
+----------
 
 Les attributs des structures sont passés par référence
 ```D
@@ -50,7 +55,9 @@ foo (a);
 println (a.attr); // 123
 ```
 
+<br>
 ## Structure privée
+---------------------
 
  Il est possible de déclarer des structures dans des blocs, elles deviennent privées à ce bloc.
 
