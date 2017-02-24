@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Variables</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="assets/style.css" />
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+  </head>
+<body><h1 id="variables"><a class="header-link" href="#variables"></a>Variables</h1>
+ <hr>
+
+<p>Le type des variables est inféré dans tous les cas.</p>
+<pre class="hljs"><code><span class="hljs-comment">//...</span>
+let a = <span class="hljs-number">10</span>, b = <span class="hljs-string">'salut'</span>; <span class="hljs-comment">// a est de type _int_, b de type _string_</span>
+let c; <span class="hljs-comment">// c est de type non définis, il ne peut être utilisé avant d'être affecté.</span>
+
+a = c + <span class="hljs-number">10</span>; <span class="hljs-comment">// Erreur c n'est pas initialisé.</span>
+c = a + <span class="hljs-number">10</span>; <span class="hljs-comment">// Ok, c est de type _int_</span>
+c = b; <span class="hljs-comment">// Erreur, pas d'operateur '=' entre (int) et (string).</span></code></pre><p><br></p>
+<h2 id="type-primitif"><a class="header-link" href="#type-primitif"></a>Type primitif</h2>
+<hr>
+<p>Les types primitifs ont des propriétés qui peuvent être récupérées à partir du type ou d&#39;expression du même type.</p>
+<pre class="hljs"><code><span class="hljs-comment">// ...</span>
+let a = <span class="hljs-built_in">long</span>.max;
+let b = (<span class="hljs-string">'r'</span>).<span class="hljs-keyword">typeid</span>;</code></pre><p><br></p>
+<h3 id="types-à-virgule-fixe"><a class="header-link" href="#types-à-virgule-fixe"></a>Types à virgule fixe</h3>
+<hr>
+<p>Les types décimaux sont regroupés en deux catégories, signés et non signés.
+Un système de promotions est utilisé pour connaître les conversions implicites.
+Ymir intérdit la perte de précision implicite, on ne peut affecter (sans cast) que des types de taille inférieur vers supérieur.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">10</span>; <span class="hljs-comment">// a est de type int.</span>
+let b = <span class="hljs-number">1</span>l; <span class="hljs-comment">// b est de type long.</span>
+
+a = b; <span class="hljs-comment">// Erreur </span>
+b = a; <span class="hljs-comment">// Ok</span></code></pre><p><br>
+Il est aussi impossible de transformer un signé vers un non signé et inversement.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">1u</span>; <span class="hljs-comment">// a est de type uint</span>
+let b = <span class="hljs-number">1</span>; <span class="hljs-comment">// b est de type int</span>
+
+a = b; <span class="hljs-comment">// Erreur</span>
+b = a; <span class="hljs-comment">// Erreur</span>
+
+a = <span class="hljs-keyword">cast</span>:<span class="hljs-built_in">uint</span> (b); <span class="hljs-comment">// Ok</span></code></pre><p><br>
+Les propriétées des types décimaux sont les suivantes: </p>
+<ul class="list">
+<li><strong>init</strong>, la variable d&#39;initialisation d&#39;un int (0)</li>
+<li><strong>max</strong>, la valeur max d&#39;un int</li>
+<li><strong>min</strong>, la valeur min d&#39;un int (pas 0)</li>
+<li><strong>sizeof</strong>, la taille en mémoire d&#39;un int (en octet)</li>
+<li><strong>typeid</strong>, le type sous forme de chaine</li>
+</ul>
+<p><br></p>
+<h3 id="types-à-virgule-flottante"><a class="header-link" href="#types-à-virgule-flottante"></a>Types à virgule flottante</h3>
+<hr>
+<p>Les floats et les doubles sont les deux types à virgule flottantes.
+Comme pour les entiers, on ne peut passer d&#39;un double à un float sans cast.
+(Les floats ne sont pas encore gérés).    </p>
+<pre class="hljs"><code>let a = <span class="hljs-number">8.</span>, b = .<span class="hljs-number">78</span>, c = <span class="hljs-number">8.7f</span>; 
+c = a; <span class="hljs-comment">// Erreur, c:float, a:double</span>
+c = <span class="hljs-keyword">cast</span>:<span class="hljs-built_in">float</span> (a); <span class="hljs-comment">// Ok</span>
+a = c; <span class="hljs-comment">// Ok</span></code></pre><p><br>
+Les propriétées des types flottants sont les suivantes:</p>
+<ul class="list">
+<li><strong>init</strong>, 0.0f</li>
+<li><strong>max</strong>, la valeur maximal d&#39;un nombre flottant.</li>
+<li><strong>min</strong>, la valeur minimal d&#39;un nombre flottant</li>
+<li><strong>nan</strong>, la valeur Not a Number flottante (0. / 0.);</li>
+<li><strong>dig</strong>, le nombre de chiffre décimaux de précision.</li>
+<li><strong>epsilon</strong>, le plus petit incrément possible à la valeur 1.</li>
+<li><strong>mant_dig</strong>, le nombre de bits dans la mantis.</li>
+<li><strong>max_10_exp</strong>, la valeur la plus grande tel que 10^max_10_exp est représentable</li>
+<li><strong>max_exp</strong>, la valeur maximum tel que 2^max_exp est représentable.</li>
+<li><strong>min_10_exp</strong>, la valeur minimal tel que 10^min_10_exp est représentable.</li>
+<li><strong>min_exp</strong>, la valeur minimal tel que 2^min_exp est représentable.</li>
+<li><strong>infinity</strong>, la valeur qui représente l&#39;infini en nombre flottant.</li>
+<li><strong>typeid</strong>, le type sous forme de chaine.</li>
+<li><strong>sqrt</strong>, la racine carré du float (<em>float.sqrt</em> =&gt; 0.)</li>
+</ul>
+<p><br></p>
+<h3 id="range"><a class="header-link" href="#range"></a>Range</h3>
+<hr>
+<p>Le type range est un type particulier, il prend un type en templates (un type décimal, flottant ou <em>char</em>).
+Il s&#39;obtient avec la syntaxe </p>
+<pre class="hljs"><code>let a = <span class="hljs-number">0</span> .. <span class="hljs-number">8</span>;</code></pre><p>et possède deux propriétés :</p>
+<ul class="list">
+<li><strong>fst</strong>, le premier élément du range</li>
+<li><strong>scd</strong>, le second élément du range</li>
+</ul>
+<p>Le type range est un type itérable.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">10</span> .. -<span class="hljs-number">1</span>;
+<span class="hljs-keyword">for</span> (it <span class="hljs-keyword">in</span> a) print (it); <span class="hljs-comment">// 109876543210</span></code></pre></body>
+</html>

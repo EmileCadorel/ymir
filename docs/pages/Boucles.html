@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Boucles</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="assets/style.css" />
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+  </head>
+<body><h1 id="boucles"><a class="header-link" href="#boucles"></a>Boucles</h1>
+<p>  <hr><br> Ymir propose deux types de boucles :</p>
+<ul class="list">
+<li>Les boucles <em>While</em></li>
+<li>Les boucles <em>For</em>
+<br></li>
+</ul>
+<h2 id="while"><a class="header-link" href="#while"></a>While</h2>
+<hr>
+<p> <em>While</em> boucle jusqu&#39;à ce que la condition soit fausse.</p>
+<pre class="hljs"><code>let i = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">while</span> i &lt; <span class="hljs-number">101</span> {
+  <span class="hljs-keyword">if</span> i % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>
+     println (<span class="hljs-string">'Pair'</span>);
+  <span class="hljs-keyword">else</span> 
+     println (<span class="hljs-string">'Impair'</span>);
+  i ++;
+}</code></pre><p><br></p>
+<h2 id="for"><a class="header-link" href="#for"></a>For</h2>
+<hr>
+<p> La boucle <em>For</em> itère sur un type itérable.
+ Les types itérables sont :</p>
+<ul class="list">
+<li>string</li>
+<li>array!T</li>
+<li>range</li>
+</ul>
+<pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]
+  print (it);
+
+<span class="hljs-comment">//'12345'</span></code></pre><p> Les <em>Ranges</em> sont des types créés pour pouvoir itérer sur un intervalle.</p>
+<pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> .. <span class="hljs-number">6</span>
+   print (it); <span class="hljs-comment">// '12345'</span>
+
+<span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">6</span> .. <span class="hljs-number">0</span>
+  print (it); <span class="hljs-comment">// '654321'</span></code></pre></body>
+</html>

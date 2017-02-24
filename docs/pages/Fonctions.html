@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fonctions</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="assets/style.css" />
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+  </head>
+<body><h1 id="fonctions"><a class="header-link" href="#fonctions"></a>Fonctions</h1>
+<hr>
+
+<p>Les fonctions peuvent être déclarées sous trois formes.
+<br></p>
+<ul class="list">
+<li><p><strong>Les fonctions pure :</strong></p>
+<p>Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
+Les types des variables ne sont pas inférés, mais sont écris explicitement.</p>
+<pre class="hljs"><code>  def foo (a : <span class="hljs-keyword">int</span>, b : <span class="hljs-keyword">int</span>) {
+   <span class="hljs-comment">// ...</span>
+  }
+
+  def foo2 () : <span class="hljs-keyword">int</span> {
+   <span class="hljs-comment">// ...</span>
+  }</code></pre><p>Le type de retour des fonctions pures est optionnel, il sera déduit lors de la compilation.</p>
+</li>
+</ul>
+<p><br></p>
+<ul class="list">
+<li><p><strong>Les fonctions impures :</strong></p>
+<p>Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
+Leurs types vont être inféré au moment de leurs appels.</p>
+<pre class="hljs"><code> def foo (a, b : <span class="hljs-keyword">int</span>, c) { <span class="hljs-comment">// a et c n'ont pas de type</span>
+   <span class="hljs-comment">// ...</span>
+ } 
+
+ <span class="hljs-comment">// ...</span>
+ foo (<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// OK, avec a : int et c : string</span>
+ foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, b doit etre de type int</span></code></pre><p> Comme pour les fonctions pures, il n&#39;est pas obligatoire de mettre le type de retour qui va être déduit.</p>
+<p> Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
+ Un tuple est créé pour le dernier type, si il est non typé.</p>
+<pre class="hljs"><code> def test (a : <span class="hljs-keyword">int</span>, b) {
+     println (b.<span class="hljs-keyword">typeid</span>);
+ }
+
+ def test (a, b : <span class="hljs-keyword">int</span>) {
+    println (a.<span class="hljs-keyword">typeid</span>);
+ }
+
+ <span class="hljs-comment">// ...</span>
+ test (<span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// Ok, '(char, string)'.</span>
+ test (<span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, pas de surcharge de test applicable.</span>
+ test (<span class="hljs-string">'salut'</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Erreur, On n'utilise pas la deuxieme surcharge 'b' est typé.</span></code></pre></li>
+</ul>
+<p><br></p>
+<ul class="list">
+<li><p><strong>Les fonctions externes :</strong></p>
+<p>Les fonctions externes sont des fonctions qui n&#39;ont pas de code, leur code doit être fourni au moment de l&#39;édition des liens.
+Ces fonctions doivent être déclarées avec leurs types, ainsi que leur type de retour qui ne peut être déduit.</p>
+<pre class="hljs"><code> <span class="hljs-keyword">extern</span> foo (a : <span class="hljs-keyword">int</span>) : <span class="hljs-built_in">double</span>;
+ <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>); <span class="hljs-comment">// le type de retour n'est pas donné, _void_ par défaut.</span>
+  <span class="hljs-comment">// ...</span>
+ let b = foo (<span class="hljs-number">10</span>);
+ putchar (<span class="hljs-string">'Y'</span>);</code></pre><p> Elles peuvent également être déclarées comme variadic.</p>
+<pre class="hljs"><code>  <span class="hljs-keyword">extern</span> (C) printf (a : ptr!<span class="hljs-built_in">char</span>, ...)
+
+  <span class="hljs-comment">// ...</span>
+  printf ((<span class="hljs-string">'salut %s, comment va tu ?'</span>).ptr, nom.ptr);</code></pre><p> Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.</p>
+<pre class="hljs"><code>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>);</code></pre></li>
+</ul>
+<p><br></p>
+<h2 id="cas-particuliers"><a class="header-link" href="#cas-particuliers"></a>Cas particuliers</h2>
+<hr>
+<ul class="list">
+<li><p><strong>Récursivité</strong></p>
+<p>Pour les fonctions récursives, il est obligatoire de mettre le type de retour de la fonction, s&#39;il n&#39;est pas déduit avant son appel.</p>
+<pre class="hljs"><code>def fibo (n : <span class="hljs-keyword">int</span>) {
+  <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">2</span>) <span class="hljs-keyword">return</span> n; <span class="hljs-comment">// n est de type _int_, le type de la fonction est _int_</span>
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> fibo (n - <span class="hljs-number">1</span>) + fibo (n - <span class="hljs-number">2</span>); <span class="hljs-comment">// pas de problème le type de fibo a été déduit</span>
+}
+
+def facto (n : <span class="hljs-keyword">int</span>) {
+ <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> facto (n - <span class="hljs-number">1</span>) * n; <span class="hljs-comment">// Erreur, on ne connaît pas le type de facto</span>
+ <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+}</code></pre></li>
+</ul>
+<p><br></p>
+<ul class="list">
+<li><p><strong>Importation</strong></p>
+<p>Les fonctions pures importées qui ne contiennent pas de type de retour, seront considérées comme des fonctions externes void.</p>
+</li>
+</ul>
+<p><br></p>
+<h2 id="surcharge"><a class="header-link" href="#surcharge"></a>Surcharge</h2>
+<hr>
+<p>Les fonctions peuvent être surchargées qu&#39;elle soit pure ou non.</p>
+<pre class="hljs"><code>def foo (a : <span class="hljs-keyword">int</span>, b) {
+<span class="hljs-comment">// ...</span>
+}
+
+def foo (a, b : <span class="hljs-keyword">int</span>) {
+<span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// la première fonction est appelé</span>
+foo (<span class="hljs-string">'salut'</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// la deuxième fonction est appelé</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, la surcharge fonctionne autant avec les deux prototypes.</span></code></pre><p><br></p>
+<h2 id="fonctions-internes"><a class="header-link" href="#fonctions-internes"></a>Fonctions internes</h2>
+<hr>
+<p>Il est possible de déclarer une fonction dans un bloc. Celle-ci est alors privée à ce bloc.</p>
+<pre class="hljs"><code>
+def foo () {
+    {
+       def test () {
+            println (<span class="hljs-string">"Ici"</span>);
+       }
+
+       test (); <span class="hljs-comment">// Ok, 'Ici'</span>
+     }
+
+     test (); <span class="hljs-comment">// Erreur, symbole inconnu test</span>
+}
+
+def main () {
+    test (); <span class="hljs-comment">// Ok, 'La' (toutes les déclarations se font avant d'entrer dans le bloc)</span>
+
+    def test () { <span class="hljs-comment">// Ok, cette fonction n'appartient pas au même bloc, elle peut être redéfinie</span>
+         println (<span class="hljs-string">"La"</span>);
+    }
+}</code></pre><p><br>
+La surcharge fonctionne de la même manière avec les fonctions privées. Elles sont en concurrence avec les fonctions de scope plus large.
+<br></p>
+<pre class="hljs"><code>def foo () {
+}
+
+def main () {
+    def foo () {}
+
+    foo (); <span class="hljs-comment">// Erreur, impossible de déduire quelle fonction appelée.</span>
+}</code></pre></body>
+</html>

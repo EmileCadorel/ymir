@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Fonction à nombre de paramètres arbitraire</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="assets/style.css" />
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+  </head>
+<body><h1 id="fonction-à-nombre-de-paramètres-arbitraire"><a class="header-link" href="#fonction-à-nombre-de-paramètres-arbitraire"></a>Fonction à nombre de paramètres arbitraire</h1>
+ <hr>
+
+<p>Ymir proposent un système d&#39;appel de fonction à nombre de paramètre arbitraire. Cette solution est appelé Variadics. Cette solution est fortement lié au tuples. </p>
+<p>Pour le moment il n&#39;existe aucune syntaxe particulière pour spécifié que le fonction est variadics. On déclare une fonction impure dont le dernier arguments n&#39;a pas de type. Lors de l&#39;appel la liste de paramètre va être généré en fonction des paramètres passé à la fonction.</p>
+<pre class="hljs"><code>def foo (a) {
+ <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">1</span>, <span class="hljs-string">'i'</span>, <span class="hljs-string">"salut"</span>); (on appel foo avec le type (tuple!(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">char</span>, <span class="hljs-built_in">string</span>)).</code></pre><p><br>
+Le type &#39;tuple&#39; n&#39;est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
+Le mot clé &#39;expand&#39; va nous permettre de passer les attributs d&#39;un tuple comme des paramètres de fonctions.</p>
+<pre class="hljs"><code>def foo (count, a) {
+    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>, count, <span class="hljs-string">') '</span>);
+}
+
+def foo (count : <span class="hljs-keyword">int</span>, a, b) {
+    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>,  count, <span class="hljs-string">') '</span>);
+    foo (count + <span class="hljs-number">1</span>, expand (b)); <span class="hljs-comment">// on transforme b en paramètre </span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, 'int(1:0) char(r:1) string(salut:2)';</span></code></pre></body>
+</html>

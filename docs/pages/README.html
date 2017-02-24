@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ymir</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link type="text/css" rel="stylesheet" href="assets/style.css" />
+    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
+    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+  </head>
+<body><h2 id="ymir"><a class="header-link" href="#ymir"></a>Ymir</h2>
+<p>Ymir est un langage haut niveau inspiré par D, python et OCaml.
+Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyé dans un linker afin de générer un exécutable natif. </p>
+<p><br></p>
+<h2 id="compilation"><a class="header-link" href="#compilation"></a>Compilation</h2>
+<hr>
+<p>La compilation est séparée en plusieurs phases.</p>
+<ul class="list">
+<li><p><strong>Analyse syntaxique :</strong></p>
+<p>Cette phase génère l&#39;arbre de syntaxe, et vérifie la cohérence grammatical du code</p>
+</li>
+<li><p><strong>Analyse sémantique :</strong></p>
+<p>L&#39;arbre de syntaxe est parcouru afin de déclarer les symboles, verifier la cohérence des types.</p>
+</li>
+<li><p><strong>Génération de code intermédiaire :</strong></p>
+<p>Le langage intermédiaire est un langage de bas niveau, c&#39;est la dernière partie qui ne va pas dépendre de l&#39;architecture visé par le compilateur</p>
+</li>
+<li><p><strong>Génération du code de la cible :</strong></p>
+<p>Le langage intermédiaire est transformer en fichier objet, puis sont envoyé à l&#39;éditeur de lien (pour le moment gcc).</p>
+</li>
+</ul>
+<p><br></p>
+<h2 id="programme"><a class="header-link" href="#programme"></a>Programme</h2>
+<hr>
+<p>Un programme Ymir doit contenir un point d&#39;entrée - la fonction <em>main</em>.</p>
+<p>la fonction <em>main</em> est une fonction pure par définition.</p>
+<pre class="hljs"><code>def main () {
+}</code></pre><p> ou </p>
+<pre class="hljs"><code>def main (params) { <span class="hljs-comment">// params est un array!string</span>
+}</code></pre><p>Par défaut la fonction <em>main</em> renvoie la valeur 0.</p>
+<p><br></p>
+<h2 id="boucles"><a class="header-link" href="#boucles"></a>Boucles</h2>
+<hr>
+<p> Ymir propose deux types de boucles :</p>
+<ul class="list">
+<li>Les boucles <em>While</em></li>
+<li>Les boucles <em>For</em></li>
+</ul>
+<p><br></p>
+<h3 id="while"><a class="header-link" href="#while"></a>While</h3>
+<hr>
+<p> <em>While</em> boucle jusqu&#39;à ce que la condition soit fausse.</p>
+<pre class="hljs"><code>let i = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">while</span> i &lt; <span class="hljs-number">101</span> {
+  <span class="hljs-keyword">if</span> i % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>
+     println (<span class="hljs-string">'Pair'</span>);
+  <span class="hljs-keyword">else</span> 
+     println (<span class="hljs-string">'Impair'</span>);
+}</code></pre><p><br></p>
+<h3 id="for"><a class="header-link" href="#for"></a>For</h3>
+<hr>
+<p> La boucle <em>For</em> itère sur un type itérable.
+ Les types itérables sont :</p>
+<ul class="list">
+<li>string</li>
+<li>array!T</li>
+<li>range</li>
+</ul>
+<pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]
+  print (it);
+
+<span class="hljs-comment">//'12345'</span></code></pre><p> Les <em>Ranges</em> sont des types créés pour pouvoir itérer sur un intervalle.</p>
+<pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> .. <span class="hljs-number">6</span>
+   print (it); <span class="hljs-comment">// '12345'</span>
+
+<span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">6</span> .. <span class="hljs-number">0</span>
+  print (it); <span class="hljs-comment">// '654321'</span></code></pre><p><br></p>
+<h2 id="fonctions"><a class="header-link" href="#fonctions"></a>Fonctions</h2>
+<hr>
+<p>Les fonctions peuvent être déclarées sous trois formes.</p>
+<ul class="list">
+<li><p><strong>Les fonctions pure :</strong></p>
+<p>Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
+Les types des variables ne sont pas inférés, mais sont écris explicitement.</p>
+<pre class="hljs"><code>  def foo (a : <span class="hljs-keyword">int</span>, b : <span class="hljs-keyword">int</span>) {
+   <span class="hljs-comment">// ...</span>
+  }
+
+  def foo2 () : <span class="hljs-keyword">int</span> {
+   <span class="hljs-comment">// ...</span>
+  }</code></pre><p>Le type de retour des fonctions pures est optionnel, il sera déduit lors de la compilation.</p>
+</li>
+<li><p><strong>Les fonctions impures :</strong></p>
+<p>Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
+Leurs types vont être inféré au moment de leurs appels.</p>
+<pre class="hljs"><code> def foo (a, b : <span class="hljs-keyword">int</span>, c) { <span class="hljs-comment">// a et c n'ont pas de type</span>
+   <span class="hljs-comment">// ...</span>
+ } 
+
+ <span class="hljs-comment">// ...</span>
+ foo (<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// OK, avec a : int et c : string</span>
+ foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, b doit etre de type int</span></code></pre><p> Comme pour les fonctions pures, il n&#39;est pas obligatoire de mettre le type de retour qui va être déduit.</p>
+<p> Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
+ Un tuple est créé pour le dernier type, si il est non typé.</p>
+</li>
+</ul>
+<pre class="hljs"><code>   def test (a : <span class="hljs-keyword">int</span>, b) {
+       println (b.<span class="hljs-keyword">typeid</span>);
+   }
+
+   def test (a, b : <span class="hljs-keyword">int</span>) {
+      println (a.<span class="hljs-keyword">typeid</span>);
+   }
+
+   <span class="hljs-comment">// ...</span>
+   test (<span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// Ok, '(char, string)'.</span>
+   test (<span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, pas de surcharge de test applicable.</span>
+   test (<span class="hljs-string">'salut'</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Erreur, On n'utilise pas la deuxieme surcharge 'b' est typé.</span></code></pre><ul class="list">
+<li><p><strong>Les fonctions externes :</strong></p>
+<p>Les fonctions externes sont des fonctions qui n&#39;ont pas de code, leur code doit être fourni au moment de l&#39;édition des liens.
+Ces fonctions doivent être déclarées avec leurs types, ainsi que leur type de retour qui ne peut être déduit.</p>
+<pre class="hljs"><code> <span class="hljs-keyword">extern</span> foo (a : <span class="hljs-keyword">int</span>) : <span class="hljs-built_in">double</span>;
+ <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>); <span class="hljs-comment">// le type de retour n'est pas donné, _void_ par défaut.</span>
+  <span class="hljs-comment">// ...</span>
+ let b = foo (<span class="hljs-number">10</span>);
+ putchar (<span class="hljs-string">'Y'</span>);</code></pre><p>Elles peuvent également être déclarées comme variadic.</p>
+<pre class="hljs"><code>  <span class="hljs-keyword">extern</span> (C) printf (a : ptr!<span class="hljs-built_in">char</span>, ...)
+
+  <span class="hljs-comment">// ...</span>
+  printf ((<span class="hljs-string">'salut %s, comment va tu ?'</span>).ptr, nom.ptr);</code></pre></li>
+</ul>
+<p> Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.</p>
+<pre class="hljs"><code> <span class="hljs-keyword">public</span> <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>);</code></pre><p><br></p>
+<h2 id="cas-particuliers."><a class="header-link" href="#cas-particuliers."></a>Cas particuliers.</h2>
+<hr>
+<ul class="list">
+<li><p>Récursivité.</p>
+<p>Pour les fonctions récursives, il est obligatoire de mettre le type de retour de la fonction, s&#39;il n&#39;est pas déduit avant son appel.</p>
+<pre class="hljs"><code>def fibo (n : <span class="hljs-keyword">int</span>) {
+  <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">2</span>) <span class="hljs-keyword">return</span> n; <span class="hljs-comment">// n est de type _int_, le type de la fonction est _int_</span>
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> fibo (n - <span class="hljs-number">1</span>) + fibo (n - <span class="hljs-number">2</span>); <span class="hljs-comment">// pas de problème le type de fibo a été déduit</span>
+}
+
+def facto (n : <span class="hljs-keyword">int</span>) {
+ <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> facto (n - <span class="hljs-number">1</span>) * n; <span class="hljs-comment">// Erreur, on ne connaît pas le type de facto</span>
+ <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+}</code></pre></li>
+<li><p>Import</p>
+<p>Les fonctions pures importées qui ne contiennent pas de type de retour, seront considérées comme des fonctions externes void.</p>
+</li>
+</ul>
+<p><br></p>
+<h2 id="surcharge"><a class="header-link" href="#surcharge"></a>Surcharge</h2>
+<hr>
+<p>Les fonctions peuvent être surchargées qu&#39;elle soit pure ou non.</p>
+<pre class="hljs"><code>def foo (a : <span class="hljs-keyword">int</span>, b) {
+<span class="hljs-comment">// ...</span>
+}
+
+def foo (a, b : <span class="hljs-keyword">int</span>) {
+<span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// la première fonction est appelé</span>
+foo (<span class="hljs-string">'salut'</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// la deuxième fonction est appelé</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, la surcharge fonctionne autant avec les deux prototypes.</span></code></pre><p><br></p>
+<h2 id="fonctions-internes"><a class="header-link" href="#fonctions-internes"></a>Fonctions internes</h2>
+<hr>
+<p>Il est possible de déclarer une fonction dans un bloc. Celle-ci est alors privée à ce bloc.</p>
+<pre class="hljs"><code>
+def foo () {
+    {
+       def test () {
+            println (<span class="hljs-string">"Ici"</span>);
+       }
+
+       test (); <span class="hljs-comment">// Ok, 'Ici'</span>
+     }
+
+     test (); <span class="hljs-comment">// Erreur, symbole inconnu test</span>
+}
+
+def main () {
+    test (); <span class="hljs-comment">// Ok, 'La' (toutes les déclarations se font avant d'entrer dans le bloc)</span>
+
+    def test () { <span class="hljs-comment">// Ok, cette fonction n'appartient pas au même bloc, elle peut être redéfinie</span>
+         println (<span class="hljs-string">"La"</span>);
+    }
+}</code></pre><p>La surcharge fonctionne de la même manière avec les fonctions privées. Elles sont en concurrence avec les fonctions de scope plus large.</p>
+<pre class="hljs"><code>def foo () {
+}
+
+def main () {
+    def foo () {}
+
+    foo (); <span class="hljs-comment">// Erreur, impossible de déduire quelle fonction appelée.</span>
+}</code></pre><p><br></p>
+<h1 id="importation."><a class="header-link" href="#importation."></a>Importation.</h1>
+<hr>
+<p>Ymir propose un système de module. Chaque fichier correspond à un module importable.
+L&#39;importation de module se fait avec la syntaxe.</p>
+<pre class="hljs"><code><span class="hljs-comment">// Les chemins des fichiers sont relatif à l'emplacement de la compilation.  </span>
+<span class="hljs-keyword">import</span> path.to.file, path.to.second.file; 
+
+<span class="hljs-comment">// importation du fichier $PWD/path/to/file.yr</span>
+<span class="hljs-comment">// et importation du fichier $PWD/path/to/second/file.yr</span></code></pre><p>Les import de fichiers  ne sont pas récursif.</p>
+<ul class="list">
+<li><p>test2.yr:</p>
+<pre class="hljs"><code>def test () {
+  println (<span class="hljs-string">"Hello World!!"</span>);
+}</code></pre></li>
+<li><p>test.yr:</p>
+<pre class="hljs"><code><span class="hljs-keyword">import</span> test2;</code></pre></li>
+<li><p>main.yr:</p>
+<pre class="hljs"><code><span class="hljs-keyword">import</span> test;
+
+def main () {
+  test (); <span class="hljs-comment">// erreur, la fonction test n'existe pas.</span>
+}</code></pre></li>
+</ul>
+<p><br></p>
+<h2 id="import-public"><a class="header-link" href="#import-public"></a>Import public</h2>
+<hr>
+<p>les import dis public, sont des import récursif.</p>
+<ul class="list">
+<li><p>test2.yr:</p>
+<pre class="hljs"><code>def test () {
+  println (<span class="hljs-string">"Hello World!!"</span>);
+}</code></pre></li>
+<li><p>test.yr:</p>
+<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">import</span> test2;</code></pre></li>
+<li><p>main.yr:</p>
+<pre class="hljs"><code><span class="hljs-keyword">import</span> test;
+
+def main () {
+  test (); <span class="hljs-comment">// Ok, 'Hello World!!'</span>
+}</code></pre></li>
+</ul>
+<p><br></p>
+<h1 id="structure"><a class="header-link" href="#structure"></a>Structure</h1>
+<hr>
+<p>Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.</p>
+<p>Il existe deux syntaxe pour définir les structures:</p>
+<pre class="hljs"><code><span class="hljs-keyword">struct</span> (i : <span class="hljs-keyword">int</span>) A;
+<span class="hljs-keyword">struct</span> (f : <span class="hljs-built_in">float</span>, tab : [<span class="hljs-keyword">int</span>]) B;</code></pre><p>Ou :</p>
+<pre class="hljs"><code><span class="hljs-keyword">struct</span> 
+| f : <span class="hljs-built_in">float</span>
+| tab : [<span class="hljs-keyword">int</span>]
+-&gt; B;</code></pre><p>Et on les instancie:</p>
+<pre class="hljs"><code>let a = A (<span class="hljs-number">10</span>), b = B (.<span class="hljs-number">1</span>, []);
+let b2 = b; <span class="hljs-comment">// b2 est une reference vers b, aucune recopie n'est faite.</span></code></pre><p>L&#39;accès au paramètre se fait avec l&#39;opérateur &#39;<em>.</em>&#39;</p>
+<pre class="hljs"><code>print (a.i);
+print (b.f);
+print (b.s); <span class="hljs-comment">// Erreur, la structure B(float) n'a pas d'attribut 's'</span>
+b.tab += [<span class="hljs-number">10</span>];</code></pre><p><br></p>
+<h2 id="appel"><a class="header-link" href="#appel"></a>Appel</h2>
+<hr>
+<p>Les attributs des structures sont passés par référence</p>
+<pre class="hljs"><code>
+<span class="hljs-keyword">struct</span> (attr : <span class="hljs-keyword">int</span>) A;
+
+def foo (a : A) {
+    a.attr = <span class="hljs-number">123</span>; <span class="hljs-comment">// les attributs de a sont passé par références</span>
+    a = A (<span class="hljs-number">2</span>); <span class="hljs-comment">// a ne sera pas changé en sortie de fonction</span>
+}
+
+<span class="hljs-comment">// ...</span>
+let a = A (<span class="hljs-number">0</span>);
+foo (a);
+println (a.attr); <span class="hljs-comment">// 123</span></code></pre><p><br></p>
+<h2 id="structure-privée"><a class="header-link" href="#structure-privée"></a>Structure privée</h2>
+<hr>
+<p> Il est possible de déclarer des structures dans des blocs, elles deviennent privées à ce bloc.</p>
+<pre class="hljs"><code> def test () {}
+ def foo () {
+     {
+        <span class="hljs-keyword">struct</span> (a : <span class="hljs-keyword">int</span>) C;
+        <span class="hljs-keyword">struct</span> (a : <span class="hljs-keyword">int</span>, f : <span class="hljs-built_in">float</span>) test; <span class="hljs-comment">// Erreur, 'test' existe déjà, c'est une fonction</span>
+        let a = C (<span class="hljs-number">123</span>); <span class="hljs-comment">// Ok, a est de type 'C'</span>
+     }
+     let c = C (<span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, 'C' n'existe pas</span>
+ }</code></pre><p><br></p>
+<h1 id="tableau"><a class="header-link" href="#tableau"></a>Tableau</h1>
+<hr>
+<p>Ymir permet l&#39;utilisation de tableau dynamique directement dans le langage sans importation de bibliothèque. 
+Les tableaux sont libérés par le garbage collector lorsqu&#39;il n&#39;y a plus de référence sur eux.</p>
+<p><br></p>
+<h2 id="declaration"><a class="header-link" href="#declaration"></a>Declaration</h2>
+<hr>
+<p>Les tableaux se créent de la façon suivante :</p>
+<pre class="hljs"><code>let a1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]; <span class="hljs-comment">// array!int</span>
+let a2 = [<span class="hljs-number">1.</span>, <span class="hljs-number">2.</span>]; <span class="hljs-comment">// array!float</span>
+let b = [[<span class="hljs-number">1</span>, <span class="hljs-number">2</span>], [<span class="hljs-number">3</span>, <span class="hljs-number">4</span>]]; <span class="hljs-comment">// array!(array!int)</span>
+let c = [<span class="hljs-string">"salut"</span>, <span class="hljs-string">'ca va ?'</span>]; <span class="hljs-comment">// array!string</span>
+let d = [<span class="hljs-string">"salut"</span>, [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>]]; <span class="hljs-comment">// Erreur, type incompatible (string) et (array!int)</span></code></pre><p>Ils peuvent être passé en paramètre de fonction, mais uniquement par référence.</p>
+<pre class="hljs"><code>def foo (a : [<span class="hljs-built_in">string</span>]) {
+   a [<span class="hljs-number">0</span>] = <span class="hljs-string">'Oui !!'</span>;
+   a = [<span class="hljs-string">"Non '-_-"</span>];
+}
+
+<span class="hljs-comment">// ...</span>
+let a = [<span class="hljs-string">'Ca marche ?'</span>];
+println (a [<span class="hljs-number">0</span>]); <span class="hljs-comment">// Ok, 'Ca marche ?';</span>
+foo (a);
+println (a [<span class="hljs-number">0</span>]); <span class="hljs-comment">// Ok, 'Oui !!'</span></code></pre><p><br></p>
+<h2 id="cast"><a class="header-link" href="#cast"></a>Cast</h2>
+<hr>
+<p>Dans le langage Ymir, il n&#39;existe aucune différence entre un <em>string</em> et un <em>array!char</em>. Ces deux types ne sont différenciés que pour permettre une spécification de template lors de l&#39;analyse sémantique.
+Ainsi, il est tout à fait possible de passer de l&#39;un à l&#39;autre.</p>
+<pre class="hljs"><code>let a = <span class="hljs-string">'Salut'</span>;
+println (a); <span class="hljs-comment">// Ok, 'Salut'</span>
+println (<span class="hljs-keyword">cast</span>:array!(<span class="hljs-built_in">char</span>) (a)); <span class="hljs-comment">// Ok, '[S, a, l, u, t]'</span>
+<span class="hljs-comment">// ou cast:[char] (a);</span>
+let b = <span class="hljs-keyword">cast</span>:<span class="hljs-built_in">string</span> ([<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>]);</code></pre><h2 id="operateur"><a class="header-link" href="#operateur"></a>Operateur</h2>
+<p>Comme pour les <em>string</em> les tableaux surchargent l&#39;operateur <em>+</em></p>
+<pre class="hljs"><code>let a = [<span class="hljs-number">1</span>] + [<span class="hljs-number">2</span>];
+a += [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]; 
+println (a); <span class="hljs-comment">// '[1, 2, 1, 2, 3]'</span></code></pre><p><br></p>
+<h1 id="variables"><a class="header-link" href="#variables"></a>Variables</h1>
+<hr>
+<p>Le type des variables est inféré dans tous les cas.</p>
+<pre class="hljs"><code><span class="hljs-comment">//...</span>
+let a = <span class="hljs-number">10</span>, b = <span class="hljs-string">'salut'</span>; <span class="hljs-comment">// a est de type _int_, b de type _string_</span>
+let c; <span class="hljs-comment">// c est de type non définis, il ne peut être utilisé avant d'être affecté.</span>
+
+a = c + <span class="hljs-number">10</span>; <span class="hljs-comment">// Erreur c n'est pas initialisé.</span>
+c = a + <span class="hljs-number">10</span>; <span class="hljs-comment">// Ok, c est de type _int_</span>
+c = b; <span class="hljs-comment">// Erreur, pas d'operateur '=' entre (int) et (string).</span></code></pre><p><br></p>
+<h1 id="type-primitif"><a class="header-link" href="#type-primitif"></a>Type primitif</h1>
+<hr>
+<p>Les types primitifs ont des propriétés qui peuvent être récupérées à partir du type ou d&#39;expression du même type.</p>
+<pre class="hljs"><code><span class="hljs-comment">// ...</span>
+let a = <span class="hljs-built_in">long</span>.max;
+let b = (<span class="hljs-string">'r'</span>).<span class="hljs-keyword">typeid</span>;</code></pre><p><br></p>
+<h3 id="float-et-double"><a class="header-link" href="#float-et-double"></a>Float et Double</h3>
+<hr>
+<ul class="list">
+<li><strong>init</strong>, 0.0f</li>
+<li><strong>max</strong>, la valeur maximal d&#39;un nombre flottant.</li>
+<li><strong>min</strong>, la valeur minimal d&#39;un nombre flottant</li>
+<li><strong>nan</strong>, la valeur Not a Number flottante (0. / 0.);</li>
+<li><strong>dig</strong>, le nombre de chiffre décimaux de précision.</li>
+<li><strong>epsilon</strong>, le plus petit incrément possible à la valeur 1.</li>
+<li><strong>mant_dig</strong>, le nombre de bits dans la mantis.</li>
+<li><strong>max_10_exp</strong>, la valeur la plus grande tel que 10^max_10_exp est représentable</li>
+<li><strong>max_exp</strong>, la valeur maximum tel que 2^max_exp est représentable.</li>
+<li><strong>min_10_exp</strong>, la valeur minimal tel que 10^min_10_exp est représentable.</li>
+<li><strong>min_exp</strong>, la valeur minimal tel que 2^min_exp est représentable.</li>
+<li><strong>infinity</strong>, la valeur qui représente l&#39;infini en nombre flottant.</li>
+<li><strong>typeid</strong>, le type sous forme de chaine.</li>
+<li><strong>sqrt</strong>, la racine carré du float (<em>float.sqrt</em> =&gt; 0.)</li>
+</ul>
+<p><br></p>
+<h1 id="range"><a class="header-link" href="#range"></a>Range</h1>
+<hr>
+<p> Le type range est un type particulier, il prend un type en templates (entre [float, char, int, long]).
+ Il s&#39;obtient avec la syntaxe </p>
+<pre class="hljs"><code>let a = <span class="hljs-number">0</span> .. <span class="hljs-number">8</span>;</code></pre><p>et possède deux propriétés :</p>
+<ul class="list">
+<li><strong>fst</strong>, le premier élément du range</li>
+<li><strong>scd</strong>, le second élément du range</li>
+</ul>
+<p>Le type range est un type itérable.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">10</span> .. -<span class="hljs-number">1</span>;
+<span class="hljs-keyword">for</span> (it <span class="hljs-keyword">in</span> a) print (it);</code></pre><p><br></p>
+<h3 id="types-à-virgule-fixe."><a class="header-link" href="#types-à-virgule-fixe."></a>Types à virgule fixe.</h3>
+<hr>
+<p>Les types décimaux sont regroupés en deux catégories, signés et non signés.
+Un système de promotions est utilisé pour connaître les conversions implicites.
+Ymir intérdit la perte de précision implicite, on ne peut affecter (sans cast) que des types de taille inférieur vers supérieur.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">10</span>; <span class="hljs-comment">// a est de type int.</span>
+let b = <span class="hljs-number">1</span>l; <span class="hljs-comment">// b est de type long.</span>
+
+a = b; <span class="hljs-comment">// Erreur </span>
+b = a; <span class="hljs-comment">// Ok</span></code></pre><p>Il est aussi impossible de transformer un signé vers un non signé et inversement.</p>
+<pre class="hljs"><code>let a = <span class="hljs-number">1u</span>; <span class="hljs-comment">// a est de type uint</span>
+let b = <span class="hljs-number">1</span>; <span class="hljs-comment">// b est de type int</span>
+
+a = b; <span class="hljs-comment">// Erreur</span>
+b = a; <span class="hljs-comment">// Erreur</span>
+
+a = <span class="hljs-keyword">cast</span>:<span class="hljs-built_in">uint</span> (b); <span class="hljs-comment">// Ok</span></code></pre><p>Leurs propriétées:</p>
+<ul class="list">
+<li><strong>init</strong>, la variable d&#39;initialisation d&#39;un int (0)</li>
+<li><strong>max</strong>, la valeur max d&#39;un int</li>
+<li><strong>min</strong>, la valeur min d&#39;un int (pas 0)</li>
+<li><strong>sizeof</strong>, la taille en mémoire d&#39;un int (en octet)</li>
+<li><strong>typeid</strong>, le type sous forme de chaine</li>
+</ul>
+<p><br></p>
+<h1 id="variadics"><a class="header-link" href="#variadics"></a>Variadics</h1>
+<hr>
+<p>Ymir proposent un système d&#39;appel de fonction à nombre de paramètre arbitraire. Cette solution est appelé Variadics. Cette solution est fortement lié au tuples. </p>
+<p>Pour le moment il n&#39;existe aucune syntaxe particulière pour spécifié que le fonction est variadics. On déclare une fonction impure dont le dernier arguments n&#39;a pas de type. Lors de l&#39;appel la liste de paramètre va être généré en fonction des paramètres passé à la fonction.</p>
+<pre class="hljs"><code>def foo (a) {
+ <span class="hljs-comment">// ...</span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">1</span>, <span class="hljs-string">'i'</span>, <span class="hljs-string">"salut"</span>); (on appel foo avec le type (tuple!(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">char</span>, <span class="hljs-built_in">string</span>)).</code></pre><p>Le type &#39;tuple&#39; n&#39;est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
+Le mot clé &#39;expand&#39; va nous permettre de passer les attributs d&#39;un tuple comme des paramètres de fonctions.</p>
+<pre class="hljs"><code>def foo (count, a) {
+    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>, count, <span class="hljs-string">') '</span>);
+}
+
+def foo (count : <span class="hljs-keyword">int</span>, a, b) {
+    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>,  count, <span class="hljs-string">') '</span>);
+    foo (count + <span class="hljs-number">1</span>, expand (b)); <span class="hljs-comment">// on transforme b en paramètre </span>
+}
+
+<span class="hljs-comment">//...</span>
+foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, 'int(1:0) char(r:1) string(salut:2)';</span></code></pre></body>
+</html>
