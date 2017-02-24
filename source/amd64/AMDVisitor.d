@@ -257,9 +257,16 @@ class AMDVisitor : TVisitor {
 	auto rpaire = visitExpression (lbin.right, where);	
 	ret += rpaire.what;
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
-	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
-	    ret += lpaire.what;
-	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    if (lpaire.where != where) {
+		ret += new AMDMove (cast (AMDObj) rpaire.where, where);
+		ret += lpaire.what;
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    } else {
+		auto aux = new AMDReg (REG.aux (where.sizeAmd));
+		ret += new AMDMove (cast (AMDObj) rpaire.where, aux);
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, aux, lbin.op);
+		REG.free (aux);
+	    }
 	} else {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
@@ -285,15 +292,21 @@ class AMDVisitor : TVisitor {
 	}
 	auto laux = new AMDReg (REG.aux (AMDSize.DWORD));
 	import std.stdio;
-
+	
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
-	    REG.reserve (where);
 	    auto lpaire = visitExpression (lbin.left, laux);
-	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
-	    ret += lpaire.what;
-	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    if (lpaire.where != where) {
+		ret += new AMDMove (cast (AMDObj) rpaire.where, where);
+		ret += lpaire.what;
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    } else {
+		auto aux = new AMDReg (REG.aux (where.sizeAmd));
+		ret += new AMDMove (cast (AMDObj) rpaire.where, aux);
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, aux, lbin.op);
+		REG.free (aux);
+	    }
 	} else {
 	    auto lpaire = visitExpression (lbin.left, laux);
 	    ret += lpaire.what;
@@ -324,9 +337,16 @@ class AMDVisitor : TVisitor {
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
-	    ret += new AMDMove (cast (AMDObj) rpaire.where, where);       
-	    ret += lpaire.what;
-	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    if (lpaire.where != where) {
+		ret += new AMDMove (cast (AMDObj) rpaire.where, where);
+		ret += lpaire.what;
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, where, lbin.op);
+	    } else {
+		auto aux = new AMDReg (REG.aux (where.sizeAmd));
+		ret += new AMDMove (cast (AMDObj) rpaire.where, aux);
+		ret += new AMDBinop (where, cast (AMDObj) lpaire.where, aux, lbin.op);
+		REG.free (aux);
+	    }
 	} else {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
