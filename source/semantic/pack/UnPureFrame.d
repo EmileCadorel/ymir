@@ -76,7 +76,7 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
      */
     override FrameProto validate (Array!InfoType params) {
-	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
+	string name = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);
@@ -120,7 +120,7 @@ class UnPureFrame : Frame {
 
 	    proto.type = Table.instance.retInfo.info;
 	    
-	    FrameTable.instance.insertTemplate (fr);
+	    FrameTable.instance.insert (fr);
 	    
 	    fr.file = this._function.ident.locus.file;
 	    fr.dest = Table.instance.quitBlock ();
@@ -145,7 +145,7 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
     */
     override FrameProto validate (ParamList params) {
-	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
+	string name = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	Table.instance.enterFrame (name, this._function.params.length);
 	Table.instance.enterBlock ();

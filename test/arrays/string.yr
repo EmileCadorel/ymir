@@ -1,104 +1,28 @@
-extern (C) putchar (c : char);
+import std.stdio;
+import std.string;
 
-def print (str : string) {
-    let i = 0u;
-    while (i < str.length) {
-	print (str [i]);
-	i += 1u;
-    }    
-}
-
-def print (c : char) {
-    putchar (c);
-}
-
-def toStr (c : char) : string {
-    return cast:string (['r']);
-}
-
-def toStr (i : int) : string {
-    let ret = "", inf = false;
-    if (i < 0) {
-	inf = true;
-	i = -i;
+def print (as : [string]) {
+    println ('[');
+    for (it in 0ul .. as.length) {
+	print ('  ', as [it]);
+	if (it < as.length - 1ul) println (',');
     }
+    println ('\n]');
+}
 
-    while (i > 9) {
-	ret = toStr(cast:char(i % 10) + '0') + ret;
-	i /= 10;
+def map (as : [string], op) {
+    for (it in 0ul .. as.length) {
+	as [it] = op (as [it]);
     }
-
-    ret = toStr(cast:char(i % 10) + '0') + ret;
-
-    if (inf) return "-" + ret;        
-    return ret;
-}
-
-def toStrReq (i : int) : string {
-    if (i < 0) {
-	return "-" + toStrReq (-i);
-    } else {
-	let ret = '';
-	if (i > 9) ret = toStrReq (i / 10);
-	return ret + toStr (cast:char(i%10) + '0');
-    }
-}
-
-
-def print (i : ulong) : void {
-    if (i < 0ul) {
-	putchar ('-');
-	print (- i);
-    } else {
-	if (i > 9ul) print (i / 10ul);
-	putchar (cast:char(i % 10ul) + '0');
-    }
-}
-
-def print (i : long) : void {
-    if (i < 0l) {
-	putchar ('-');
-	print (- i);
-    } else {
-	if (i > 9l) print (i / 10l);
-	putchar (cast:char(i % 10l) + '0');
-    }
-}
-
-def print (i : int) : void {
-    if (i < 0) {
-	putchar ('-');
-	print (- i);
-    } else {
-	if (i > 9) print (i / 10);
-	putchar (cast:char(i % 10) + '0');
-    }
-}
-
-def println (s) {
-    print (s);
-    print ('\n');
-}
-
-def print (arr) {
-    let i = 0ul;
-    print ('[');
-    while (i < arr.length) {
-	print (arr [i]);
-	if (i < arr.length - 1ul) print(", ");
-	i += 1u;
-    }
-    print (']');
-}
-
-def test (i) {
-    return i;
+    return as;
 }
 
 def main () {
-    let a = "salut" + " comment " + "ca va ?";
-    println (a.length);
-    let b = [1, 2, 3] + [4];
-       println (a);
-    println (b);
+    let file = fopen ("Makefile", "r");
+    let line = fread (file, 1024u);
+    println (splitLines (line).map (function (str : string) : string {
+	return strip (str);
+    }));
+
+    fclose (file);
 }

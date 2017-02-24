@@ -1,0 +1,227 @@
+import std.math;
+
+/**
+   Retourne l'index de la première occurence du char dans la chaine.
+   Params:
+   str = la chaine ou l'on recherche
+   what = le char recherché
+   Returns: l'index ou str.length
+*/
+def indexOf (str : string, what : char) : ulong {
+    for (it in 0ul .. str.length) {
+	if (str [it] == what) return it;
+    }
+    
+    return str.length;
+}
+
+/**
+   Retourne l'index de la première occurence de la chaine dans la premiere chaine.
+   Params:
+   str = la chaine où l'on cherche
+   what = la chaine recherché
+   Returns: l'index ou str.length
+*/
+def indexOf (str : string, what : string) : ulong {
+    for (it in 0ul .. (str.length - (what.length - 1ul))) {
+	let eq = true;
+	for (it2 in 0ul .. what.length) {
+	    if (str [it + it2] != what [it2]) {
+		eq = false;
+		break;
+	    }
+	}
+	if (eq) return it;
+    }
+    return str.length;
+}
+
+/**
+   Retourne l'index de la dernière occurence du char dans la chaine
+   Params:
+   str = la chaine où l'on cherche
+   what = le char recherché
+   Returns: l'index ou str.length;
+ */
+def lastIndexOf (str : string, what : char) : ulong {
+    for (it in cast:long (str.length) .. -1l) {
+	if (str [it] == what) return cast:ulong (it);
+    }
+    
+    return str.length;
+}
+
+
+/**
+   Retourne l'index de la première occurence de la chaine dans la premiere chaine.
+   Params:
+   str = la chaine où l'on cherche
+   what = la chaine recherché
+   Returns: l'index ou str.length
+*/
+def lastIndexOf (str : string, what : string) : ulong {
+    for (it in cast:long (str.length - (what.length - 1ul)) .. -1l) {
+	let eq = true;
+	for (it2 in 0ul .. what.length) {
+	    if (str [cast:ulong(it) + it2] != what [it2]) {
+		eq = false;
+		break;
+	    }
+	}
+	if (eq) return cast:ulong (it);
+    }
+
+    
+    return str.length;
+}
+
+
+/**
+   Retourne l'index de la première occurence de la chaine différente du char
+   Params:
+   str = la chaine où l'on cherche
+   what = le char recherché
+   Returns: l'index ou str.length
+ */
+def indexOfNeither (str : string, what : char) : ulong {
+    for (it in 0ul .. str.length) {
+	if (str [it] != what) return it;
+    }
+    
+    return str.length;
+}
+
+/**
+   Retourne l'index de la première occurence de la chaine dans la premiere chaine.
+   Params:
+   str = la chaine où l'on cherche
+   what = la chaine recherché
+   Returns: l'index ou str.length
+*/
+def indexOfNeither (str : string, what : string) : ulong {
+    let it = 0ul;
+    while (it < str.length) {
+	for (it2 in 0ul .. what.length) {
+	    if (it + it2 >= str.length) return it;
+	    if (str [it + it2] != what [it2]) return it;	   
+	}
+	it += what.length;
+    }
+    return str.length;
+}
+
+/**
+   Retourne l'index de la dernière occurence de la chaine différente du char
+   Params:
+   str = la chaine où l'on cherche
+   what = le char recherché
+   Returns: l'index ou str.length
+*/
+def lastIndexOfNeither (str : string, what : char) : ulong {
+    for (it in cast:long (str.length) .. -1l) {
+	if (str [it] != what) return cast:ulong (it);
+    }
+    
+    return str.length;
+}
+
+/**
+   Retourne la chaine avec la première lettre en majuscule et le reste en minuscule
+   Params:
+   str = la chaine a capitalisé
+   Returns: Une nouvelle chaine
+*/
+def capitalize (str : string) : string {
+    let aux = [char; str.length];
+    if (str.length > 0ul) {
+	if (str [0] >= 'a' && str [0] <= 'z')
+	    aux [0] = str [0] - 'a' + 'A';
+	else aux [0] = str [0];
+	
+	for (it in 1ul .. str.length) {
+	    if (str [it] >= 'A' && str [it] <= 'Z') {
+		aux [it] = str [it] - 'A' + 'a';
+	    } else {
+		aux [it] = str [it];
+	    }
+	} 
+    }
+    return cast:string (aux);
+}
+
+
+def append (str : ref!string, c : char) : string {
+    let aux = [char; str.length + 1ul];
+    for (it in 0ul .. str.length) {
+	aux [it] = str [it];
+    }
+    aux [aux.length - 1ul] = c;
+    str = cast:string (aux);
+    return cast:string (aux);
+}
+
+/**   
+   Params:
+   str = le texte a splitter
+   Returns: un tableau de chaine, chaque case correspond à une ligne
+ */
+def splitLines (str : string) : [string] {
+    let ret = [''];
+    for (it in str) {
+	if (it == '\n') ret += [''];
+	else ret [ret.length - 1ul].append (it);
+    }
+    return ret;
+}
+
+
+def isWhite (c : char) : bool {
+    return !(c != '\n' && c != '\t' && c != '\v' && c != '\r' && c != ' ');
+}
+
+def substr (str : string, rng : range!ulong) : string {
+    if (str.length < rng.fst) return null;
+    else if (str.length < rng.scd) return null;
+    else {
+	let size = abs (cast:long(rng.fst) - cast:long (rng.scd));
+	let ret = [char; cast:ulong (size)];
+	let index = 0ul;
+	for (it in rng) {
+	    ret [index] = str [it];
+	    index ++;
+	}
+	return cast:string (ret);
+    }
+}
+
+def stripLeft (str : string) : string {   
+    for (it in 0ul .. str.length) {
+	if (!isWhite (str [it])) return str.substr (it .. str.length);
+    }
+    
+    return '';
+}
+
+def stripRight (str : string) : string {
+    for (it in cast:long(str.length - 1ul) .. -1l) {
+	if (!isWhite (str [it])) return str.substr (0ul .. cast:ulong (it + 1l));
+    }
+    return '';
+}
+
+def strip (str : string) : string {
+    let left = 0ul, right = str.length - 1ul;
+    while (left < str.length) {
+	if (!isWhite (str [left])) break;
+	left ++;
+    }
+
+    while (right >= 0ul) {
+	if (!isWhite (str [right])) return str.substr (left .. (right + 1ul));
+	right --;
+    }
+    
+    return '';
+}
+
+

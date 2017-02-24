@@ -1,13 +1,7 @@
 import std.stdio;
-import std.array;
+import std.string;
+import std.math;
 
 def main () {
-    let a = [int; 0u];
-    for (it in 0 .. 10) {
-	a.insertBack (it);
-    }
-    
-    println (a);
-    println (a.removeBack (), " ", a.dup (), ' ', a.back ());
-    println (a.slice (4ul .. 1ul));
+    println ('[', strip ("h "), ']');
 }
