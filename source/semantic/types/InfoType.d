@@ -13,7 +13,7 @@ import semantic.types.DecimalInfo, semantic.types.StructInfo;
 import semantic.types.RangeInfo;
 import semantic.types.TupleInfo;
 import std.container;
-
+import semantic.pack.Symbol;
 
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
@@ -234,6 +234,19 @@ class InfoType {
      */
     InfoType BinaryOp (Word token, Expression right) {
 	return null;
+    }
+
+    /**
+     Surcharge des operateur binaire
+     Params:
+     token = l'operateur
+     right = l'operande droite de l'expression
+     Returns: le type résultat ou null
+     */
+    final InfoType BinaryOp (Word token, InfoType type) {
+	auto expr = new Expression (token);
+	expr.info = new Symbol (false, token, type, type.isConst);
+	return this.BinaryOp (token, expr);
     }
 
     /**

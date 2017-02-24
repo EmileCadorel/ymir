@@ -284,6 +284,8 @@ class AMDVisitor : TVisitor {
 	    where = cast (AMDReg) wh.where;
 	}
 	auto laux = new AMDReg (REG.aux (AMDSize.DWORD));
+	import std.stdio;
+
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
