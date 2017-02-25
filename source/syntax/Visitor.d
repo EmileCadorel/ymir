@@ -287,8 +287,15 @@ class Visitor {
 	auto ident = visitIdentifiant ();
 	Word next = _lex.next ();
 	if (next == Tokens.COLON) {
-	    auto type = visitType ();
-	    return new TypedVar (ident, type);
+	    next = _lex.next ();
+	    if (next == Keys.FUNCTION) {
+		auto type = visitFuncPtrSimple ();
+		return new TypedVar (ident, type);
+	    } else {
+		_lex.rewind ();
+		auto type = visitType ();
+		return new TypedVar (ident, type);
+	    }
 	} else _lex.rewind ();
 	return new Var (ident);
     }
@@ -654,13 +661,13 @@ class Visitor {
     private Expression visitNumeric (Word begin) {
 	foreach (it ; 0 .. begin.str.length) {
 	    if (begin.str [it] < '0' || begin.str [it] > '9') {		
-		if (begin.str [it .. $] == "ub") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UBYTE);
-		else if (begin.str [it .. $] == "b") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.BYTE);
-		else if (begin.str [it .. $] == "s") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.SHORT);
-		else if (begin.str [it .. $] == "us") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.USHORT);
-		else if (begin.str [it .. $] == "u") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UINT);
-		else if (begin.str [it .. $] == "ul") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.ULONG);
-		else if (begin.str [it .. $] == "l") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.LONG);
+		if (begin.str [it .. $] == "ub" || begin.str [it .. $] == "UB") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UBYTE);
+		else if (begin.str [it .. $] == "b" || begin.str [it .. $] == "B") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.BYTE);
+		else if (begin.str [it .. $] == "s" || begin.str [it .. $] == "S") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.SHORT);
+		else if (begin.str [it .. $] == "us" || begin.str [it .. $] == "US") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.USHORT);
+		else if (begin.str [it .. $] == "u" || begin.str [it .. $] == "U") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.UINT);
+		else if (begin.str [it .. $] == "ul" || begin.str [it .. $] == "UL") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.ULONG);
+		else if (begin.str [it .. $] == "l" || begin.str [it .. $] == "L") return new Decimal (Word (begin.locus, begin.str [0 .. it]), DecimalConst.LONG);
 		else throw new SyntaxError (begin);
 	    }
 	}
@@ -850,6 +857,32 @@ class Visitor {
     /**
      func := 'function' '(' (var (',' var)*)? ')' ':' var
      */
+    private Expression visitFuncPtrSimple () {
+	Array!Var params;
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto word = this._lex.next ();
+	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	word = this._lex.next ();
+	if (word != Tokens.RPAR) {
+	    this._lex.rewind ();
+	    while (true) {
+		params.insertBack (visitType ());
+		word = this._lex.next ();
+		if (word == Tokens.RPAR) break;
+		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
+	    }	    
+	}
+	word = this._lex.next ();
+	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	auto ret = visitType ();
+	return new FuncPtr (begin, params, ret);
+    }
+
+
+    /**
+     func := 'function' '(' (var (',' var)*)? ')' ':' var
+     */
     private Expression visitFuncPtr () {
 	Array!Var params;
 	this._lex.rewind ();
@@ -882,6 +915,7 @@ class Visitor {
 	} else this._lex.rewind ();
 	return new FuncPtr (begin, params, ret);
     }
+
     
     
     private Expression visitSuite (Word token, Expression left) {

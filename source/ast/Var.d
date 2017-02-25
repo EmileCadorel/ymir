@@ -5,6 +5,7 @@ import std.stdio, std.string, std.outbuffer, utils.YmirException;
 import semantic.pack.Symbol;
 import utils.exception;
 import semantic.types.ArrayInfo;
+import ast.FuncPtr;
 
 
 /**
@@ -186,9 +187,17 @@ class TypedVar : Var {
     /// Le type de la variable (l'element à droite des deux points)
     private Var _type;
 
+    /// Le type de la variable (un pointeur sur fonction).
+    private Expression _expType;
+    
     this (Word ident, Var type) {
 	super (ident);
 	this._type = type;
+    }
+
+    this (Word ident, Expression type) {
+	super (ident);
+	this._expType = type;	
     }
 
     /**
@@ -196,12 +205,20 @@ class TypedVar : Var {
      Pour être juste la variable ne doit pas éxister et l'element de droite doit être un type.    
      */
     override Var expression () {
-	auto aux = new TypedVar (this._token, this._type.asType ());
-	auto info = Table.instance.get (this._token.str);
-	if (info !is null) throw new ShadowingVar (this._token, info.sym);
-	aux.info = new Symbol (this._token, aux._type.info.type, false);
-	Table.instance.insert (aux.info);
-	return aux;
+	if (this._type) {
+	    auto aux = new TypedVar (this._token, this._type.asType ());
+	    aux.info = new Symbol (this._token, aux._type.info.type, false);
+	    Table.instance.insert (aux.info);
+	    return aux;
+	} else {
+	    auto ptr = cast (FuncPtr) this._expType.expression ();
+	    if (ptr) {
+		auto aux = new TypedVar (this._token, new Type (ptr.token, ptr.info.type));
+		aux.info = new Symbol (this._token, aux._type.info.type, false);
+		Table.instance.insert (aux.info);
+		return aux;
+	    } else assert (false);
+	}
     }
 
     /**
@@ -215,8 +232,14 @@ class TypedVar : Var {
      Returns: L'information de type de la variable
      */
     InfoType getType () {
-	auto type = this._type.asType ();
-	return type.info.type;
+	if (type) {
+	    auto type = this._type.asType ();
+	    return type.info.type;
+	} else {
+	    if (this._expType.info is null)
+		this._expType = this._expType.expression ();
+	    return this._expType.info.type;
+	}
     }
 
     /**

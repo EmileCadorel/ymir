@@ -81,9 +81,9 @@ class Proto : Declaration {
      */
     override void declare () {
 	auto space = Table.instance.namespace ();
-	foreach (it ; this._params) {
-	    if (cast (TypedVar) it is null) {
-		throw new NeedAllType (this._ident);
+	foreach (it ; 0 .. this._params.length) {
+	    if (cast (TypedVar) this._params [it] is null) {
+		this._params [it] = new TypedVar (Word (this._params [it].token.locus, "_", false), this._params [it]);
 	    }
 	}
 		

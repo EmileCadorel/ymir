@@ -11,8 +11,8 @@ def print (as : [string]) {
 }
 
 def map (as : [string], op) {
-    for (it in 0ul .. as.length) {
-	as [it] = op (as [it]);
+    for (it in as) {
+	*it = op (*it);
     }
     return as;
 }
@@ -20,9 +20,6 @@ def map (as : [string], op) {
 def main () {
     let file = fopen ("Makefile", "r");
     let line = fread (file, 1024u);
-    println (splitLines (line).map (function (str : string) : string {
-	return strip (str);
-    }));
-
+    println (splitLines (line).map (function (string):string (strip)));
     fclose (file);
 }

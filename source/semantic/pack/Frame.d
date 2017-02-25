@@ -7,6 +7,8 @@ import semantic.types.VoidInfo, ast.ParamList;
 import utils.exception;
 import semantic.types.InfoType, semantic.pack.FrameScope;
 import semantic.pack.FrameProto;
+import semantic.types.FunctionInfo;
+import semantic.types.StructInfo;
 
 /**
  Ancêtre de tout les types de frame:
@@ -98,6 +100,7 @@ class Frame {
 			score.treat.insertBack (type);
 		    } else return null;
 		} else {
+		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it]) return null;
 		    score.score += CHANGE;
 		    score.treat.insertBack (args[it].clone ());
 		}

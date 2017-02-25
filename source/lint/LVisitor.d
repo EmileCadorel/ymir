@@ -671,8 +671,11 @@ class LVisitor {
 	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
 	} else left = visitExpression (dot.left);
 
-	foreach (nb ; 0 .. dot.info.type.lintInstS.length)
-	    left = dot.info.type.lintInst (left, nb);
+	if (dot.info.type.lintInstS.length > 0) {
+	    for (long nb = dot.info.type.lintInstS.length - 1; nb >= 0; nb --) {
+		left = dot.info.type.lintInst (left, nb);
+	    }
+	}
 	
 	auto inst = dot.info.type.lintInst (LInstList.init, left);
 	if (dot.info.isDestructible) {
