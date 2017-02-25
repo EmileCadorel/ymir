@@ -115,6 +115,10 @@ class PtrFuncInfo : InfoType {
 	    auto ret = this.clone ();
 	    ret.lintInst = &PtrFuncUtils.InstAffectNull;
 	    return ret;
+	} else if (isSame (right.info.type)) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &PtrFuncUtils.InstAffect;
+	    return ret;
 	}
 	return null;
     }
