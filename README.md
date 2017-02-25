@@ -48,9 +48,4 @@ def main () {
 }
 
 ```
-
-Documentation
-================
-
-    [Doc](https://emilecadorel.github.io/ymir/docs/test.html)
     
