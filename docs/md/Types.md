@@ -32,7 +32,7 @@ let b = ('r').typeid;
 
 Les types décimaux sont regroupés en deux catégories, signés et non signés.
 Un système de promotions est utilisé pour connaître les conversions implicites.
-Ymir intérdit la perte de précision implicite, on ne peut affecter (sans cast) que des types de taille inférieur vers supérieur.
+Ymir interdit la perte de précision implicite, on ne peut affecter (sans cast) que des types de taille inférieure vers supérieur.
 
 ```D
 let a = 10; // a est de type int.
@@ -58,19 +58,19 @@ a = cast:uint (b); // Ok
 ```
 
 <br>
-Les propriétées des types décimaux sont les suivantes: 
+Les propriétés des types décimaux sont les suivantes : 
 - **init**, la variable d'initialisation d'un int (0)
 - **max**, la valeur max d'un int
 - **min**, la valeur min d'un int (pas 0)
 - **sizeof**, la taille en mémoire d'un int (en octet)
-- **typeid**, le type sous forme de chaine
+- **typeid**, le type sous forme de chaîne
 
 
 <br>
 ### Types à virgule flottante
 ---------------
 
-Les floats et les doubles sont les deux types à virgule flottantes.
+Les floats et les doubles sont les deux types à virgule flottante.
 Comme pour les entiers, on ne peut passer d'un double à un float sans cast.
 (Les floats ne sont pas encore gérés).    
 
@@ -83,13 +83,13 @@ a = c; // Ok
 ```
 
 <br>
-Les propriétées des types flottants sont les suivantes:
+Les propriétés des types flottants sont les suivantes :
     
 - **init**, 0.0f
-- **max**, la valeur maximal d'un nombre flottant.
-- **min**, la valeur minimal d'un nombre flottant
-- **nan**, la valeur Not a Number flottante (0. / 0.);
-- **dig**, le nombre de chiffre décimaux de précision.
+- **max**, la valeur maximale d'un nombre flottant.
+- **min**, la valeur minimale d'un nombre flottant
+- **nan**, la valeur '_Not a Number_' flottante (0. / 0.);
+- **dig**, le nombre de chiffres décimaux de précision.
 - **epsilon**, le plus petit incrément possible à la valeur 1.
 - **mant_dig**, le nombre de bits dans la mantis.
 - **max_10_exp**, la valeur la plus grande tel que 10^max_10_exp est représentable
@@ -97,7 +97,7 @@ Les propriétées des types flottants sont les suivantes:
 - **min_10_exp**, la valeur minimal tel que 10^min_10_exp est représentable.
 - **min_exp**, la valeur minimal tel que 2^min_exp est représentable.
 - **infinity**, la valeur qui représente l'infini en nombre flottant.
-- **typeid**, le type sous forme de chaine.
+- **typeid**, le type sous forme de chaîne.
 - **sqrt**, la racine carré du float (_float.sqrt_ => 0.)
 
 <br>
@@ -123,3 +123,40 @@ let a = 10 .. -1;
 for (it in a) print (it); // 109876543210
 ```
      
+
+<br>
+### Tuple
+-------------
+
+Le type tuple est un type standard du langage Ymir. Il est utilisé de façon implicite lors de l'appel de fonction variadic, mais peut être instancié autrement.
+
+```D
+let a = (1, 2, 'salut'); // a est de type 'tuple!(int, int, string).
+
+```
+<br>
+Contrairement à d'autres langages (comme python), il est impossible de déclarer un tuple ne possédant aucune ou une seule valeur.
+```D
+let a = (1); // a est de type int;
+let b = (); //Erreur
+```
+
+<br>
+On peut aussi spécialiser les fonctions pour qu'elle l'accepte en paramètre.
+
+```D
+def foo (t : tuple!(int, char)) {
+    println (expand (t));
+}
+
+//...
+
+let a = (1, 'r');
+foo (a);
+
+foo ((3, 't'));
+
+```
+
+Comme pour tous les types de haut niveau du langage Ymir (tableau, range, structure, ...), le tuple n'est alloué qu'une seule fois et les variables possède un référence vers cette allocation.
+    

@@ -17,7 +17,7 @@ L&#39;importation de module se fait avec la syntaxe.</p>
 <span class="hljs-keyword">import</span> path.to.file, path.to.second.file; 
 
 <span class="hljs-comment">// importation du fichier $PWD/path/to/file.yr</span>
-<span class="hljs-comment">// et importation du fichier $PWD/path/to/second/file.yr</span></code></pre><p>Les import de fichiers  ne sont pas récursif.</p>
+<span class="hljs-comment">// et importation du fichier $PWD/path/to/second/file.yr</span></code></pre><p>Les imports de fichiers  ne sont pas récursifs.</p>
 <ul class="list">
 <li><p>test2.yr:</p>
 <pre class="hljs"><code>def test () {
@@ -35,7 +35,7 @@ def main () {
 <p><br></p>
 <h2 id="import-public"><a class="header-link" href="#import-public"></a>Import public</h2>
 <hr>
-<p>les import dis public, sont des import récursif.</p>
+<p>les imports dit publics, sont des imports récursifs.</p>
 <ul class="list">
 <li><p>test2.yr:</p>
 <pre class="hljs"><code>def test () {
@@ -51,9 +51,9 @@ def main () {
 }</code></pre></li>
 </ul>
 <p><br></p>
-<h2 id="block-privée-et-public"><a class="header-link" href="#block-privée-et-public"></a>Block privée et public</h2>
+<h2 id="block-privé-et-public"><a class="header-link" href="#block-privé-et-public"></a>Block privé et public</h2>
 <hr>
-<p>Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accéssible depuis les modules exterieurs.</p>
+<p>Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accessibles depuis les modules extérieurs.</p>
 <ul class="list">
 <li>module1.yr</li>
 </ul>
@@ -74,6 +74,6 @@ def main () {
 
 foo (); <span class="hljs-comment">// Erreur, foo n'existe pas</span>
 test (); <span class="hljs-comment">// Ok, 'Foo'</span></code></pre><p> <br>
-Les fonctions externes et les imports sont privés par défaut, contrairement au fonctions (pure ou impure) et au structure.</p>
+Les fonctions externes et les imports sont privés par défaut, contrairement aux fonctions (pures ou impures) et aux structures.</p>
 </body>
 </html>

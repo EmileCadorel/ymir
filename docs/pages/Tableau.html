@@ -13,7 +13,7 @@
 Ymir permet l&#39;utilisation de tableau dynamique directement dans le langage sans importation de bibliothèque. 
 Les tableaux sont libérés par le garbage collector lorsqu&#39;il n&#39;y a plus de référence sur eux.
 <br></p>
-<h2 id="declaration"><a class="header-link" href="#declaration"></a>Declaration</h2>
+<h2 id="déclaration"><a class="header-link" href="#déclaration"></a>Déclaration</h2>
 <hr>
 <p>Les tableaux se créent de la façon suivante :</p>
 <pre class="hljs"><code>let a1 = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]; <span class="hljs-comment">// array!int</span>
@@ -26,7 +26,7 @@ On peut déclarer un tableau alloué dynamiquement à partir d&#39;une taille</p
 a += [<span class="hljs-number">90</span>, <span class="hljs-number">67</span>];
 
 a = [<span class="hljs-keyword">int</span>; a.length - <span class="hljs-number">89u</span>]; <span class="hljs-comment">// reallocation du tableau avec une nouvelle taille.</span></code></pre><p><br>
-Les tableaux peuvent être passé en paramètre de fonction, mais uniquement par référence.</p>
+Les tableaux peuvent être passés en paramètre de fonction, mais uniquement par référence.</p>
 <pre class="hljs"><code>def foo (a : [<span class="hljs-built_in">string</span>]) {
    a [<span class="hljs-number">0</span>] = <span class="hljs-string">'Oui !!'</span>;
    a = [<span class="hljs-string">"Non '-_-"</span>];
@@ -39,16 +39,16 @@ foo (a);
 println (a [<span class="hljs-number">0</span>]); <span class="hljs-comment">// Ok, 'Oui !!'</span></code></pre><p><br></p>
 <h2 id="cast"><a class="header-link" href="#cast"></a>Cast</h2>
 <hr>
-<p>Dans le langage Ymir, il n&#39;existe aucune différence entre un <em>string</em> et un <em>array!char</em>. Ces deux types ne sont différenciés que pour permettre une spécification de template lors de l&#39;analyse sémantique.
+<p>Dans le langage Ymir, il n&#39;existe aucune différence entre un <em>string</em> et un <em>array!char</em>. Ces deux types ne sont différenciés que pour permettre une spécialisation de template lors de l&#39;analyse sémantique.
 Ainsi, il est tout à fait possible de passer de l&#39;un à l&#39;autre.</p>
 <pre class="hljs"><code>let a = <span class="hljs-string">'Salut'</span>;
 println (a); <span class="hljs-comment">// Ok, 'Salut'</span>
 println (<span class="hljs-keyword">cast</span>:array!(<span class="hljs-built_in">char</span>) (a)); <span class="hljs-comment">// Ok, '[S, a, l, u, t]'</span>
 <span class="hljs-comment">// ou cast:[char] (a);</span>
 let b = <span class="hljs-keyword">cast</span>:<span class="hljs-built_in">string</span> ([<span class="hljs-string">'a'</span>, <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>]);</code></pre><p><br></p>
-<h2 id="operateur"><a class="header-link" href="#operateur"></a>Operateur</h2>
+<h2 id="opérateur"><a class="header-link" href="#opérateur"></a>Opérateur</h2>
 <hr>
-<p>Comme pour les <em>string</em> les tableaux surchargent l&#39;operateur <em>+</em></p>
+<p>Comme pour les <em>string</em> les tableaux surchargent l&#39;opérateur <em>+</em></p>
 <pre class="hljs"><code>let a = [<span class="hljs-number">1</span>] + [<span class="hljs-number">2</span>];
 a += [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]; 
 println (a); <span class="hljs-comment">// '[1, 2, 1, 2, 3]'</span></code></pre></body>

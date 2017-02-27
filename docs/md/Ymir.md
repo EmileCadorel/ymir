@@ -2,7 +2,7 @@
  <hr>
 
 Ymir est un langage haut niveau inspiré par D, python et OCaml.
-Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyé dans un linker afin de générer un exécutable natif. 
+Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyés dans un éditeur de liens, afin de générer un exécutable natif. 
 
 <br>
 ## Compilation
@@ -11,19 +11,19 @@ Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyé da
 La compilation est séparée en plusieurs phases.
 * **Analyse syntaxique :**
 
- Cette phase génère l'arbre de syntaxe, et vérifie la cohérence grammatical du code
+ Cette phase génère l'arbre de syntaxe, et vérifie la cohérence grammaticale du code
 
 * **Analyse sémantique :**
 
- L'arbre de syntaxe est parcouru afin de déclarer les symboles, verifier la cohérence des types.
+ L'arbre de syntaxe est parcouru afin de déclarer les symboles, vérifier la cohérence des types.
 
 * **Génération de code intermédiaire :**
 
- Le langage intermédiaire est un langage de bas niveau, c'est la dernière partie qui ne va pas dépendre de l'architecture visé par le compilateur
+ Le langage intermédiaire est un langage de bas niveau, c'est la dernière partie qui ne va pas dépendre de l'architecture visée par le compilateur
 
 * **Génération du code de la cible :**
 
- Le langage intermédiaire est transformer en fichier objet, puis sont envoyé à l'éditeur de lien (pour le moment gcc).
+ Le langage intermédiaire est transformé en fichier objet, puis sont envoyé à l'éditeur de lien (pour le moment gcc).
 
 <br>
 ## Programme
@@ -31,7 +31,7 @@ La compilation est séparée en plusieurs phases.
 
 Un programme Ymir doit contenir un point d'entrée - la fonction _main_.
 
-la fonction _main_ est une fonction pure par définition.
+La fonction _main_ est une fonction pure par définition.
 
 
 ```D
@@ -44,5 +44,5 @@ def main (params) { // params est un array!string
 }
 
 ```
-Par défaut la fonction _main_ renvoie la valeur 0.
+Par défaut, la fonction _main_ renvoie la valeur 0.
 

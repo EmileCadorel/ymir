@@ -12,33 +12,33 @@
  <hr>
 
 <p>Ymir est un langage haut niveau inspiré par D, python et OCaml.
-Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyé dans un linker afin de générer un exécutable natif. </p>
+Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyés dans un éditeur de liens, afin de générer un exécutable natif. </p>
 <p><br></p>
 <h2 id="compilation"><a class="header-link" href="#compilation"></a>Compilation</h2>
 <hr>
 <p>La compilation est séparée en plusieurs phases.</p>
 <ul class="list">
 <li><p><strong>Analyse syntaxique :</strong></p>
-<p>Cette phase génère l&#39;arbre de syntaxe, et vérifie la cohérence grammatical du code</p>
+<p>Cette phase génère l&#39;arbre de syntaxe, et vérifie la cohérence grammaticale du code</p>
 </li>
 <li><p><strong>Analyse sémantique :</strong></p>
-<p>L&#39;arbre de syntaxe est parcouru afin de déclarer les symboles, verifier la cohérence des types.</p>
+<p>L&#39;arbre de syntaxe est parcouru afin de déclarer les symboles, vérifier la cohérence des types.</p>
 </li>
 <li><p><strong>Génération de code intermédiaire :</strong></p>
-<p>Le langage intermédiaire est un langage de bas niveau, c&#39;est la dernière partie qui ne va pas dépendre de l&#39;architecture visé par le compilateur</p>
+<p>Le langage intermédiaire est un langage de bas niveau, c&#39;est la dernière partie qui ne va pas dépendre de l&#39;architecture visée par le compilateur</p>
 </li>
 <li><p><strong>Génération du code de la cible :</strong></p>
-<p>Le langage intermédiaire est transformer en fichier objet, puis sont envoyé à l&#39;éditeur de lien (pour le moment gcc).</p>
+<p>Le langage intermédiaire est transformé en fichier objet, puis sont envoyé à l&#39;éditeur de lien (pour le moment gcc).</p>
 </li>
 </ul>
 <p><br></p>
 <h2 id="programme"><a class="header-link" href="#programme"></a>Programme</h2>
 <hr>
 <p>Un programme Ymir doit contenir un point d&#39;entrée - la fonction <em>main</em>.</p>
-<p>la fonction <em>main</em> est une fonction pure par définition.</p>
+<p>La fonction <em>main</em> est une fonction pure par définition.</p>
 <pre class="hljs"><code>def main () {
 }</code></pre><p> ou </p>
 <pre class="hljs"><code>def main (params) { <span class="hljs-comment">// params est un array!string</span>
-}</code></pre><p>Par défaut la fonction <em>main</em> renvoie la valeur 0.</p>
+}</code></pre><p>Par défaut, la fonction <em>main</em> renvoie la valeur 0.</p>
 </body>
 </html>

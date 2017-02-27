@@ -12,7 +12,7 @@
 <hr>
 
 <p>Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.</p>
-<p>Il existe deux syntaxe pour définir les structures:</p>
+<p>Il existe deux syntaxes pour définir les structures :</p>
 <pre class="hljs"><code><span class="hljs-keyword">struct</span> (i : <span class="hljs-keyword">int</span>) A;
 <span class="hljs-keyword">struct</span> (f : <span class="hljs-built_in">float</span>, tab : [<span class="hljs-keyword">int</span>]) B;</code></pre><p><br>
 Ou :</p>
@@ -20,7 +20,7 @@ Ou :</p>
 | f : <span class="hljs-built_in">float</span>
 | tab : [<span class="hljs-keyword">int</span>]
 -&gt; B;</code></pre><p><br>
-Et on les instancie:</p>
+Et on les instancie :</p>
 <pre class="hljs"><code>let a = A (<span class="hljs-number">10</span>), b = B (.<span class="hljs-number">1</span>, []);
 let b2 = b; <span class="hljs-comment">// b2 est une reference vers b, aucune recopie n'est faite.</span></code></pre><p>L&#39;accès au paramètre se fait avec l&#39;opérateur &#39;<em>.</em>&#39;</p>
 <pre class="hljs"><code>print (a.i);

@@ -3,7 +3,7 @@
 Ymir permet l'utilisation de tableau dynamique directement dans le langage sans importation de bibliothèque. 
 Les tableaux sont libérés par le garbage collector lorsqu'il n'y a plus de référence sur eux.
 <br>
-## Declaration
+## Déclaration
 --------------
 
 Les tableaux se créent de la façon suivante :
@@ -27,7 +27,7 @@ a = [int; a.length - 89u]; // reallocation du tableau avec une nouvelle taille.
 ```
 
 <br>
-Les tableaux peuvent être passé en paramètre de fonction, mais uniquement par référence.
+Les tableaux peuvent être passés en paramètre de fonction, mais uniquement par référence.
 
 ```D
 def foo (a : [string]) {
@@ -46,7 +46,7 @@ println (a [0]); // Ok, 'Oui !!'
 ## Cast
 ----------
 
-Dans le langage Ymir, il n'existe aucune différence entre un _string_ et un _array!char_. Ces deux types ne sont différenciés que pour permettre une spécification de template lors de l'analyse sémantique.
+Dans le langage Ymir, il n'existe aucune différence entre un _string_ et un _array!char_. Ces deux types ne sont différenciés que pour permettre une spécialisation de template lors de l'analyse sémantique.
 Ainsi, il est tout à fait possible de passer de l'un à l'autre.
 
 
@@ -60,10 +60,10 @@ let b = cast:string (['a', 'b', 'c']);
 ```
 
 <br>
-## Operateur
+## Opérateur
 -------------
 
-Comme pour les _string_ les tableaux surchargent l'operateur _+_
+Comme pour les _string_ les tableaux surchargent l'opérateur _+_
 
 ```D
 let a = [1] + [2];

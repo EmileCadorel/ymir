@@ -3,7 +3,7 @@
 
 Les fonctions peuvent être déclarées sous trois formes.
 <br>
-- **Les fonctions pure :**
+- **Les fonctions pures :**
 
  Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
  Les types des variables ne sont pas inférés, mais sont écris explicitement.
@@ -24,7 +24,7 @@ Les fonctions peuvent être déclarées sous trois formes.
 - **Les fonctions impures :**
 
  Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
- Leurs types vont être inféré au moment de leurs appels.
+ Leurs types vont être inférés au moment de leurs appels.
  
   ```D
    def foo (a, b : int, c) { // a et c n'ont pas de type
@@ -38,7 +38,7 @@ Les fonctions peuvent être déclarées sous trois formes.
    Comme pour les fonctions pures, il n'est pas obligatoire de mettre le type de retour qui va être déduit.
  
    Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
-   Un tuple est créé pour le dernier type, si il est non typé.
+   Un tuple est créé pour le dernier type, s'il est non typé.
 
    ```D
    def test (a : int, b) {
@@ -77,7 +77,7 @@ Les fonctions peuvent être déclarées sous trois formes.
     // ...
     printf (('salut %s, comment va tu ?').ptr, nom.ptr);```
 
-   Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.
+Les fonctions externes ne sont pas importées par défaut. Pour les importer, il faut les déclarer comme publiques.
 
     ```D    
     public extern (C) putchar (c : char);
@@ -179,7 +179,7 @@ def main () {
 --------------------------------
 
 Il est possible de récupérer l'adresse d'une fonction pour pouvoir l'utiliser comme une variable.
-Pour cela il faut déclarer un pointeur sur fonction qui va spécialiser les paramètre de la fonction.
+Pour cela, il faut déclarer un pointeur sur fonction qui va spécialiser les paramètres de la fonction.
 
 ```D
 
@@ -236,11 +236,11 @@ foo (function (str : string) : string {
 ```
 
 <br>
-## Appel par l'operateur '.'
+## Appel par l'opérateur '.'
 -----------------------------
 
 
-Les types non primitifs peuvent être utilisé comme premier paramètre en utilisant l'operateur '.'.
+Les types non-primitifs peuvent être utilisés comme premier paramètre en utilisant l'operateur '.'.
 
 ```D
 
@@ -264,9 +264,9 @@ def foo (str, fst) {
 # Fonction à nombre de paramètres arbitraire 
 ------------------------------
 
-Ymir proposent un système d'appel de fonction à nombre de paramètre arbitraire. Cette solution est appelé Variadics. Cette solution est fortement lié au tuples. 
+Ymir propose un système d'appel de fonction à nombre de paramètres arbitraire. Cette solution est appelée Variadics. Cette solution est fortement liée au tuples.
 
-Pour le moment il n'existe aucune syntaxe particulière pour spécifié que le fonction est variadics. On déclare une fonction impure dont le dernier arguments n'a pas de type. Lors de l'appel la liste de paramètre va être généré en fonction des paramètres passé à la fonction.
+Pour le moment, il n'existe aucune syntaxe particulière pour spécifier que la fonction est variadics. On déclare une fonction impure dont le dernier argument n'a pas de type. Lors de l'appel, la liste de paramètres va être généré en fonction des paramètres passés à la fonction.
 
 ```D
 def foo (a) {
@@ -279,7 +279,7 @@ foo (1, 'i', "salut"); (on appel foo avec le type (tuple!(int, char, string)).
 ```
 <br>
 Le type 'tuple' n'est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
-Le mot clé 'expand' va nous permettre de passer les attributs d'un tuple comme des paramètres de fonctions.
+Le mot-clé 'expand' va nous permettre de passer les attributs d'un tuple comme des paramètres de fonctions.
 
 ```D
 def foo (count, a) {

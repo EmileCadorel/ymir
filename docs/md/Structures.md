@@ -3,7 +3,7 @@
 
 Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.
 
-Il existe deux syntaxe pour définir les structures:
+Il existe deux syntaxes pour définir les structures :
 ```D
 struct (i : int) A;
 struct (f : float, tab : [int]) B;
@@ -19,7 +19,7 @@ struct
 ```
 
 <br>
-Et on les instancie:
+Et on les instancie :
 
 ```D
 let a = A (10), b = B (.1, []);

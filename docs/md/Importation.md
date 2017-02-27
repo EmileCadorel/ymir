@@ -13,7 +13,7 @@ import path.to.file, path.to.second.file;
 
 ```
 
-Les import de fichiers  ne sont pas récursif.
+Les imports de fichiers  ne sont pas récursifs.
 
  - test2.yr:
 
@@ -41,7 +41,7 @@ Les import de fichiers  ne sont pas récursif.
 ## Import public
 -----------------
 
-les import dis public, sont des import récursif.
+les imports dit publics, sont des imports récursifs.
 
 
  - test2.yr:
@@ -67,10 +67,10 @@ les import dis public, sont des import récursif.
  ```
 
 <br>
-## Block privée et public
+## Block privé et public
 -------------------------
 
-Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accéssible depuis les modules exterieurs.
+Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accessibles depuis les modules extérieurs.
 
 - module1.yr
 
@@ -99,4 +99,4 @@ test (); // Ok, 'Foo'
     ```
 
  <br>
-Les fonctions externes et les imports sont privés par défaut, contrairement au fonctions (pure ou impure) et au structure.
+Les fonctions externes et les imports sont privés par défaut, contrairement aux fonctions (pures ou impures) et aux structures.

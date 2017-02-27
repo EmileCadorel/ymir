@@ -14,7 +14,7 @@
 <p>Les fonctions peuvent être déclarées sous trois formes.
 <br></p>
 <ul class="list">
-<li><p><strong>Les fonctions pure :</strong></p>
+<li><p><strong>Les fonctions pures :</strong></p>
 <p>Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
 Les types des variables ne sont pas inférés, mais sont écris explicitement.</p>
 <pre class="hljs"><code>  def foo (a : <span class="hljs-keyword">int</span>, b : <span class="hljs-keyword">int</span>) {
@@ -30,7 +30,7 @@ Les types des variables ne sont pas inférés, mais sont écris explicitement.</
 <ul class="list">
 <li><p><strong>Les fonctions impures :</strong></p>
 <p>Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
-Leurs types vont être inféré au moment de leurs appels.</p>
+Leurs types vont être inférés au moment de leurs appels.</p>
 <pre class="hljs"><code> def foo (a, b : <span class="hljs-keyword">int</span>, c) { <span class="hljs-comment">// a et c n'ont pas de type</span>
    <span class="hljs-comment">// ...</span>
  } 
@@ -39,7 +39,7 @@ Leurs types vont être inféré au moment de leurs appels.</p>
  foo (<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// OK, avec a : int et c : string</span>
  foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, b doit etre de type int</span></code></pre><p> Comme pour les fonctions pures, il n&#39;est pas obligatoire de mettre le type de retour qui va être déduit.</p>
 <p> Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
- Un tuple est créé pour le dernier type, si il est non typé.</p>
+ Un tuple est créé pour le dernier type, s&#39;il est non typé.</p>
 <pre class="hljs"><code> def test (a : <span class="hljs-keyword">int</span>, b) {
      println (b.<span class="hljs-keyword">typeid</span>);
  }
@@ -66,10 +66,12 @@ Ces fonctions doivent être déclarées avec leurs types, ainsi que leur type de
 <pre class="hljs"><code>  <span class="hljs-keyword">extern</span> (C) printf (a : ptr!<span class="hljs-built_in">char</span>, ...)
 
   <span class="hljs-comment">// ...</span>
-  printf ((<span class="hljs-string">'salut %s, comment va tu ?'</span>).ptr, nom.ptr);</code></pre><p> Les fonctions externes ne sont pas importées par défaut. Pour les importer il faut les déclarer comme publiques.</p>
-<pre class="hljs"><code>  <span class="hljs-keyword">public</span> <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>);</code></pre></li>
+  printf ((<span class="hljs-string">'salut %s, comment va tu ?'</span>).ptr, nom.ptr);</code></pre></li>
 </ul>
-<p><br></p>
+<p>Les fonctions externes ne sont pas importées par défaut. Pour les importer, il faut les déclarer comme publiques.</p>
+<pre class="hljs"><code>```D    
+public extern (C) putchar (c : char);
+ ```</code></pre><p><br></p>
 <h2 id="cas-particuliers"><a class="header-link" href="#cas-particuliers"></a>Cas particuliers</h2>
 <hr>
 <ul class="list">
@@ -143,7 +145,7 @@ def main () {
 <h2 id="pointeurs-et-fonction-lambda"><a class="header-link" href="#pointeurs-et-fonction-lambda"></a>Pointeurs et fonction lambda</h2>
 <hr>
 <p>Il est possible de récupérer l&#39;adresse d&#39;une fonction pour pouvoir l&#39;utiliser comme une variable.
-Pour cela il faut déclarer un pointeur sur fonction qui va spécialiser les paramètre de la fonction.</p>
+Pour cela, il faut déclarer un pointeur sur fonction qui va spécialiser les paramètres de la fonction.</p>
 <pre class="hljs"><code>
 def foo (a) {
     <span class="hljs-keyword">return</span> a;
@@ -182,9 +184,9 @@ def foo (ptr : <span class="hljs-built_in">function</span> (<span class="hljs-bu
 foo (<span class="hljs-built_in">function</span> (str : <span class="hljs-built_in">string</span>) : <span class="hljs-built_in">string</span> {
     <span class="hljs-keyword">return</span> str.substr (<span class="hljs-number">0u</span>, <span class="hljs-number">6u</span>) + <span class="hljs-string">"Bob"</span>;
 }); <span class="hljs-comment">// Ok, 'Hello Bob'</span></code></pre><p><br></p>
-<h2 id="appel-par-l'operateur-'.'"><a class="header-link" href="#appel-par-l'operateur-'.'"></a>Appel par l&#39;operateur &#39;.&#39;</h2>
+<h2 id="appel-par-l'opérateur-'.'"><a class="header-link" href="#appel-par-l'opérateur-'.'"></a>Appel par l&#39;opérateur &#39;.&#39;</h2>
 <hr>
-<p>Les types non primitifs peuvent être utilisé comme premier paramètre en utilisant l&#39;operateur &#39;.&#39;.</p>
+<p>Les types non-primitifs peuvent être utilisés comme premier paramètre en utilisant l&#39;operateur &#39;.&#39;.</p>
 <pre class="hljs"><code>
 def foo (str : <span class="hljs-built_in">string</span>) {
     println (str);
@@ -201,8 +203,8 @@ def foo (str, fst) {
 (<span class="hljs-number">2334</span>).foo (<span class="hljs-number">12</span>); <span class="hljs-comment">// Erreur 2334 est de type primitif int.</span></code></pre><p><br></p>
 <h1 id="fonction-à-nombre-de-paramètres-arbitraire"><a class="header-link" href="#fonction-à-nombre-de-paramètres-arbitraire"></a>Fonction à nombre de paramètres arbitraire</h1>
 <hr>
-<p>Ymir proposent un système d&#39;appel de fonction à nombre de paramètre arbitraire. Cette solution est appelé Variadics. Cette solution est fortement lié au tuples. </p>
-<p>Pour le moment il n&#39;existe aucune syntaxe particulière pour spécifié que le fonction est variadics. On déclare une fonction impure dont le dernier arguments n&#39;a pas de type. Lors de l&#39;appel la liste de paramètre va être généré en fonction des paramètres passé à la fonction.</p>
+<p>Ymir propose un système d&#39;appel de fonction à nombre de paramètres arbitraire. Cette solution est appelée Variadics. Cette solution est fortement liée au tuples.</p>
+<p>Pour le moment, il n&#39;existe aucune syntaxe particulière pour spécifier que la fonction est variadics. On déclare une fonction impure dont le dernier argument n&#39;a pas de type. Lors de l&#39;appel, la liste de paramètres va être généré en fonction des paramètres passés à la fonction.</p>
 <pre class="hljs"><code>def foo (a) {
  <span class="hljs-comment">// ...</span>
 }
@@ -210,7 +212,7 @@ def foo (str, fst) {
 <span class="hljs-comment">//...</span>
 foo (<span class="hljs-number">1</span>, <span class="hljs-string">'i'</span>, <span class="hljs-string">"salut"</span>); (on appel foo avec le type (tuple!(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">char</span>, <span class="hljs-built_in">string</span>)).</code></pre><p><br>
 Le type &#39;tuple&#39; n&#39;est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
-Le mot clé &#39;expand&#39; va nous permettre de passer les attributs d&#39;un tuple comme des paramètres de fonctions.</p>
+Le mot-clé &#39;expand&#39; va nous permettre de passer les attributs d&#39;un tuple comme des paramètres de fonctions.</p>
 <pre class="hljs"><code>def foo (count, a) {
     print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>, count, <span class="hljs-string">') '</span>);
 }
