@@ -12,7 +12,7 @@ def print (as : [string]) {
 
 def map (as : [string], op) {
     for (it in as) {
-	*it = op (*it);
+	it = op (it);
     }
     return as;
 }

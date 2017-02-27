@@ -168,8 +168,8 @@ def append (str : ref!string, c : char) : string {
 def splitLines (str : string) : [string] {
     let ret = [''];
     for (it in str) {
-	if (*it == '\n') ret += [''];
-	else ret [ret.length - 1ul].append (*it);
+	if (it == '\n') ret += [''];
+	else ret [ret.length - 1ul].append (it);
     }
     return ret;
 }
