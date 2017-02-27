@@ -173,3 +173,128 @@ def main () {
 
 ```
 
+
+<br>
+## Pointeurs et fonction lambda
+--------------------------------
+
+Il est possible de récupérer l'adresse d'une fonction pour pouvoir l'utiliser comme une variable.
+Pour cela il faut déclarer un pointeur sur fonction qui va spécialiser les paramètre de la fonction.
+
+```D
+
+def foo (a) {
+    return a;
+}
+
+
+// ...
+let a = function (int) : int (foo); // On créée un instance de foo qui prend un int en argument
+let b = function (int) : int; // on affecte un pointeur null à b
+if (b is null) { 
+    b = a; 
+}
+
+a = foo; // Ok, on utilise l'instance de foo déjà créée
+println (b (12)); // Ok, '12'
+
+```
+
+<br>
+On peut spécialiser les fonctions afin qu'elles prennent un pointeur sur fonction en paramètre.
+
+```D
+
+def foo (ptr : function (int) : int) {
+    return ptr (897);
+}
+
+def square (a : int) : int {
+    return a * a;
+}
+
+// ...
+foo (function (int) : int (square));
+
+```
+
+<br>
+On peut également créer des fonctions anonymes (lambda).
+
+```D
+import std.string;
+
+def foo (ptr : function (string) : string) {
+    println (ptr ('Hello World'));
+}
+
+// ...
+foo (function (str : string) : string {
+	return str.substr (0u, 6u) + "Bob";
+}); // Ok, 'Hello Bob'
+
+```
+
+<br>
+## Appel par l'operateur '.'
+-----------------------------
+
+
+Les types non primitifs peuvent être utilisé comme premier paramètre en utilisant l'operateur '.'.
+
+```D
+
+def foo (str : string) {
+    println (str);
+}
+
+def foo (str, fst) {
+    println (str, fst);
+}
+
+//...
+('salut').foo (); // Ok, 'salut'
+('salut').foo (12); // Ok, 'salut12'
+
+(2334).foo (12); // Erreur 2334 est de type primitif int.
+
+
+```
+<br>
+# Fonction à nombre de paramètres arbitraire 
+------------------------------
+
+Ymir proposent un système d'appel de fonction à nombre de paramètre arbitraire. Cette solution est appelé Variadics. Cette solution est fortement lié au tuples. 
+
+Pour le moment il n'existe aucune syntaxe particulière pour spécifié que le fonction est variadics. On déclare une fonction impure dont le dernier arguments n'a pas de type. Lors de l'appel la liste de paramètre va être généré en fonction des paramètres passé à la fonction.
+
+```D
+def foo (a) {
+ // ...
+}
+
+//...
+foo (1, 'i', "salut"); (on appel foo avec le type (tuple!(int, char, string)).
+
+```
+<br>
+Le type 'tuple' n'est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
+Le mot clé 'expand' va nous permettre de passer les attributs d'un tuple comme des paramètres de fonctions.
+
+```D
+def foo (count, a) {
+    print (a.typeid, '(', a, ':', count, ') ');
+}
+
+def foo (count : int, a, b) {
+    print (a.typeid, '(', a, ':',  count, ') ');
+    foo (count + 1, expand (b)); // on transforme b en paramètre 
+}
+
+//...
+foo (0, 1, 'r', "salut"); // Ok, 'int(1:0) char(r:1) string(salut:2)';
+
+``` 
+
+
+
