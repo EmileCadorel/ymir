@@ -84,6 +84,13 @@ class Table {
     }
 
     /**
+     Returns: Le namespace du fichier courant.
+     */
+    string globalNamespace () {
+	return this._namespace;
+    }
+
+    /**
      Insert un nouveau symbole dans le scope le plus mince.
      Params:
      info = le symbole à inséré.

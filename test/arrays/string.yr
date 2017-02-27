@@ -20,6 +20,6 @@ def map (as : [string], op) {
 def main () {
     let file = fopen ("Makefile", "r");
     let line = fread (file, 1024u);
-    println (splitLines (line).map (function (string):string (strip)));
-    fclose (file);
+    println (line.splitLines ().map (function (string):string (strip)));
+    file.fclose ();
 }

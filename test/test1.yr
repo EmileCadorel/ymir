@@ -1,14 +1,12 @@
 import std.stdio;
 import std.string;
 
-def test (a : ref!string) {
+def print (a : [string]) {
     for (it in a) {
-	println (it);
+	println ('[', it, ']');
     }
 }
 
-
 def main () {
-    let a = 'salut';
-    test (a);
+    println (['salut', 'hehe']);
 }

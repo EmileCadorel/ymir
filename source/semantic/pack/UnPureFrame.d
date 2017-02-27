@@ -76,7 +76,7 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
      */
     override FrameProto validate (Array!InfoType params) {
-	string name = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
+	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);
@@ -93,7 +93,7 @@ class UnPureFrame : Frame {
 	    name ~= super.mangle (t);
 	}
 
-	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);
+	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name);
 	
 	auto proto = FrameTable.instance.existProto (name);
 	    
