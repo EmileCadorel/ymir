@@ -149,6 +149,9 @@ class RangeUtils {
 	auto inst = new LInstList;
 	auto type = cast (RangeInfo) _type;
 	auto left = LVisitor.visitExpressionOutSide (_left);
+	for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
+	    left = _left.info.type.lintInst (left, nb);
+
 	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
 	auto leftExp = left.getFirst (), rightExp = right.getFirst ();
 	inst += left + right;

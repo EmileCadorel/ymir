@@ -116,7 +116,7 @@ class ArrayInfo : InfoType {
 	import semantic.types.PtrInfo;
 	
 	if (vars.length != 1) return null;
-	vars [0].info.type = new PtrInfo (this._content.clone ());
+	vars [0].info.type = new RefInfo (this._content.clone ());
 	vars [0].info.type.isConst = false;
 	auto ret = this.clone ();
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;

@@ -6,6 +6,7 @@ import semantic.types.RefUtils, syntax.Keys;
 import semantic.types.BoolInfo;
 import semantic.types.UndefInfo, lint.LSize;
 import ast.ParamList, semantic.types.StructInfo;
+import std.container;
 
 /**
  Classe contenant les informations de type d'une référence.
@@ -230,7 +231,7 @@ class RefInfo : InfoType {
     /**
      Returns: une nouvelle instance de ref.
     */
-    override InfoType cloneForParam () {
+    override InfoType cloneForParam () {	
 	return new RefInfo (this._content.cloneForParam ());
     }
 
@@ -268,7 +269,7 @@ class RefInfo : InfoType {
     */
     override InfoType CompOp (InfoType other) {
 	auto ptr = cast (RefInfo) other;
-	if (ptr && ptr.content.isSame (this._content)) {
+	if (cast (UndefInfo) other || (ptr && ptr.content.isSame (this._content))) {
 	    auto rf = this.clone ();
 	    rf.lintInst = &RefUtils.InstAffect;
 	    return rf;
@@ -291,6 +292,26 @@ class RefInfo : InfoType {
 	}
     }
 
+
+    override InfoType ApplyOp (Array!Var vars) {
+	auto aux = this._content.ApplyOp (vars);
+	if (aux !is null) {
+	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
+	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
+	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
+	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
+	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
+	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
+	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
+	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
+	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
+	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
+	    return aux;
+	    
+	}
+	return null;
+    }
+    
     /**
      Returns: le nom du type.
      */
@@ -318,14 +339,14 @@ class RefInfo : InfoType {
      s = le destructeur
      */
     override void setDestruct (InstCompS s) {
-	this._content.setDestruct (s);
+	//this._content.setDestruct (s);
     }
 
     /**
      Returns: le type doit être détruit ?
      */
     override bool isDestructible () {
-	return this._content.isDestructible ();
+	return false;
     }
 
     /**

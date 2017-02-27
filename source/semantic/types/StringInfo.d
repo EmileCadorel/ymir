@@ -222,7 +222,7 @@ class StringInfo : InfoType {
      */
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
-	vars [0].info.type = new PtrInfo (new CharInfo ());
+	vars [0].info.type = new RefInfo (new CharInfo ());
 	vars [0].info.type.isConst = this.isConst;
 	auto ret = new ArrayInfo (new CharInfo ());
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;

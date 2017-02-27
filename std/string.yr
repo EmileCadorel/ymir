@@ -168,8 +168,8 @@ def append (str : ref!string, c : char) : string {
 def splitLines (str : string) : [string] {
     let ret = [''];
     for (it in str) {
-	if (it == '\n') ret += [''];
-	else ret [ret.length - 1ul].append (it);
+	if (*it == '\n') ret += [''];
+	else ret [ret.length - 1ul].append (*it);
     }
     return ret;
 }
@@ -187,6 +187,21 @@ def substr (str : string, rng : range!ulong) : string {
 	let ret = [char; cast:ulong (size)];
 	let index = 0ul;
 	for (it in rng) {
+	    ret [index] = str [it];
+	    index ++;
+	}
+	return cast:string (ret);
+    }
+}
+
+def substr (str : string, fst : ulong, scd : ulong) : string {
+    if (str.length < fst) return null;
+    else if (str.length < scd) return null;
+    else {
+	let size = abs (cast:long(fst) - cast:long (scd));
+	let ret = [char; cast:ulong (size)];
+	let index = 0ul;
+	for (it in fst .. scd) {
 	    ret [index] = str [it];
 	    index ++;
 	}

@@ -68,12 +68,14 @@ class StructUtils {
 	    }
 	    
 	    regs.insertBack (new LReg (it.size));
-	    auto type = it.BinaryOpRight (aff, var);
+	    auto type = it.CompOp (new UndefInfo);
 	    if (type !is null) {
 		LInstList rlist = new LInstList (regs.back ());
 		LInstList llist = new LInstList (new LRegRead (retReg, size, it.size));
+		for (long nb = type.lintInstSR.length - 1; nb >= 0; nb --)
+		    rlist = type.lintInstR (rlist, nb);
 		interne += type.lintInst (llist, rlist);
-	    }
+	    } else assert (false, "TODO");
 	    
 	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	}

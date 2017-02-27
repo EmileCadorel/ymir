@@ -1,17 +1,14 @@
 import std.stdio;
 import std.string;
 
-def test (a : function (string, [int]) : int) {
-    return ('salut').a ([2, 4]);
+def test (a : ref!string) {
+    for (it in a) {
+	println (it);
+    }
 }
 
-def main () {    
-    println (test (function (a : string, b : [int]) : int {
-		println (a);
-		let tot = int.init;
-		for (it in b) {
-		    tot += *it;
-		}
-		return tot;
-    }));    
+
+def main () {
+    let a = 'salut';
+    test (a);
 }

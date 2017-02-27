@@ -209,9 +209,10 @@ class LVisitor {
 	    params.insertBack (it);
 	}
 	
+	_for.iter.info.type.lintInstS = _for.ret.lintInstS;
 	auto left = _for.ret.leftTreatment (_for.ret, _for.iter,
 					new ParamList (Word.eof, params));
-
+	
 	this._endLabels [_for.block] = cast (LLabel) left.back ();
 	auto block = visitBlock (_end, retReg, _for.block);
 	this._endLabels.remove (_for.block);
@@ -294,9 +295,9 @@ class LVisitor {
 		list += rlist;
 	    }
 	    
-	    if (!ret.instCast.type.isSame (ret.elem.info.type)) {
-		foreach (nb ; 0 .. ret.instCast.type.lintInstS.length) {
-		    list += ret.instCast.type.lintInst (list, nb);
+	    if (!ret.instCast.type.isSame (ret.elem.info.type)) {		
+		for (long nb = ret.instCast.type.lintInstS.length - 1; nb >= 0; nb --) {
+		    list += ret.instCast.type.lintInst (list, nb);		
 		}
 	    }
 	    list += (new LWrite (retReg,  list.getFirst ()));	    
@@ -395,7 +396,7 @@ class LVisitor {
 	Array!LExp params;
 	auto expInst = visitExpression (alloc.size);
 	if (alloc.cster) {
-	    foreach (nb ; 0 .. alloc.cster.lintInstS.length) {
+	    for (long nb = alloc.cster.lintInstS.length - 1; nb >= 0; nb --) {
 		expInst = alloc.cster.lintInst (expInst, nb);
 	    }
 	}
@@ -452,8 +453,9 @@ class LVisitor {
 	    LInstList ret;
 	    if (cster) {
 		ret = visitExpression (carray.params [it]);
-		foreach (nb ; 0 .. cster.lintInstS.length)
-		    ret = cster.lintInst (ret, nb);		
+		for (long nb = cster.lintInstS.length - 1; nb >= 0; nb --) {		
+		    ret = cster.lintInst (ret, nb);
+		}
 	    } else ret = visitExpression (carray.params [it]);
 	    auto regRead = new LRegRead (aux,
 					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS),
@@ -502,8 +504,9 @@ class LVisitor {
 
     private LInstList visitBefUnary (BefUnary unary) {
 	auto ret = visitExpression (unary.elem);
-	foreach (it ; 0 .. unary.info.type.lintInstS.length) 
-	    ret = unary.info.type.lintInst (ret, it);
+	for (long nb = unary.info.type.lintInstS.length - 1; nb >= 0; nb --) {
+	    ret = unary.info.type.lintInst (ret, nb);
+	}
 	return ret;
     }
     
@@ -561,9 +564,10 @@ class LVisitor {
 	foreach (it ; 0 .. params.params.length) {
 	    Expression exp = params.params [it];
 	    LInstList elist = visitExpression (exp);
-	    if (treat [it]) 
-		foreach (nb ; 0 .. treat [it].lintInstS.length) 
+	    if (treat [it])
+		for (long nb = treat [it].lintInstS.length - 1; nb >= 0; nb--) {
 		    elist = treat [it].lintInst (elist, nb);
+		}
 
 	    rights.insertBack (elist);
 	}
@@ -605,8 +609,9 @@ class LVisitor {
 	    Expression exp = params.params [pit];
 	    LInstList elist = visitExpression (exp);
 	    if (treat [it]) {
-		foreach (nb ; 0 .. treat [it].lintInstS.length)
+		for (long nb = treat [it].lintInstS.length - 1; nb >= 0; nb --) {
 		    elist = treat [it].lintInst (elist, nb);		    
+		}
 	    }	    
 	    exprs.insertBack (elist.getFirst ());
 	    list += elist;
@@ -658,7 +663,7 @@ class LVisitor {
 	    left = access.info.type.leftTreatment (access.info.type, access.left, null);
 	else left = visitExpression (access.left);
 
-	foreach (nb ; 0 .. access.info.type.lintInstS.length)
+	for (long nb = access.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = access.info.type.lintInst (left, nb); 
 	
 	inst += type.lintInst (left, exprs);
@@ -709,14 +714,14 @@ class LVisitor {
 	    left = bin.info.type.leftTreatment (bin.info.type, bin.left, bin.right);
 	else left = visitExpression (bin.left);
 
-	foreach (nb ; 0 .. bin.info.type.lintInstS.length)
+	for (long nb = bin.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = bin.info.type.lintInst (left, nb);
 		
 	if (bin.info.type.rightTreatment !is null)
 	    right = bin.info.type.rightTreatment (bin.info.type, bin.left, bin.right);
 	else right = visitExpression (bin.right);
-	
-	foreach (nb ; 0 .. bin.info.type.lintInstSR.length)
+
+	for (long nb = bin.info.type.lintInstSR.length - 1; nb >= 0; nb --)
 	    right = bin.info.type.lintInstR (right, nb);
 	
 	auto ret = bin.info.type.lintInst (left, right);

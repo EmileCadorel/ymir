@@ -6,7 +6,7 @@ def print (c : char) : void
     putchar (c);
 
 def print (s : string) : void
-    for (it in s) putchar (it);
+    for (it in s) putchar (*it);
 
 def print (i : long) : void {
     printf (("%ld").ptr, i);

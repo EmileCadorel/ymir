@@ -100,8 +100,7 @@ class For : Instruction {
 	auto type = expr.info.type.ApplyOp (aux);
 	if (type is null) throw new UndefinedOp (this.token, expr.info);
 	
-	foreach (it ; aux) Table.instance.insert (it.info);
-	
+	foreach (it ; aux) Table.instance.insert (it.info);	
 	
 	if (!this._id.isEof ()) this._block.setIdent (this._id);
 	
