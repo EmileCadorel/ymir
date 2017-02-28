@@ -14,13 +14,20 @@ import semantic.types.RangeInfo, semantic.types.RangeUtils;
 import semantic.types.StructUtils, semantic.types.TupleInfo;
 import semantic.pack.FinalFrame;
 import lint.LInst;
-import std.array;
+import std.array, std.typecons;
+
+alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
 class LVisitor {
 
     static string __ForEachBody__ = "_YPForEachBody__";
     private LLabel [Instruction] _endLabels;
+    static private LPairLabel __currentCondition__ = LPairLabel (null, null);
 
+    static LPairLabel isInCondition () {
+	return __currentCondition__;
+    }
+    
     /**
      On visite toutes les frames sémantiques
      */    
@@ -144,6 +151,7 @@ class LVisitor {
 	LLabel vrai = new LLabel ();
 	LLabel fin = new LLabel ();
 	LInstList left;
+	__currentCondition__ = LPairLabel (vrai, faux);
 	if (_if.info !is _if.test.info.type) {
 	    if (_if.info.leftTreatment !is null )
 		left = _if.info.leftTreatment (_if.info, _if.test, null);
@@ -156,7 +164,7 @@ class LVisitor {
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	}
-
+	__currentCondition__ = LPairLabel (null, null);
 	vrai.insts = visitBlock (end, retReg, _if.block);
 	vrai.insts += new LGoto (fin);	
 	if (_if.else_ !is null) {
@@ -178,6 +186,7 @@ class LVisitor {
 	this._endLabels [_while.block] = faux;
 	LInstList left;
 	inst += debut;
+	__currentCondition__ = LPairLabel (vrai, faux) ;
 	if (_while.info !is _while.test.info.type) {
 	    if (_while.info.leftTreatment !is null)
 		left = _while.info.leftTreatment (_while.info, _while.test, null);
@@ -192,6 +201,7 @@ class LVisitor {
 	    inst += new LJump (tlist.getFirst, vrai);
 	    inst += new LGoto (faux);
 	}
+	__currentCondition__ = LPairLabel (null, null);
 	vrai.insts = visitBlock (end, retReg, _while.block);
 	vrai.insts += new LGoto (debut);
 	vrai.insts.clean ();
@@ -236,6 +246,7 @@ class LVisitor {
 	insts += new LLocus (_else.token.locus);
 	LLabel faux = new LLabel, vrai = new LLabel;
 	LInstList left;
+	__currentCondition__ = LPairLabel (vrai, faux);
 	if (elseif.info !is elseif.test.info.type) {
 	    if (elseif.info.leftTreatment !is null )
 		left = elseif.info.leftTreatment (elseif.info, elseif.test, null);
@@ -248,7 +259,7 @@ class LVisitor {
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	}
-
+	__currentCondition__ = LPairLabel (null, null);
 	vrai.insts = visitBlock (end, retReg, elseif.block);
 	vrai.insts += new LGoto (fin);
 	if (elseif.else_ !is null) {

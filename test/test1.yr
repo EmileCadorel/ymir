@@ -1,12 +1,22 @@
 import std.stdio;
 import std.string;
 
-def print (a : [string]) {
-    for (it in a) {
-	println ('[', it, ']');
-    }
-}
+struct
+| a : int
+-> test;
 
 def main () {
-    println (['salut', 'hehe']);
+    let a = test (10);
+    a = null;
+    if (a !is null && a.a == 10) {
+	println ("ici");
+    } else {
+	println ("ouf");
+    }
+
+    if (a is null || a.a == 10) {
+	println ("ouf");
+    } else {
+	println ("ici");
+    }
 }

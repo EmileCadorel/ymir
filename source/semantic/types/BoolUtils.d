@@ -5,6 +5,7 @@ import lint.LUnop, lint.LAddr;
 import lint.LConst, lint.LSize;
 import ast.Constante, lint.LVisitor, syntax.Word;
 import semantic.types.InfoType, ast.Var;
+import lint.LJump;
 
 /**
  Cette classe regroupe toutes les fonctions nécéssaire à la transformation du type bool en lint.
@@ -37,8 +38,18 @@ class BoolUtils {
     static LInstList InstOp (Tokens op) (LInstList llist, LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, rightExp, op));
+	auto lpaire = LVisitor.isInCondition ();	
+	if (op.id == Tokens.DAND.id && lpaire.faux !is null) { // On fait un saut pour les condition AND et OR si on est dans un {if, while, else if}
+	    inst += llist + rlist;
+	    inst += new LJump (new LUnop (leftExp, Tokens.NOT), lpaire.faux);
+	    inst += rightExp;
+	} else if (op.id == Tokens.DPIPE.id && lpaire.vrai !is null) {
+	    inst += new LJump (leftExp, lpaire.vrai);
+	    inst += rightExp;
+	} else {
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, rightExp, op));
+	}
 	return inst;
     }
 
