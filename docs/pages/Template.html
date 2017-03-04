@@ -37,5 +37,11 @@ def foo (a : [<span class="hljs-built_in">ulong</span>]) {
 
 <span class="hljs-comment">//...</span>
 foo ([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]); <span class="hljs-comment">// Ok, 'fst'</span>
-foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre></body>
+foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><h2 id="attention"><a class="header-link" href="#attention"></a>Attention</h2>
+<hr>
+<p>Les paramètres d&#39;une fonction template ne peuvent pour le moment par être variadics.
+Je suis en train de réfléchir à une syntaxe plus clair, pour le permettre.</p>
+<p>Très certainement :</p>
+<pre class="hljs"><code>def foo (T ...) (a : T) {
+}</code></pre></body>
 </html>

@@ -37,3 +37,16 @@ foo ([1, 2, 3]); // Ok, 'fst'
 foo ([1ul, 2ul]); // Ok, 'scd'
 
 ```
+
+## Attention
+---------------
+Les paramètres d'une fonction template ne peuvent pour le moment par être variadics.
+Je suis en train de réfléchir à une syntaxe plus clair, pour le permettre.
+
+Très certainement :
+
+```D
+def foo (T ...) (a : T) {
+}
+
+```
