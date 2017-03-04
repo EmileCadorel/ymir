@@ -14,7 +14,7 @@ import semantic.types.FunctionInfo, semantic.types.StructInfo;
 import ast.Expression;
 import ast.FuncPtr;
 import ast.ConstArray;
-
+import semantic.types.RefInfo;
 
 /**
  Cette classe est une instance de frame template
@@ -58,7 +58,8 @@ class TemplateFrame : Frame {
 	    if (auto var = cast (Var) name.params [0]) {
 		auto typed = typeIt (var, type.getTemplate (0), args, tmps);
 		if (typed !is null)
-		    return new Type (name.token, type.clone);
+		    return new ConstArray (name.token, make!(Array!Expression) (typed));
+		else return null;
 	    }	    
 	}
 	return name;
@@ -68,7 +69,7 @@ class TemplateFrame : Frame {
     private Var typeIt (Var name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
 	if (type is null) return null;
 	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
-	else if (name.token.str == "ref") {
+	else if (name.token.str == "ref" && !cast (RefInfo) type) {
 	    if (name.templates.length != 1) return null;
 	    auto typed = typeIt (name.templates [0], type, args, tmps);
 	    if (!typed) return null;
@@ -161,6 +162,10 @@ class TemplateFrame : Frame {
 		    score.score += CHANGE;
 		    score.treat.insertBack (args [it].clone ());
 		}
+	    }
+	    
+	    foreach (it; score.tmps) {
+		if (it is null) return null;
 	    }
 	    return score;
 	}

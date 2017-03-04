@@ -32,10 +32,7 @@ def insertBack (T) (a : ref!([T]), elem : T) {
 
 def removeBack (T) (a : ref!([T])) : T {
     let ret = a [a.length - 1u];
-    let aux = [T; a.length - 1u];
-    for (it in 0ul .. aux.length)
-	aux [it] = a [it];
-    a = aux;
+    a.resize (a.length - 1u);
     return ret;
 }
 

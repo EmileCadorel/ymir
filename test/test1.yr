@@ -2,15 +2,12 @@ import std.stdio;
 import std.array;
 
 def main () {
-    let a = [1ul, 2ul];
-    a.insertBack (123ul);
-    println (a);
-    println (a.removeBack (), ' ', a);
-    println (a.dup (), ' ', a);
-    a.clear ();
-    println (a);
-    for (it in 0ul .. 10ul) {
+    let a = [int; 0u];
+    for (it in 0 .. 10) {
 	a.insertBack (it);
     }
-    println (a, ' ', a.slice (2ul .. 0ul));
+    
+    println (a);
+    println (a.removeBack (), " ", a.dup (), ' ', a.back ());
+    println (a.slice (4ul .. 0ul) + [a.front ()]);
 }
