@@ -274,7 +274,7 @@ def foo (a) {
 }
 
 //...
-foo (1, 'i', "salut"); (on appel foo avec le type (tuple!(int, char, string)).
+foo (1, 'i', "salut"); (on appelle foo avec le type (tuple!(int, char, string)).
 
 ```
 <br>
@@ -295,6 +295,5 @@ def foo (count : int, a, b) {
 foo (0, 1, 'r', "salut"); // Ok, 'int(1:0) char(r:1) string(salut:2)';
 
 ``` 
-
 
 

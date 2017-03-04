@@ -1,13 +1,22 @@
 import std.stdio;
 import std.array;
 
-def main () {
-    let a = [int; 0u];
-    for (it in 0 .. 10) {
-	a.insertBack (it);
+def foo (T) (a : [int]) {
+    println ('fst');
+    let sum = T.init;
+    for (it in a) {
+	sum += it;
     }
-    
-    println (a);
-    println (a.removeBack (), " ", a.dup (), ' ', a.back ());
-    println (a.slice (4ul .. 0ul) + [a.front ()]);
+    return sum;
+}
+
+def foo (a : [ulong]) : ulong {
+    println ('second');
+    return 10ul;
+}
+
+
+def main () {
+    println (foo ([1, 2, 3]));
+    println (foo ([1ul, 2ul]));
 }

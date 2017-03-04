@@ -24,6 +24,8 @@ class TemplateFrame : Frame {
     /** Le nom de la frame */
     private string _name;
 
+    private bool _changed = false;
+    
     /**
      Params:
      namespace = le contexte de la frame
@@ -46,6 +48,7 @@ class TemplateFrame : Frame {
 		if (tmps [it] !is null && !tmps [it].isSame (type.clone ()))
 		    return null;
 		tmps [it] = (type.clone ());
+		this._changed = true;
 		return new Type (name.token, type.clone ());
 	    }	    
 	}
@@ -95,6 +98,7 @@ class TemplateFrame : Frame {
 	    if (name.token.str == args [it].token.str) {
 		if (tmps [it] !is null && !tmps [it].isSame (type.clone ()))
 		    return null;
+		this._changed = true;
 		tmps [it] = (type.clone ());
 		return new Type (name.token, type.clone ());
 	    }	    
@@ -139,6 +143,7 @@ class TemplateFrame : Frame {
 		InfoType info = null;
 		auto param = attrs [it];
 		if (auto tvar = cast (TypedVar) param) {
+		    this._changed = false;
 		    if (tvar.type) {
 			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, score.tmps);
 			if (tmp is null) return null;
@@ -150,7 +155,7 @@ class TemplateFrame : Frame {
 		    }
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
-			score.score += SAME;
+			score.score += this._changed ? CHANGE : SAME;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {
 			score.score += AFF;
