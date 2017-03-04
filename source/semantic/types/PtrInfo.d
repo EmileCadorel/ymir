@@ -438,4 +438,9 @@ class PtrInfo : InfoType {
 	return LSize.ULONG;
     }
     
+    override InfoType getTemplate (ulong i) {
+	if (i == 0) return this._content;
+	return null;
+    }
+
 }

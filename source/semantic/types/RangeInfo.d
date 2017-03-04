@@ -354,5 +354,10 @@ class RangeInfo : InfoType {
 	}
 	return null;
     }
+
+    override InfoType getTemplate (ulong i) {
+	if (i == 0) return this._content;
+	return null;
+    }
     
 }

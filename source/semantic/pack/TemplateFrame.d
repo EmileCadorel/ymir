@@ -13,6 +13,7 @@ import std.stdio, std.array;
 import semantic.types.FunctionInfo, semantic.types.StructInfo;
 import ast.Expression;
 import ast.FuncPtr;
+import ast.ConstArray;
 
 
 /**
@@ -51,10 +52,28 @@ class TemplateFrame : Frame {
 	
 	return ret;
     }
+
+    private Expression typeIt (ConstArray name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+	if (name.params.length == 1) {
+	    if (auto var = cast (Var) name.params [0]) {
+		auto typed = typeIt (var, type.getTemplate (0), args, tmps);
+		if (typed !is null)
+		    return new Type (name.token, type.clone);
+	    }	    
+	}
+	return name;
+    }
+    
        
     private Var typeIt (Var name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
 	if (type is null) return null;
 	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
+	else if (name.token.str == "ref") {
+	    if (name.templates.length != 1) return null;
+	    auto typed = typeIt (name.templates [0], type, args, tmps);
+	    if (!typed) return null;
+	    return new Var (name.token, make!(Array!Expression) (typed));
+	}
 	
 	Array!Expression params;
 	foreach (it ; 0 .. name.templates.length) {
@@ -63,6 +82,11 @@ class TemplateFrame : Frame {
 		if (!typed)
 		    return null;
 		params.insertBack (typed);		
+	    } else if (auto var = cast (ConstArray) name.templates [it]) {
+		auto typed = typeIt (var, type.getTemplate (it), args, tmps);
+		if (!typed)
+		    return null;
+		params.insertBack (typed);
 	    } else params.insertBack (name.templates [it]);
 	}
 	
@@ -74,12 +98,17 @@ class TemplateFrame : Frame {
 		return new Type (name.token, type.clone ());
 	    }	    
 	}
+	
 	return new Var (name.token, params);
     }
 
     private Expression typeIt (Expression elem, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
 	if (auto fn = cast (FuncPtr) elem)
 	    return typeIt (fn, type, args, tmps);
+	else if (auto var = cast (Var) elem)
+	    return typeIt (var, type, args, tmps);
+	else if (auto cst = cast (ConstArray) elem)
+	    return typeIt (cst, type, args, tmps);
 	return null;
     }
     

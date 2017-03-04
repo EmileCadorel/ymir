@@ -363,4 +363,9 @@ class RefInfo : InfoType {
 	return LSize.LONG;
     }   
     
+    override InfoType getTemplate (ulong i) {
+	if (i == 0) return this._content;
+	return null;
+    }
+
 }

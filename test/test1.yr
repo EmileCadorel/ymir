@@ -1,17 +1,16 @@
 import std.stdio;
-
-def foo (T) (a : function  (T, T) : T) : T{
-    return a (1, 2);
-}
-
-def foo (T) (a : [T]) {
-}    
+import std.array;
 
 def main () {
-    println (foo (function (a : int, b : int) : int {
-		return (a + b) * 10;
-	    }));
-
-    foo ([1, 2, 3]);    
+    let a = [1ul, 2ul];
+    a.insertBack (123ul);
+    println (a);
+    println (a.removeBack (), ' ', a);
+    println (a.dup (), ' ', a);
+    a.clear ();
+    println (a);
+    for (it in 0ul .. 10ul) {
+	a.insertBack (it);
+    }
+    println (a, ' ', a.slice (2ul .. 0ul));
 }
-

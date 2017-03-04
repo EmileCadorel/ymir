@@ -35,7 +35,7 @@ class ConstArray : Expression  {
     /**
      Returns: Les paramètres de l'expression
      */
-    Array!Expression params () {
+    ref Array!Expression params () {
 	return this._params;
     }
     
