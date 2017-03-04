@@ -28,7 +28,7 @@ class BoolInfo : InfoType {
 	    throw new NotATemplate (token);
 	return new BoolInfo ();
     }
-
+    
     /**
      Params:
      other = le deuxième type.

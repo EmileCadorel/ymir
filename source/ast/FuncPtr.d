@@ -36,6 +36,14 @@ class FuncPtr : Expression {
 	return this._expr;
     }
 
+    ref Array!Var params () {
+	return this._params;
+    }
+
+    ref Var type () {
+	return this._ret;
+    }	
+    
     /**
      Vérification sémantique de l'expression.
      Pour être juste l'expression contenu doit être compatible avec le pointeur

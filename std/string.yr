@@ -69,9 +69,7 @@ def lastIndexOf (str : string, what : string) : ulong {
 	    }
 	}
 	if (eq) return cast:ulong (it);
-    }
-
-    
+    }    
     return str.length;
 }
 
@@ -180,8 +178,7 @@ def isWhite (c : char) : bool {
 }
 
 def substr (str : string, rng : range!ulong) : string {
-    if (str.length < rng.fst) return null;
-    else if (str.length < rng.scd) return null;
+    if (str.length < rng.fst || str.length < rng.scd) return null;
     else {
 	let size = abs (cast:long(rng.fst) - cast:long (rng.scd));
 	let ret = [char; cast:ulong (size)];
@@ -195,8 +192,7 @@ def substr (str : string, rng : range!ulong) : string {
 }
 
 def substr (str : string, fst : ulong, scd : ulong) : string {
-    if (str.length < fst) return null;
-    else if (str.length < scd) return null;
+    if (str.length < fst || str.length < scd) return null;
     else {
 	let size = abs (cast:long(fst) - cast:long (scd));
 	let ret = [char; cast:ulong (size)];

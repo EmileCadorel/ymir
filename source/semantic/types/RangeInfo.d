@@ -87,6 +87,7 @@ class RangeInfo : InfoType {
 	}
     }
 
+    
     /**
      Surcharge des operateurs binaire du type.
      Params:

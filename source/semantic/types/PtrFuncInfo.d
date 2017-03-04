@@ -36,6 +36,7 @@ class PtrFuncInfo : InfoType {
 	if (ptr is null) return false;
 	else {
 	    if (!this._ret.isSame (ptr._ret)) return false;
+	    if (this._params.length != ptr._params.length) return false;
 	    foreach (it ; 0 .. this._params.length) {
 		if (!ptr._params [it].isSame (this._params [it]))
 		    return false;
@@ -66,7 +67,8 @@ class PtrFuncInfo : InfoType {
 	    return ptr;
 	}
     }
-
+    
+    
     /**
      Surcharge des operateur binaire du pointeur sur fonction.
      Params:
@@ -307,5 +309,11 @@ class PtrFuncInfo : InfoType {
     ApplicationScore score () {
 	return this._score;
     }
+
+    override InfoType getTemplate (ulong i) {
+	if (i < this._params.length) return this._params [i];
+	else return this._ret;
+    }
+    
     
 }

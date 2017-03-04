@@ -108,6 +108,10 @@ class Var : Expression {
 	return false;
     }
 
+    Array!Expression templates () {
+	return this._templates;
+    }
+    
     /**
      Affiche la variable sous forme d'arbre
      Params:
@@ -166,6 +170,10 @@ class ArrayVar : Var {
 	return new Type (tok, new ArrayInfo (content.info.type));
     }
 
+    ref Var content () {
+	return this._content;
+    }
+    
     /**
      Returns: 'true'
      */
@@ -224,10 +232,14 @@ class TypedVar : Var {
     /**
      Returns: le type de la variable
      */
-    Var type () {
+    ref Var type () {
 	return this._type;
     }
 
+    ref Expression expType () {
+	return this._expType;
+    }
+    
     /**
      Returns: L'information de type de la variable
      */
@@ -268,6 +280,10 @@ class Type : Var {
 	this._info = new Symbol (false, word, info, true);
     }
 
+    override Var expression () {
+	return this;
+    }
+    
     /**
      Returns: 'this'
      */

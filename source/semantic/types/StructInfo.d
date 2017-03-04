@@ -93,7 +93,7 @@ class StructCstInfo : InfoType {
 	ret.isExtern = cst._extern;
 	return ret;
     }
-
+    
     /**
      Returns: false
      */

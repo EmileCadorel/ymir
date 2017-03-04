@@ -197,16 +197,31 @@ class Visitor {
     }    
 
     /**
-     function := 'def' Identifiant '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
+     function := 'def' Identifiant ('(' var (',') var)* ')' )? '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
      */
     private Function visitFunction () {
 	auto ident = visitIdentifiant ();
-	Array!Var exps;
+	Array!Var exps, temps;
 	auto word = _lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	_lex.next (word);
+	bool _tmp = true;
 	if (word != Tokens.RPAR) {
 	    _lex.rewind ();
+	    while (1) {
+		exps.insertBack (visitVarDeclaration ());
+		if (cast (TypedVar) exps.back()) _tmp = false;
+		_lex.next (word);
+		if (word == Tokens.RPAR) break;
+		else if (word != Tokens.COMA)
+		    throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+	    }
+	}
+	
+	_lex.next (word);
+	if (word == Tokens.LPAR && _tmp) {
+	    temps = exps;
+	    exps = make!(Array!Var);
 	    while (1) {
 		exps.insertBack (visitVarDeclaration ());
 		_lex.next (word);
@@ -214,14 +229,14 @@ class Visitor {
 		else if (word != Tokens.COMA)
 		    throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
 	    }
+	    _lex.next (word);
 	}
-
-	_lex.next (word);
+	
 	if (word == Tokens.COLON) {
 	    auto type = visitType ();
-	    return new Function (ident, type, exps, visitBlock ());
+	    return new Function (ident, type, exps, temps, visitBlock ());
 	} else _lex.rewind ();	
-	return new Function (ident, exps, visitBlock ());
+	return new Function (ident, exps, temps, visitBlock ());
     }
 
     /**

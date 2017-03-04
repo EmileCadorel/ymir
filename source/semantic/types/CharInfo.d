@@ -27,7 +27,7 @@ class CharInfo : InfoType {
 	    throw new NotATemplate (token);
 	return new CharInfo ();
     }
-
+    
     /**
      Params:
      other = le deuxieme type.

@@ -63,6 +63,8 @@ class Par : Expression {
 
 	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	if (type is null) {
+	    if (this._end.locus.line != this._token.locus.line)
+		throw new UndefinedOp (this._token, aux._left.info, aux._params);
 	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	}
 	

@@ -7,6 +7,7 @@ import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 import semantic.pack.ExternFrame;
+import semantic.pack.TemplateFrame;
 import semantic.pack.PureFrame;
 
 
@@ -31,20 +32,25 @@ class Function : Declaration {
     /// Les paramètre de la fonctions
     private Array!Var _params;
 
+    /// Les template de la fonction
+    private Array!Var _tmps;
+    
     /// Le block de la fonction
     private Block _block;
     
-    this (Word ident, Array!Var params, Block block) {
+    this (Word ident, Array!Var params, Array!Var tmps, Block block) {
 	this._ident = ident;
 	this._params = params;
+	this._tmps = tmps;
 	this._block = block;
 	this.isPublic = true;
     }
     
-    this (Word ident, Var type, Array!Var params, Block block) {
+    this (Word ident, Var type, Array!Var params, Array!Var tmps, Block block) {
 	this._ident = ident;
 	this._type = type;
 	this._params = params;
+	this._tmps = tmps;
 	this._block = block;
 	this.isPublic = true;
     }
@@ -59,10 +65,14 @@ class Function : Declaration {
     /**
      Returns: les paramètres de la fonction
      */
-    Array!Var params () {
+    ref Array!Var params () {
 	return this._params;
     }
 
+    ref Array!Var tmps () {
+	return this._tmps;
+    }    
+    
     /**
      Returns: le block de la fonction
      */
@@ -128,6 +138,7 @@ class Function : Declaration {
      */
     Frame verifyPure () {
 	auto space = Table.instance.namespace ();
+	if (this._tmps.length != 0) return new TemplateFrame (space, this);
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    
@@ -142,6 +153,7 @@ class Function : Declaration {
      */
     Frame verifyPureAsExtern () {
 	auto space = Table.instance.namespace ();
+	if (this._tmps.length != 0) return new TemplateFrame (space, this);
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    

@@ -128,7 +128,7 @@ class YmirException : Exception {
 			Colors.YELLOW.value,
 			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
-			line[locus.column + locus.length - 1 .. locus2.column - 1],
+			line [locus.column + locus.length - 1 .. locus2.column - 1],
 			Colors.YELLOW.value,
 			line [locus2.column - 1 .. locus2.column + locus2.length - 1],
 			Colors.RESET.value,

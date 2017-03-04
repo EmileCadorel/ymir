@@ -1,22 +1,17 @@
 import std.stdio;
-import std.string;
 
-struct
-| a : int
--> test;
+def foo (T) (a : function  (T, T) : T) : T{
+    return a (1, 2);
+}
+
+def foo (T) (a : [T]) {
+}    
 
 def main () {
-    let a = test (10);
-    a = null;
-    if (a !is null && a.a == 10) {
-	println ("ici");
-    } else {
-	println ("ouf");
-    }
+    println (foo (function (a : int, b : int) : int {
+		return (a + b) * 10;
+	    }));
 
-    if (a is null || a.a == 10) {
-	println ("ouf");
-    } else {
-	println ("ici");
-    }
+    foo ([1, 2, 3]);    
 }
+

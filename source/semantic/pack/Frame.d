@@ -43,16 +43,25 @@ class Frame {
     }
 
     /**
-     Fonction à surchagé pour l'analyse sémantique, après appel (spécialement pour les frames templates)
+     Fonction à surchagé pour l'analyse sémantique, après appel (spécialement pour les frames impure)
      */    
     FrameProto validate (ParamList params) {
 	assert (false);
     }
     
     /**
-     Fonction à surchagé pour l'analyse sémantique, après appel (spécialement pour les frames templates)
+     Fonction à surchagé pour l'analyse sémantique, après appel (spécialement pour les frames impoure)
      */    
     FrameProto validate (Array!InfoType params) {
+	assert (false);
+    }
+
+    /**
+     Fonction a surchargé pour l'analyse sémantique, après appel (spécialement pour les frames template)
+     */
+    FrameProto validate (Array!InfoType tmps, Array!InfoType params) {
+	if (tmps.length == 0)
+	    return validate (params);
 	assert (false);
     }
     

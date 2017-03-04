@@ -63,7 +63,7 @@ class RefInfo : InfoType {
 		throw new UndefinedType (token, "prend un type en template");
 	else return new RefInfo (templates [0].info.type);	
     }
-
+    
     /**
      Surcharge des operateurs binaire.
      Params:

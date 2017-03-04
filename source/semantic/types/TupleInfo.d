@@ -60,6 +60,7 @@ class TupleInfo : InfoType {
 	return tuple;
     }
 
+    
     /**
      Surcharge des operateurs binaires à droite.
      Params:
@@ -176,5 +177,11 @@ class TupleInfo : InfoType {
 	return LSize.LONG;
     }
         
+    override InfoType getTemplate (ulong i) {
+	if (i < this._params.length)
+	    return this._params [i];
+	return null;
+    }
+
 }
     

@@ -78,6 +78,8 @@ class ArrayInfo : InfoType {
 	}
     }
 
+
+    
     /**
      Test des surcharge d'operateur du tableau.
      Params:
@@ -465,5 +467,8 @@ class ArrayInfo : InfoType {
 	return ret;
     }
 
-    
+    override InfoType getTemplate (ulong i) {
+	if (i == 0) return this._content;
+	return null;
+    }
 }

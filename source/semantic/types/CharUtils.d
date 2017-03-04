@@ -207,7 +207,7 @@ class CharUtils {
     */    
     static LInstList CharStringOfConst (LInstList, LInstList) {
 	auto inst = new LInstList;
-	auto str = new String (Word.eof, "const (char)").expression;
+	auto str = new String (Word.eof, "const(char)").expression;
 	str.info.type.setDestruct (null);
 	inst += LVisitor.visitExpressionOutSide (str);
 	return inst;

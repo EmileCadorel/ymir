@@ -57,6 +57,7 @@ class DecimalInfo : InfoType {
 	}
     }
 
+    
     /**
      La surcharge de operateur binaire de int.
      Params:

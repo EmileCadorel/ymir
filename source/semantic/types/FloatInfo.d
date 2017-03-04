@@ -28,6 +28,7 @@ class FloatInfo : InfoType {
 	return new FloatInfo ();
     }
 
+    
     /**
      Params:
      other = le deuxieme type.

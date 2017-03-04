@@ -64,8 +64,8 @@ class StringInfo : InfoType {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
 	return new StringInfo ();
-    }
-
+    } 
+   
     /**
      Surcharge des operateurs binaire
      Params:

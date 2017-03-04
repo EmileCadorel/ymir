@@ -61,8 +61,14 @@ class ApplicationScore {
     /** Le cast à appliquer à chaque paramètre avant l'appel */
     Array!InfoType treat;    
 
+    /** Les templates de la fonction, si elle est template */
+    Array!InfoType tmps;
+    
     /** Le prototype est variadic */
     bool isVariadic;
+
+    /** Le prototype est dérivé d'une fonction template */
+    bool isTemplate;    
 }
 
 
@@ -104,6 +110,8 @@ class InfoType {
     /** La liste des types que l'on peut créé grâce à leurs nom */
     static InfoType function (Word, Expression[]) [string] creators;
 
+    static InfoType [string] alias_;
+    
     static this () {
 	creators = ["int" : &DecimalInfo.create,
 		    "uint" : &DecimalInfo.create,
@@ -139,6 +147,8 @@ class InfoType {
 	if (it !is null) {
 	    return (*it) (word, templates);
 	}
+	auto _it_ = (word.str in alias_);
+	if (_it_) return _it_.clone ();
 	throw new UndefinedType (word);
     }
 
@@ -153,6 +163,13 @@ class InfoType {
     }
 
     /**
+     Ajoute un alias de type
+     */
+    static void addAlias (string name, InfoType ali) {
+	alias_ [name] = ali;
+    }
+    
+    /**
      Supprime un créateur de la liste.
      Params:
      name = le nom du créateur.
@@ -162,14 +179,25 @@ class InfoType {
     }
 
     /**
+     Supprime un créateur de la liste.
+     Params:
+     name = le nom du créateur.
+     */
+    static void removeAlias (string name) {
+	alias_.remove (name);
+    }
+
+    
+    /**
      Params:
      name = un nom de type
      Returns: le type x existe ?
      */
-    static bool exist (string name) {
-	return (name in creators) !is null;
+    static bool exist (string name) {	
+	return (name in creators) || (name in alias_);
     }
     
+   
     /**
      Returns: la liste des informations supplémentaire.
      */
@@ -494,5 +522,12 @@ class InfoType {
 	    cast (BoolInfo) info ||
 	    cast (VoidInfo) info;	    
     }
+
+    /**
+     Returns: le template contenu dans le type à l'indice 'ulong'
+     */
+    InfoType getTemplate (ulong) {
+	return null;
+    }	
     
 }

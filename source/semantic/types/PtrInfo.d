@@ -59,6 +59,7 @@ class PtrInfo : InfoType {
 	}	
     }
 
+    
     /**
      Surcharge des operateurs binaire du type ptr.
      Params:
