@@ -1,6 +1,7 @@
 module syntax.SyntaxError;
 import utils.YmirException;
 import syntax.Word;
+import syntax.Tokens;
 import std.outbuffer, utils.Singleton;
 import std.file, std.stdio, std.conv;
 import std.stdio;
@@ -43,6 +44,5 @@ class SyntaxError : YmirException {
 	}
 	msg = buf.toString();
     }
-    
-
+       
 }

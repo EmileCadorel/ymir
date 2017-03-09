@@ -1,22 +1,13 @@
 import std.stdio;
 import std.array;
 
-def foo (T) (a : [int]) {
-    println ('fst');
-    let sum = T.init;
-    for (it in a) {
-	sum += it;
-    }
-    return sum;
-}
 
-def foo (a : [ulong]) : ulong {
-    println ('second');
-    return 10ul;
-}
+enum : string
+| USE : 'use'
+| SUCCESS : 'succ'
+-> TEST;
 
-
-def main () {
-    println (foo ([1, 2, 3]));
-    println (foo ([1ul, 2ul]));
+def main () {    
+    println (TEST.USE);
+    println (TEST.SUCCESS);
 }

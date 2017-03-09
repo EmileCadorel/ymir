@@ -49,6 +49,10 @@ struct Word {
     bool opEquals (T2 : Token)(T2 elem) const {
 	return this._str == elem.descr;
     }
+
+    bool opEquals (T2 : string) (T2 elem) const {
+	return this._str == elem;
+    }
     
     static bool checkToken (string token) {
 	return find!"a.descr == b" ([EnumMembers!Tokens], token) != [];

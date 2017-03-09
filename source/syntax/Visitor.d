@@ -71,6 +71,7 @@ class Visitor {
 	    else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
 	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
+	    else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else if (word == Keys.PUBLIC) {
 		auto pub_decls = visitPublicBlock ();
 		foreach (it ; pub_decls) decls.insertBack (it);
@@ -94,6 +95,7 @@ class Visitor {
 		else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
 		decls.back ().isPublic = true;
@@ -103,6 +105,7 @@ class Visitor {
 	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = true;
 	}
@@ -119,6 +122,7 @@ class Visitor {
 		else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
 		decls.back ().isPublic = false;
@@ -128,6 +132,7 @@ class Visitor {
 	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = false;
 	}
@@ -196,6 +201,53 @@ class Visitor {
 	    
     }    
 
+    /**
+     enum := 'enum' (Identifiant ':' type ('|' Identifiant ':' expression) * '->' Identifiant ';')
+                    | (Identifiant  '=' expression ';') 
+     */
+    private Enum visitEnum () {
+	Array!Word names;
+	Array!Expression values;
+	auto word = this._lex.next ();
+	if (word == Tokens.COLON) {
+	    auto type = visitType ();
+	    word = this._lex.next ();
+	    if (word != Tokens.PIPE) throw new SyntaxError (word, [Tokens.PIPE.descr]);
+	    while (true) {
+		names.insertBack (visitIdentifiant ());
+		auto next = this._lex.next ();
+		if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
+		values.insertBack (visitPth ());
+		next = this._lex.next ();
+		if (next == Tokens.ARROW) break;
+		else if (next != Tokens.PIPE)
+		    throw new SyntaxError (next, [Tokens.PIPE.descr, Tokens.COMA.descr]);
+	    }
+	    word = this._lex.next ();
+	    Word ident = Word.eof;
+	    if (word != Keys.UNDER) {
+		this._lex.rewind ();
+		ident = visitIdentifiant ();
+	    }
+	    
+	    word = this._lex.next ();
+	    if (word != Tokens.SEMI_COLON)
+		throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	    return new Enum (ident, type, names, values);
+	} else {
+	    _lex.rewind ();
+	    names.insertBack (visitIdentifiant ());
+	    word = this._lex.next ();
+	    if (word != Tokens.EQUAL)
+		throw new SyntaxError (word, [Tokens.EQUAL.descr]);
+	    values.insertBack (visitExpression ());
+	    word = this._lex.next ();
+	    if (word != Tokens.SEMI_COLON)
+		throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	    return new Enum (Word.eof, null, names, values);
+	}
+    }
+    
     /**
      function := 'def' Identifiant ('(' var (',') var)* ')' )? '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
      */

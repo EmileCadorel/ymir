@@ -3,6 +3,7 @@ import syntax.Word;
 import syntax.Tokens, utils.YmirException;
 import std.container, std.traits;
 import std.stdio, std.file, std.string;
+import syntax.SyntaxError;
 
 class LexerError : YmirException {
     this (string filename) {
@@ -88,6 +89,20 @@ class Lexer {
 	this.next (word);
 	return word;
     }
+
+    /**
+     Recupere le mot 
+     Return: le mot lu
+     Throws: SyntaxError, si le mot n'est pas un de ceux passé en param
+     */
+    Word next (T...) (T params) {
+	Word word;
+	this.next (word);
+	foreach (Token it ; params)
+	    if (word == it.descr) return word;
+	throw new SyntaxError (word, params);
+    }
+
     
     /**
      Retour en arriere dans le fichier

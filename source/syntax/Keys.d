@@ -37,5 +37,7 @@ enum Keys : Token {
     MAIN = Token ("main", 32),
     PUBLIC = Token ("public", 33),
     PRIVATE = Token ("private", 34),
-    EXPAND = Token ("expand", 35)
+    EXPAND = Token ("expand", 35),
+    ENUM = Token ("enum", 36),
+    UNDER = Token ("_", 37)
 }

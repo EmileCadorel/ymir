@@ -46,5 +46,19 @@ for it in 6 .. 0
   print (it); // '654321'
 ```
 
+<br>
+## Label de boucle
+------------------
 
+Il est possible de labélliser une boucle. C'est utile pour le mot clé _break_, qui va pouvoir y faire appel.
+
+```D
+while:loop1 (true) {
+	for:loop2 (it in [1, 2, 3) {
+		if (it == 2) 
+			break loop1; // on arrête la boucle while
+	}
+}
+
+```
 

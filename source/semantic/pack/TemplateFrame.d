@@ -45,10 +45,10 @@ class TemplateFrame : Frame {
 	ret.content = typed;	
 	foreach (it ; 0 .. args.length) {
 	    if (name.token.str == args [it].token.str) {
-		if (tmps [it] !is null && !tmps [it].isSame (type.clone ()))
-		    return null;
-		tmps [it] = (type.clone ());
-		this._changed = true;
+		if (tmps [it] is null) {
+		    tmps [it] = (type.clone ());
+		    this._changed = true;
+		}
 		return new Type (name.token, type.clone ());
 	    }	    
 	}
@@ -96,10 +96,10 @@ class TemplateFrame : Frame {
 	
 	foreach (it ; 0 .. args.length) {
 	    if (name.token.str == args [it].token.str) {
-		if (tmps [it] !is null && !tmps [it].isSame (type.clone ()))
-		    return null;
-		this._changed = true;
-		tmps [it] = (type.clone ());
+		if (tmps [it] is null) {
+		    tmps [it] = (type.clone ());
+		    this._changed = true;
+		}
 		return new Type (name.token, type.clone ());
 	    }	    
 	}
