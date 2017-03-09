@@ -203,49 +203,33 @@ class Visitor {
 
     /**
      enum := 'enum' (Identifiant ':' type ('|' Identifiant ':' expression) * '->' Identifiant ';')
-                    | (Identifiant  '=' expression ';') 
-     */
+     | (Identifiant  '=' expression ';') 
+    */
     private Enum visitEnum () {
 	Array!Word names;
 	Array!Expression values;
 	auto word = this._lex.next ();
-	if (word == Tokens.COLON) {
-	    auto type = visitType ();
-	    word = this._lex.next ();
-	    if (word != Tokens.PIPE) throw new SyntaxError (word, [Tokens.PIPE.descr]);
-	    while (true) {
-		names.insertBack (visitIdentifiant ());
-		auto next = this._lex.next ();
-		if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
-		values.insertBack (visitPth ());
-		next = this._lex.next ();
-		if (next == Tokens.ARROW) break;
-		else if (next != Tokens.PIPE)
-		    throw new SyntaxError (next, [Tokens.PIPE.descr, Tokens.COMA.descr]);
-	    }
-	    word = this._lex.next ();
-	    Word ident = Word.eof;
-	    if (word != Keys.UNDER) {
-		this._lex.rewind ();
-		ident = visitIdentifiant ();
-	    }
-	    
-	    word = this._lex.next ();
-	    if (word != Tokens.SEMI_COLON)
-		throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
-	    return new Enum (ident, type, names, values);
-	} else {
-	    _lex.rewind ();
+	Var type;
+	if (word == Tokens.COLON) type = visitType ();
+	else this._lex.rewind ();
+	word = this._lex.next ();
+	if (word != Tokens.PIPE) throw new SyntaxError (word, [Tokens.PIPE.descr]);
+	while (true) {
 	    names.insertBack (visitIdentifiant ());
-	    word = this._lex.next ();
-	    if (word != Tokens.EQUAL)
-		throw new SyntaxError (word, [Tokens.EQUAL.descr]);
-	    values.insertBack (visitExpression ());
-	    word = this._lex.next ();
-	    if (word != Tokens.SEMI_COLON)
-		throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
-	    return new Enum (Word.eof, null, names, values);
+	    auto next = this._lex.next ();
+	    if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
+	    values.insertBack (visitPth ());
+	    next = this._lex.next ();
+	    if (next == Tokens.ARROW) break;
+	    else if (next != Tokens.PIPE)
+		throw new SyntaxError (next, [Tokens.PIPE.descr, Tokens.COMA.descr]);
 	}
+	
+	Word ident = visitIdentifiant ();       	    
+	word = this._lex.next ();
+	if (word != Tokens.SEMI_COLON)
+	    throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	return new Enum (ident, type, names, values);
     }
     
     /**

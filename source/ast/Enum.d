@@ -54,11 +54,11 @@ class Enum : Declaration {
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
-	    if (this._ident != Word.eof) {
-		auto en = new EnumCstInfo (this._ident.str);
+	    if (this._type !is null) {
+		auto type = this._type.asType ();
+		auto en = new EnumCstInfo (this._ident.str, type.info.type);
 		auto sym = new Symbol (this._ident, en);
 		Table.instance.insert (sym);
-		auto type = this._type.asType ();
 		foreach (it; 0 .. this._names.length) {
 		    auto val = this._values [it].expression;
 		    auto comp = val.info.type.CompOp (type.info.type);
@@ -66,7 +66,15 @@ class Enum : Declaration {
 			en.addAttrib (this._names [it].str, val, comp);
 		    else throw new IncompatibleTypes (type.info,
 						      val.info);
-		}		
+		}
+	    } else {
+		auto en = new EnumCstInfo (this._ident.str);
+		auto sym = new Symbol (this._ident, en);
+		Table.instance.insert (sym);
+		foreach (it; 0 .. this._names.length) {
+		    auto val = this._values [it].expression;
+		    en.addAttrib (this._names [it].str, val);
+		}
 	    }
 	}
     }

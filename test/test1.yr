@@ -1,13 +1,12 @@
 import std.stdio;
 import std.array;
 
-
-enum : string
-| USE : 'use'
-| SUCCESS : 'succ'
--> TEST;
+enum 
+| TEST : (8 - 8)
+| TEST2 : 'salut'
+-> y;
 
 def main () {    
-    println (TEST.USE);
-    println (TEST.SUCCESS);
+    println (y.TEST);
+    println (y.TEST2);
 }
