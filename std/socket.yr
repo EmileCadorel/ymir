@@ -21,6 +21,12 @@ struct
 | s_addr : int
 -> sockaddr_in;
 
+enum : int
+| AF_INET : 2
+| SOCK_STREAM : 1
+| INADDR_ANY : 0
+-> SockEnum;
+
 
 def perror (str : string) {
     perror (str.ptr);

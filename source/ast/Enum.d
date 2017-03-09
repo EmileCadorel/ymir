@@ -22,6 +22,7 @@ class Enum : Declaration {
 	this._type = type;
 	this._names = names;
 	this._values = values;
+	this._isPublic = true;
     }
 
     /**
@@ -46,7 +47,8 @@ class Enum : Declaration {
     }
     
     override void declareAsExtern () {
-	declare ();
+	if (this._isPublic) 
+	    declare ();
     }
 
     override void declare () {

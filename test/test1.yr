@@ -1,12 +1,7 @@
 import std.stdio;
 import std.array;
+import std.socket;
 
-enum 
-| TEST : (8 - 8)
-| TEST2 : 'salut'
--> y;
+def main () {
 
-def main () {    
-    println (y.TEST);
-    println (y.TEST2);
 }

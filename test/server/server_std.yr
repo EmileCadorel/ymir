@@ -5,15 +5,16 @@ def main () {
     srand (time (0));    
     let MY_PORT = (rand () % 1000) + 8888;
     println (MY_PORT);
-    let AF_INET = 2, SOCK_STREAM = 1, INADDR_ANY = 0;
-    let sockfd = socket (AF_INET, SOCK_STREAM, 0);
+    let sockfd = socket (SockEnum.AF_INET, SockEnum.SOCK_STREAM, 0);
     
     if (sockfd < 0) {
 	perror ("Socket");
 	return -1;
     }
 
-    if (bind (sockfd, sockaddr_in (AF_INET, MY_PORT, INADDR_ANY)) != 0) {
+    if (bind (sockfd, sockaddr_in (SockEnum.AF_INET,
+				   MY_PORT,
+				   SockEnum.INADDR_ANY)) != 0) {
 	perror ("Bind");
 	return -1;
     }
