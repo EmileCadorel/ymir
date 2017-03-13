@@ -94,6 +94,12 @@ class ConstRange : Expression {
 	aux._info = new Symbol (aux._token, new RangeInfo (type), true);
 	return aux;
     }
+
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	auto left = this._left.templateExpReplace (names, values);
+	auto right = this._right.templateExpReplace (names, values);
+	return new ConstRange (this._token, left, right);
+    }
     
 
 }

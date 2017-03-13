@@ -93,6 +93,14 @@ class ConstArray : Expression  {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	Array!Expression params;
+	params.length = this._params.length;	
+	foreach (it ; 0 .. params.length)
+	    params [it] = this._params [it].templateExpReplace (names, values);
+	return new ConstArray (this._token, params);
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:

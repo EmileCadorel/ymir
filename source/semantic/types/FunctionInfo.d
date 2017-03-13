@@ -4,6 +4,7 @@ import ast.ParamList, std.container, semantic.pack.UnPureFrame;
 import semantic.pack.Frame;
 import std.stdio, syntax.Word;
 import semantic.pack.FrameProto;
+import ast.Expression;
 
 /**
  Classe qui regroupe le information de type des déclarations de fonctions.
@@ -29,6 +30,12 @@ class FunctionInfo : InfoType {
 	this._namespace = namespace;
     }
 
+    this (string namespace, string name, Array!Frame infos) {
+	this._name = name;
+	this._namespace = namespace;
+	this._infos = infos;
+    }
+    
     /**
      Returns: `false`
      */
@@ -156,9 +163,21 @@ class FunctionInfo : InfoType {
 	    auto a = new TemplateCreation (func_token);
 	    a.print ();
 	    throw err;
+	}	
+    }
+
+    override InfoType TempOp (Array!Expression params) {
+	Array!Frame ret;
+	foreach (it ; this._infos) {
+	    auto aux = it.TempOp (params);
+	    if (aux) ret.insertBack (aux);
 	}
 	
-    }
+	if (ret.length != 0) {
+	    return new FunctionInfo (this._namespace, this._name, ret);
+	}
+	return null;
+    }    
 
     /**
      On quitte le scope, donc on supprime toutes les surcharges local à ce scope.

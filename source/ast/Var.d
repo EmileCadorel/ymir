@@ -50,16 +50,44 @@ class Var : Expression {
      Throws: UndefinedVar, si l'identifiant n'existe pas
      */
     override Var expression () {
-	if (!isType && this._templates.length == 0) {
-	    auto aux = new Var (this._token);
+	if (!isType) {
+	    auto aux = new Var (this._token);	    
 	    aux.info = Table.instance.get (this._token.str);
 	    if (aux.info is null) 
 		throw new UndefinedVar (this._token);
 	    
-	    return aux;
+	    if (this._templates.length != 0) {
+		auto id = aux.info.id;
+		Array!Expression tmps;
+		foreach (it ; this._templates) {
+		    tmps.insertBack (it.expression ());
+		}
+		
+		auto type = aux.info.type.TempOp (tmps);
+		if (type is null)
+		    throw new NotATemplate (this._token);
+		
+		aux.templates = tmps;
+		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);
+	    }	    
+	    return aux;	
 	} else return asType ();
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	foreach (it ; 0 .. names.length) {
+	    if (names [it].token.str == this._token.str)
+		return values [it];
+	}
+
+	Array!Expression tmps;
+	tmps.length = this._templates.length;
+	foreach (it ; 0 .. tmps.length)
+	    tmps [it] = this._templates [it].templateExpReplace (names, values);
+	
+	return new Var (this._token, tmps);
+    }
+    
     /**
      Met à jour le type de la variable
      Params:
@@ -108,7 +136,7 @@ class Var : Expression {
 	return false;
     }
 
-    Array!Expression templates () {
+    ref Array!Expression templates () {
 	return this._templates;
     }
     
@@ -159,6 +187,10 @@ class ArrayVar : Var {
 	return new Type (tok, new ArrayInfo (content.info.type));
     }
 
+    override Var templateExpReplace (Array!Var names, Array!Expression values) {
+	return new ArrayVar (this._token, cast (Var) this._content.templateExpReplace (names, values));
+    }
+    
     /**
      Verification sémantique.
      Pour être juste le contenu doit être un type
@@ -219,6 +251,7 @@ class TypedVar : Var {
 	    Table.instance.insert (aux.info);
 	    return aux;
 	} else {
+	    this._expType.print ();
 	    auto ptr = cast (FuncPtr) this._expType.expression ();
 	    if (ptr) {
 		auto aux = new TypedVar (this._token, new Type (ptr.token, ptr.info.type));
@@ -229,6 +262,13 @@ class TypedVar : Var {
 	}
     }
 
+    override Var templateExpReplace (Array!Var names, Array!Expression values) {
+	if (this._type)
+	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (names, values));
+	else
+	    return new TypedVar (this._token, this._expType.templateExpReplace (names, values));	
+    }
+    
     /**
      Returns: le type de la variable
      */
@@ -281,6 +321,10 @@ class Type : Var {
     }
 
     override Var expression () {
+	return this;
+    }
+
+    override Var templateExpReplace (Array!Var, Array!Expression) {
 	return this;
     }
     

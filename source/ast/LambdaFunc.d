@@ -126,9 +126,16 @@ class LambdaFunc : Expression {
 	return ret;
     }
     
-    
-
-
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	Array!Var var;
+	var.length = this._params.length;
+	foreach (it ; 0 .. var.length)
+	    var [it] = cast (Var) this._params [it].templateExpReplace (names, values);
+	
+	auto ret = cast (Var) this._ret.templateExpReplace (names, values);
+	auto block = this._block.templateReplace (names, values);
+	return new LambdaFunc (this._token, var, ret, block);
+    }
     
 }
 

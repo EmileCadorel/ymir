@@ -5,6 +5,7 @@ import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 import utils.exception, semantic.pack.ExternFrame;
+import ast.Expression;
 
 /**
  Classe généré à la syntaxe par.
@@ -110,5 +111,16 @@ class Proto : Declaration {
 	}
     }
     
-    
+    override Declaration templateReplace (Array!Var names, Array!Expression values) {
+	Var type;
+	if (this._type)
+	    type = cast (Var) this._type.templateExpReplace (names, values);
+	Array!Var params;
+	params.length = this._params.length;
+	foreach (it ; 0 .. params.length)
+	    params [it] = cast (Var) this._params [it].templateExpReplace (names, values);
+	return new Proto (this._ident, type, params, this._isVariadic);
+    }
+
+
 }

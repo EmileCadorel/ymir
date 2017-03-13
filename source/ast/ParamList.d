@@ -4,6 +4,7 @@ import semantic.types.UndefInfo;
 import semantic.types.InfoType;
 import std.container, syntax.Word;
 import std.stdio, std.string;
+import ast.Var;
 
 /**
  Une liste de paramètre peut être généré à la syntaxe dans deux cas.
@@ -51,6 +52,15 @@ class ParamList : Expression {
 	return aux;
     }
 
+    override ParamList templateExpReplace (Array!Var names, Array!Expression values) {
+	Array!Expression params;
+	params.length = this._params.length;
+	foreach (it ; 0 .. params.length)
+	    params [it] = this._params [it].templateExpReplace (names, values);
+	return new ParamList (this._token, params);
+    }
+
+    
     /**
      Returns: La liste des paramètres
      */

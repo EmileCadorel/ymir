@@ -6,6 +6,7 @@ import std.stdio, std.string, utils.exception;
 import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList;
 import semantic.pack.Symbol;
+import ast.Var, std.container;
 
 /**
  L'instruction est généré à la syntaxe par.
@@ -72,7 +73,12 @@ class Return : Instruction {
 	return aux;
     }
     
-
+    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+	if (this._elem is null) return this;
+	else return new Return (this._token, this._elem.templateExpReplace (names, values));
+    }
+    
+    
     /**
      Returns: l'element retourner par l'instruction (peut être null)
      */

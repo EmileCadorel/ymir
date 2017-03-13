@@ -35,7 +35,7 @@ def sqrt (f : float) : float {
 /**
    Retourne la racine carré d'un nombre avec une précision de 2
  **/
-def sqrt(value) : float {
+def sqrt (value) : float {
     if (value < 0) {
 	return -1.;
     }
@@ -103,4 +103,9 @@ def facto(x : int) : int {
 	aux--;
     }
     return x;
+}
+
+def min (T) (a : T, b : T) {
+    if (a < b) return a;
+    return b;
 }

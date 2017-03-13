@@ -1,0 +1,98 @@
+
+def all (T) (call : function (T) : bool, b : [T]) {
+    for (it in b) {
+	if (!call (it)) return false;
+    }
+    return true;
+}
+
+def any (T) (call : function (T) : bool, b : [T]) {
+    for (it in b)
+	if (call (it)) return true;
+    return false;
+}
+
+def countUntil (T) (a : [T], b : [T]) {
+    for (it in 0UL .. (a.length - (b.length - 1UL))) {
+	let eq = true;
+	for (it_ in 0UL .. b.length) {
+	    if (a[it + it_] != b [it_]) {
+		eq = false;
+		break;
+	    }
+	}
+	if (eq) return it;
+    }
+    return a.length;
+}
+
+/**
+   Compte le nombre d'éléments qui valide le prédicat
+   Params:
+   call = la fonction lambda du prédicat
+   b = le tableau à tester
+   Returns: le nombre d'élément qui valide le prédicat
+ */
+def count (T) (call : function (T) : bool, b : [T]) {
+    let nb = ulong.init;
+    for (it in b) {
+	if (call (it))
+	    nb ++;
+    }
+    return nb;
+}
+
+/**
+   Compte le nombre d'éléments qui sont égale à la b
+   Params:
+   a = le tableau d'éléments
+   b = l'élément qui va être égale
+   Returns: le nombre d'élément égale à b
+ */
+def count (T) (a : [T], b : T) {
+    let nb = ulong.init;
+    for (it in a) {
+	if (it == b) nb++;
+    }
+    return nb;
+}
+
+/**
+   On peut trouver b dans a
+ */
+def canFind (T) (a : [T], b : [T]) {
+    for (it in 0UL .. (a.length - (b.length - 1UL))) {
+	let eq = true;
+	for (it_ in 0UL .. b.length) {
+	    if (a[it + it_] != b [it_]) {
+		eq = false;
+		break;
+	    }
+	}
+	if (eq) return true;
+    }
+    return false;
+}
+
+/**
+   Les deux mots on un préfix commun
+ */
+def commonPrefix (a : string, b : string) : string {
+    import std.math, std.string;
+    let nb = 0L;
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] != b [it]) {
+	    return a.substr (0L, nb);
+	} else nb ++;
+    }
+    return a;
+}
+
+def endsWith (a : string, b : string) : bool {
+    if (b.length > a.length) return false;
+    for (it in 0UL .. b.length) {
+	if (a [(a.length - b.length) + it] != b [it])
+	    return false;
+    }
+    return true;
+}

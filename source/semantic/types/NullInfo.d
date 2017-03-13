@@ -77,6 +77,8 @@ class NullInfo : InfoType {
 	    auto ret = other.clone ();
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
+	} else if (cast (NullInfo) other) {
+	    return this;
 	}
 	return null;
     }

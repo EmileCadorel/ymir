@@ -4,6 +4,8 @@ import ast.Block, syntax.Word, semantic.pack.Symbol;
 import semantic.types.BoolInfo, semantic.types.InfoType;
 import utils.exception, semantic.pack.Table;
 import std.stdio, std.string;
+import std.container;
+import ast.Var;
 
 /**
  Classe généré à la syntaxe par.
@@ -70,6 +72,12 @@ class While : Instruction {
 	return _while;
     }
 
+    override While templateReplace (Array!Var names, Array!Expression values) {
+	auto test = this._test.templateExpReplace (names, values);
+	auto block = this._block.templateReplace (names, values);
+	return new While (this._token, test, block);
+    }
+    
     /**
      Returns: le test de la boucle
      */

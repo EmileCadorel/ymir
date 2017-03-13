@@ -7,6 +7,7 @@ cp -r std/. ${HOME}/libs/ymir_std/std/
 
 cd ${HOME}/libs/ymir_std/
 ymir -c std/stdio/*.yr
+ymir -c std/algorithm/*.yr
 ymir --std -c std/*.yr
 gcc -c std/*/*.c
 

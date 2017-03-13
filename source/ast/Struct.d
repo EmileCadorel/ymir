@@ -7,7 +7,7 @@ import semantic.pack.Frame, semantic.pack.UnPureFrame;
 import semantic.types.FunctionInfo, semantic.pack.Symbol;
 import std.container, std.stdio, std.string;
 import semantic.types.StructInfo, semantic.types.InfoType;
-
+import ast.Expression;
 
 /**
  Classe généré par la syntaxe.
@@ -87,6 +87,15 @@ class Struct : Declaration {
 	}
     }
     
+    override Declaration templateReplace (Array!Var names, Array!Expression values) {
+	Array!Var params;
+	params.length = this._params.length;
+	foreach (it ; 0 .. this._params.length)
+	    params [it] = cast (Var) this._params [it].templateExpReplace (names, values);
+	auto st = new Struct (this._ident, params);
+	st._isPublic = this._isPublic;
+	return st;
+    }
     
     /**
      Affiche la structure sous forme d'arbre

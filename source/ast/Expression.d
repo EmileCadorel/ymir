@@ -1,6 +1,8 @@
 module ast.Expression;
 import ast.Instruction;
 import syntax.Word, semantic.pack.Symbol;
+import std.container;
+import ast.Var;
 
 /**
  Ancêtre des expressions de l'arbre de syntaxe.
@@ -35,6 +37,17 @@ class Expression : Instruction {
 	assert (false, "TODO");	
     }
 
+    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+	return this.templateExpReplace (names, values);
+    }
+    
+    /**
+     Remplace les templates par les expressions associés
+     */
+    Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	assert (false, "TODO");
+    }
+    
     /**
      Fonction à surcharger pour l'affichage
      */

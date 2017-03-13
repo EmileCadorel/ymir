@@ -191,19 +191,29 @@ def substr (str : string, rng : range!ulong) : string {
     }
 }
 
-def substr (str : string, fst : ulong, scd : ulong) : string {
-    if (str.length < fst || str.length < scd) return null;
-    else {
-	let size = abs (cast:long(fst) - cast:long (scd));
-	let ret = [char; cast:ulong (size)];
-	let index = 0ul;
-	for (it in fst .. scd) {
-	    ret [index] = str [it];
-	    index ++;
-	}
-	return cast:string (ret);
+def substr (str : string, fst : long, scd : long) : string {
+    let size = abs (scd - fst);
+    let ret = [char; cast:ulong (size)];
+    let index = 0ul;
+    for (it in fst .. scd) {
+	ret [index] = str [it];
+	index ++;
     }
+    return cast:string (ret);
 }
+
+def substr (str : string, fst : long, scd : ulong) : string {
+    let size = abs (cast:long (scd) - fst);
+    let ret = [char; cast:ulong (size)];
+    let index = 0ul;
+    for (it in fst .. cast:long(scd)) {
+	ret [index] = str [it];
+	index ++;
+    }
+    return cast:string (ret);
+}
+
+
 
 def stripLeft (str : string) : string {   
     for (it in 0ul .. str.length) {

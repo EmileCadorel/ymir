@@ -58,6 +58,13 @@ class Access : Expression {
 	return aux;
     }
 
+    
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	auto params = this._params.templateExpReplace (names, values);
+	auto left = this._left.templateExpReplace (names, values);
+	return new Access (this._token, this._end, left, params);
+    }
+
     /**
      Returns: L'élément de gauche de l'expression
      */

@@ -4,6 +4,7 @@ import ast.Var;
 import syntax.Word, semantic.types.InfoType;
 import semantic.types.UndefInfo, utils.exception;
 import std.stdio, std.string, semantic.pack.Symbol;
+import std.container;
 
 /**
  Classe généré à la syntaxe pour les opérateurs unaires avant l'expression.
@@ -40,6 +41,10 @@ class BefUnary : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	return new BefUnary (this._token, this._elem.templateExpReplace (names, values));
+    }        
+    
     /**
      Returns: l'élément de l'expression
      */
@@ -100,6 +105,10 @@ class AfUnary : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	return new AfUnary (this._token, this._elem.templateExpReplace (names, values));
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:

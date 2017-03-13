@@ -1,5 +1,7 @@
 module ast.Instruction;
 import syntax.Word, ast.Block;
+import std.container;
+import ast.Var, ast.Expression;
 
 /**
  Ancêtre des Instructions de l'arbre de syntaxe.
@@ -46,6 +48,10 @@ class Instruction {
 	assert (false, "TODO");
     }
 
+    Instruction templateReplace (Array!Var, Array!Expression) {
+	assert (false, "TODO");
+    }
+    
     /**
      Fonctions à surcharger pour l'affichage
      */

@@ -104,6 +104,12 @@ class InfoType {
     /** Si le type est un attribut de structure, c'est son numéro */
     private ulong _toGet;
 
+    /** L'élément est constant et peut être évalué à la compilation */
+    private bool _isImmutable = false;
+    
+    /** Si le type à été appelé avec des paramètre templates (par exemple, les fonctions)*/
+    private Array!Expression _templates;
+    
     /** Informations supplémentaires que l'on peut passer au lint (inutile pour le moment je crois) */
     private Object [string] _supplInfos;
 
@@ -111,7 +117,7 @@ class InfoType {
     static InfoType function (Word, Expression[]) [string] creators;
 
     static InfoType [string] alias_;
-    
+       
     static this () {
 	creators = ["int" : &DecimalInfo.create,
 		    "uint" : &DecimalInfo.create,
@@ -379,6 +385,14 @@ class InfoType {
 	return null;
     }
 
+    /**
+     Surchage de l'operateur de template
+     Returns: le type résultat ou null
+     */
+    InfoType TempOp (Array!Expression) {
+	return null;
+    }
+    
     /**
      Créée un clone du type, les informations de destruction sont conservé.
      Returns: une instance de type.

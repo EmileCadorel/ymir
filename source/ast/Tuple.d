@@ -6,6 +6,7 @@ import std.container;
 import semantic.types.VoidInfo;
 import semantic.types.TupleInfo;
 import ast.ParamList;
+import ast.Var;
 
 /**
 Classe généré par la syntaxe:
@@ -55,5 +56,13 @@ class ConstTuple : Expression {
 	return ret;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	Array!Expression exprs;
+	exprs.length = this._params.length;
+	foreach (it ; 0 .. this._params.length)
+	    exprs [it] = this._params [it].templateExpReplace (names, values);
+	return new ConstTuple (this._token, this._end, exprs);
+    }
+    
     
 }

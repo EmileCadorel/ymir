@@ -4,6 +4,8 @@ import semantic.types.UndefInfo, semantic.pack.Table;
 import std.stdio, std.string, utils.exception;
 import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList, std.conv;
+import std.container, ast.Var;
+import ast.Expression;
 
 /**
  Classe généré par la syntaxe.
@@ -61,6 +63,10 @@ class Break : Instruction {
 	return aux;
     }
 
+    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+	return this;
+    }
+    
     /**
      Affiche l'instruction sous forme d'arbre.
      Params:

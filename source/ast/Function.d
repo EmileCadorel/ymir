@@ -9,6 +9,7 @@ import std.container, std.stdio, std.string;
 import semantic.pack.ExternFrame;
 import semantic.pack.TemplateFrame;
 import semantic.pack.PureFrame;
+import ast.Expression;
 
 
 /**
@@ -132,6 +133,17 @@ class Function : Declaration {
 	}
     }
 
+    /**
+     Remplace les éléments template de la fonction 
+     Returns: une nouvelle fonction avec les templates remplacé
+     */
+    override Function templateReplace (Array!Var tmps, Array!Expression values) {
+	Array!Var params;
+	foreach (it ; this._params) {
+	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));	    
+	}	
+	return new Function (this._ident, params, make!(Array!Var), block.templateReplace (tmps, values));
+    }    
     
     /**
      Verifie que la fonction est une fonction pure ou non.     

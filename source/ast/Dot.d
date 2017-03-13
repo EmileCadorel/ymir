@@ -70,6 +70,10 @@ class Dot : Expression {
 	return this._right;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	return new Dot (this._token, this._left.templateExpReplace (names, values), this._right);
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre
      Params:
@@ -109,6 +113,10 @@ class DotCall : Expression {
 	return this._call;
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }	
+    
     /**
      Returns: le premier paramètre de l'appel
      */

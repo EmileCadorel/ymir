@@ -1,4 +1,6 @@
 module ast.Declaration;
+import std.container;
+import ast.Var, ast.Expression;
 
 /**
  Ancêtre de toutes les déclarations.
@@ -7,6 +9,10 @@ class Declaration {
 
     protected bool _isPublic;
     
+    Declaration templateReplace (Array!Var, Array!Expression) {
+	assert (false, "TODO");
+    }
+
     /**
      Fonction à surcharger pour se déclarer dans la table des symboles.
      */

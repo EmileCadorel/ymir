@@ -9,6 +9,7 @@ import semantic.types.InfoType, semantic.pack.FrameScope;
 import semantic.pack.FrameProto;
 import semantic.types.FunctionInfo;
 import semantic.types.StructInfo;
+import ast.Expression;
 
 /**
  Ancêtre de tout les types de frame:
@@ -171,6 +172,14 @@ class Frame {
      */
     Word ident () {
 	return this._function.ident;
+    }
+
+    /**
+     Applique une transformation de la frame grâce à des paramètres templates
+     Returns: la nouvelle frame ou null
+     */
+    Frame TempOp (Array!Expression params) {
+	return null;
     }
     
 }

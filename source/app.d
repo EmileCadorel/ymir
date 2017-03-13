@@ -148,7 +148,7 @@ void main (string [] args) {
 	    files ~= [file ~ ".s"];
 	}
 
-	files ~= [compileTemplates ("__templates__.s")];
+	//files ~= [compileTemplates ("__templates__.s")];
 	if (auto name = preCompiled ("__precompiled__.s"))
 	    files ~= [name];	
 

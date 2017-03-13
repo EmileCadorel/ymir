@@ -9,6 +9,7 @@ import utils.exception;
 import semantic.pack.FrameTable;
 import std.file;
 import utils.Options;
+import ast.Var, ast.Expression;
 
 /**
  TODO
@@ -61,5 +62,9 @@ class Import : Declaration {
 	    this.declare ();
 	}
     }
+
+    override Declaration templateReplace (Array!Var, Array!Expression) {
+	return this;
+    }    
     
 }

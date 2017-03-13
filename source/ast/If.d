@@ -4,6 +4,8 @@ import ast.Expression, ast.Block;
 import syntax.Word, std.stdio, std.string;
 import semantic.types.BoolInfo, semantic.pack.Symbol, semantic.types.InfoType;
 import semantic.pack.Table;
+import std.container;
+import ast.Var;
 
 /**
  Classe généré par la syntaxe 
@@ -77,6 +79,16 @@ class If : Instruction {
 	return _if;
     }
 
+    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+	auto test = this._test.templateExpReplace (names, values);
+	auto block = this._block.templateReplace (names, values);
+	if (this._else) {
+	    auto else_ = cast (Else) this._else.templateReplace (names, values);
+	    return new If (this._token, test, block, else_);
+	}
+	return new If (this._token, test, block);
+    }
+    
     /**
      Returns: le test de l'instruction
      */
@@ -156,6 +168,10 @@ class Else : Instruction {
 	return aux;
     }
 
+    override Else templateReplace (Array!Var names, Array!Expression values) {
+	return new Else (this._token, this._block.templateReplace (names, values));
+    }
+    
     /**
      Le block contenu dans le else
      */
@@ -247,6 +263,16 @@ class ElseIf : Else {
 	return _if;
     }
     
+    override Else templateReplace (Array!Var names, Array!Expression values) {
+	auto test = this._test.templateExpReplace (names, values);
+	auto block = this._block.templateReplace (names, values);
+	if (this._else) {
+	    auto else_ = this._else.templateReplace (names, values);
+	    return new ElseIf (this._token, test, block, else_);
+	}
+	return new ElseIf (this._token, test, block);
+    }
+
     /**
      Returns: Le test de l'instruction
      */

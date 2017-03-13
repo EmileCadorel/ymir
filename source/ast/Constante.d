@@ -28,7 +28,6 @@ bool isSigned (DecimalConst dec) {
     return dec.id % 2 == 0;
 }
 
-
 /**
  Example : 
  ----
@@ -55,10 +54,14 @@ class Decimal : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     DecType type () {
 	return this._type;
     }
-
+    
     string value () {
 	return this._token.str;
     }
@@ -98,6 +101,10 @@ class Char : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:
@@ -155,6 +162,10 @@ class Float : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     /**
      Returns: la valeur de la constante sous forme de string
      */
@@ -321,6 +332,10 @@ class String : Expression {
 	return aux;       
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     /**
      Returns: la valeur de la constante
      */
@@ -366,6 +381,10 @@ class Bool : Expression {
 	return this._token.str == "true";
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:
@@ -399,6 +418,10 @@ class Null : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var, Array!Expression) {
+	return this;
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:

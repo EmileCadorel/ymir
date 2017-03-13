@@ -57,13 +57,17 @@ class Expand : Expression {
 	return aux;
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	auto expr = this._expr.templateExpReplace (names, values);
+	return new Expand (this._token, expr);
+    }
+    
     /**
      Returns: le contenu étendue.
      */
     Expression expr () {
 	return this._expr;
-    }
-    
+    }    
 
     ulong index () {
 	return this._index;

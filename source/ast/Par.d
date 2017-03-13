@@ -102,6 +102,13 @@ class Par : Expression {
     }
     
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	auto params = this._params.templateExpReplace (names, values);
+	auto left = this._left.templateExpReplace (names, values);
+	return new Par (this._token, this._end, left, params);
+    }
+
+    
     /**
      Returns: le score retourner par l'analyse sémantique
      */

@@ -15,6 +15,7 @@ import ast.Expression;
 import ast.FuncPtr;
 import ast.ConstArray;
 import semantic.types.RefInfo;
+import semantic.pack.UnPureFrame;
 
 /**
  Cette classe est une instance de frame template
@@ -25,6 +26,11 @@ class TemplateFrame : Frame {
     private string _name;
 
     private bool _changed = false;
+
+    /**
+     Les premiers paramètre templates;
+     */
+    private Array!InfoType _tempParams;
     
     /**
      Params:
@@ -136,6 +142,9 @@ class TemplateFrame : Frame {
     override ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
 	score.tmps.length = this._function.tmps.length;
+	foreach (it ; 0 .. this._tempParams.length)
+	    score.tmps [it] = this._tempParams [it];
+	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
 	} else if (attrs.length == args.length) {
@@ -199,17 +208,22 @@ class TemplateFrame : Frame {
 	
 	Table.instance.enterFrame (name, this._function.params.length);
 	Table.instance.enterBlock ();
-
-	foreach (it ; 0 .. tmps.length) {
-	    InfoType.addAlias (this._function.tmps [it].token.str, tmps[it].clone ());
-	}
 	
+	Array!Expression types;
+	foreach (it ; this._tempParams)
+	    types.insertBack (new Type (Word.eof, it));
+
+	foreach (it ; tmps)
+	    types.insertBack (new Type (Word.eof, it));
+		
+	auto func = this._function.templateReplace (this._function.tmps, types);
+		
 	Array!Var finalParams;
-	foreach (it; 0 .. this._function.params.length) {
-	    if (cast(TypedVar)this._function.params [it] is null) {
-		auto var = this._function.params [it].setType (params [it]);   
+	foreach (it; 0 .. func.params.length) {
+	    if (cast(TypedVar)func.params [it] is null) {
+		auto var = func.params [it].setType (params [it]);   
 		finalParams.insertBack (var.expression);
-	    } else finalParams.insertBack (this._function.params [it].expression);
+	    } else finalParams.insertBack (func.params [it].expression);
 	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
 	    name ~= super.mangle (t);
@@ -221,17 +235,17 @@ class TemplateFrame : Frame {
 	    
 	if (proto is null) {
 	    
-	    if (this._function.type is null) {
+	    if (func.type is null) {
 		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
 	    } else {
-		Table.instance.retInfo.info = this._function.type.asType ().info;
+		Table.instance.retInfo.info = func.type.asType ().info;
 	    }
 	    
 	    proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
 	    FrameTable.instance.insert (proto);
 
 	    Table.instance.retInfo.currentBlock = "true";	    
-	    auto block = this._function.block.block ();
+	    auto block = func.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    }
@@ -244,9 +258,9 @@ class TemplateFrame : Frame {
 	    
 	    FrameTable.instance.insert (fr);
 	    
-	    fr.file = this._function.ident.locus.file;
+	    fr.file = func.ident.locus.file;
 	    fr.dest = Table.instance.quitBlock ();
-	    super.verifyReturn (this._function.ident,
+	    super.verifyReturn (func.ident,
 				fr.type,
 				Table.instance.retInfo);
 
@@ -254,18 +268,44 @@ class TemplateFrame : Frame {
 	    fr.last = Table.instance.quitFrame ();
 
 
-	    foreach (it ; this._function.tmps) {
+	    foreach (it ; func.tmps) {
 		InfoType.removeAlias (it.token.str);
 	    }
 	    return proto;
 	}
 	
-	foreach (it ; this._function.tmps) {
-	    InfoType.removeAlias (it.token.str);
-	}
 	Table.instance.quitBlock ();
 	Table.instance.quitFrame ();
 	return proto;	
     }
 
+
+    override Frame TempOp (Array!Expression params) {
+	if (params.length > this._function.tmps.length)
+	    return null;
+
+	Array!InfoType totals;
+	Array!InfoType finals;
+	totals.length = this._function.tmps.length;
+	
+	foreach (it ; 0 .. params.length) {
+	    auto tmp = typeIt (this._function.tmps [it], params [it].info.type, this._function.tmps, totals);
+	    if (tmp is null) return null;
+	    finals.insertBack (tmp.asType ().info.type.clone ());
+	}
+
+	if (finals.length == params.length) {
+	    foreach (it ; 0 .. params.length) {
+		
+	    }
+	    
+	    auto func = this._function.templateReplace (this._function.tmps, params);
+	    return new UnPureFrame (this._namespace, func);
+	} else {
+	    auto aux = new TemplateFrame (this._namespace, this._function);
+	    aux._tempParams = finals;
+	    return aux;
+	}	
+    }
+    
 }

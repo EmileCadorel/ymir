@@ -3,7 +3,7 @@ import ast.Instruction, ast.Declaration;
 import syntax.Word, semantic.pack.Table;
 import std.container, std.stdio, std.string, std.outbuffer;
 import utils.exception, semantic.pack.Symbol;
-
+import ast.Var, ast.Expression;
 
 /**
  * Suite d'instruction, ces instructions sont lu a la syntaxe
@@ -80,6 +80,18 @@ class Block : Instruction {
 	return block;	
     }
 
+    override Block templateReplace (Array!Var names, Array!Expression values) {
+	Array!Declaration decls;
+	Array!Instruction insts;
+	foreach (it ; this._decls)
+	    decls.insertBack (it.templateReplace (names, values));
+
+	foreach (it ; this._insts)
+	    insts.insertBack (it.templateReplace (names, values));
+
+	return new Block (this._ident, decls, insts);
+    }
+    
     /**
      Vérification sémantique.
      */

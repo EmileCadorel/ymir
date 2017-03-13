@@ -21,6 +21,9 @@ class Symbol {
     /** La liste des identifiants numérique de symbole (par frame) */
     private static SList!ulong __last__;
 
+    /** Le type va être envoyé dans le GC */
+    private bool _garbage;
+    
     /**
      Params:
      word = l'identifiant du symbole
@@ -30,6 +33,7 @@ class Symbol {
 	this._sym = word;
 	this._type = type;
 	Table.instance.garbage (this);
+	this._garbage = true;
     }
 
     /** 
@@ -43,6 +47,7 @@ class Symbol {
 	this._type = type;
 	this._type.isConst = isConst;
 	Table.instance.garbage (this);
+	this._garbage = true;
     }
 
     /**
@@ -58,6 +63,7 @@ class Symbol {
 	this._type.isConst = isConst;
 	if (garbage)
 	    Table.instance.garbage (this);
+	this._garbage = garbage;
     }
 
     /**
@@ -71,6 +77,7 @@ class Symbol {
 	this._type = type;
 	if (garbage)
 	    Table.instance.garbage (this);
+	this._garbage = garbage;
     }
 
     /**
@@ -81,6 +88,13 @@ class Symbol {
 	return false;
     }
 
+    /**
+     Returns: le symbol est il envoyé dans le GC
+     */
+    bool isGarbage () {
+	return this._garbage;
+    }
+    
     /**
      Returns: Le type du symbole
      */

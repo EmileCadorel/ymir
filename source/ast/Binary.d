@@ -4,6 +4,7 @@ import syntax.Word, ast.Var, semantic.pack.Symbol;
 import semantic.types.InfoType, semantic.types.UndefInfo, syntax.Tokens;
 import utils.exception;
 import std.stdio, std.string, std.outbuffer, std.algorithm;
+import std.container;
 
 
 /***
@@ -136,6 +137,13 @@ class Binary : Expression {
 	return aux;	
     }
 
+    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+	auto left = this._left.templateExpReplace (names, values);
+	auto right = this._right.templateExpReplace (names, values);
+	return new Binary (this._token, left, right);
+    }
+
+    
     /**
      Returns: l'élément gauche de l'operateur
      */

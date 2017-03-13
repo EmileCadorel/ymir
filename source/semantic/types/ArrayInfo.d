@@ -432,6 +432,8 @@ class ArrayInfo : InfoType {
 		    return aux;
 		}
 	    }
+	} else if (cast (NullInfo) other) {
+	    return this.clone ();
 	}
 	return null;
     }

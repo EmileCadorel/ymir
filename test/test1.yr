@@ -1,7 +1,8 @@
+import std.string;
+import std.math;
 import std.stdio;
-import std.array;
-import std.socket;
 
 def main () {
-
+    let a = 'salut';
+    println (a.substr (1, a.length));
 }
