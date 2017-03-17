@@ -64,18 +64,27 @@ def clear (T) (a : ref!([T])) {
     a = [T; 0ul];
 }
 
-def slice (T) (a : [T], rng : range!ulong) : [T] {
+def slice (T) (a : [T], fst : long, scd : ulong) : [T] {
     import std.math;
-    if (a.length < rng.fst) return null;
-    else if (a.length < rng.scd) return null;
-    else {
-	let size = abs (cast:long(rng.fst) - cast:long(rng.scd));
-	let ret = [T; cast:ulong (size)];
-	let index = 0ul;
-	for (it in rng) {
-	    ret [index] = a [it];
-	    index ++;
-	}
-	return ret;
+    let size = abs (cast:long (scd) - fst);
+    let ret = [T; cast:ulong (size)];
+    let index = 0ul;
+    for (it in fst .. cast:long(scd)) {
+	ret [index] = a [it];
+	index ++;
     }
+    return ret;
 }
+
+def slice (T) (a : [T], fst : long, scd : long) : [T] {
+    import std.math;
+    let size = abs (cast:long (scd) - fst);
+    let ret = [T; cast:ulong (size)];
+    let index = 0ul;
+    for (it in fst .. scd) {
+	ret [index] = a [it];
+	index ++;
+    }
+    return (ret);
+}
+

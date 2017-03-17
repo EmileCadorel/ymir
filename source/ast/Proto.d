@@ -116,9 +116,8 @@ class Proto : Declaration {
 	if (this._type)
 	    type = cast (Var) this._type.templateExpReplace (names, values);
 	Array!Var params;
-	params.length = this._params.length;
-	foreach (it ; 0 .. params.length)
-	    params [it] = cast (Var) this._params [it].templateExpReplace (names, values);
+	foreach (it ; this._params)
+	    params.insertBack(cast (Var) it.templateExpReplace (names, values));
 	return new Proto (this._ident, type, params, this._isVariadic);
     }
 

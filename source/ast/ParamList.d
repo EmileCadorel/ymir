@@ -54,12 +54,20 @@ class ParamList : Expression {
 
     override ParamList templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Expression params;
-	params.length = this._params.length;
-	foreach (it ; 0 .. params.length)
-	    params [it] = this._params [it].templateExpReplace (names, values);
+	foreach (it ; this._params)
+	    params.insertBack(it.templateExpReplace (names, values));
+	
 	return new ParamList (this._token, params);
     }
 
+    override Expression clone () {
+	Array!Expression params;
+	params.length = this._params.length;
+	foreach (it ; 0 .. params.length)
+	    params [it] = this._params [it].clone ();
+	return new ParamList (this._token, params);
+    }
+    
     
     /**
      Returns: La liste des paramètres

@@ -74,9 +74,10 @@ class VarDecl : Instruction {
     override VarDecl templateReplace (Array!Var names, Array!Expression values) {
 	Array!Expression insts;
 	auto decls = this._decls.dup ();
-	insts.length = this._insts.length;
-	foreach (it ; 0 .. this._insts.length)
-	    insts [it] = this._insts [it].templateExpReplace (names, values);
+	foreach (it ; this._insts) {	    
+	    insts.insertBack (it.templateExpReplace (names, values));
+	}
+	
 	return new VarDecl (this._token, decls, insts);
     }
     

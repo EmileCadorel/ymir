@@ -100,6 +100,10 @@ class ConstRange : Expression {
 	auto right = this._right.templateExpReplace (names, values);
 	return new ConstRange (this._token, left, right);
     }
+
+    override Expression clone () {
+	return new ConstRange (this._token, this._left.clone, this._right.clone ());
+    }
     
 
 }

@@ -144,6 +144,11 @@ class Binary : Expression {
     }
 
     
+    override Expression clone () {
+	return new Binary (this._token, this._left.clone (), this._right.clone ());
+    }
+
+
     /**
      Returns: l'élément gauche de l'operateur
      */
@@ -169,6 +174,7 @@ class Binary : Expression {
 		this._token.locus.line,
 		this._token.locus.column,
 		this._token.str);	
+
 	this._left.print (nb + 4);
 	this._right.print (nb + 4);
     }

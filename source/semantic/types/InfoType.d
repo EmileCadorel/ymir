@@ -62,7 +62,7 @@ class ApplicationScore {
     Array!InfoType treat;    
 
     /** Les templates de la fonction, si elle est template */
-    Array!InfoType tmps;
+    InfoType [] tmps;
     
     /** Le prototype est variadic */
     bool isVariadic;

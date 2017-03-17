@@ -102,7 +102,7 @@ class FunctionInfo : InfoType {
 	    else if (goods.length != 1)
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 	    
-	    auto info = goods[0].validate (right.tmps, right.treat);	    
+	    auto info = goods[0].validate (right, right.treat);	    
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
 	    return right;
@@ -152,7 +152,7 @@ class FunctionInfo : InfoType {
 	    else if (goods.length > 1) {
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 	    }
-	    auto info = goods [0].validate (right.tmps, right.treat);
+	    auto info = goods [0].validate (right, right.treat);
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
 	    return right;

@@ -53,6 +53,7 @@ class ConstArray : Expression  {
      Throws: IncompatibleTypes, UseAsVar.
      */
     override Expression expression () {
+	this.print ();
 	auto aux = new ConstArray (this._token, make!(Array!Expression));
 	if (this._params.length == 0) {
 	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
@@ -79,6 +80,7 @@ class ConstArray : Expression  {
 	    auto begin = new Symbol(false, this._token, new UndefInfo ());	    
 	    foreach (fst ; 0 .. aux._params.length) {
 		if (cast (Type) aux._params [fst]) throw new UseAsVar (aux._params [fst].token, aux._params [fst].info);
+		
 		auto cmp = aux._params [fst].info.type.CompOp (begin.type);
 		aux._casters.insertBack (cmp);
 		if (cmp is null) {
@@ -96,8 +98,16 @@ class ConstArray : Expression  {
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Expression params;
 	params.length = this._params.length;	
-	foreach (it ; 0 .. params.length)
+	foreach (it ; 0 .. params.length) 
 	    params [it] = this._params [it].templateExpReplace (names, values);
+	return new ConstArray (this._token, params);
+    }
+
+    override Expression clone () {
+	Array!Expression params;
+	foreach (it ; this._params) 
+	    params.insertBack (it.clone ());
+	
 	return new ConstArray (this._token, params);
     }
     
@@ -117,5 +127,5 @@ class ConstArray : Expression  {
 	}
     }
     
-
+    
 }

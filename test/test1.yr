@@ -1,8 +1,14 @@
 import std.string;
 import std.math;
+import std.array;
 import std.stdio;
 
+
+def test (T) (a : ref!([T])) : T {
+    return a [0];
+}
+
 def main () {
-    let a = 'salut';
-    println (a.substr (1, a.length));
+    let a = [int; 10u];
+    test (a);
 }

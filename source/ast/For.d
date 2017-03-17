@@ -115,9 +115,8 @@ class For : Instruction {
 
     override Instruction templateReplace (Array!Var names, Array!Expression values) {
 	Array!Var var;
-	var.length = this._var.length;
-	foreach (it ; 0 .. this._var.length)
-	    var [it] = cast (Var) this._var [it].templateExpReplace (names, values);
+	foreach (it ; this._var)
+	    var.insertBack (cast (Var) it.templateExpReplace (names, values));
 
 	auto iter = this._iter.templateExpReplace (names, values);
 	auto block = this._block.templateReplace (names, values);

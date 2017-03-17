@@ -61,6 +61,10 @@ class Expand : Expression {
 	auto expr = this._expr.templateExpReplace (names, values);
 	return new Expand (this._token, expr);
     }
+
+    override Expression clone () {
+	return new Expand (this._token, this._expr.clone ());
+    }
     
     /**
      Returns: le contenu étendue.

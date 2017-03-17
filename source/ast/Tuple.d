@@ -58,9 +58,17 @@ class ConstTuple : Expression {
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Expression exprs;
+	foreach (it ; this._params)
+	    exprs.insertBack (it.templateExpReplace (names, values));
+	
+	return new ConstTuple (this._token, this._end, exprs);
+    }
+
+    override Expression clone () {
+	Array!Expression exprs;
 	exprs.length = this._params.length;
 	foreach (it ; 0 .. this._params.length)
-	    exprs [it] = this._params [it].templateExpReplace (names, values);
+	    exprs [it] = this._params [it].clone ();
 	return new ConstTuple (this._token, this._end, exprs);
     }
     

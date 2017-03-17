@@ -60,8 +60,8 @@ class Frame {
     /**
      Fonction a surchargé pour l'analyse sémantique, après appel (spécialement pour les frames template)
      */
-    FrameProto validate (Array!InfoType tmps, Array!InfoType params) {
-	if (tmps.length == 0)
+    FrameProto validate (ApplicationScore score, Array!InfoType params) {
+	if (score.tmps.length == 0)
 	    return validate (params);
 	assert (false);
     }

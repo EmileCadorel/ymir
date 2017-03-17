@@ -77,14 +77,13 @@ class Var : Expression {
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	foreach (it ; 0 .. names.length) {
 	    if (names [it].token.str == this._token.str)
-		return values [it];
+		return values [it].clone ();
 	}
 
 	Array!Expression tmps;
-	tmps.length = this._templates.length;
-	foreach (it ; 0 .. tmps.length)
-	    tmps [it] = this._templates [it].templateExpReplace (names, values);
-	
+	foreach (it ; this._templates)
+	    tmps.insertBack (it.templateExpReplace (names, values));
+
 	return new Var (this._token, tmps);
     }
     
@@ -116,12 +115,12 @@ class Var : Expression {
     Type asType () {	
 	if (!InfoType.exist (this._token.str)) throw new UseAsType (this._token);
 	else {
-	    Expression [] temp;
-	    temp.length = this._templates.length;
-	    foreach (it ; 0 .. temp.length) {
-		temp [it] = this._templates [it].expression;
+	    import std.array;
+	    Array!Expression temp;
+	    foreach (it ; this._templates) {
+		temp.insertBack (it.expression);
 	    }
-	    auto t_info = InfoType.factory (this._token, temp);
+	    auto t_info = InfoType.factory (this._token, temp.array ());
 	    return new Type (this._token, t_info);
 	}
     }
@@ -139,6 +138,13 @@ class Var : Expression {
     ref Array!Expression templates () {
 	return this._templates;
     }
+
+    override Expression clone () {
+	Array!Expression tmps;
+	foreach (it; this._templates)
+	    tmps.insertBack (it.clone ());
+	return new Var (this._token, tmps);
+    }
     
     /**
      Affiche la variable sous forme d'arbre
@@ -152,7 +158,7 @@ class Var : Expression {
 		  this._token.locus.line,
 		  this._token.locus.column,
 		  this._token.str);
-	
+
 	foreach (it ; this._templates) {
 	    it.print (nb + 4);
 	}
@@ -188,6 +194,7 @@ class ArrayVar : Var {
     }
 
     override Var templateExpReplace (Array!Var names, Array!Expression values) {
+	auto cont = this._content.templateExpReplace (names, values);
 	return new ArrayVar (this._token, cast (Var) this._content.templateExpReplace (names, values));
     }
     
@@ -205,6 +212,10 @@ class ArrayVar : Var {
     ref Var content () {
 	return this._content;
     }
+
+    override Expression clone () {
+	return new ArrayVar (this._token, cast (Var) this._content.clone ());
+    }
     
     /**
      Returns: 'true'
@@ -213,6 +224,19 @@ class ArrayVar : Var {
 	return true;
     }    
 
+    override void print (int nb = 0) {
+	writefln ("%s<ArrayVar> %s(%d, %d) ",
+		  rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column,
+		  this._token.str);
+
+	this._content.print (nb + 4);
+	
+    }
+
+    
 }
 
 /**
@@ -251,7 +275,6 @@ class TypedVar : Var {
 	    Table.instance.insert (aux.info);
 	    return aux;
 	} else {
-	    this._expType.print ();
 	    auto ptr = cast (FuncPtr) this._expType.expression ();
 	    if (ptr) {
 		auto aux = new TypedVar (this._token, new Type (ptr.token, ptr.info.type));
@@ -276,6 +299,13 @@ class TypedVar : Var {
 	return this._type;
     }
 
+    override Expression clone () {
+	if (this._type)
+	    return new TypedVar (this._token, cast (Var) this._type.clone ());
+	else
+	    return new TypedVar (this._token, this._expType.clone ());
+    }
+    
     ref Expression expType () {
 	return this._expType;
     }
@@ -304,7 +334,7 @@ class TypedVar : Var {
 		this._token.locus.line,
 		this._token.locus.column,
 		this._token.str);
-	this._type.printSimple ();
+	this._type.print ();
 	writeln ();
     }
 
@@ -320,12 +350,16 @@ class Type : Var {
 	this._info = new Symbol (false, word, info, true);
     }
 
-    override Var expression () {
-	return this;
+    override Type expression () {
+	return this.clone ();
     }
 
     override Var templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
+    }
+
+    override Type clone () {
+	return new Type (this._token, this._info.type.clone ());
     }
     
     /**

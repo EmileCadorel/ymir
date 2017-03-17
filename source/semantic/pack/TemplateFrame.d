@@ -42,7 +42,7 @@ class TemplateFrame : Frame {
 	this._name = func.ident.str;
     }
 
-    private Var typeIt (ArrayVar name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+    private Var typeIt (ArrayVar name, InfoType type, Array!Var args, InfoType [] tmps) {
 	ArrayVar ret = new ArrayVar (name.token, null);
 	auto typed = typeIt (name.content, type.getTemplate (0), args, tmps);
 	if (!typed)
@@ -52,7 +52,7 @@ class TemplateFrame : Frame {
 	foreach (it ; 0 .. args.length) {
 	    if (name.token.str == args [it].token.str) {
 		if (tmps [it] is null) {
-		    tmps [it] = (type.clone ());
+		    tmps [it] = (type);
 		    this._changed = true;
 		}
 		return new Type (name.token, type.clone ());
@@ -62,7 +62,7 @@ class TemplateFrame : Frame {
 	return ret;
     }
 
-    private Expression typeIt (ConstArray name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+    private Expression typeIt (ConstArray name, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (name.params.length == 1) {
 	    if (auto var = cast (Var) name.params [0]) {
 		auto typed = typeIt (var, type.getTemplate (0), args, tmps);
@@ -75,7 +75,7 @@ class TemplateFrame : Frame {
     }
     
        
-    private Var typeIt (Var name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+    private Var typeIt (Var name, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (type is null) return null;
 	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
 	else if (name.token.str == "ref" && !cast (RefInfo) type) {
@@ -103,7 +103,7 @@ class TemplateFrame : Frame {
 	foreach (it ; 0 .. args.length) {
 	    if (name.token.str == args [it].token.str) {
 		if (tmps [it] is null) {
-		    tmps [it] = (type.clone ());
+		    tmps [it] = (type);
 		    this._changed = true;
 		}
 		return new Type (name.token, type.clone ());
@@ -113,7 +113,7 @@ class TemplateFrame : Frame {
 	return new Var (name.token, params);
     }
 
-    private Expression typeIt (Expression elem, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+    private Expression typeIt (Expression elem, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (auto fn = cast (FuncPtr) elem)
 	    return typeIt (fn, type, args, tmps);
 	else if (auto var = cast (Var) elem)
@@ -123,7 +123,7 @@ class TemplateFrame : Frame {
 	return null;
     }
     
-    private FuncPtr typeIt (FuncPtr name, InfoType type, ref Array!Var args, ref Array!InfoType tmps) {
+    private FuncPtr typeIt (FuncPtr name, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (type is null) return null;
 	Array!Var params;
 	foreach (it ; 0 .. name.params.length) {
@@ -141,9 +141,10 @@ class TemplateFrame : Frame {
     
     override ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
-	score.tmps.length = this._function.tmps.length;
+	InfoType [] tmps;
+	tmps.length = this._function.tmps.length;
 	foreach (it ; 0 .. this._tempParams.length)
-	    score.tmps [it] = this._tempParams [it];
+	    tmps [it] = this._tempParams [it];
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -154,11 +155,11 @@ class TemplateFrame : Frame {
 		if (auto tvar = cast (TypedVar) param) {
 		    this._changed = false;
 		    if (tvar.type) {
-			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, score.tmps);
+			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, tmps);			
 			if (tmp is null) return null;
 			info = tmp.asType ().info.type.clone ();
 		    } else {
-			auto tmp = typeIt (tvar.expType, args [it], this._function.tmps, score.tmps);
+			auto tmp = typeIt (tvar.expType, args [it], this._function.tmps, tmps);
 			if (tmp is null) return null;
 			info = tmp.expression.info.type.clone ();
 		    }
@@ -178,9 +179,10 @@ class TemplateFrame : Frame {
 		}
 	    }
 	    
-	    foreach (it; score.tmps) {
+	    foreach (it; tmps) {
 		if (it is null) return null;
 	    }
+	    score.tmps = tmps.array ();
 	    return score;
 	}
 	return null;
@@ -202,28 +204,33 @@ class TemplateFrame : Frame {
 	return null;
     }
 
-    override FrameProto validate (Array!InfoType tmps, Array!InfoType params) {
+    override FrameProto validate (ApplicationScore score, Array!InfoType params) {
 	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);
 	Table.instance.enterBlock ();
 	
-	Array!Expression types;
-	foreach (it ; this._tempParams)
-	    types.insertBack (new Type (Word.eof, it));
+	Array!Expression types;	
+	foreach (it ; this._tempParams) 
+	    types.insertBack (new Type (Word.eof, it));		
 
-	foreach (it ; tmps)
-	    types.insertBack (new Type (Word.eof, it));
-		
+	if (this._tempParams.length != this._function.tmps.length)
+	    foreach (it ; score.tmps)
+		types.insertBack (new Type (Word.eof, it.cloneForParam ()));
+
 	auto func = this._function.templateReplace (this._function.tmps, types);
-		
+	this._function.print ();
+	func.print ();
+	
 	Array!Var finalParams;
 	foreach (it; 0 .. func.params.length) {
 	    if (cast(TypedVar)func.params [it] is null) {
 		auto var = func.params [it].setType (params [it]);   
 		finalParams.insertBack (var.expression);
-	    } else finalParams.insertBack (func.params [it].expression);
+	    } else {
+		finalParams.insertBack (func.params [it].expression);
+	    }
 	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
 	    name ~= super.mangle (t);
@@ -284,7 +291,7 @@ class TemplateFrame : Frame {
 	if (params.length > this._function.tmps.length)
 	    return null;
 
-	Array!InfoType totals;
+	InfoType [] totals;
 	Array!InfoType finals;
 	totals.length = this._function.tmps.length;
 	
@@ -294,11 +301,7 @@ class TemplateFrame : Frame {
 	    finals.insertBack (tmp.asType ().info.type.clone ());
 	}
 
-	if (finals.length == params.length) {
-	    foreach (it ; 0 .. params.length) {
-		
-	    }
-	    
+	if (finals.length == params.length) {	    
 	    auto func = this._function.templateReplace (this._function.tmps, params);
 	    return new UnPureFrame (this._namespace, func);
 	} else {

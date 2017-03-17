@@ -63,7 +63,21 @@ class ArrayAlloc : Expression {
 	return new ArrayAlloc (this._token, type, size);
     }
 
+    override Expression clone () {
+	return new ArrayAlloc (this._token, cast (Var) this._type.clone, this._size.clone ());
+    }
     
+    override void print (int nb = 0) {
+	writefln ("%s<ArrayAlloc> %s(%d, %d) ",
+		  rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column);
+
+	this._type.print (nb + 4);
+	this._size.print (nb + 4);
+    }
+
     /**
      Returns: le caster en ulong.
      */

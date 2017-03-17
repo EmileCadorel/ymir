@@ -138,11 +138,16 @@ class Function : Declaration {
      Returns: une nouvelle fonction avec les templates remplacé
      */
     override Function templateReplace (Array!Var tmps, Array!Expression values) {
+	Var type;
+	if (this._type)
+	    type = cast (Var) this._type.templateExpReplace (tmps, values);
+	
 	Array!Var params;
 	foreach (it ; this._params) {
-	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));	    
-	}	
-	return new Function (this._ident, params, make!(Array!Var), block.templateReplace (tmps, values));
+	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));
+	}
+	
+	return new Function (this._ident, type, params, make!(Array!Var), block.templateReplace (tmps, values));
     }    
     
     /**

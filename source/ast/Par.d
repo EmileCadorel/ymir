@@ -108,6 +108,9 @@ class Par : Expression {
 	return new Par (this._token, this._end, left, params);
     }
 
+    override Expression clone () {
+	return new Par (this._token, this._end, this._left.clone(), cast (ParamList) this._params.clone ());
+    }    
     
     /**
      Returns: le score retourner par l'analyse sémantique

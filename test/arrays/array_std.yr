@@ -9,5 +9,5 @@ def main () {
     
     println (a);
     println (a.removeBack (), " ", a.dup (), ' ', a.back ());
-    println (a.slice (4ul .. 0ul));
+    println (a.slice (4, 0ul));
 }

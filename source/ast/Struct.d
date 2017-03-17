@@ -89,9 +89,9 @@ class Struct : Declaration {
     
     override Declaration templateReplace (Array!Var names, Array!Expression values) {
 	Array!Var params;
-	params.length = this._params.length;
-	foreach (it ; 0 .. this._params.length)
-	    params [it] = cast (Var) this._params [it].templateExpReplace (names, values);
+	foreach (it ; this._params)
+	    params.insertBack (cast (Var) it.templateExpReplace (names, values));
+	
 	auto st = new Struct (this._ident, params);
 	st._isPublic = this._isPublic;
 	return st;

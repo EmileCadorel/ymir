@@ -45,6 +45,10 @@ class BefUnary : Expression {
 	return new BefUnary (this._token, this._elem.templateExpReplace (names, values));
     }        
     
+    override Expression clone () {
+	return new BefUnary (this._token, this._elem.clone ());
+    }
+
     /**
      Returns: l'élément de l'expression
      */
@@ -107,6 +111,10 @@ class AfUnary : Expression {
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	return new AfUnary (this._token, this._elem.templateExpReplace (names, values));
+    }
+
+    override Expression clone () {
+	return new AfUnary (this._token, this._elem.clone ());
     }
     
     /**

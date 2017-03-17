@@ -55,7 +55,11 @@ class Dot : Expression {
 	aux.info = new Symbol (aux._token, type);
 	return aux;
     }    
-
+    
+    override Expression clone () {
+	return new Dot (this._token, this._left.clone, cast (Var) this._right.clone ());
+    }
+    
     /**
      Returns: l'élément gauche de l'expression
      */
@@ -71,7 +75,7 @@ class Dot : Expression {
     }
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
-	return new Dot (this._token, this._left.templateExpReplace (names, values), this._right);
+	return new Dot (this._token, this._left.templateExpReplace (names, values), cast (Var) this._right.clone ());
     }
     
     /**
@@ -124,4 +128,8 @@ class DotCall : Expression {
 	return this._firstPar;
     }
 
+    override Expression clone () {
+	return new DotCall (this._token, this._call.clone (), this._firstPar.clone ());
+    }
+    
 }

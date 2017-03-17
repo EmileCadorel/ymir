@@ -65,6 +65,10 @@ class Access : Expression {
 	return new Access (this._token, this._end, left, params);
     }
 
+    override Expression clone () {
+	return new Access (this._token, this._end, this._left.clone (), cast (ParamList) this._params.clone ());
+    }
+    
     /**
      Returns: L'élément de gauche de l'expression
      */

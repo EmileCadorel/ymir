@@ -55,7 +55,11 @@ class Decimal : Expression {
     }
 
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return new Decimal (this._token, this._type);
+    }
+
+    override Expression clone () {
+	return new Decimal (this._token, this._type);
     }
     
     DecType type () {
@@ -102,7 +106,11 @@ class Char : Expression {
     }
 
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
+    }
+
+    override Expression clone () {
+	return new Char (this._token, this._code);
     }
     
     /**
@@ -163,7 +171,11 @@ class Float : Expression {
     }
 
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
+    }
+
+    override Expression clone () {
+	return new Float (this._totale, this._token);
     }
     
     /**
@@ -332,8 +344,12 @@ class String : Expression {
 	return aux;       
     }
 
+    override Expression clone () {
+	return new String (this._token, this._content);
+    }
+    
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
     }
     
     /**
@@ -382,9 +398,13 @@ class Bool : Expression {
     }
 
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
     }
     
+    override Expression clone () {
+	return new Bool (this._token);
+    }
+
     /**
      Affiche l'expression sous forme d'arbre.
      Params:
@@ -419,9 +439,13 @@ class Null : Expression {
     }
 
     override Expression templateExpReplace (Array!Var, Array!Expression) {
-	return this;
+	return this.clone ();
     }
     
+    override Expression clone () {
+	return new Null (this._token);
+    }
+
     /**
      Affiche l'expression sous forme d'arbre.
      Params:

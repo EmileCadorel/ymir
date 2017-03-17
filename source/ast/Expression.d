@@ -47,6 +47,10 @@ class Expression : Instruction {
     Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	assert (false, "TODO");
     }
+
+    Expression clone () {
+	return this;
+    }
     
     /**
      Fonction à surcharger pour l'affichage
