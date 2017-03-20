@@ -22,6 +22,4 @@ def main () {
     let line = fread (file, 1024u);
     println (line.splitLines ().map (function (string):string (strip)));
     file.fclose ();
-
-
 }

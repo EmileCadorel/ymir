@@ -14,6 +14,5 @@ def opBinary (op : string, A) (a : A, b : A) {
 
 def main () {
     let a = Test (10), b = Test (12);
-    let c = a.opBinary!("+")(b).a;
-    println ("Test (%d)", c);
+    printfln ("Test (%d)", a.opBinary !("+")(b));
 }

@@ -178,9 +178,11 @@ def isWhite (c : char) : bool {
 }
 
 def substr (str : string, rng : range!ulong) : string {
-    if (str.length < rng.fst || str.length < rng.scd) return null;
+    let fst = cast:long (rng.fst), scd = cast:long (rng.scd);
+    if (cast:long(str.length) < fst || cast:long(str.length) < scd) return null;
     else {
-	let size = abs (cast:long(rng.fst) - cast:long (rng.scd));
+	let size = abs (fst - scd);
+	if (size == 0) return "";
 	let ret = [char; cast:ulong (size)];
 	let index = 0ul;
 	for (it in rng) {
