@@ -1,12 +1,18 @@
 import std.stdio;
-
+import std.string;
 
 
 def test (A : string, B) (a : B) {
-    println (A, ' ', B.typeid, ' ', a);
+    if (A.equals ("salut")) {
+	println ("Bonjour");
+    } else {
+	println ("Au revoir");
+    }
 }
 
 def main () {
-    test!("salut") ("h");
-    test!("hehe") ("y");
+    let a = ("salut").equals ("h");
+    test!("salut", float) (10.);
+    test!("u") (11);
+    test!("salut") (123);
 }

@@ -257,15 +257,11 @@ class TemplateFrame : Frame {
 	Table.instance.enterBlock ();
 	
 	Array!Expression types;	
-	foreach (it ; this._tempParams) 
-	    types.insertBack (it);		
 
-	if (this._tempParams.length != this._function.tmps.length)
-	    foreach (it ; score.tmps)
-		types.insertBack (new Type (Word.eof, it.cloneForParam ()));
-
+	foreach (it ; score.tmps)
+	    types.insertBack (new Type (Word.eof, it.cloneForParam ()));
+	
 	auto func = this._function.templateReplace (this._function.tmps, types);
-	func.print ();
 	
 	Array!Var finalParams;
 	foreach (it; 0 .. func.params.length) {
@@ -347,36 +343,39 @@ class TemplateFrame : Frame {
 	    finals.insertBack (tmp.expression ());
 	    vars.insertBack (params [it]);
 	}	
+
 	Table.instance.unpacifyMode ();
 
+	for (auto it = params.length ; it < this._function.tmps.length ; it++) {
+	    if (cast (TypedVar) this._function.tmps [it])
+		return null;
+	}
+
+	string namespace;
+	auto func = this._function.templateReplace (this._function.tmps, params);
+	foreach (it ; params) {
+	    if (auto t = cast (Type) it)
+		namespace ~= super.mangle (t.info.type.simpleTypeString ~ "!");
+	    else if (auto _st = cast (String) it)
+		namespace ~= super.mangle (to!string(_st.getLabel ()) ~ "!");
+	    else if (auto _int = cast (Decimal) it)
+		namespace ~= super.mangle (_int.value ~ "!");
+	    else if (auto _char = cast (Char) it)
+		namespace ~= super.mangle (_char.code ~ "!");
+	    else if (auto _fl = cast (Float) it)
+		namespace ~= super.mangle (_fl.totale ~ "!");
+	    else if (auto _bool = cast (Bool) it)
+		namespace ~= super.mangle (_bool.value ~ "!");
+	    else
+		assert (false, typeid (it).toString);
+	}
+	func.name = func.name ~ namespace;
+		
 	if (this._function.tmps.length == params.length) {
-	    string namespace;
-	    auto func = this._function.templateReplace (this._function.tmps, params);
-	    foreach (it ; params) {
-		if (auto t = cast (Type) it)
-		    namespace ~= super.mangle (t.info.type.simpleTypeString ~ "!");
-		else if (auto _st = cast (String) it)
-		    namespace ~= super.mangle (to!string(_st.getLabel ()) ~ "!");
-		else if (auto _int = cast (Decimal) it)
-		    namespace ~= super.mangle (_int.value ~ "!");
-		else if (auto _char = cast (Char) it)
-		    namespace ~= super.mangle (_char.code ~ "!");
-		else if (auto _fl = cast (Float) it)
-		    namespace ~= super.mangle (_fl.totale ~ "!");
-		else if (auto _bool = cast (Bool) it)
-		    namespace ~= super.mangle (_bool.value ~ "!");
-		else
-		    assert (false, typeid (it).toString);
-	    }
-	    func.name = func.name ~ namespace;
 	    return new UnPureFrame (this._namespace, func);
 	} else {
-	    for (auto it = params.length ; it < this._function.tmps.length ; it++) {
-		if (cast (TypedVar) this._function.tmps [it])
-		    return null;
-	    }
-	    
-	    auto aux = new TemplateFrame (this._namespace, this._function);
+	    func.tmps = make!(Array!Var) (this._function.tmps [params.length - 1 .. $]);
+	    auto aux = new TemplateFrame (this._namespace, func);
 	    aux._tempParams = vars;
 	    return aux;
 	}	

@@ -77,7 +77,7 @@ class Var : Expression {
     }
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
-	foreach (it ; 0 .. names.length) {
+	foreach (it ; 0 .. values.length) {
 	    if (names [it].token.str == this._token.str) {
 		auto clo = values [it].clone ();
 		clo.token = this._token;

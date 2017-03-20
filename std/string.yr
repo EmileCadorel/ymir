@@ -246,3 +246,10 @@ def strip (str : string) : string {
 }
 
 
+def equals (left : string, right : string) : bool {
+    if (left.length != right.length) return false;
+    for (it in 0u .. left.length) {
+	if (left [it] != right [it]) return false;
+    }
+    return true;
+}

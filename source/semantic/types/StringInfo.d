@@ -131,7 +131,7 @@ class StringInfo : InfoType {
 	}
 	return null;
     }
-
+    
     /**
      Operateur '!is'
      Params:
