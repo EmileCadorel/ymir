@@ -53,7 +53,6 @@ class ConstArray : Expression  {
      Throws: IncompatibleTypes, UseAsVar.
      */
     override Expression expression () {
-	this.print ();
 	auto aux = new ConstArray (this._token, make!(Array!Expression));
 	if (this._params.length == 0) {
 	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);

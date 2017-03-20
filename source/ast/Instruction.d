@@ -21,7 +21,7 @@ class Instruction {
     /**
      Returns: l'identifiant
      */
-    Word token () {
+    ref Word token () {
 	return this._token;
     }
 

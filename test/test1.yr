@@ -1,14 +1,10 @@
-import std.string;
-import std.math;
-import std.array;
 import std.stdio;
 
-
-def test (T) (a : ref!([T])) : T {
-    return a [0];
+def test (A) () {
+    println (A);
 }
 
 def main () {
-    let a = [int; 10u];
-    test (a);
+    test!(int) ();
+    println (int);
 }

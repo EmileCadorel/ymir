@@ -16,6 +16,9 @@ class Table {
 
     /** Le contexte courant */
     private string _namespace;
+
+    /** La zone est garbage ? */
+    private bool _pacified;
     
     private this () {
 	_globalScope = new Scope ();
@@ -40,6 +43,17 @@ class Table {
 	} return make!(Array!Symbol);
     }
 
+    /**
+     On ne garbage plus les données qui sont dans ce block     
+     */
+    void pacifyMode () {
+	this._pacified = true;
+    }
+
+    void unpacifyMode () {
+	this._pacified = false;
+    }
+    
     /**
      Met à jour le contexte courant.
      Params:
@@ -110,10 +124,12 @@ class Table {
      info = le symbole a placer dans le GC.
      */
     void garbage (Symbol info) {
-	info.setId ();
-	if (!this._frameTable.empty)
-	    this._frameTable.front.garbage (info);
-	else this._globalScope.garbage (info);
+	if (!this._pacified) {
+	    info.setId ();
+	    if (!this._frameTable.empty)
+		this._frameTable.front.garbage (info);
+	    else this._globalScope.garbage (info);
+	}
     }
 
     /**

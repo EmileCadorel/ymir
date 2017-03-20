@@ -220,8 +220,6 @@ class TemplateFrame : Frame {
 		types.insertBack (new Type (Word.eof, it.cloneForParam ()));
 
 	auto func = this._function.templateReplace (this._function.tmps, types);
-	this._function.print ();
-	func.print ();
 	
 	Array!Var finalParams;
 	foreach (it; 0 .. func.params.length) {
@@ -239,7 +237,7 @@ class TemplateFrame : Frame {
 
 	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name);	
 	auto proto = FrameTable.instance.existProto (name);
-	    
+	
 	if (proto is null) {
 	    
 	    if (func.type is null) {
@@ -302,7 +300,7 @@ class TemplateFrame : Frame {
 	}
 
 	if (finals.length == params.length) {	    
-	    auto func = this._function.templateReplace (this._function.tmps, params);
+	    auto func = this._function.templateReplace (this._function.tmps, params);	
 	    return new UnPureFrame (this._namespace, func);
 	} else {
 	    auto aux = new TemplateFrame (this._namespace, this._function);

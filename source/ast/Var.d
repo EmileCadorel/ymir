@@ -57,11 +57,13 @@ class Var : Expression {
 		throw new UndefinedVar (this._token);
 	    
 	    if (this._templates.length != 0) {
+		Table.instance.pacifyMode ();
 		auto id = aux.info.id;
 		Array!Expression tmps;
 		foreach (it ; this._templates) {
 		    tmps.insertBack (it.expression ());
 		}
+		Table.instance.unpacifyMode ();
 		
 		auto type = aux.info.type.TempOp (tmps);
 		if (type is null)
@@ -76,8 +78,11 @@ class Var : Expression {
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	foreach (it ; 0 .. names.length) {
-	    if (names [it].token.str == this._token.str)
-		return values [it].clone ();
+	    if (names [it].token.str == this._token.str) {
+		auto clo = values [it].clone ();
+		clo.token = this._token;
+		return clo;
+	    }
 	}
 
 	Array!Expression tmps;
