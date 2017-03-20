@@ -155,7 +155,10 @@ class Function : Declaration {
      */
     Frame verifyPure () {
 	auto space = Table.instance.namespace ();
-	if (this._tmps.length != 0) return new TemplateFrame (space, this);
+	if (this._tmps.length != 0) {
+	    verifyTemplates ();
+	    return new TemplateFrame (space, this);
+	}
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    
@@ -165,6 +168,20 @@ class Function : Declaration {
 	return fr;
     }
 
+    void verifyTemplates () {
+	foreach (it ; this._tmps) {
+	    if (auto tvar = cast (TypedVar) it) {
+		foreach (it_ ; this._params) {
+		    if (auto _tvar_ = cast (TypedVar) it_) {
+			if (_tvar_.type.token == tvar.token) {
+			    throw new UseAsTemplateType (_tvar_.type.token, tvar.token);
+			}
+		    }
+		}
+	    }
+	}
+    }
+        
     /**
      Verifie que la fonction est une fonction pure ou non.     
      */
@@ -188,6 +205,14 @@ class Function : Declaration {
 	return this._ident;
     }
 
+    string name () {
+	return this._ident.str;
+    }
+
+    void name (string other) {
+	this._ident.str = other;
+    }       
+    
     /**
      Affiche la fonction sous forme d'arbre
      Params:

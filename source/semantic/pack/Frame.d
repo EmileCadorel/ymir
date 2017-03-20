@@ -151,7 +151,9 @@ class Frame {
     static string mangle (string name) {
 	string s = "";
 	foreach (it ; name) {
-	    if (it == '/')
+	    if (it == '!')
+		s ~= to!string (to!short (it));
+	    else if (it == '/')
 		s ~= to!string (to!ushort ('.'));
 	    else if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) 
 		s ~= to!string(to!short (it));

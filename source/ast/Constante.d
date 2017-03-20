@@ -213,6 +213,9 @@ class String : Expression {
 
     private string _content;    
     private char [string] _escape;
+    private ulong _label;
+    private static ulong [string] __labels__;
+    private static ulong __last__;
     
     this (Word word, string  content) {
 	super (word);
@@ -338,12 +341,23 @@ class String : Expression {
 	    end ~= to!char (s);
 	}
 	
-	auto aux = new String (this._token, this._content);
+	auto aux = new String (this._token, this._content);	
 	aux._content = end;
+	auto it = end in __labels__;
+	if (it is null) {
+	    __labels__ [end] = __last__;
+	    aux._label = __last__;
+	    __last__ ++;
+	} else aux._label = *it;
+	
 	aux.info = new Symbol (this._token, new StringInfo (), true);
 	return aux;       
     }
 
+    ulong getLabel () {
+	return this._label;
+    }
+    
     override Expression clone () {
 	return new String (this._token, this._content);
     }

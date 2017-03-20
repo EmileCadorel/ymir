@@ -1,10 +1,12 @@
 import std.stdio;
 
-def test (A) () {
-    println (A);
+
+
+def test (A : string) (a : string) {
+    println (A + " hehe " + a);
 }
 
 def main () {
-    test!(int) ();
-    println (int);
+    test!("salut") ("h");
+    test!("hehe") ("y");
 }

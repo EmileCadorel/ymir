@@ -309,7 +309,30 @@ class UseAsVar : YmirException {
 	super.addLine (buf, token.locus);
 	msg = buf.toString ();
     }
+    
 }
+
+
+/**
+ Utilisation d'une variable template comme type.
+*/
+class UseAsTemplateType : YmirException {
+
+    this (Word token, Word token2) {
+	OutBuffer buf = new OutBuffer;
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s : '%s%s%s' est une variable template", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+
+	buf.writefln ("%sNote%s : Définis ici : ", Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, token2.locus);
+	
+	msg = buf.toString ();
+    }
+    
+}
+
 
 
 /**

@@ -16,6 +16,7 @@ import ast.FuncPtr;
 import ast.ConstArray;
 import semantic.types.RefInfo;
 import semantic.pack.UnPureFrame;
+import ast.Constante;
 
 /**
  Cette classe est une instance de frame template
@@ -30,7 +31,7 @@ class TemplateFrame : Frame {
     /**
      Les premiers paramètre templates;
      */
-    private Array!InfoType _tempParams;
+    private Array!Expression _tempParams;
     
     /**
      Params:
@@ -60,6 +61,12 @@ class TemplateFrame : Frame {
 	}
 	
 	return ret;
+    }    
+    
+    private Var typeIt (ArrayVar name, Expression expr, Array!Var args, InfoType [] tmps) {
+	auto type = cast (Type) expr;
+	if (type is null) return null;
+	else return typeIt (name, type.info.type, args, tmps);
     }
 
     private Expression typeIt (ConstArray name, InfoType type, Array!Var args, InfoType [] tmps) {
@@ -73,8 +80,21 @@ class TemplateFrame : Frame {
 	}
 	return name;
     }
-    
-       
+
+    private Expression typeIt (ConstArray name, Expression expr, Array!Var args, InfoType [] tmps) {
+	auto type = cast (Type) expr;
+	if (type is null) return null;
+	else return typeIt (name, type.info.type, args, tmps);
+    }
+           
+    private TypedVar typeIt (TypedVar name, Expression expr, Array!Var args, InfoType [] tmps) {
+	auto type = name.type ().asType ();
+	if (type.info.type.isSame (expr.info.type)) {
+	    return name;
+	}
+	return null;
+    }
+
     private Var typeIt (Var name, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (type is null) return null;
 	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
@@ -113,6 +133,15 @@ class TemplateFrame : Frame {
 	return new Var (name.token, params);
     }
 
+    
+    private Var typeIt (Var name, Expression expr, Array!Var args, InfoType [] tmps) {
+	if (auto tvar = cast (TypedVar) name)
+	    return typeIt (tvar, expr, args, tmps);
+	auto type = cast (Type) expr;
+	if (type is null) return null;
+	else return typeIt (name, type.info.type, args, tmps);
+    }
+
     private Expression typeIt (Expression elem, InfoType type, Array!Var args, InfoType [] tmps) {
 	if (auto fn = cast (FuncPtr) elem)
 	    return typeIt (fn, type, args, tmps);
@@ -123,8 +152,18 @@ class TemplateFrame : Frame {
 	return null;
     }
     
+    private Expression typeIt (Expression elem, Expression type, Array!Var args, InfoType [] tmps) {
+	if (auto fn = cast (FuncPtr) elem)
+	    return typeIt (fn, type, args, tmps);
+	else if (auto var = cast (Var) elem)
+	    return typeIt (var, type, args, tmps);
+	else if (auto cst = cast (ConstArray) elem)
+	    return typeIt (cst, type, args, tmps);
+	return null;
+    }
+    
+
     private FuncPtr typeIt (FuncPtr name, InfoType type, Array!Var args, InfoType [] tmps) {
-	if (type is null) return null;
 	Array!Var params;
 	foreach (it ; 0 .. name.params.length) {
 	    auto typed = typeIt (name.params [it], type.getTemplate (it), args, tmps);
@@ -137,6 +176,12 @@ class TemplateFrame : Frame {
 	if (!typed) return null;
 	
 	return new FuncPtr (name.token, params, typed, null);
+    }
+
+    private FuncPtr typeIt (FuncPtr name, Expression expr, Array!Var args, InfoType [] tmps) {
+	auto type = cast (Type) expr;
+	if (type is null) return null;
+	else return typeIt (name, type.info.type, args, tmps);
     }    
     
     override ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
@@ -144,7 +189,7 @@ class TemplateFrame : Frame {
 	InfoType [] tmps;
 	tmps.length = this._function.tmps.length;
 	foreach (it ; 0 .. this._tempParams.length)
-	    tmps [it] = this._tempParams [it];
+	    tmps [it] = this._tempParams [it].info.type;
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -213,7 +258,7 @@ class TemplateFrame : Frame {
 	
 	Array!Expression types;	
 	foreach (it ; this._tempParams) 
-	    types.insertBack (new Type (Word.eof, it));		
+	    types.insertBack (it);		
 
 	if (this._tempParams.length != this._function.tmps.length)
 	    foreach (it ; score.tmps)
@@ -290,17 +335,37 @@ class TemplateFrame : Frame {
 	    return null;
 
 	InfoType [] totals;
-	Array!InfoType finals;
+	Array!Expression finals;
 	totals.length = this._function.tmps.length;
-	
-	foreach (it ; 0 .. params.length) {
-	    auto tmp = typeIt (this._function.tmps [it], params [it].info.type, this._function.tmps, totals);
-	    if (tmp is null) return null;
-	    finals.insertBack (tmp.asType ().info.type.clone ());
-	}
 
-	if (finals.length == params.length) {	    
-	    auto func = this._function.templateReplace (this._function.tmps, params);	
+	Table.instance.pacifyMode ();
+	foreach (it ; 0 .. params.length) {
+	    auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
+	    if (tmp is null) return null;	    
+	    finals.insertBack (tmp.expression ());
+	}	
+	Table.instance.unpacifyMode ();
+
+	if (finals.length == params.length) {
+	    string namespace;
+	    auto func = this._function.templateReplace (this._function.tmps, params);
+	    foreach (it ; params) {
+		if (auto t = cast (Type) it)
+		    namespace ~= super.mangle (t.info.type.simpleTypeString ~ "!");
+		if (auto _st = cast (String) it)
+		    namespace ~= super.mangle (to!string(_st.getLabel ()) ~ "!");
+		else if (auto _int = cast (Decimal) it)
+		    namespace ~= super.mangle (_int.value ~ "!");
+		else if (auto _char = cast (Char) it)
+		    namespace ~= super.mangle (_char.code ~ "!");
+		else if (auto _fl = cast (Float) it)
+		    namespace ~= super.mangle (_fl.totale ~ "!");
+		else if (auto _bool = cast (Bool) it)
+		    namespace ~= super.mangle (_bool.value ~ "!");
+		else
+		    assert (false, typeid (it).toString);
+	    }
+	    func.name = func.name ~ namespace;
 	    return new UnPureFrame (this._namespace, func);
 	} else {
 	    auto aux = new TemplateFrame (this._namespace, this._function);

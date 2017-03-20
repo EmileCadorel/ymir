@@ -165,7 +165,7 @@ class AMDConstString : AMDObj {
     
     private string _value;
     private AMDOLabel _label;
-    private AMDOLabel [string] __labels__;
+    private static AMDOLabel [string] __labels__;
 
     
     this (string value) {
