@@ -1,18 +1,25 @@
 import std.stdio;
 import std.string;
 
+struct
+| a : int
+-> Test;
 
-def test (A : string, B) (a : B) {
-    if (A.equals ("salut")) {
-	println ("Bonjour");
-    } else {
-	println ("Au revoir");
+def opBinary (op : string) (a : Test, b : Test) {
+    if (op.equals ("+")) {
+	return Test (a.a + b.b);
     }
+    return null;
 }
 
+def print (A) (a : A) {
+    print (A.typeid, '(', a.a, ')');
+}
+
+
+
+
 def main () {
-    let a = ("salut").equals ("h");
-    test!("salut", float) (10.);
-    test!("u") (11);
-    test!("salut") (123);
+    let a = Test (10), b = Test (12);
+    println (a.opBinary!"+" (b));
 }

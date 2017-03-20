@@ -67,7 +67,9 @@ class Binary : Expression {
 	aux._left = this._left.expression ();
 	if (cast(Type)aux._left !is null) throw new UseAsVar (aux._left.token, aux._left.info);
 	if (cast(Type)aux._right !is null) throw new UseAsVar (aux._right.token, aux._right.info);
-	else if (aux._left.info.isConst) throw new NotLValue (aux._left.token, aux._left.info);
+	if (aux._right.info is null) throw new UndefinedVar (aux._right.token);
+	if (aux._left.info is null) throw new UndefinedVar (aux._left.token);	
+	if (aux._left.info.isConst) throw new NotLValue (aux._left.token, aux._left.info);
 	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
 	
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
@@ -123,7 +125,9 @@ class Binary : Expression {
 	aux._left = this._left.expression ();
 	if (cast(Type)aux._left !is null) throw new UndefinedVar (aux._left.token);
 	if (cast(Type)aux._right !is null) throw new UndefinedVar (aux._right.token);
+	if (aux._right.info is null) throw new UndefinedVar (aux._right.token);
 	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
+	if (aux._left.info is null) throw new UndefinedVar (aux._left.token);
 	if (cast(UndefInfo)(aux._left.info.type) !is null) throw new UninitVar (aux._left.token);
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) {

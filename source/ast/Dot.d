@@ -49,7 +49,7 @@ class Dot : Expression {
 		auto call = aux._right.expression ();
 		if (cast (Type) call || cast (UndefInfo) call.info.type)
 		    throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
-		return new DotCall (this._token, call, aux._left);
+		return new DotCall (this._right.token, call, aux._left);
 	    }
 	}
 	aux.info = new Symbol (aux._token, type);

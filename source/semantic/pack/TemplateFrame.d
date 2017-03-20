@@ -370,7 +370,7 @@ class TemplateFrame : Frame {
 		assert (false, typeid (it).toString);
 	}
 	func.name = func.name ~ namespace;
-		
+	func.print ();
 	if (this._function.tmps.length == params.length) {
 	    return new UnPureFrame (this._namespace, func);
 	} else {
