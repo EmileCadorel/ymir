@@ -2,8 +2,8 @@ import std.stdio;
 
 
 
-def test (A : string) (a : string) {
-    println (A + " hehe " + a);
+def test (A : string, B) (a : B) {
+    println (A, ' ', B.typeid, ' ', a);
 }
 
 def main () {

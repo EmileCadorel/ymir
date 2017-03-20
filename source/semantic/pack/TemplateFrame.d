@@ -265,6 +265,7 @@ class TemplateFrame : Frame {
 		types.insertBack (new Type (Word.eof, it.cloneForParam ()));
 
 	auto func = this._function.templateReplace (this._function.tmps, types);
+	func.print ();
 	
 	Array!Var finalParams;
 	foreach (it; 0 .. func.params.length) {
@@ -336,6 +337,7 @@ class TemplateFrame : Frame {
 
 	InfoType [] totals;
 	Array!Expression finals;
+	Array!Expression vars;
 	totals.length = this._function.tmps.length;
 
 	Table.instance.pacifyMode ();
@@ -343,16 +345,17 @@ class TemplateFrame : Frame {
 	    auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
 	    if (tmp is null) return null;	    
 	    finals.insertBack (tmp.expression ());
+	    vars.insertBack (params [it]);
 	}	
 	Table.instance.unpacifyMode ();
 
-	if (finals.length == params.length) {
+	if (this._function.tmps.length == params.length) {
 	    string namespace;
 	    auto func = this._function.templateReplace (this._function.tmps, params);
 	    foreach (it ; params) {
 		if (auto t = cast (Type) it)
 		    namespace ~= super.mangle (t.info.type.simpleTypeString ~ "!");
-		if (auto _st = cast (String) it)
+		else if (auto _st = cast (String) it)
 		    namespace ~= super.mangle (to!string(_st.getLabel ()) ~ "!");
 		else if (auto _int = cast (Decimal) it)
 		    namespace ~= super.mangle (_int.value ~ "!");
@@ -368,8 +371,13 @@ class TemplateFrame : Frame {
 	    func.name = func.name ~ namespace;
 	    return new UnPureFrame (this._namespace, func);
 	} else {
+	    for (auto it = params.length ; it < this._function.tmps.length ; it++) {
+		if (cast (TypedVar) this._function.tmps [it])
+		    return null;
+	    }
+	    
 	    auto aux = new TemplateFrame (this._namespace, this._function);
-	    aux._tempParams = finals;
+	    aux._tempParams = vars;
 	    return aux;
 	}	
     }
