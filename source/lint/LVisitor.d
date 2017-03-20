@@ -15,6 +15,7 @@ import semantic.types.StructUtils, semantic.types.TupleInfo;
 import semantic.pack.FinalFrame;
 import lint.LInst;
 import std.array, std.typecons;
+import semantic.types.StructInfo;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -586,32 +587,50 @@ class LVisitor {
 
     private LInstList visitExpand (Expand expand) {
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto type = cast (TupleInfo) expand.expr.info.type;
 	auto inst = new LInstList;
-	
 	auto tupleInst = visitExpression (expand.expr);
 	auto tuple = tupleInst.getFirst ();
 	if (expand.index == 0) 
 	    inst += tupleInst; // on ne construit le tuple que la premiere fois
-	
-	foreach (it ; 0 .. expand.index) {
-	    final switch (type.params [it].size.id) {
-	    case LSize.LONG.id: nbLong ++; break;
-	    case LSize.ULONG.id: nbUlong ++; break;
-	    case LSize.INT.id: nbInt ++; break;
-	    case LSize.UINT.id: nbUint ++; break;
-	    case LSize.SHORT.id: nbShort ++; break;
-	    case LSize.USHORT.id: nbUshort ++; break;
-	    case LSize.BYTE.id: nbByte ++; break;
-	    case LSize.UBYTE.id: nbUbyte ++; break;
-	    case LSize.FLOAT.id: nbFloat ++; break;
-	    case LSize.DOUBLE.id: nbDouble ++; break;
-	    }	    
-	}
-	
-	auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-	inst += new LRegRead (tuple, size, type.params[expand.index].size);
-	return inst;	
+	if (auto type = cast (TupleInfo) expand.expr.info.type) {	    	    
+	    foreach (it ; 0 .. expand.index) {
+		final switch (type.params [it].size.id) {
+		case LSize.LONG.id: nbLong ++; break;
+		case LSize.ULONG.id: nbUlong ++; break;
+		case LSize.INT.id: nbInt ++; break;
+		case LSize.UINT.id: nbUint ++; break;
+		case LSize.SHORT.id: nbShort ++; break;
+		case LSize.USHORT.id: nbUshort ++; break;
+		case LSize.BYTE.id: nbByte ++; break;
+		case LSize.UBYTE.id: nbUbyte ++; break;
+		case LSize.FLOAT.id: nbFloat ++; break;
+		case LSize.DOUBLE.id: nbDouble ++; break;
+		}	    
+	    }
+	    
+	    auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
+	    return inst;
+	} else if (auto type = cast (StructInfo) expand.expr.info.type) {
+	    foreach (it ; 0 .. expand.index) {
+		final switch (type.params [it].size.id) {
+		case LSize.LONG.id: nbLong ++; break;
+		case LSize.ULONG.id: nbUlong ++; break;
+		case LSize.INT.id: nbInt ++; break;
+		case LSize.UINT.id: nbUint ++; break;
+		case LSize.SHORT.id: nbShort ++; break;
+		case LSize.USHORT.id: nbUshort ++; break;
+		case LSize.BYTE.id: nbByte ++; break;
+		case LSize.UBYTE.id: nbUbyte ++; break;
+		case LSize.FLOAT.id: nbFloat ++; break;
+		case LSize.DOUBLE.id: nbDouble ++; break;
+		}	    
+	    }
+	    
+	    auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
+	    return inst;
+	} else assert (false, typeid (expand.expr).toString);
     }
            
     private LInstList visitParamList (ref Array!LExp exprs, Array!InfoType treat, ParamList params) {

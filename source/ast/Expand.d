@@ -7,6 +7,8 @@ import semantic.types.TupleInfo;
 import semantic.types.UndefInfo;
 import std.container;
 import ast.ParamList;
+import semantic.types.StructInfo;
+import std.stdio;
 
 /**
  Classe généré par la syntaxe
@@ -42,14 +44,23 @@ class Expand : Expression {
     override Expression expression () {
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
-	if (!cast (TupleInfo) (expr.info.type)) return expr;
+	auto tuple = cast (TupleInfo) expr.info.type;
+	auto str = cast (StructInfo) expr.info.type;
+	if (!tuple && !str) return expr;
 	Array!Expression params;	
-	auto tuple = cast(TupleInfo) expr.info.type;
 	
-	foreach (it ; 0 .. tuple.params.length) {
-	    auto exp = new Expand (this._token, expr, it);
-	    exp.info = new Symbol (false, exp.token, tuple.params[it].clone);
-	    params.insertBack (exp);
+	if (tuple) {
+	    foreach (it ; 0 .. tuple.params.length) {
+		auto exp = new Expand (this._token, expr, it);
+		exp.info = new Symbol (false, exp.token, tuple.params[it].clone);
+		params.insertBack (exp);
+	    }
+	} else {
+	    foreach (it ; 0 .. str.params.length) {
+		auto exp = new Expand (this._token, expr, it);
+		exp.info = new Symbol (false, exp.token, str.params [it].clone);
+		params.insertBack (exp);
+	    }
 	}
 
 	auto aux = new ParamList (this._token, params);	

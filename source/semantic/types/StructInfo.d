@@ -257,7 +257,7 @@ class StructInfo : InfoType {
     /**
      Returns: les types des attributs de la structure
      */
-    Array!InfoType params () {
+    ref Array!InfoType params () {
 	return this._params;
     }
 

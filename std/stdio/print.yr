@@ -53,6 +53,7 @@ def print (b : bool) {
     else print ('false');
 }
 
+
 def println (i) {
     print (expand (i));
     print ('\n');
@@ -71,4 +72,11 @@ def println (f : float, i) {
 def printf (str : string, nexts) {
     extern (C) printf (c : ptr!char, ...);
     printf (str.ptr, expand (nexts));
+}
+
+def printfln (str : string, nexts) {
+    extern (C) printf (c : ptr!char, ...);
+    extern (C) putchar (c : char);
+    printf (str.ptr, expand (nexts));
+    putchar ('\n');
 }

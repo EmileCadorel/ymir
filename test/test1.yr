@@ -5,21 +5,15 @@ struct
 | a : int
 -> Test;
 
-def opBinary (op : string) (a : Test, b : Test) {
+def opBinary (op : string, A) (a : A, b : A) {
     if (op.equals ("+")) {
-	return Test (a.a + b.b);
+	return Test (a.a + b.a);
     }
     return null;
 }
 
-def print (A) (a : A) {
-    print (A.typeid, '(', a.a, ')');
-}
-
-
-
-
 def main () {
     let a = Test (10), b = Test (12);
-    println (a.opBinary!"+" (b));
+    let c = a.opBinary!("+")(b).a;
+    println ("Test (%d)", c);
 }

@@ -241,6 +241,7 @@ class StructUtils {
 	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	auto l = LVisitor.visitExpressionOutSide (left);
 	auto leftExp = l.getFirst ();
+	inst += l;
 	inst += new LRegRead (leftExp, size, ret.size);
 	return inst;
     }
