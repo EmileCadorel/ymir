@@ -1,8 +1,27 @@
 import std.stdio;
+import std.array;
+import std.algorithm.sorting;
 
-extern (C) qsort (x : ptr!int, len : int, size : int, lambda : ptr!void);
+struct
+| a : int
+| b : float
+-> Test;
+
+def print (a : Test) {
+    print (a.a, " : ");
+    print (a.b, 1);
+}
 
 def main () {
-    let a = [1, 2, 3];
-   
+    let a = [Test (1, 2.2), Test (2, 3.3), Test (1, 1.1)];
+    a.sort (function (a : Test, b : Test) : bool {
+	    return a.b < b.b;
+	});
+    
+    println (a);
+
+    let b = [1, 8, 4, 2, 5];
+    b.sort ();
+    
+    println (b);    
 }
