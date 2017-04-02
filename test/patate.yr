@@ -1,5 +1,0 @@
-import std.stdio;
-
-def test (a : float) {
-    println ("scd ", a);
-}

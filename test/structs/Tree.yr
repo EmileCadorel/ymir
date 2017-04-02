@@ -1,5 +1,12 @@
 import std.stdio;
 
+struct
+| left : Tree
+| right : Tree
+| key : int
+| value : string
+-> Tree;
+
 def println (r : Tree, nb : int) : void {
     let i = 0;
     while (i < nb) {
@@ -21,8 +28,6 @@ def addNode (root : Tree, node : Tree) : void {
 	else root.right = node;
     }
 }
-
-struct (left : Tree, right : Tree, key : int, value : string) Tree;
 
 def main () {
     let root = Tree (null, null, 0, "Root");

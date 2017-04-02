@@ -75,7 +75,7 @@ class StructUtils {
 		for (long nb = type.lintInstSR.length - 1; nb >= 0; nb --)
 		    rlist = type.lintInstR (rlist, nb);
 		interne += type.lintInst (llist, rlist);
-	    } else assert (false, "TODO");
+	    } else assert (false, typeid (it).toString);
 	    
 	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	}

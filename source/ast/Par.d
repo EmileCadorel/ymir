@@ -7,6 +7,7 @@ import semantic.pack.Symbol, std.container;
 import ast.Tuple, std.array;
 import semantic.types.TupleInfo;
 import ast.Dot;
+import semantic.types.RefInfo;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.

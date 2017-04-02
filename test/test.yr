@@ -1,0 +1,17 @@
+import std.stdio;
+import std.array;
+import std.algorithm.sorting;
+
+
+def main () {
+    let a = [1, 2, 7, 9];
+    let b = [9, 1, 2, 7, 5];
+
+    a.sort ();
+    b.sort (function (a : int, b : int) : bool {
+	    return a > b;
+	});
+
+    println (a);
+    println (b);    
+}

@@ -33,6 +33,7 @@ class StructCstInfo : InfoType {
     
     this (string name) {
 	this._name = name;
+	this._destruct = &StructUtils.InstDestruct;
     }
 
     /**
@@ -154,6 +155,16 @@ class StructCstInfo : InfoType {
 	return score;
     }
 
+    override InfoType CompOp (InfoType other) {
+	if (cast (UndefInfo) other) {
+	    auto ret = this.clone ();
+	    ret.lintInst = &StructUtils.InstAffectRight;
+	    return ret;
+	}
+	return null;
+    }
+
+    
     /**
      Returns: le nom pour le mangling
      */
