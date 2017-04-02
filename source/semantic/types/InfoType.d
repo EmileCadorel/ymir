@@ -95,6 +95,8 @@ class InfoType {
     /** Fonction de transformation pour l'appel du destructeur */
     protected InstCompS _destruct = null;
 
+    protected bool _isGarbaged = true;
+    
     /** Fonction de transformation pour les opérateur multiple */
     private InstCompMult _lintInstMult = null;
 
@@ -139,7 +141,7 @@ class InfoType {
 		    "range" : &RangeInfo.create,
 		    "tuple" : &TupleInfo.create];
     }    
-
+    
     /**
      Créé une instance de type, en fonction de son nom et de ses templates.
      Params:
@@ -484,9 +486,17 @@ class InfoType {
      Returns: le type a t'il un destructeur ?
      */
     bool isDestructible () {
-	return this._destruct !is null;
+	return this._destruct !is null && this._isGarbaged;
     }
 
+    void isGarbaged (bool isIt) {
+	this._isGarbaged = isIt;
+    }
+
+    bool isGarbaged () {
+	return this._isGarbaged;
+    }
+    
     /**
      Returns: les informations de transformation d'operateur multiple du lint.
      */

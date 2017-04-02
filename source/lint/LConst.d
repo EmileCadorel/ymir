@@ -38,7 +38,7 @@ class LConstDecimal : LConst {
     }
     
     override string toString () {
-	if (this._mult != LSize.NONE) {
+	if (this._mult != LSize.NONE && this._value != 0) {
 	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
 	} else
 	    return "$(" ~ to!string (this._value) ~ ")";
@@ -75,7 +75,7 @@ class LConstUDecimal : LConst {
     }
 
     override string toString () {
-	if (this._mult != LSize.NONE) {
+	if (this._mult != LSize.NONE && this._value != 0) {
 	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
 	} else
 	    return "$(" ~ to!string (this._value) ~ ")";

@@ -273,4 +273,12 @@ class StructUtils {
     }
 
 
+    static LInstList InstNbRef (LInstList, LInstList list) {
+	auto inst = new LInstList;
+	auto leftExp = list.getFirst ();
+	inst += list;
+	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
+	return inst;
+    }
+    
 }

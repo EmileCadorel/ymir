@@ -10,6 +10,8 @@ import std.container, semantic.types.FunctionInfo, std.outbuffer;
 import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 import semantic.types.BoolUtils, semantic.types.RefInfo;
+import semantic.types.DecimalInfo;
+import ast.Constante;
 
 /**
  Le constructeur de structure
@@ -388,6 +390,7 @@ class StructInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "typeid") return StringOf ();
+	else if (var.token.str == "nbRef") return nbRef ();
 	else {
 	    foreach (it ; 0 .. this._attribs.length) {
 		if (var.token.str == this._attribs [it]) {
@@ -444,7 +447,7 @@ class StructInfo : InfoType {
 	t.lintInst = &StructUtils.Init;
 	return t;
     }
-
+    
     /**
      surcharge de la propriété typeid.
      */
@@ -455,6 +458,12 @@ class StructInfo : InfoType {
 	return str;
     }
 
+    private InfoType nbRef () {
+	auto nb = new DecimalInfo (DecimalConst.ULONG);
+	nb.lintInst = &StructUtils.InstNbRef;
+	return nb;
+    }
+    
     /**
      Accés à un paramètre de la structure.
      */
@@ -469,7 +478,7 @@ class StructInfo : InfoType {
 	type.lintInst = &StructUtils.Attrib;
 	type.leftTreatment = &StructUtils.GetAttrib;
 	type.isConst = false;
-	type.setDestruct (null);
+	type.isGarbaged = false;
 	return type;
     }    
 

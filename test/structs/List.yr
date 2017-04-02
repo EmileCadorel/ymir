@@ -13,6 +13,15 @@ def addNext (test : Test, value : int) : void {
     } else test.next.addNext (value);
 }
 
+def addSortNext (test : Test, value : int) : void {
+    if (test.next is null) {
+	test.next = Test (value, null);
+    } else if (test.next.value > value) {
+	let aux = test.next;
+	test.next = Test (value, aux);
+    } else test.next.addSortNext (value);
+}
+
 def printList (test : Test) : void {
     print (test.value, " -> ");
     if (test.next !is null) {
@@ -24,5 +33,7 @@ def main () {
     let a = Test (1, null);
     a.addNext (10);
     a.addNext (1023);
+    a.addSortNext (11);
+    a.addSortNext (2);
     a.printList ();
 }

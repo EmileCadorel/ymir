@@ -32,8 +32,10 @@ class Symbol {
     this (Word word, InfoType type) {
 	this._sym = word;
 	this._type = type;
-	Table.instance.garbage (this);
-	this._garbage = true;
+	if (this._type.isGarbaged) {
+	    Table.instance.garbage (this);
+	    this._garbage = true;
+	} else this._garbage = false;
     }
 
     /** 
@@ -46,8 +48,10 @@ class Symbol {
 	this._sym = word;
 	this._type = type;
 	this._type.isConst = isConst;
-	Table.instance.garbage (this);
-	this._garbage = true;
+	if (this._type.isGarbaged) {
+	    Table.instance.garbage (this);
+	    this._garbage = true;
+	} else this._garbage = false;
     }
 
     /**

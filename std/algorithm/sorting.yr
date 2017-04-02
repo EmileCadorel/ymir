@@ -1,6 +1,6 @@
 
 def sort (T) (a : [T]) {
-    for (it in 0ul .. (a.length - 1ul)) {
+    for (it in 0ul .. (a.length - 1UL)) {
 	for (it_ in it .. (a.length - 1ul)) {
 	    if (a [it_] > a [it_ + 1ul]) {
 		let aux = a [it_];
