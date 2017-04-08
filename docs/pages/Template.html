@@ -41,9 +41,9 @@ def foo (a : [<span class="hljs-built_in">ulong</span>]) {
 <span class="hljs-comment">//...</span>
 foo ([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]); <span class="hljs-comment">// Ok, 'fst'</span>
 foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><p><br></p>
-<h2 id="specialisation"><a class="header-link" href="#specialisation"></a>Specialisation</h2>
+<h2 id="spécialisation"><a class="header-link" href="#spécialisation"></a>Spécialisation</h2>
 <hr>
-<p>Il est possible de passer des expressions au paramètre templates, ces expressions doivent être évaluer à la compilation. </p>
+<p>Il est possible de passer des expressions comme paramètres templates, ces expressions doivent être évaluées à la compilation. </p>
 <pre class="hljs"><code>def test (i : <span class="hljs-keyword">int</span>) (a : <span class="hljs-keyword">int</span>) {
     println (i + a);
 }

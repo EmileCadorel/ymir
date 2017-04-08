@@ -23,3 +23,8 @@ install: final
 uninstall:
 	rm ${HOME}/libs/ymir
 	rm -rf ${HOME}/libs/ymir_std/*
+
+docs: FORCE
+	./docs/install.sh
+
+FORCE:
