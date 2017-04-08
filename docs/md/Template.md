@@ -41,10 +41,10 @@ foo ([1ul, 2ul]); // Ok, 'scd'
 
 ```
 <br>
-## Specialisation
+## Spécialisation
 --------------------
 
-Il est possible de passer des expressions au paramètre templates, ces expressions doivent être évaluer à la compilation. 
+Il est possible de passer des expressions comme paramètres templates, ces expressions doivent être évaluées à la compilation. 
 
 ```D
 def test (i : int) (a : int) {
