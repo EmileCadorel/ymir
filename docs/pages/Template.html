@@ -1,20 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title>Fonction template</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link type="text/css" rel="stylesheet" href="assets/style.css" />
-    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
-    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
   </head>
-<body><h1 id="fonction-template"><a class="header-link" href="#fonction-template"></a>Fonction template</h1>
+  <body>
+    <article class="markdown-body"><h1 id="fonction-template"><a class="header-link" href="#fonction-template"></a>Fonction template</h1>
 <hr>
 
 <p>Les fonctions templates sont des fonctions impure dont on stocke l&#39;inférence de type dans une variable d&#39;alias.
 En d&#39;autre terme, elle sont instancié comme les fonction impures, mais on peut récupérer facilement les types des paramètres et faire une spécialisation de templates plus avancée.</p>
 <p><br></p>
 <h2 id="déclaration"><a class="header-link" href="#déclaration"></a>Déclaration</h2>
+<hr>
+
 <p>La déclaration de fonctions templates est la suivante :</p>
 <pre class="hljs"><code>def foo (T) (a : T) {
     println (T.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">')'</span>);
@@ -37,11 +40,28 @@ def foo (a : [<span class="hljs-built_in">ulong</span>]) {
 
 <span class="hljs-comment">//...</span>
 foo ([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]); <span class="hljs-comment">// Ok, 'fst'</span>
-foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><h2 id="attention"><a class="header-link" href="#attention"></a>Attention</h2>
+foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><p><br></p>
+<h2 id="specialisation"><a class="header-link" href="#specialisation"></a>Specialisation</h2>
+<hr>
+<p>Il est possible de passer des expressions au paramètre templates, ces expressions doivent être évaluer à la compilation. </p>
+<pre class="hljs"><code>def test (i : <span class="hljs-keyword">int</span>) (a : <span class="hljs-keyword">int</span>) {
+    println (i + a);
+}
+
+def test (s : <span class="hljs-built_in">string</span>) () {
+    <span class="hljs-keyword">if</span> (s == <span class="hljs-string">"123"</span>)
+        println (s);
+}
+
+test!<span class="hljs-number">10</span> (<span class="hljs-number">11</span>); <span class="hljs-comment">// Ok, '21'</span>
+test!<span class="hljs-string">"123"</span>(); <span class="hljs-comment">// Ok, '123'</span>
+test!<span class="hljs-string">"10"</span> (); <span class="hljs-comment">// Ok</span>
+test!<span class="hljs-string">'r'</span> (); <span class="hljs-comment">// Erreur, Aucune surcharge disponible</span></code></pre><h2 id="attention"><a class="header-link" href="#attention"></a>Attention</h2>
 <hr>
 <p>Les paramètres d&#39;une fonction template ne peuvent pour le moment par être variadics.
 Je suis en train de réfléchir à une syntaxe plus clair, pour le permettre.</p>
 <p>Très certainement :</p>
 <pre class="hljs"><code>def foo (T ...) (a : T) {
-}</code></pre></body>
+}</code></pre>    </article>
+  </body>
 </html>

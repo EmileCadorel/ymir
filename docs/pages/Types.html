@@ -1,14 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title>Variables</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link type="text/css" rel="stylesheet" href="assets/style.css" />
-    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
-    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
   </head>
-<body><h1 id="variables"><a class="header-link" href="#variables"></a>Variables</h1>
+  <body>
+    <article class="markdown-body"><h1 id="variables"><a class="header-link" href="#variables"></a>Variables</h1>
  <hr>
 
 <p>Le type des variables est inféré dans tous les cas.</p>
@@ -109,5 +110,6 @@ let a = (<span class="hljs-number">1</span>, <span class="hljs-string">'r'</span
 foo (a);
 
 foo ((<span class="hljs-number">3</span>, <span class="hljs-string">'t'</span>));</code></pre><p>Comme pour tous les types de haut niveau du langage Ymir (tableau, range, structure, ...), le tuple n&#39;est alloué qu&#39;une seule fois et les variables possède un référence vers cette allocation.</p>
-</body>
+    </article>
+  </body>
 </html>

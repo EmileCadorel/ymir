@@ -1,14 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
     <title>Programme</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link type="text/css" rel="stylesheet" href="assets/style.css" />
-    <link type="text/css" rel="stylesheet" href="assets/pilcrow.css" />
-    <link type="text/css" rel="stylesheet" href="assets/hljs-github.min.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
   </head>
-<body><p>La compilation est séparée en plusieurs phases.</p>
+  <body>
+    <article class="markdown-body"><p>La compilation est séparée en plusieurs phases.</p>
 <ul class="list">
 <li><p><strong>Analyse syntaxique :</strong></p>
 <p>Cette phase génère l&#39;arbre de syntaxe, et vérifie la cohérence grammatical du code</p>
@@ -404,5 +405,6 @@ def foo (count : <span class="hljs-keyword">int</span>, a, b) {
 }
 
 <span class="hljs-comment">//...</span>
-foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, 'int(1:0) char(r:1) string(salut:2)';</span></code></pre></body>
+foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, 'int(1:0) char(r:1) string(salut:2)';</span></code></pre>    </article>
+  </body>
 </html>
