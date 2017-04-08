@@ -70,7 +70,6 @@ string preCompiled (string name) {
 	}
 
 	auto target = targetTime (make!(Array!LFrame) (LFrame.preCompiled.values));
-
 	
 	toFile (target, name);
 	return name;

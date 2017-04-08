@@ -27,6 +27,9 @@ class StringUtils {
     /** Le nom de la fonction + de deux string */
     static immutable string __PlusString__ = "_YPPlusString";
 
+    /** Le nom de la fonction '==' de deux string */
+    static immutable string __EqualString__ = "_YPEqualString";
+    
     /**
      Créer toutes les fonctions standarts du type string.
      */
@@ -35,6 +38,7 @@ class StringUtils {
 	createCstStringNoRef ();
 	createDupString ();
 	createPlusString ();
+	createEqualString ();
     }    
 
     /++
@@ -228,6 +232,73 @@ class StringUtils {
     }
 
     /++
+     + Fonction de test de deux string
+     + Example:
+     + --------
+     + def equalString (left : string, right : string) {
+     +     if (left.length != right.length) return false;
+     +     for (it in 0UL .. left.length) {
+     +         if (left [it] != right [it]) return false;
+     +     }
+     +     return true;
+     + }
+     + --------
+     +/
+    static void createEqualString () {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	auto left = new LReg (LSize.LONG), right = new LReg (LSize.LONG), retReg = new LReg (LSize.BYTE);
+	auto entry = new LLabel (new LInstList), end = new LLabel ();
+	auto index = new LReg (LSize.ULONG);
+	auto test1 = new LBinop (new LRegRead (left, new LConstDecimal (2, LSize.INT, LSize.ULONG), LSize.ULONG),
+				 new LRegRead (right, new LConstDecimal (2, LSize.INT, LSize.ULONG), LSize.ULONG),
+				 Tokens.NOT_EQUAL);
+	
+	auto vrai = new LLabel (new LInstList), faux = new LLabel;
+	entry.insts += new LJump (test1, vrai);
+	entry.insts += new LGoto (faux);
+	entry.insts += vrai;
+	entry.insts += faux;
+	vrai.insts += new LWrite (retReg, new LConstDecimal (0, LSize.BYTE));
+	vrai.insts += new LGoto (end);
+
+	auto debut = new LLabel, vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
+	entry.insts += new LWrite (index, new LConstDecimal (0, LSize.ULONG));
+	auto size = new LRegRead (left, new LConstDecimal (2, LSize.INT, LSize.ULONG), LSize.ULONG);
+	
+	auto test = new LBinop (index, size, Tokens.INF);	
+	entry.insts += debut;
+	entry.insts += new LJump (test, vrai2);
+	entry.insts += new LGoto (faux2);
+	entry.insts += vrai2;
+	entry.insts += faux2;
+	auto leftAccess = new LRegRead (new LBinop (left, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, LSize.BYTE), Tokens.STAR),
+								    new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),						
+						Tokens.PLUS),
+				    new LConstDecimal (0, LSize.INT), LSize.BYTE);
+
+	auto rightAccess = new LRegRead (new LBinop (right, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, LSize.BYTE), Tokens.STAR),
+								    new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),						
+						Tokens.PLUS),
+				    new LConstDecimal (0, LSize.INT), LSize.BYTE);
+	
+	auto test2 = new LBinop (leftAccess, rightAccess, Tokens.NOT_EQUAL);
+	auto vrai3 = new LLabel (new LInstList), faux3 = new LLabel;
+	vrai2.insts += new LJump (test2, vrai3);
+	vrai2.insts += new LGoto (faux3);
+	vrai2.insts += vrai3;
+	vrai2.insts += faux3;
+	vrai3.insts += new LWrite (retReg, new LConstDecimal (0, LSize.BYTE));
+	vrai3.insts += new LGoto (end);
+	vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
+	vrai2.insts += new LGoto (debut);
+	entry.insts += new LWrite (retReg, new LConstDecimal (1, LSize.BYTE));
+	auto fr = new LFrame (__EqualString__, entry, end, retReg, make!(Array!LReg) (left, right));
+	LFrame.preCompiled [__EqualString__] = fr;
+	LReg.lastId = last;
+    }
+    
+    /++
      + Fonction d'un plus sur deux string
      + Example:
      + ---
@@ -361,6 +432,37 @@ class StringUtils {
 	return inst;
     }
 
+    /**
+     Appel de la fonction "=="
+     */
+    static LInstList InstEqual (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst;
+	inst += llist + rlist;
+	auto it = (__EqualString__ in LFrame.preCompiled);
+	if (it is null) createEqualString ();
+	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
+	auto ret = new LReg (LSize.BYTE);
+	inst += new LWrite (ret, call);
+	return  inst;
+    }
+
+    /**
+     Appel de la fonction !('==')
+     */
+    static LInstList InstNotEqual (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst;
+	inst += llist + rlist;
+	auto it = (__EqualString__ in LFrame.preCompiled);
+	if (it is null) createEqualString ();
+	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
+	auto ret = new LReg (LSize.BYTE);
+	inst += new LWrite (ret, call);
+	inst += new LBinop (ret, ret, Tokens.XOR);
+	return  inst;
+    }
+    
     /**
      Returns: la liste d'instruction d'un operateur += entre 2 string.
     */

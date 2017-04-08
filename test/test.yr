@@ -1,28 +1,17 @@
 import std.stdio;
-import std.array;
-import std.algorithm.sorting;
 
-struct
-| value : int
-| next : Test
--> Test;
-
-def addNext (test : Test, value : int) : void {
-    if (test.next is null) {
-	test.next = Test (value, null);
-    } else test.next.addNext (value);
-}
-
-def printList (test : Test) : void {
-    print (test.value, " -> ");
-    if (test.next !is null) {
-	test.next.printList ();
-    } else println ("nil");
+def test (op : string) (a : int, b : int) {
+    if (op == "+") {
+	return a + b;
+    } else if (op == "-") {
+	return a - b;
+    }
+    return 0;
 }
 
 def main () {
-    let a = Test (1, null);
-    a.addNext (10);
-    a.addNext (1023);
-    a.printList ();
+    let a = ("salut" != "salut");
+    println (a);
 }
+
+

@@ -79,6 +79,8 @@ class StringInfo : InfoType {
 	else if (token == Tokens.PLUS_AFF) return PlusAff (right);
 	else if (token == Keys.IS) return Is (right);
 	else if (token == Keys.NOT_IS) return NotIs (right);
+	else if (token == Tokens.DEQUAL) return Equal (right);
+	else if (token == Tokens.NOT_EQUAL) return NotEqual (right);
 	else return null;
     }
 
@@ -151,6 +153,31 @@ class StringInfo : InfoType {
 	return null;
     }    
 
+
+    /**
+     Operateur '=='
+     Params:
+     right = l'operande droite de l'expression
+     Returns: le type de retour ou null
+     */
+    private InfoType Equal (Expression right) {
+	if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &StringUtils.InstEqual;
+	    return ret;
+	}
+	return null;
+    }
+
+    private InfoType NotEqual (Expression right) {
+	if (this.isSame (right.info.type)) {
+	    auto ret = new BoolInfo ();
+	    ret.lintInst = &StringUtils.InstNotEqual;
+	    return ret;
+	}
+	return null;
+    }
+    
     /**
      Operateur '+='
      Params:
