@@ -2,7 +2,7 @@ module ast.Var;
 import ast.Expression, semantic.pack.Table;
 import syntax.Word, std.container, semantic.types.InfoType;
 import std.stdio, std.string, std.outbuffer, utils.YmirException;
-import semantic.pack.Symbol;
+import semantic.pack.Symbol, ast.Constante;
 import utils.exception;
 import semantic.types.ArrayInfo;
 import ast.FuncPtr;
@@ -80,7 +80,8 @@ class Var : Expression {
 	foreach (it ; 0 .. values.length) {
 	    if (names [it].token.str == this._token.str) {
 		auto clo = values [it].clone ();
-		clo.token = this._token;
+		if (!cast (Decimal) clo)
+		    clo.token = this._token;
 		return clo;
 	    }
 	}
