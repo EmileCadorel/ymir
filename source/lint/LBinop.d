@@ -7,12 +7,14 @@ class LBinop : LExp {
 
     private LExp _left, _right;
     private LExp _res;
+    private LSize _size = LSize.NONE;
     private Tokens _op;
     
-    this (LExp left, LExp right, Tokens op) {
+    this (LExp left, LExp right, Tokens op, LSize size = LSize.NONE) {
 	this._left = left;
 	this._right = right;
 	this._op = op;
+	this._size = size;
     }
 
     this (LExp left, LExp right, LExp res, Tokens op) {
@@ -33,6 +35,8 @@ class LBinop : LExp {
     }
 
     override LSize size () {
+	if (this._size != LSize.NONE) return this._size;
+	if (this._res !is null) return this._res.size;
 	return this._left.size;
     }
     

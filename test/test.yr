@@ -1,6 +1,25 @@
 import std.stdio;
+import std.math;
 
-def test (op : string) (a : int, b : int) {
+def relation (a : string, b : string) {
+    let size = min (a.length, b.length);
+    for (it in 0UL .. size) {
+	if (a [it] < b [it]) return -1;
+	else if (a [it] > b [it]) return 1;
+    }
+    return 0;
+}
+
+def test (op : string) (a : string, b : string) {
+    let res = relation (a, b);
+    if (op == "<") return res == -1;
+    else if (op == "<=") return (res == 0) || (res == -1);
+    else if (op == ">") return res == 1;
+    else if (op == ">=") return (res == 1) || (res == 0);
+    else return true;
+}
+
+def binop (op : string) (a : int, b : int) {
     if (op == "+") {
 	return a + b;
     } else if (op == "-") {
@@ -9,9 +28,10 @@ def test (op : string) (a : int, b : int) {
     return 0;
 }
 
+
+
 def main () {
-    let a = ("salut" != "salut");
-    println (a);
+    println (("a").test!"<" ("b"));
 }
 
 

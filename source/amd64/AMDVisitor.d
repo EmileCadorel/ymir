@@ -245,9 +245,9 @@ class AMDVisitor : TVisitor {
 	    ret += wh.what;
 	    where = cast (AMDReg) wh.where;
 	}
-	
+
 	where.resize (AMDSize.BYTE);
-	auto laux = new AMDReg (REG.aux (AMDSize.BYTE));	
+	auto laux = new AMDReg (REG.aux (AMDSize.BYTE));
 	auto rpaire = visitExpression (lbin.right, where);
 	
 	ret += rpaire.what;
@@ -282,6 +282,7 @@ class AMDVisitor : TVisitor {
 	    ret += wh.what;
 	    where = cast (AMDReg) wh.where;
 	}
+
 	auto laux = new AMDReg (REG.aux (AMDSize.DWORD));
 	import std.stdio;
 	
@@ -535,8 +536,8 @@ class AMDVisitor : TVisitor {
     override protected TInstPaire visitUnop (LUnop unop, TExp where) {
 	if (unop.op != Tokens.SQRT) {
 	    auto inst = new TInstList;
-	    auto res = cast (AMDReg) where;
-	    res.resize (getSize (unop.size));
+	    auto res_ = cast (AMDReg) where;
+	    auto res = res_.clone (getSize (unop.size));
 	    auto exp = visitExpression (unop.elem, res);
 	    inst += exp.what;
 	    if (res != exp.where)
@@ -703,6 +704,8 @@ class AMDVisitor : TVisitor {
 	else if (op.op == Tokens.INF_EQUAL) return new AMDConstDecimal (left <= right, size);
 	else if (op.op == Tokens.DEQUAL) return new AMDConstDecimal (left == right, size);
 	else if (op.op == Tokens.NOT_EQUAL) return new AMDConstDecimal (left != right, size);
+	else if (op.op == Tokens.DPIPE) return new AMDConstDecimal (left || right, size);
+	else if (op.op == Tokens.DAND) return new AMDConstDecimal (left && right, size);
 	else assert (false, "TODO " ~ op.op.descr);
     }    
     

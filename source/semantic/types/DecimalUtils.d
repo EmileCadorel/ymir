@@ -74,7 +74,7 @@ class DecimalUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	inst += (new LBinop (leftExp, rightExp, op));
+	inst += (new LBinop (leftExp, rightExp, op, LSize.UBYTE));
 	return inst;
     }
     
