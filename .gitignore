@@ -12,3 +12,7 @@ a.out
 *.html
 genDoc/generate
 genDoc/gendoc
+*.aux
+*.log
+*.toc
+*.out

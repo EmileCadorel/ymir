@@ -10,7 +10,6 @@ import std.math;
 
 class Visitor {
 
-
     private Lexer _lex;
     private Token[] _ultimeOp;
     private Token[] _expOp;

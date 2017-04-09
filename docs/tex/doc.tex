@@ -1,0 +1,204 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[frenchb]{babel}
+\usepackage[T1]{fontenc}
+
+
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{verbatim}
+\usepackage{moreverb}
+\geometry{hmargin=2.5cm,vmargin=3cm}
+
+
+
+\begin{document}
+\title {\textbf{Ymir}\\
+  Documentation technique}
+\date {}
+\maketitle
+\pagebreak
+
+\tableofcontents
+\pagebreak
+
+\section {Introduction}
+
+\textbf{Ymir} est un langage haut niveau inspiré par D, python et OCaml. L'objectif de ce rapport est de décrire le fonctionnement du compilateur. Le compilateur est découpé en deux parties principales, elle même découpé en plusieurs partie.
+\bigskip
+
+\begin{itemize}
+\item \textbf{FrontEnd}
+  \begin{itemize}
+  \item [-] Analyse Syntaxique, récupère les fichiers passé en entrée et génére l'arbre de syntaxe abstraite.
+    \smallskip
+    
+  \item [-]  Analyse sémantique, créer les différents symboles du programme et vérifie l'intégrité sémantique du programme.
+    \smallskip
+    
+  \item [-] Génération du code intérmédiaire, c'est la dernière partie du \textbf{FrontEnd}, elle génére un langage intérmédiaire qui ne dépend pas de l'architecture visé par le compilateur.
+    \smallskip
+  \end{itemize}
+\item \textbf{BackEnd}
+  \begin{itemize}
+  \item [-] Génération du code du code cible, le langage intérmédiaire est récupéré et transformé dans le code ciblé par le compilateur.
+    \smallskip
+    
+  \item [-] Edition des liens, cette partie est gérer par le compilateur \textit{gcc} pour le moment.
+    \smallskip
+    
+  \end{itemize}
+\end{itemize}
+
+\section {FrontEnd}
+
+\subsection {Analyse Syntaxique}
+
+L'analyse syntaxique est la première phase du \textbf{FrontEnd}, elle prend en entrée le nom d'un fichier texte et génére un arbre de syntaxe abstraite. Tous les modules composant l'analyse syntaxique se trouve dans le sous dossier source \textit {syntax}. L'analyse syntaxique contient un module qui génére les jetons (\textit {token}), ce module s'appele \textit{Lexer}. Il permet de lire le fichier et de découper les mot en fonctions de paramètre qu'on lui passe. Ces paramètres dépendent de l'énumeration \textit {Token}. On peut lui donner une liste de jetons qui découpe et de paires de jetons qui annoncent le début et la fin d'un commentaire. Le \textit {Lexer} agit sur un fichier, dont on passe le nom en paramètre de son constructeur.
+\bigskip
+
+Le module \textit {Visitor} est le module de parcours syntaxique des entrées générés par le \textit{Lexer}. On lui passe un nom de fichier en entrée, il construit un \textit {Lexer} associé, et crée l'arbre de syntaxe abstraire en fonction de la syntaxe d'\textbf{Ymir}. Si le fichier comporte une erreur de syntaxe, le visiteur renvoi une exception de type \textit {SyntaxError}, qui contient l'emplacement de l'erreur et le message d'erreur associé.
+\bigskip
+
+La syntaxe du langage \textbf{Ymir} est la suivante:
+\smallskip
+
+\begin{boxedverbatim}
+  program := function | import | struct | extern | enum | public | private
+  
+  public := 'public' (
+                       ('{' (function | import | extern | struct | enum)* '}')
+                       | (function | import | extern | struct | enum)
+                     )
+
+  private := 'private' (
+                       ('{' (function | import | extern | struct | enum)* '}')
+                       | (function | import | extern | struct | enum)
+                     )
+\end{boxedverbatim}
+
+\begin{boxedverbatim}
+
+  import := 'import' Identifiant ('.' Identifiant)*
+                                 (',' Identifiant ('.' Identifiant))* ';'
+
+  struct := 'struct' ('|' Identifiant ':' type)* '->' Identifiant ';'
+
+  enum := 'enum' ('|' Identifiant ':' expression)* '->' Identifiant ';'
+
+  function := 'def' Identifiant ('(' vardecl (',' vardecl)* ')' )?
+                                '(' (vardecl (',' vardecl)*)? ')'
+                                (':' type)? block
+
+  extern := 'extern' ('(' Identifiant ')')? Identifiant
+                                            '(' (vardecl (',' vardecl)*)? ')'
+                                             (':' type)? ';'
+
+  var := type
+  vardecl := var (':' type)?
+
+  type := ( Identifiant ('!' (('(' expression (',' expression)* ')') | expression ))
+          | '[' type ']'
+  
+  Identifiant := ('\_')* ([a-z]|[A-Z]) ([a-z]|[A-Z]|'\_'|[0-9])*
+  block := ('{' instruction* '}') | instruction
+
+  instruction := if
+                 | return
+                 | for
+                 | while
+                 | break
+                 | delete
+                 | let
+                 | ';'
+                 | expressionult
+
+
+  let := 'let' var ('=' right)? (',' var ('=' right)?)* ';'              
+
+  expressionult := expression (Ultop expression)*
+
+  expression := ulow (Expop ulow)*
+
+  ulow := low (Ulowop low)*
+
+  low := high (Lowop high)*
+
+  high := pth (Highop pth)*
+\end{boxedverbatim}
+         
+
+\pagebreak
+
+\begin {boxedverbatim}
+  pth := ('(' expression ')') (suite)?
+         | (BefUnary expression)
+         | (expression AfUnary)
+         | constante
+         | expand
+         | constTuple
+         | leftOp (suite)?
+
+  constante := Decimal | Flottant | String | Char | Bool | Null
+
+  Decimal := [0-9]+ ('UB' | 'US' | 'UL' | 'B' | 'S' | 'L')?
+  Flottant := ('.' [0-9]+) | ([0-9]+ '.') | ([0-9]+ '.' [0-9]+)
+  String := ('\"'[.]*'\"') | ('\''[.]+[.]'\'')
+  Char := '\''.'\''
+  Bool := 'true' | 'false'
+  Null := 'null'
+
+  leftOp := cast | constArray | funcPtr | var
+
+  constArray := '[' (expression (',' expression)*)? ']'
+
+  cast := 'cast' ':' type '(' expression ')'
+
+  funcPtr := 'function' '('(vardecl (',' vardecl)*)? ')' ':' type (block)?
+
+  suite := ('(' par) | ('[' access) | ('.' dot)
+
+  par := (expression (',' expression)*)? ')'
+
+  access := (expression (',' expression)*)? ']'
+
+  dot := Identifiant ('.' Identifiant)*
+
+  constTuple := '(' expression (',' expression)+ ')'
+  
+  expand := 'expand' '(' expression ')'
+
+  if := 'if' expression block (else)?
+
+  else := 'else' (if | block) 
+
+  return := 'return' (expression)? ';'
+
+  break := 'break' (Identifiant)? ';'
+   
+\end{boxedverbatim}
+\pagebreak
+
+\begin {boxedverbatim}
+  while := 'while' (':' Identifiant) expression block
+
+  for := 'for' (':' Identifiant) ('(' expression 'in' expression ')')
+                                 | (expression 'in' expression)
+                                 
+\end{boxedverbatim}
+
+\subsection {Analyse Sémantique}
+
+L'analyse sémantique commence par déclarer les différents symboles globaux du module en cours de compilation. Les symboles que l'on déclare au debut sont les fonctions, les externes, les structures, les imports et les enums.
+
+
+\subsection {Génération langage intérmédiaire}
+
+\section {BackEnd}
+\subsection {Génération du code cible}
+
+
+
+\end{document}
