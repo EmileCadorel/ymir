@@ -422,6 +422,20 @@ class FrameScope {
     }
 
     /**
+     Cherche un symbole dont le nom est presque celui recherche
+     Params:
+     name = le nom du symbole recherché
+     Returns: Le symbole dont le nom est presque 'name'
+     */
+    Symbol getAlike (string name) {
+	foreach (it ; this._local) {
+	    auto t = it.getAlike (name);
+	    if (t !is null) return t;
+	}
+	return null;
+    }
+    
+    /**
      Returns: le contexte de la frame
      */
     ref string namespace () {

@@ -262,10 +262,18 @@ class UndefinedVar : YmirException {
      Params:
      token = l'identifiant de la variable
      */
-    this (Word token) {
+    this (Word token, Symbol alike) {
+	import semantic.types.UndefInfo;
+	
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: Variable inconnu '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	buf.writef ("%sErreur%s: Variable inconnu '%s%s%s'", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	if (alike !is null) {
+	    buf.writef (", peut être : '%s%s%s'", Colors.YELLOW.value, alike.sym.str, Colors.RESET.value);
+	    if (cast (UndefInfo) alike.type is null)
+		buf.writef (" du type '%s%s%s'", Colors.YELLOW.value, alike.typeString, Colors.RESET.value);
+	}
+	buf.writefln (" :");
 	
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        

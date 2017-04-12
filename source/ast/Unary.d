@@ -5,6 +5,7 @@ import syntax.Word, semantic.types.InfoType;
 import semantic.types.UndefInfo, utils.exception;
 import std.stdio, std.string, semantic.pack.Symbol;
 import std.container;
+import semantic.pack.Table;
 
 /**
  Classe généré à la syntaxe pour les opérateurs unaires avant l'expression.
@@ -30,7 +31,7 @@ class BefUnary : Expression {
      */
     override Expression expression () {
 	auto aux = new BefUnary (this._token, this._elem.expression);
-	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token);
+	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
 	if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	auto type = aux._elem.info.type.UnaryOp (this._token);
 	if (type is null) {
@@ -98,7 +99,7 @@ class AfUnary : Expression {
      */
     override Expression expression () {
 	auto aux = new BefUnary (this._token, this._elem.expression);
-	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token);
+	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
 	if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	auto type = aux._elem.info.type.UnaryOp (this._token);
 	if (type is null) {

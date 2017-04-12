@@ -1,22 +1,20 @@
 import std.stdio;
-import std.math;
 
-def test (di : int) (a : int) {
-    println (di + a);
+
+def test (a : tuple!(int, int)) {
+    print ('(');
+    test (expand (a));
+    println (')');
 }
 
-def test (s : string) () {
-    if (s == "123")
-        println (s);
+def test (a, b) {
+    print (a, ', ', b);
 }
 
 
 def main () {
-    
-    test!10 (11); // Ok, '21'
-    test!"123"(); // Ok, '123'
-    test!"10" (); // Ok
-    //test!'r' (); // Erreur, Aucune surcharge disponible
+    let max = (10, 12);
+    test (max);
 }
 
 

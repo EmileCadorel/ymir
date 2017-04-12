@@ -153,6 +153,20 @@ class Table {
 	return ret;
     }
 
+
+    /**
+     Cherche tous les symboles dont le nom est presque 'name'
+     Params:
+     name = le nom du symbole dont on cherche un sosie
+     Returns: le sosie ou null
+     */
+    Symbol getAlike (string name) {
+	if (this._frameTable.empty) return this._globalScope.getAlike (name);
+	auto ret = this._frameTable.front.getAlike (name);
+	if (ret is null) return this._globalScope.getAlike (name);
+	return ret;
+    }
+
     /**
      Returns: les informations de retour de la frame en cours d'analyse.
      */

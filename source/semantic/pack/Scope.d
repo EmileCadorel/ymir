@@ -30,6 +30,25 @@ class Scope {
     }
 
     /**
+     Recherche un symbole dont le nom est presque 'name'
+     Params:
+     name = le nom du symbole 
+     */
+    Symbol getAlike (string name) {
+	import std.algorithm;
+	auto min = 3UL;
+	Symbol ret = null;
+	foreach (key, value ; this._local) {
+	    auto diff = levenshteinDistance (key, name);
+	    if (diff < min) {
+		ret = value;
+		min = diff;
+	    }
+	}
+	return ret;
+    }
+    
+    /**
      Met a jour le symbole identifié par name
      Params:
      data = le symbole à inséré

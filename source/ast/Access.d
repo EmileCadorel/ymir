@@ -4,7 +4,7 @@ import syntax.Word, std.stdio, std.string;
 import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
-
+import semantic.pack.Table;
 
 /**
  Classe généré par la syntaxe.
@@ -48,7 +48,7 @@ class Access : Expression {
 	auto aux = new Access (this._token, this._end);
 	aux._params = (cast(ParamList) this._params.expression ());
 	aux._left = this._left.expression ();
-	if (cast (Type) aux._left) throw new UndefinedVar (aux._left.token);
+	if (cast (Type) aux._left) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
 	else if (cast(UndefInfo) aux._left.info) throw new UninitVar (aux._left.token);
 
 	auto type = aux._left.info.type.AccessOp (aux._left.token, aux._params);

@@ -191,7 +191,22 @@ La syntaxe du langage \textbf{Ymir} est la suivante:
 
 \subsection {Analyse Sémantique}
 
-L'analyse sémantique commence par déclarer les différents symboles globaux du module en cours de compilation. Les symboles que l'on déclare au debut sont les fonctions, les externes, les structures, les imports et les enums.
+L'analyse sémantique commence par déclarer les différents symboles globaux du module en cours de compilation. Les symboles que l'on déclare au debut sont les fonctions, les externes, les structures, les imports et les enums. C'est certainement la partie la plus compliqué du compilateur. Elle regroupé dans plusieurs module qui vont gérer la disponnibilité des symboles, leurs type et quelque éléments de vérification statique.
+
+L'arbre de syntaxe abstraite, présent dans le module \textit{ast}, est composé de déclarations, elle même composé d'instruction. Les déclaration possèdent une méthode qui les enregistres dans la table des symboles. Il existe deux variantes de cette méthodes, une qui les insérent comme faisant partie du module courant, ou faisant partie d'un module compilé externe. Dans le cas ou elle proviennent d'un module externe leurs corps ne sera compilé que dans certaine condition, mais surtout elle ne sont insérées dans la table que si elle ont été déclaré comme publique.
+
+Cette partie va présenter comment sont traité les différentes déclarations, puis traiter du fonctionnement du typage, pour finir par expliquer le fonctionnement des templates.
+\subsubsection {Déclaration - Fonctions}
+
+Il existe plusieurs types de fonctions:
+\begin{itemize}
+\item [\textbf{-}] pure, les fonctions dont on connait le type de tout les paramètres et qui sera compilé même si elle n'est jamais référencée.
+\item [\textbf{-}] impure, les fonctions dont il manque au moins un type dans les paramètres. Les types manquant seront inféré lors du référencement de la fonction, il est donc nécéssaire qu'elle le soit au moins une fois pour pouvoir la compiler.
+\item [\textbf{-}] template, ces fonctions reposent sur le même principes que les fonctions impures, seulement le système d'inférence de type est un peu plus complexe et permet de spécialiser plus facilement.
+\end{itemize}
+
+
+
 
 
 \subsection {Génération langage intérmédiaire}

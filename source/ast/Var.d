@@ -6,7 +6,7 @@ import semantic.pack.Symbol, ast.Constante;
 import utils.exception;
 import semantic.types.ArrayInfo;
 import ast.FuncPtr;
-
+import semantic.pack.Table;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -43,6 +43,8 @@ class Var : Expression {
 	writef (")");
     }
 
+    
+    
     /**
      Vérification sémantique.
      Pour être juste le symbole de l'identifiant doit éxister.
@@ -54,7 +56,7 @@ class Var : Expression {
 	    auto aux = new Var (this._token);	    
 	    aux.info = Table.instance.get (this._token.str);
 	    if (aux.info is null) 
-		throw new UndefinedVar (this._token);
+		throw new UndefinedVar (this._token, Table.instance.getAlike (this._token.str));
 	    
 	    if (this._templates.length != 0) {
 		Table.instance.pacifyMode ();

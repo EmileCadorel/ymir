@@ -8,6 +8,7 @@ import ast.Tuple, std.array;
 import semantic.types.TupleInfo;
 import ast.Dot;
 import semantic.types.RefInfo;
+import semantic.pack.Table;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -54,7 +55,7 @@ class Par : Expression {
 	auto aux = new Par (this._token, this._end);
 	aux._params = (cast(ParamList)this._params.expression ());
 	aux._left = this._left.expression ();
-	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token);
+	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
 	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
 	
 	if (auto dcall = cast (DotCall) aux._left) {
