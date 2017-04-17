@@ -30,7 +30,6 @@ class UndefInfo : InfoType {
 	}
 	return null;
     }
-
     
     override InfoType cloneForParam () {
 	return new UndefInfo ();

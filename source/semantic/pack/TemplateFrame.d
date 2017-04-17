@@ -17,6 +17,8 @@ import ast.ConstArray;
 import semantic.types.RefInfo;
 import semantic.pack.UnPureFrame;
 import ast.Constante;
+import ast.Binary;
+import utils.exception;
 
 /**
  Cette classe est une instance de frame template
@@ -338,10 +340,12 @@ class TemplateFrame : Frame {
 
 	Table.instance.pacifyMode ();
 	foreach (it ; 0 .. params.length) {
-	    auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
-	    if (tmp is null) return null;	    
-	    finals.insertBack (tmp.expression ());
-	    vars.insertBack (params [it]);
+	    if (params [it].info.isImmutable) {
+		auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
+		if (tmp is null) return null;	    
+		finals.insertBack (tmp.expression ());
+		vars.insertBack (params [it]);
+	    } else throw new NotImmutable (params [it].info);
 	}	
 
 	Table.instance.unpacifyMode ();
@@ -355,18 +359,22 @@ class TemplateFrame : Frame {
 	auto func = this._function.templateReplace (this._function.tmps, params);
 	foreach (it ; params) {
 	    if (auto t = cast (Type) it)
-		namespace ~= super.mangle (t.info.type.simpleTypeString ~ "!");
+		namespace ~= super.mangle (t.info.type.simpleTypeString);
 	    else if (auto _st = cast (String) it)
-		namespace ~= super.mangle (to!string(_st.getLabel ()) ~ "!");
+		namespace ~= super.mangle (to!string(_st.getLabel ()));
 	    else if (auto _int = cast (Decimal) it)
-		namespace ~= super.mangle (_int.value ~ "!");
+		namespace ~= super.mangle (_int.value);
 	    else if (auto _char = cast (Char) it)
-		namespace ~= super.mangle (_char.code ~ "!");
+		namespace ~= super.mangle (to!string (_char.code));
 	    else if (auto _fl = cast (Float) it)
-		namespace ~= super.mangle (_fl.totale ~ "!");
+		namespace ~= super.mangle (_fl.totale);
 	    else if (auto _bool = cast (Bool) it)
-		namespace ~= super.mangle (_bool.value ~ "!");
-	    else
+		namespace ~= super.mangle (to!string (_bool.value));
+	    else if (auto _bin = cast (Binary) it) {
+		if (_bin.info.isImmutable) {
+		    namespace ~= super.mangle (_bin.info.type.value.toString);
+		}
+	    } else 
 		assert (false, typeid (it).toString);
 	}
 	func.name = func.name ~ namespace;

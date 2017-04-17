@@ -3,6 +3,7 @@ import syntax.Word;
 import semantic.types.InfoType, semantic.pack.Table;
 import std.container, lint.LInstList, lint.LReg;
 import std.stdio;
+import semantic.value.Value;
 
 /**
  Cette classe contient les informations de type d'un symbole.
@@ -113,6 +114,20 @@ class Symbol {
 	return this._type.isConst;
     }
 
+    /**
+     Returns: La valeur contenu dans l'objet (si immutable, sinon null)
+     */
+    ref Value value () {
+	return this._type.value;
+    }
+
+    /**
+     Returns: la valeur du type peut être déduite à l'execution ?
+     */
+    bool isImmutable () {
+	return this._type.value !is null;
+    }
+    
     /**
      Informe le type que l'on quitte un scope (important pour les déclaration privé type fonction).
      Params:

@@ -1,20 +1,21 @@
 import std.stdio;
 
-
-def test (a : tuple!(int, int)) {
-    print ('(');
-    test (expand (a));
-    println (')');
+def Test (a : int) () {
+    println (a);
 }
 
-def test (a, b) {
-    print (a, ', ', b);
+def Test (a : bool) () {
+    println (a);
+}
+
+def Test (a : string) () {
+    println (a);
 }
 
 
 def main () {
-    let max = (10, 12);
-    test (max);
+    Test!(2 + 2 * 4) ();
+    Test!("salut" + "truc") ();
 }
 
 

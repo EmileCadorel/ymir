@@ -740,6 +740,9 @@ class LVisitor {
 
     private LInstList visitBinary (Binary bin) {
 	LInstList left, right;
+	if (bin.info.type.value !is null) 
+	    return bin.info.type.value.toLint(bin.info);
+	
 	if (bin.info.type.leftTreatment !is null) 
 	    left = bin.info.type.leftTreatment (bin.info.type, bin.left, bin.right);
 	else left = visitExpression (bin.left);

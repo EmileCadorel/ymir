@@ -30,7 +30,6 @@ class FrameProto {
 	this._vars = params;
     }
 
-
     /**
      Returns: le nom de la frame
      */

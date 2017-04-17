@@ -495,6 +495,24 @@ class TemplateSpecialisation : YmirException {
     
 }
 
+class NotImmutable : YmirException {
+
+    /**
+     Params:
+     sym = le symbole dont on ne connait pas la valeur
+     */
+    this (Symbol sym) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s(%d,%d): ", sym.sym.locus.file, sym.sym.locus.line, sym.sym.locus.column);
+	buf.writefln ("%sErreur%s : La valeur ne peut être connu à la compilation",
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, sym.sym.locus);
+	msg = buf.toString ();
+    }
+    
+}
+
+
 /**
  C'est une note.
  Les erreurs précédentes sont arrivées lors de la création de la fonction template x.

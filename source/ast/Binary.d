@@ -124,23 +124,29 @@ class Binary : Expression {
      */
     private Expression normal () {
 	auto aux = new Binary (this._token);
-	aux._right = this._right.expression ();
-	aux._left = this._left.expression ();
-	if (cast(Type)aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
-	if (cast(Type)aux._right !is null) throw new UndefinedVar (aux._right.token, Table.instance.getAlike (aux._right.token.str));
-	if (aux._right.info is null) throw new UndefinedVar (aux._right.token, Table.instance.getAlike (aux._right.token.str));
-	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
-	if (aux._left.info is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
-	if (cast(UndefInfo)(aux._left.info.type) !is null) throw new UninitVar (aux._left.token);
-	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
-	if (type is null) {
-	    type = aux._right.info.type.BinaryOpRight (this._token, aux._left);
-	    if (type is null) 
-		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-	    aux._isRight = true;
-	}
+	if (this._info is null) {
+	    aux._right = this._right.expression ();
+	    aux._left = this._left.expression ();
+	    if (cast(Type)aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
+	    if (cast(Type)aux._right !is null) throw new UndefinedVar (aux._right.token, Table.instance.getAlike (aux._right.token.str));
+	    if (aux._right.info is null) throw new UndefinedVar (aux._right.token, Table.instance.getAlike (aux._right.token.str));
+	    if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
+	    if (aux._left.info is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
+	    if (cast(UndefInfo)(aux._left.info.type) !is null) throw new UninitVar (aux._left.token);
+	    auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
+	    if (type is null) {
+		type = aux._right.info.type.BinaryOpRight (this._token, aux._left);
+		if (type is null) 
+		    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+		aux._isRight = true;
+	    }
 	
-	aux.info = new Symbol (aux._token, type);
+	    aux.info = new Symbol (aux._token, type);
+	} else {
+	    if (this._info.isDestructible)
+		Table.instance.garbage (this._info);
+	    aux.info = this._info;
+	}
 	return aux;	
     }
 
@@ -152,7 +158,9 @@ class Binary : Expression {
 
     
     override Expression clone () {
-	return new Binary (this._token, this._left.clone (), this._right.clone ());
+	auto aux = new Binary (this._token, this._left.clone (), this._right.clone ());
+	aux.info = this._info;
+	return aux;
     }
 
 
@@ -184,6 +192,15 @@ class Binary : Expression {
 
 	this._left.print (nb + 4);
 	this._right.print (nb + 4);
+    }
+
+    override string prettyPrint () {
+	auto buf = new OutBuffer;
+	buf.writef ("(%s %s %s)",
+		      this._left.prettyPrint,
+		      this._token.str,
+		      this._right.prettyPrint);
+	return buf.toString;
     }
     
 }

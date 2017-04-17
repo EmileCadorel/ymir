@@ -14,6 +14,7 @@ import semantic.types.RangeInfo;
 import semantic.types.TupleInfo;
 import std.container;
 import semantic.pack.Symbol;
+import semantic.value.Value;
 
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
@@ -105,9 +106,6 @@ class InfoType {
 
     /** Si le type est un attribut de structure, c'est son numéro */
     private ulong _toGet;
-
-    /** L'élément est constant et peut être évalué à la compilation */
-    private bool _isImmutable = false;
     
     /** Si le type à été appelé avec des paramètre templates (par exemple, les fonctions)*/
     private Array!Expression _templates;
@@ -115,11 +113,16 @@ class InfoType {
     /** Informations supplémentaires que l'on peut passer au lint (inutile pour le moment je crois) */
     private Object [string] _supplInfos;
 
+    /**
+     La valeur présente dans l'objet (null si non immutable)
+    */
+    protected Value _value;
+    
     /** La liste des types que l'on peut créé grâce à leurs nom */
     static InfoType function (Word, Expression[]) [string] creators;
 
     static InfoType [string] alias_;
-       
+    
     static this () {
 	creators = ["int" : &DecimalInfo.create,
 		    "uint" : &DecimalInfo.create,
@@ -227,6 +230,13 @@ class InfoType {
 	return this._isConst;
     }
 
+    /**
+     Returns: La valeur contenant dans l'objet
+     */
+    ref Value value () {
+	return this._value;
+    }    
+    
     /**
      Returns: la taille du type.
      */
@@ -402,7 +412,7 @@ class InfoType {
     abstract InfoType clone ();
 
     /**
-     Créée un clone du type, les informations de destruction sont remise à zéro.
+     Créée un clone du type, les informations de destruction sont remise à zéro, ainsi que les informations de valeur.
      Returns: une instance de type.
      */
     abstract InfoType cloneForParam ();

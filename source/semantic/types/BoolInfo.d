@@ -132,6 +132,7 @@ class BoolInfo : InfoType {
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
 	    auto b = new BoolInfo ();
+	    b.value = this.value.BinaryOp(op, right.info.type.value);
 	    b.lintInst = &BoolUtils.InstOp !(op);
 	    return b;
 	}
@@ -244,7 +245,9 @@ class BoolInfo : InfoType {
      Returns: une nouvelle instance du type bool.
      */
     override InfoType clone () {
-	return new BoolInfo ();
+	auto ret = new BoolInfo ();
+	ret.value = this._value;
+	return ret;
     }
 
     /**

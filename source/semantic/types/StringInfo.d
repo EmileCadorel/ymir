@@ -164,6 +164,7 @@ class StringInfo : InfoType {
 	if (this.isSame (right.info.type)) {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &StringUtils.InstEqual;
+	    ret.value = this._value.BinaryOp (Tokens.EQUAL, right.info.type.value);
 	    return ret;
 	}
 	return null;
@@ -173,6 +174,7 @@ class StringInfo : InfoType {
 	if (this.isSame (right.info.type)) {
 	    auto ret = new BoolInfo ();
 	    ret.lintInst = &StringUtils.InstNotEqual;
+	    ret.value = this._value.BinaryOp (Tokens.NOT_EQUAL, right.info.type.value);
 	    return ret;
 	}
 	return null;
@@ -185,7 +187,7 @@ class StringInfo : InfoType {
      Returns: le type de retour ou null.
      */
     private InfoType PlusAff (Expression right) {
-	if (cast (StringInfo) right.info.type) {
+	if (auto t = cast (StringInfo) right.info.type) {
 	    auto str = new StringInfo ;
 	    str.lintInst = &StringUtils.InstPlusAffect;
 	    return str;
@@ -200,9 +202,10 @@ class StringInfo : InfoType {
      Returns: le type de retour ou null.
      */
     private InfoType Plus (Expression right) {
-	if (cast (StringInfo) right.info.type) {
+	if (auto t = cast (StringInfo) right.info.type) {
 	    auto str = new StringInfo ();
 	    str.lintInst = &StringUtils.InstPlus;
+	    str.value = this._value.BinaryOp (Tokens.PLUS, t._value);
 	    return str;
 	}
 	return null;
@@ -393,6 +396,7 @@ class StringInfo : InfoType {
      */
     override InfoType clone () {
 	auto ret = new StringInfo ();
+	ret.value = this._value;
 	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }

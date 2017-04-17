@@ -464,7 +464,9 @@ class FloatInfo : InfoType {
      Returns: une nouvelle instance de float
      */
     override InfoType clone () {
-	return new FloatInfo ();
+	auto ret = new FloatInfo ();
+	ret.value = this._value;
+	return ret;
     }
 
     /**

@@ -58,6 +58,13 @@ class Expression : Instruction {
     void printSimple () {}
 
     /**
+     Fonction a surcharger pour la transformation en prettyPrint
+     */
+    string prettyPrint () {
+	assert (false, "TODO " ~ typeid (this).toString ~ ".prettyPrint");
+    }
+    
+    /**
      Fonction à surcharger pour l'affichage
     */
     override void print (int nb = 0) {}

@@ -378,6 +378,7 @@ class ArrayInfo : InfoType {
      */
     override InfoType clone () {
 	auto ret = new ArrayInfo (this._content.clone ());
+	ret.value = this._value;
 	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }

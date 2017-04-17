@@ -10,6 +10,7 @@ import semantic.types.DecimalInfo, semantic.types.UndefInfo;
 import ast.Var;
 import semantic.types.NullInfo;
 import std.typecons;
+import semantic.value.all;
 
 alias DecType = Tuple!(string, "name", string, "sname", int, "id");
 
@@ -51,6 +52,7 @@ class Decimal : Expression {
 	auto aux = new Decimal (this._token, this._type);
 	aux.info = new Symbol (this._token, new DecimalInfo (this._type));
 	aux.info.isConst = true;
+	aux.info.value = new DecimalValue (this._token.str);
 	return aux;
     }
 
@@ -60,6 +62,10 @@ class Decimal : Expression {
 
     override Expression clone () {
 	return new Decimal (this._token, this._type);
+    }
+
+    override string prettyPrint () {
+	return this._token.str;
     }
     
     DecType type () {
@@ -351,6 +357,7 @@ class String : Expression {
 	} else aux._label = *it;
 	
 	aux.info = new Symbol (this._token, new StringInfo (), true);
+	aux.info.value = new StringValue (this._content);
 	return aux;       
     }
 
@@ -401,6 +408,7 @@ class Bool : Expression {
     override Expression expression () {
 	auto aux = new Bool (this._token);
 	aux.info = new Symbol (this._token, new BoolInfo (), true);
+	aux.info.value = new BoolValue (this._token == Keys.TRUE ? true : false);
 	return aux;
     }
 

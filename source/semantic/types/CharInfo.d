@@ -297,7 +297,9 @@ class CharInfo : InfoType {
      Returns: un nouvelle instance du type char.
      */
     override InfoType clone () {
-	return new CharInfo ();
+	auto ret = new CharInfo ();
+	ret.value = this._value;
+	return ret;
     }
 
     /**

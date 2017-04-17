@@ -45,6 +45,7 @@ class RangeInfo : InfoType {
     override InfoType clone () {
 	auto ret = new RangeInfo (this._content.clone ());
 	if (this._destruct is null) ret._destruct = null;
+	ret.value = this._value;
 	return ret;
     }
 

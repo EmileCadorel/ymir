@@ -192,6 +192,7 @@ class PtrFuncInfo : InfoType {
 	}
 	aux._ret = this._ret.clone ();
 	aux._score = this._score;
+	aux._value = this._value;
 	return aux;
     }
 

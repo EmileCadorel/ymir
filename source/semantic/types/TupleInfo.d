@@ -126,6 +126,7 @@ class TupleInfo : InfoType {
 	    tu._params .insertBack (it.clone ());
 	}
 	if (this._destruct is null) tu.setDestruct (null);
+	tu.value = this._value;
 	return tu;
     }
 
