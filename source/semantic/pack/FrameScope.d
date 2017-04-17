@@ -409,6 +409,14 @@ class FrameScope {
     }
     
     /**
+     Retire un nouveau symbol dans la poubelle du dernier scope
+     */
+    void removeGarbage (Symbol info) {
+	if (!this._local.empty)
+	    this._local.front.removeGarbage (info);
+    }
+    
+    /**
      Params:
      name = le nom du symbole recherché
      Returns: le symbole identifié par `name`

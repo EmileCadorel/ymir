@@ -133,6 +133,19 @@ class Table {
     }
 
     /**
+     Retire un symbole dans le GC du scope le plus mince
+     Params:
+     info = le symbole a retirer dans le GC
+     */
+    void removeGarbage (Symbol info) {
+	if (!this._pacified) {
+	    if (!this._frameTable.empty)
+		this._frameTable.front.removeGarbage (info);
+	    else this._globalScope.removeGarbage (info);
+	}
+    }
+    
+    /**
      Supprime toutes les informations chargé dans la table.
      */
     void purge () {

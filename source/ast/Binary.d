@@ -147,6 +147,11 @@ class Binary : Expression {
 		Table.instance.garbage (this._info);
 	    aux.info = this._info;
 	}
+	
+	if (aux.info.value) {
+	    Table.instance.removeGarbage (aux._left.info);
+	    Table.instance.removeGarbage (aux._right.info);
+	}	
 	return aux;	
     }
 

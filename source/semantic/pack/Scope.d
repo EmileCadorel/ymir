@@ -68,6 +68,18 @@ class Scope {
     }
 
     /**
+     Retire un symbole dans la liste des symboles destructible
+     Params:
+     info = le symbole destructible, à retirer de la poubelle
+     */
+    void removeGarbage (Symbol info) {
+	Array!Symbol sym;
+	foreach (it ; this._garbage)
+	    if (it.id != info.id) sym.insertBack (it);
+	this._garbage = sym;
+    }
+    
+    /**
      Efface toutes les informations du scope
      */
     void clear () {

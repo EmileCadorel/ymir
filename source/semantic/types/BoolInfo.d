@@ -132,7 +132,8 @@ class BoolInfo : InfoType {
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
 	    auto b = new BoolInfo ();
-	    b.value = this.value.BinaryOp(op, right.info.type.value);
+	    if (this._value)
+		b.value = this.value.BinaryOp(op, right.info.type.value);
 	    b.lintInst = &BoolUtils.InstOp !(op);
 	    return b;
 	}

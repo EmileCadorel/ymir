@@ -47,6 +47,10 @@ class BoolValue : Value {
 	else return new LInstList (new LConstDecimal (false, LSize.BYTE));
     }       
 
+    bool isTrue () {
+	return this._value;
+    }
+    
     override string toString () {
 	return null;
     }

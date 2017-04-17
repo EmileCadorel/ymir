@@ -1,21 +1,17 @@
 import std.stdio;
 
-def Test (a : int) () {
-    println (a);
-}
-
-def Test (a : bool) () {
-    println (a);
-}
-
-def Test (a : string) () {
-    println (a);
+def opBinary (op : string) (a : int, b : int) {
+    if (op == "+")
+	return a + b;
+    else if (op == "-")
+	return a - b;
+    else return 0;
 }
 
 
 def main () {
-    Test!(2 + 2 * 4) ();
-    Test!("salut" + "truc") ();
+    println (opBinary!"+" (10, 12));
+    println (opBinary!"-" (10, 12));
 }
 
 

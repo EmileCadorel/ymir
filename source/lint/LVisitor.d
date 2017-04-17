@@ -16,6 +16,7 @@ import semantic.pack.FinalFrame;
 import lint.LInst;
 import std.array, std.typecons;
 import semantic.types.StructInfo;
+import semantic.value.all;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -145,8 +146,39 @@ class LVisitor {
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
+    private LInstList visitIfWithValue (ref LLabel end, ref LReg retReg, If _if) {
+	if (auto t = cast (BoolValue) _if.info.value) {
+	    if (t.isTrue) {
+		return visitBlock (end, retReg, _if.block);
+	    } else {
+		if (_if.else_) {
+		    return visitElse (end, null, retReg, _if.else_);
+		}
+		return new LInstList;
+	    }
+	} else 
+	    assert (false, typeid (_if.info.value).toString);
+    }
+
+    private LInstList visitElseIfWithValue (ref LLabel end, ref LReg retReg, ElseIf elseif) {
+	if (auto t = cast (BoolValue) elseif.info.value) {
+	    if (t.isTrue) {
+		return visitBlock (end, retReg, elseif.block);
+	    } else {
+		if (elseif.else_)
+		    return visitElse (end, null, retReg, elseif.else_);
+		return new LInstList;
+	    }
+	} else
+	    assert (false, typeid (elseif.info.value).toString);
+    }
+    
+    
     private LInstList visitIf (ref LLabel end, ref LReg retReg, If _if) {
 	auto insts = new LInstList;
+	if (_if.info.value) {
+	    return visitIfWithValue (end, retReg, _if);
+	}
 	insts += new LLocus (_if.token.locus);
 	LLabel faux = new LLabel ();
 	LLabel vrai = new LLabel ();
@@ -236,14 +268,18 @@ class LVisitor {
 	return inst;
     }
     
-    private LInstList visitElse (ref LLabel end, ref LLabel fin, ref LReg retReg, Else _else) {	
+    private LInstList visitElse (ref LLabel end, LLabel fin, ref LReg retReg, Else _else) {	
 	if (cast(ElseIf) _else is null) {
 	    auto inst =  visitBlock (end, retReg, _else.block);
-	    inst += new LGoto (fin);
+	    if (fin !is null)
+		inst += new LGoto (fin);
 	    return inst;
 	}
 	auto elseif = cast(ElseIf)_else;
 	auto insts = new LInstList;
+	if (elseif.info.value) {
+	    return visitElseIfWithValue (end, retReg, elseif);
+	}
 	insts += new LLocus (_else.token.locus);
 	LLabel faux = new LLabel, vrai = new LLabel;
 	LInstList left;
