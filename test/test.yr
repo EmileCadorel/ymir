@@ -5,13 +5,14 @@ struct
 -> Test;
 
 
-def opBinaryRight (op : string) (a : Test, b : int) {
-    return a.a + b;
+def opBinaryRight (op : string) (a : Test, b : Test) {
+    if (op == "+")
+	return Test (a.a + b.a);
+    return null;
 }
 
 def main () {
-    let a = 12, b = Test (1);
-    println (a + b + a);
+    println (Test (1) + Test (2) + Test (3));
 }
 
 

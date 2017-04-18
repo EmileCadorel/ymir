@@ -64,6 +64,8 @@ class Scope {
      info = le symbole destructible, à détruire en fin de scope
      */
     void garbage (Symbol info) {
+	foreach (it ; this._garbage)
+	    if (it.id == info.id) return;
 	this._garbage.insertBack (info);
     }
 
