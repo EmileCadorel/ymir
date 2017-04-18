@@ -39,5 +39,7 @@ enum Keys : Token {
     PRIVATE = Token ("private", 34),
     EXPAND = Token ("expand", 35),
     ENUM = Token ("enum", 36),
-    UNDER = Token ("_", 37)
+    UNDER = Token ("_", 37),
+    OPBINARY = Token ("opBinary", 38),
+    OPBINARYR = Token ("opBinaryRight", 39)
 }

@@ -1,17 +1,17 @@
 import std.stdio;
 
-def opBinary (op : string) (a : int, b : int) {
-    if (op == "+")
-	return a + b;
-    else if (op == "-")
-	return a - b;
-    else return 0;
+struct
+| a : int
+-> Test;
+
+
+def opBinaryRight (op : string) (a : Test, b : int) {
+    return a.a + b;
 }
 
-
 def main () {
-    println (opBinary!"+" (10, 12));
-    println (opBinary!"-" (10, 12));
+    let a = 12, b = Test (1);
+    println (a + b + a);
 }
 
 

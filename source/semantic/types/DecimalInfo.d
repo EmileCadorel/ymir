@@ -78,7 +78,6 @@ class DecimalInfo : InfoType {
 	case Tokens.STAR_EQUAL.descr: return opAff!(Tokens.STAR) (right);
 	case Tokens.PERCENT_EQUAL.descr: return opAff!(Tokens.PERCENT) (right);
 	case Tokens.XOR_EQUAL.descr: return opAff!(Tokens.XOR) (right);
-	case Tokens.DXOR_EQUAL.descr: return dxorAffOp (right);
 	case Tokens.DAND.descr: return opNorm!(Tokens.DAND) (right);
 	case Tokens.DPIPE.descr: return opNorm!(Tokens.DPIPE) (right);
 	case Tokens.INF.descr: return opTest!(Tokens.INF) (right);
@@ -100,7 +99,6 @@ class DecimalInfo : InfoType {
 	case Tokens.XOR.descr: return opNorm!(Tokens.XOR) (right);
 	case Tokens.RIGHTD.descr: return opNorm!(Tokens.RIGHTD) (right);
 	case Tokens.PERCENT.descr: return opNorm!(Tokens.PERCENT) (right);
-	case Tokens.DXOR.descr: return dxorOp (right);
 	default: return null;
 	}
     }

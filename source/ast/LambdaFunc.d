@@ -126,6 +126,23 @@ class LambdaFunc : Expression {
 	return ret;
     }
     
+    override void removeGarbage () {
+	super.removeGarbage ();
+	foreach (it ; this._params)
+	    it.removeGarbage ();
+	if (this._ret)
+	    this._ret.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+	foreach (it ; this._params)
+	    it.garbage ();
+	if (this._ret)
+	    this._ret.garbage ();
+    }
+
+    
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Var var;
 	foreach (it ; this._params)

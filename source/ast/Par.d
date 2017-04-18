@@ -53,34 +53,39 @@ class Par : Expression {
      */
     override Expression expression () {
 	auto aux = new Par (this._token, this._end);
-	aux._params = (cast(ParamList)this._params.expression ());
-	aux._left = this._left.expression ();
-	if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
-	else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
-	
-	if (auto dcall = cast (DotCall) aux._left) {
-	    aux._left = dcall.call;
-	    aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
-	}
+	try {
+	    aux._params = (cast(ParamList)this._params.expression ());
+	    aux._left = this._left.expression ();
+	    if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
+	    else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
+	    
+	    if (auto dcall = cast (DotCall) aux._left) {
+		aux._left = dcall.call;
+		aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
+	    }
 
-	auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
-	if (type is null) {
-	    if (this._end.locus.line != this._token.locus.line)
-		throw new UndefinedOp (this._token, aux._left.info, aux._params);
-	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
-	}
+	    auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
+	    if (type is null) {
+		if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
+		    throw new UndefinedOp (this._token, aux._left.info, aux._params);
+		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
+	    }
 	
-	if (type.treat.length != aux._params.length) {
-	    tuplingParams (type, aux);
-	}
+	    if (type.treat.length != aux._params.length) {
+		tuplingParams (type, aux);
+	    }
 	
-	aux._score = type;
-	aux._info = new Symbol (this._token, type.ret, true);
-	if (cast (UndefInfo) type.ret) {
-	    throw new TemplateInferType (aux._left.token, aux._score.token);
-	}
+	    aux._score = type;
+	    aux._info = new Symbol (this._token, type.ret, true);
+	    if (cast (UndefInfo) type.ret) {
+		throw new TemplateInferType (aux._left.token, aux._score.token);
+	    }
 	
-	return aux;
+	    return aux;
+	} catch (YmirException exp) {
+	    aux.removeGarbage ();
+	    throw exp;
+	}
     }
 
     /**
@@ -103,6 +108,22 @@ class Par : Expression {
 	par._params.params.insertBack (ctuple);
     }
     
+
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._params)
+	    this._params.removeGarbage ();
+	if (this._left)
+	    this._left.removeGarbage ();
+    }
+    
+    override void garbage () {
+	super.garbage ();
+	if (this._params)
+	    this._params.garbage ();
+	if (this._left)
+	    this._left.garbage ();
+    }
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	auto params = this._params.templateExpReplace (names, values);

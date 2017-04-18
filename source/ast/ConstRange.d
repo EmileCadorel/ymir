@@ -95,6 +95,23 @@ class ConstRange : Expression {
 	return aux;
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._left)
+	    this._left.removeGarbage ();
+	if (this._right)
+	    this._right.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+	if (this._left)
+	    this._left.garbage ();
+	if (this._right)
+	    this._right.garbage ();
+    }
+
+    
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	auto left = this._left.templateExpReplace (names, values);
 	auto right = this._right.templateExpReplace (names, values);

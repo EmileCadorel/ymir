@@ -83,6 +83,24 @@ class Access : Expression {
 	return this._params.params;
     }
 
+    override void removeGarbage () {
+	if (this._info)
+	    Table.instance.removeGarbage (this._info);
+	if (this._params)
+	    this._params.removeGarbage ();
+	if (this._left)
+	    this._left.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+	if (this._params)
+	    this._params.garbage ();
+	if (this._left)
+	    this._left.garbage ();	
+    }
+    
+    
     /**
      Affiche l'expression sous forme d'arbre
      Params:

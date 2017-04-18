@@ -54,6 +54,18 @@ class ParamList : Expression {
 	return aux;
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	foreach (it; this._params)
+	    it.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+	foreach (it; this._params)
+	    it.garbage ();
+    }
+    
     override ParamList templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Expression params;
 	foreach (it ; this._params)

@@ -79,6 +79,27 @@ class FuncPtr : Expression {
 	}
     }    
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	foreach (it ; this._params)
+	    it.removeGarbage ();
+	if (this._ret)
+	    this._ret.removeGarbage ();
+	if (this._expr)
+	    this._expr.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+	foreach (it ; this._params)
+	    it.garbage ();
+	if (this._ret)
+	    this._ret.garbage ();
+	if (this._expr)
+	    this._expr.garbage ();
+    }
+
+    
 
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	Array!Var params;

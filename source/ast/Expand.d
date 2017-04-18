@@ -68,6 +68,18 @@ class Expand : Expression {
 	return aux;
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._expr)
+	    this._expr.removeGarbage ();
+    }
+    
+    override void garbage () {
+	super.garbage ();
+	if (this._expr)
+	    this._expr.garbage ();
+    }
+
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	auto expr = this._expr.templateExpReplace (names, values);
 	return new Expand (this._token, expr);

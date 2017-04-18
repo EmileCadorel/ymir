@@ -6,6 +6,8 @@ import utils.exception;
 import std.stdio, std.string, std.outbuffer, std.algorithm;
 import std.container;
 import semantic.pack.Table;
+import syntax.Keys;
+import ast.Constante, ast.ParamList;
 
 /***
  * Une operation entre deux expression
@@ -136,8 +138,15 @@ class Binary : Expression {
 	    auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	    if (type is null) {
 		type = aux._right.info.type.BinaryOpRight (this._token, aux._left);
-		if (type is null) 
-		    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+		if (type is null) {
+		    auto call = findOpBinary (aux);
+		    if (!call)
+			throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+		    else {
+			call.garbage ();
+			return call;
+		    }
+		}
 		aux._isRight = true;
 	    }
 	
@@ -149,8 +158,7 @@ class Binary : Expression {
 	}
 	
 	if (aux.info.value) {
-	    Table.instance.removeGarbage (aux._left.info);
-	    Table.instance.removeGarbage (aux._right.info);
+	    aux.removeGarbage ();
 	}	
 	return aux;	
     }
@@ -161,6 +169,29 @@ class Binary : Expression {
 	return new Binary (this._token, left, right);
     }
 
+    auto findOpBinary (Binary aux) {	
+	import ast.Par;
+	aux.removeGarbage ();
+	try {
+	    auto word = Word (this._token.locus, Keys.OPBINARY.descr, true);
+	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
+	    
+	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
+	    auto call = new Par (this._token, this._token, var, params);
+	    return call.expression;
+	} catch (YmirException) {
+	    try {
+		auto word = Word (this._token.locus, Keys.OPBINARYR.descr, true);
+		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
+		
+		auto params = new ParamList (this._token, make!(Array!Expression) (this._right, this._left));
+		auto call = new Par (this._token, this._token, var, params);
+		return call.expression;
+	    } catch (YmirException) {
+		return null;
+	    }
+	}	
+    }
     
     override Expression clone () {
 	auto aux = new Binary (this._token, this._left.clone (), this._right.clone ());
@@ -168,7 +199,22 @@ class Binary : Expression {
 	return aux;
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._left)
+	    this._left.removeGarbage ();
+	if (this._right)
+	    this._right.removeGarbage ();
+    }
 
+    override void garbage () {
+	super.garbage ();
+	if (this._left)
+	    this._left.garbage ();
+	if (this._right)
+	    this._right.garbage ();
+    }
+    
     /**
      Returns: l'élément gauche de l'operateur
      */

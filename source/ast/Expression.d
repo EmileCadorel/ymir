@@ -3,6 +3,7 @@ import ast.Instruction;
 import syntax.Word, semantic.pack.Symbol;
 import std.container;
 import ast.Var;
+import semantic.pack.Table;
 
 /**
  Ancêtre des expressions de l'arbre de syntaxe.
@@ -51,7 +52,23 @@ class Expression : Instruction {
     Expression clone () {
 	return this;
     }
-    
+
+    /**
+     Supprime tous les symboles de l'expression de la poubelle.
+     */
+    void removeGarbage () {
+	if (this._info) {
+	    Table.instance.removeGarbage (this._info);
+	}
+    }
+
+    /**
+     */
+    void garbage () {
+	if (this._info && this._info.isDestructible)
+	    Table.instance.garbage (this._info);
+    }
+
     /**
      Fonction à surcharger pour l'affichage
      */

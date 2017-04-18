@@ -42,6 +42,19 @@ class BefUnary : Expression {
 	return aux;
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._elem)
+	    this._elem.removeGarbage ();
+    }
+    
+    override void garbage () {
+	super.garbage ();
+	if (this._elem)
+	    this._elem.garbage ();
+    }
+    
+
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	return new BefUnary (this._token, this._elem.templateExpReplace (names, values));
     }        

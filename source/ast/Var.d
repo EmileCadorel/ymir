@@ -41,9 +41,7 @@ class Var : Expression {
 	    it.printSimple ();
 	}
 	writef (")");
-    }
-
-    
+    }    
     
     /**
      Vérification sémantique.
@@ -73,11 +71,22 @@ class Var : Expression {
 		
 		aux.templates = tmps;
 		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);
-	    }	    
+	    }
 	    return aux;	
 	} else return asType ();
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	foreach (it ; this._templates)
+	    it.removeGarbage ();
+    }
+
+    override void garbage () {
+	super.garbage ();
+    }
+
+    
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {
 	foreach (it ; 0 .. values.length) {
 	    if (names [it].token.str == this._token.str) {
@@ -293,6 +302,12 @@ class TypedVar : Var {
 	}
     }
 
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._type) this._type.removeGarbage ();
+	else this._expType.removeGarbage ();
+    }
+    
     override Var templateExpReplace (Array!Var names, Array!Expression values) {
 	if (this._type)
 	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (names, values));

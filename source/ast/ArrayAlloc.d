@@ -67,6 +67,22 @@ class ArrayAlloc : Expression {
 	return new ArrayAlloc (this._token, cast (Var) this._type.clone, this._size.clone ());
     }
     
+    override void removeGarbage () {
+	super.removeGarbage ();
+	if (this._type)
+	    this._type.removeGarbage ();
+	if (this._size)
+	    this._size.removeGarbage ();	
+    }
+
+    override void garbage () {
+	super.garbage ();
+	if (this._type)
+	    this._type.garbage ();
+	if (this._size)
+	    this._size.garbage ();	
+    }
+
     override void print (int nb = 0) {
 	writefln ("%s<ArrayAlloc> %s(%d, %d) ",
 		  rightJustify ("", nb, ' '),
