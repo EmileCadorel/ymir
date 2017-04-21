@@ -24,10 +24,11 @@ class Assert : Instruction {
     private Expression _msg;
 
 
-    this (Word word, Expression test, Expression msg) {
+    this (Word word, Expression test, Expression msg, bool isStatic = false) {
 	super (word);
 	this._expr = test;
 	this._msg = msg;
+	this._isStatic = isStatic;
     }
 
     /** Le test */
@@ -50,7 +51,6 @@ class Assert : Instruction {
 	auto expr = this._expr.expression;
 	if (!expr.info.type.isSame (new BoolInfo))       
 	    throw new IncompatibleTypes (expr.info, new BoolInfo ());
-	Table.instance.retInfo.returned ();
 
 	Expression msg;
 	if (this._msg) {
@@ -59,19 +59,30 @@ class Assert : Instruction {
 		throw new IncompatibleTypes (msg.info, new StringInfo ());
 	    else (cast (String)msg).content ~= "\n";
 	}
+
+	if (this._isStatic) {
+	    import semantic.value.BoolValue;
+	    if (!expr.info.isImmutable)
+		throw new NotImmutable (expr.info);
+	    if (!(cast (BoolValue) expr.info.value).isTrue) {
+		throw new StaticAssertFailure (this._token, msg);
+	    }
+	} else {
+	    Table.instance.retInfo.returned ();
+	}
 	
-	return new Assert (this._token, expr, msg);	
+	return new Assert (this._token, expr, msg, this._isStatic);	
     }
 
     override Instruction templateReplace (Array!Var names, Array!Expression values) {
 	if (this._msg) 
 	    return new Assert (this._token,
 			       this._expr.templateExpReplace (names, values),
-			       this._msg.templateExpReplace (names, values));
+			       this._msg.templateExpReplace (names, values), this._isStatic);
 	else
 	    return new Assert (this._token,
 			       this._expr.templateExpReplace (names, values),
-			       null);	
+			       null, this._isStatic);	
     }
 
 

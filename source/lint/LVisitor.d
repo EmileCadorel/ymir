@@ -370,6 +370,7 @@ class LVisitor {
 
     private LInstList visitAssert (Assert elem) {
 	import utils.Options, std.format;
+	if (elem.isStatic) return new LInstList;
 	Array!LExp exprs;
 	Array!LInstList rights;
 	LInstList list = new LInstList;

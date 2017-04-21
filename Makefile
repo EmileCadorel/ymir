@@ -1,3 +1,6 @@
+dmd: 
+	dub build --parallel
+
 all:
 	dub build --parallel
 

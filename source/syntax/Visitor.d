@@ -473,6 +473,15 @@ class Visitor {
 	else if (tok == Keys.LET) return visitLet ();
 	else if (tok == Keys.BREAK) return visitBreak ();
 	else if (tok == Keys.ASSERT) return visitAssert ();
+	else if (tok == Keys.STATIC) {
+	    tok = this._lex.next ();
+	    Instruction inst;
+	    if (tok == Keys.IF) inst = visitIf ();
+	    else if (tok == Keys.ASSERT) inst = visitAssert ();
+	    else throw new SyntaxError (tok, [Keys.IF.descr, Keys.ASSERT.descr]);
+	    inst.isStatic = true;
+	    return inst;
+	}
 	else if (tok == Tokens.SEMI_COLON) {
 	    Warning.instance.warning_at (tok.locus,
 				"Utilisez {} pour une instruction vide pas %s",

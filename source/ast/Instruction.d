@@ -13,6 +13,9 @@ class Instruction {
 
     /// Le block qui contient l'instruction
     protected Block _block;
+
+    /// L'instruction doit être traité à la compilation ?
+    protected bool _isStatic;
     
     this (Word word) {
 	this._token = word;
@@ -25,6 +28,17 @@ class Instruction {
 	return this._token;
     }
 
+    /**
+     Returns: L'instruction doit être traité à la compilation ?
+     */
+    bool isStatic () {
+	return this._isStatic;
+    }
+
+    void isStatic (bool isStatic) {
+	this._isStatic = isStatic;
+    }
+    
     /**
      Returns: le block qui contient l'instruction
      */

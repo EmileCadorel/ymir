@@ -5,7 +5,7 @@ import syntax.Word, std.stdio, std.string;
 import semantic.types.BoolInfo, semantic.pack.Symbol, semantic.types.InfoType;
 import semantic.pack.Table;
 import std.container;
-import ast.Var;
+import ast.Var, ast.Declaration;
 
 /**
  Classe généré par la syntaxe 
@@ -31,19 +31,34 @@ class If : Instruction {
     /// Le type de l'expression (sert pour le cast en bool si besoin)
     private InfoType _info;
     
-    this (Word word, Expression test, Block block) {
+    this (Word word, Expression test, Block block, bool isStatic = false) {
 	super (word);
 	this._test = test;
 	this._block = block;
+	this._isStatic = isStatic;	
     }
 
-    this (Word word, Expression test, Block block, Else else_) {
+    this (Word word, Expression test, Block block, Else else_, bool isStatic = false) {
 	super (word);
 	this._test = test;
 	this._block = block;
 	this._else = else_;
+	this._isStatic = isStatic;
+	if (this._else)
+	    this._else.isStatic = isStatic;
     }
 
+    override bool isStatic () {
+	return this._isStatic;
+    }
+
+    override void isStatic (bool isStatic) {
+	this._isStatic = isStatic;
+	if (this._else)
+	    this._else.isStatic = isStatic;
+    }
+
+    
     /**
      * Met a jour le pere de l'instruction.
      * Params:
@@ -66,8 +81,21 @@ class If : Instruction {
 	word.str = "cast";
 	if (type is null)
 	    throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo ()));
-	Table.instance.retInfo.currentBlock = "if";
-	auto bl = this._block.instructions ();
+
+	bool pass = false;
+	if (this._isStatic) {
+	    import semantic.value.BoolValue;
+	    if (!expr.info.isImmutable) throw new NotImmutable (expr.info);
+	    else if ((cast(BoolValue) (expr.info.value)).isTrue) {
+		return this._block.instruction ();
+	    } else pass = true;
+	}
+	
+	Table.instance.retInfo.currentBlock = "if";	
+	Block bl;
+	if (!pass) bl = this._block.instructions ();
+	else bl = new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
+	
 	If _if;
 	if (this._else !is null) {
 	    _if = new If (this._token, expr, bl, cast(Else) this._else.instruction ());
@@ -84,9 +112,9 @@ class If : Instruction {
 	auto block = this._block.templateReplace (names, values);
 	if (this._else) {
 	    auto else_ = cast (Else) this._else.templateReplace (names, values);
-	    return new If (this._token, test, block, else_);
+	    return new If (this._token, test, block, else_, this._isStatic);
 	}
-	return new If (this._token, test, block);
+	return new If (this._token, test, block, this._isStatic);
     }
     
     /**
@@ -226,17 +254,25 @@ class ElseIf : Else {
     /// Le caster de l'expression, (peut être null)
     private InfoType _info;
     
-    this (Word word, Expression test, Block block) {
+    this (Word word, Expression test, Block block, bool isStatic = false) {
 	super (word, block);
 	this._test = test;
+	this._isStatic = isStatic;
     }
 
-    this (Word word, Expression test, Block block, Else else_) {
+    this (Word word, Expression test, Block block, Else else_, bool isStatic = false) {
 	super (word, block);
 	this._test = test;
 	this._else = else_;
+	this._isStatic = isStatic;
     }
 
+    override void isStatic (bool isStatic) {
+	this._isStatic = isStatic;
+	if (this._else)
+	    this._else.isStatic = isStatic;
+    }
+    
     /**
      Verification sémantique de l'instruction
      Pour être juste le test doit être compatible avec le type 'bool'.
@@ -246,18 +282,28 @@ class ElseIf : Else {
     override Instruction instruction () {
 	auto expr = this._test.expression;
 	auto type = expr.info.type.CastOp (new BoolInfo ());
-	auto word = this._token;
-	word.str = "cast";
 	if (type is null)
-	    throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo ()));
+	    throw new IncompatibleTypes (expr.info, new BoolInfo ());
+
+	bool pass = false;
+	if (this._isStatic) {
+	    import semantic.value.BoolValue;
+	    if (!expr.info.isImmutable) throw new NotImmutable (expr.info);
+	    else if ((cast(BoolValue) (expr.info.value)).isTrue) {
+		return this._block.instructions ();
+	    } else pass = true;
+	}
+	
 	Table.instance.retInfo.currentBlock = "if";
-	auto bl = this._block.instructions ();
+	Block bl;
+	if (!pass) bl = this._block.instructions ();
+	else bl = new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
 	ElseIf _if;
 	if (this._else !is null) {
-	    _if = new ElseIf (this._token, expr, bl, cast(Else) this._else.instruction ());
+	    _if = new ElseIf (this._token, expr, bl, cast(Else) this._else.instruction (), this._isStatic);
 	    _if._info = type;
 	} else {
-	    _if = new ElseIf (this._token, expr, bl);
+	    _if = new ElseIf (this._token, expr, bl, this._isStatic);
 	    _if._info = type;
 	}
 	return _if;
@@ -268,9 +314,9 @@ class ElseIf : Else {
 	auto block = this._block.templateReplace (names, values);
 	if (this._else) {
 	    auto else_ = this._else.templateReplace (names, values);
-	    return new ElseIf (this._token, test, block, else_);
+	    return new ElseIf (this._token, test, block, else_, this._isStatic);
 	}
-	return new ElseIf (this._token, test, block);
+	return new ElseIf (this._token, test, block, this._isStatic);
     }
 
     /**

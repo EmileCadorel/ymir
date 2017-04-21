@@ -6,13 +6,17 @@ struct
 
 
 def opBinaryRight (op : string) (a : Test, b : Test) {
-    if (op == "+")
-	return Test (a.a + b.a);
-    assert (false, "salut");
+    static if (op == "+") 
+	return a.a + b.a;
+    else if (op == "-") {
+	static assert (false, "ici");
+    } else {
+	return Test (a.a * b.a);
+    }
 }
 
 def main () {
-    println (Test (1)  - Test (2) + Test (3));
+    println (Test(2) + Test (2) * Test (8));
 }
 
 
