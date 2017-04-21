@@ -48,7 +48,7 @@ class Instruction {
 	assert (false, "TODO");
     }
 
-    Instruction templateReplace (Array!Var, Array!Expression) {
+    Instruction templateReplace (Array!Expression, Array!Expression) {
 	assert (false, "TODO");
     }
     
