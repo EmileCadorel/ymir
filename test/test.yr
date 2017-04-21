@@ -6,7 +6,7 @@ struct
 
 
 def opBinaryRight (op : string) (a : Test, b : Test) {
-    static if (op == "+") 
+    static if (op.length == 1UL && op [0] == '+') 
 	return a.a + b.a;
     else if (op == "-") {
 	static assert (false, "ici");
@@ -17,6 +17,7 @@ def opBinaryRight (op : string) (a : Test, b : Test) {
 
 def main () {
     println (Test(2) + Test (2) * Test (8));
+    let a = ('salut') [1, 2];
 }
 
 

@@ -748,3 +748,22 @@ class ExpandNonTuple : YmirException {
     }
     
 }
+
+
+class OutOfRange : YmirException {
+
+    this (Symbol sym, ulong id, ulong length) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Index %d en dehors du range [0 .. %d]",
+		      sym.sym.locus.file,
+		      sym.sym.locus.line,
+		      sym.sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      id, length);
+	super.addLine (buf, sym.sym.locus);
+	msg = buf.toString ();
+    }
+
+
+    
+}

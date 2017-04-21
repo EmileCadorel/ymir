@@ -5,8 +5,9 @@ import ast.Var;
 import ast.ParamList;
 import syntax.Tokens;
 import lint.LInstList;
-import semantic.value.BoolValue;
-import std.container;
+import semantic.value.all;
+import std.container, std.bigint;
+import std.conv;
 
 class StringValue : Value {
 
@@ -35,10 +36,20 @@ class StringValue : Value {
 	return null;
     }
 
-    override Value AccessOp (Tokens op, ParamList params) {
+    override Value AccessOp (ParamList params) {
 	return null;
     }
 
+    override Value AccessOp (Expression expr) {
+	import std.stdio, utils.exception;
+	auto id = cast (DecimalValue) expr.info.value;
+	if (id && id.value.to!ulong < this._value.length) {
+	    return new CharValue (this._value [id.value.to!ulong]);
+	} else {
+	    throw new OutOfRange (expr.info, id.value.to!ulong, this._value.length);
+	}	    
+    }    
+    
     override Value CastOp (InfoType type) {
 	return null;
     }
@@ -51,7 +62,9 @@ class StringValue : Value {
 	return null;
     }
 
-    override Value DotOp (Var attr) {
+    override Value DotOp (Var var) {
+	import std.conv;
+	if (var.token.str == "length") return new DecimalValue (to!string (this._value.length));
 	return null;
     }
     

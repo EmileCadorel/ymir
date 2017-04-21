@@ -127,10 +127,14 @@ class CharInfo : InfoType {
 	if (cast (CharInfo) right.info.type) {
 	    auto ch = new BoolInfo ();
 	    ch.lintInst = &CharUtils.InstOpTest !(op);
+	    if (this._value)
+		ch.value = this._value.BinaryOp (op, right.info.type.value);
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
 		auto ch = new BoolInfo ();
+		if (this._value)
+		    ch.value = this._value.BinaryOp (op, right.info.type.value);
 		ch.lintInst = &CharUtils.InstOpTest !(op);
 		return ch;
 	    }
@@ -149,6 +153,8 @@ class CharInfo : InfoType {
 	if (auto ot = cast (DecimalInfo) left.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
 		auto ch = new BoolInfo ();
+		if (this._value)
+		    ch.value = this._value.BinaryOpRight (op, left.info.type.value);
 		ch.lintInst = &CharUtils.InstOpTest !(op);
 		return ch;
 	    }
@@ -166,7 +172,7 @@ class CharInfo : InfoType {
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast (CharInfo) right.info.type) {
 	    auto ch = new CharInfo ();
-	    ch.lintInst = &CharUtils.InstOpAff !(op);
+	    ch.lintInst = &CharUtils.InstOpAff !(op);	    
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
@@ -189,10 +195,14 @@ class CharInfo : InfoType {
 	if (cast (CharInfo) right.info.type) {
 	    auto ch = new CharInfo ();
 	    ch.lintInst = &CharUtils.InstOp !(op);
+	    if (this._value)
+		ch.value = this._value.BinaryOp (op, right.info.type.value);
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
 		auto ch = new CharInfo ();
+		if (this._value)
+		    ch.value = this._value.BinaryOp (op, right.info.type.value);
 		ch.lintInst = &CharUtils.InstOp ! (op);
 		return ch;
 	    }
@@ -211,6 +221,8 @@ class CharInfo : InfoType {
 	if (auto ot = cast (DecimalInfo) left.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
 		auto ch = new CharInfo ();
+		if (this._value)
+		    ch.value = this._value.BinaryOpRight (op, left.info.type.value);
 		ch.lintInst = &CharUtils.InstOp ! (op);
 		return ch;
 	    }

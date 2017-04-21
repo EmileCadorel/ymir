@@ -66,10 +66,14 @@ class DecimalValue : Value {
 	return null;
     }
 
-    override Value AccessOp (Tokens op, ParamList params) {
+    override Value AccessOp (ParamList params) {	
 	return null;
     }
-
+    
+    override Value AccessOp (Expression) {	
+	return null;
+    }
+    
     override Value CastOp (InfoType type) {
 	return null;
     }
@@ -86,6 +90,10 @@ class DecimalValue : Value {
 	return null;
     }   
 
+    BigInt value () {
+	return this._value;
+    }
+    
     override LInstList toLint (Symbol sym) {
 	import lint.LConst, lint.LSize;
 	return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
