@@ -208,6 +208,20 @@ class IncompatibleTypes : YmirException {
 	    super.addLine (buf, right.sym.locus);
 	msg = buf.toString ();
     }    
+
+    import semantic.types.InfoType;
+    this (Symbol left, InfoType right) {
+	auto buf = new OutBuffer;
+	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
+	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
+		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
+	super.addLine (buf, left.sym.locus);
+	msg = buf.toString ();	
+    }
+    
+
 }
 
 /**
@@ -513,6 +527,25 @@ class NotImmutable : YmirException {
 }
 
 
+class StaticAssertFailure : YmirException {
+    import ast.Expression, ast.Constante;
+    
+    this (Word sym, Expression msg) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
+	buf.writef ("%sErreur%s : Assertion Failure :",
+		    Colors.RED.value, Colors.RESET.value);
+	if (auto str = cast (String) msg) {
+	    buf.writefln (" %s", str.content);
+	} else buf.writefln ("");
+	
+	super.addLine (buf, sym.locus);
+	super.msg = buf.toString ();
+    }
+    
+}
+
+
 /**
  C'est une note.
  Les erreurs précédentes sont arrivées lors de la création de la fonction template x.
@@ -713,5 +746,24 @@ class ExpandNonTuple : YmirException {
 	super.addLine (buf, locus.locus);
 	msg = buf.toString ();
     }
+    
+}
+
+
+class OutOfRange : YmirException {
+
+    this (Symbol sym, ulong id, ulong length) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Index %d en dehors du range [0 .. %d]",
+		      sym.sym.locus.file,
+		      sym.sym.locus.line,
+		      sym.sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      id, length);
+	super.addLine (buf, sym.sym.locus);
+	msg = buf.toString ();
+    }
+
+
     
 }

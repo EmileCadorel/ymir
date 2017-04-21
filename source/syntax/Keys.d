@@ -41,5 +41,8 @@ enum Keys : Token {
     ENUM = Token ("enum", 36),
     UNDER = Token ("_", 37),
     OPBINARY = Token ("opBinary", 38),
-    OPBINARYR = Token ("opBinaryRight", 39)
+    OPBINARYR = Token ("opBinaryRight", 39),
+    ASSERT = Token ("assert", 40),
+    STATIC = Token ("static", 41),
+    OPACCESS = Token ("opIndex", 42)
 }

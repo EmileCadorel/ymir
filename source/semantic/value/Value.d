@@ -1,8 +1,9 @@
 module semantic.value.Value;
-
+ 
 import semantic.types.InfoType;
 import ast.Var;
 import ast.ParamList;
+public import ast.Expression;
 import syntax.Word;
 public import syntax.Tokens;
 import lint.LInstList;
@@ -16,7 +17,9 @@ class Value {
 
     abstract Value UnaryOp (Tokens token);
 
-    abstract Value AccessOp (Tokens op, ParamList params);
+    abstract Value AccessOp (ParamList params);
+    
+    abstract Value AccessOp (Expression expr);
 
     abstract Value CastOp (InfoType type);
 

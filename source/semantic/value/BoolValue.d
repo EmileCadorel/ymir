@@ -30,7 +30,8 @@ class BoolValue : Value {
 
     override Value UnaryOp (Tokens token){ return null; }
 
-    override Value AccessOp (Tokens op, ParamList params){ return null; }
+    override Value AccessOp (ParamList params){ return null; }
+    override Value AccessOp (Expression){ return null; }
 
     override Value CastOp (InfoType type){ return null; }
 

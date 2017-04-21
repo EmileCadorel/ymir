@@ -108,6 +108,8 @@ class Char : Expression {
     override Expression expression () {
 	auto aux = new Char (this._token, this._code);
 	aux.info = new Symbol (this._token, new CharInfo (), true);
+	aux.info.isConst = true;
+	aux.info.value = new CharValue (this._code);
 	return aux;
     }
 
@@ -376,7 +378,7 @@ class String : Expression {
     /**
      Returns: la valeur de la constante
      */
-    string content () {
+    ref string content () {
 	return this._content;
     }
 

@@ -283,13 +283,15 @@ class StringInfo : InfoType {
      var = l'attribut demandé.
      Returns: le type de retour ou null.
      */
-    override InfoType DotOp (Var var) {       
-	if (var.token.str == "nbRef") return NbRef ();
-	if (var.token.str == "length") return Length ();
-	else if (var.token.str == "dup") return Dup ();
-	else if (var.token.str == "typeid") return StringOf ();
-	else if (var.token.str == "ptr") return Ptr ();
-	return null;
+    override InfoType DotOp (Var var) {
+	InfoType ret = null;
+	if (var.token.str == "nbRef") ret = NbRef ();
+	if (var.token.str == "length") ret = Length ();
+	else if (var.token.str == "dup") ret = Dup ();
+	else if (var.token.str == "typeid") ret = StringOf ();
+	else if (var.token.str == "ptr") ret = Ptr ();
+	if (ret && this._value) ret.value = this._value.DotOp (var);
+	return ret;
     }
 
     /**
@@ -374,6 +376,8 @@ class StringInfo : InfoType {
 	    ch.lintInstMult = &StringUtils.InstAccessS;
 	    ch.isConst = false;
 	    ch.setDestruct (null);
+	    if (this._value)
+		ch.value = this._value.AccessOp (expr);
 	    return ch;
 	}
 	return null;

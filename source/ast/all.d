@@ -37,3 +37,4 @@ public import ast.Tuple;
 public import ast.Expand;
 public import ast.ArrayAlloc;
 public import ast.Enum;
+public import ast.Assert;
