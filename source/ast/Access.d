@@ -52,11 +52,35 @@ class Access : Expression {
 	else if (cast(UndefInfo) aux._left.info) throw new UninitVar (aux._left.token);
 
 	auto type = aux._left.info.type.AccessOp (aux._left.token, aux._params);
-	if (type is null)
-	    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
+	if (type is null) {
+	    auto call = findOpAccess (aux);
+	    if (!call)
+		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
+	    else {
+		call.garbage ();
+		return call;
+	    }
+	}
 	aux._info = new Symbol (this._token, type);
 	return aux;
     }
+
+    auto findOpAccess (Access aux) {
+	import ast.Par, syntax.Keys;
+	aux.removeGarbage ();
+	try {	    
+	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);
+	    auto var = new Var (word);
+	    auto params = new ParamList (this._token,
+					 make!(Array!Expression) (this._left) ~ aux._params.params);
+								  
+	    auto call = new Par (this._token, this._token, var, params);
+	    return call.expression;
+	} catch (YmirException tm) {
+	    return null;
+	}
+    }
+    
 
     
     override Expression templateExpReplace (Array!Var names, Array!Expression values) {

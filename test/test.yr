@@ -15,9 +15,15 @@ def opBinaryRight (op : string) (a : Test, b : Test) {
     }
 }
 
+def opIndex (str : string, b : range!int) {
+    import std.string;
+    return str.substr (b.fst, b.scd);
+}
+
 def main () {
     println (Test(2) + Test (2) * Test (8));
-    let a = ('salut') [1, 2];
+    let a = ('salut') [0 .. 5];    
+    println (a [4]);
 }
 
 
