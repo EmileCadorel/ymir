@@ -376,7 +376,7 @@ class String : Expression {
     /**
      Returns: la valeur de la constante
      */
-    string content () {
+    ref string content () {
 	return this._content;
     }
 

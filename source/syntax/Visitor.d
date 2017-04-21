@@ -457,10 +457,11 @@ class Visitor {
 		  | for
 		  | while
 		  | break
-		  | delete
+		  | assert
 		  | let
+		  | static
 		  | ';'
-		  | expression
+		  | expression		  
 
      */
     private Instruction visitInstruction () {
@@ -471,6 +472,7 @@ class Visitor {
 	else if (tok == Keys.WHILE) return visitWhile ();
 	else if (tok == Keys.LET) return visitLet ();
 	else if (tok == Keys.BREAK) return visitBreak ();
+	else if (tok == Keys.ASSERT) return visitAssert ();
 	else if (tok == Tokens.SEMI_COLON) {
 	    Warning.instance.warning_at (tok.locus,
 				"Utilisez {} pour une instruction vide pas %s",
@@ -1072,7 +1074,7 @@ class Visitor {
 	} else _lex.rewind ();
 	return new If (begin, test, block);
     }
-
+        
     private Else visitElse () {
 	_lex.rewind ();
 	auto begin = _lex.next (), next = _lex.next ();
@@ -1088,6 +1090,23 @@ class Visitor {
 	return new Else (begin, visitBlock ());
     }
 
+    private Assert visitAssert () {
+	_lex.rewind ();
+	auto begin = this._lex.next (), next = this._lex.next ();
+	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	Expression msg;
+	next = this._lex.next ();
+	if (next == Tokens.COMA) {
+	    msg = visitExpression ();
+	    next = this._lex.next ();
+	} 
+	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	next = this._lex.next ();
+	if (next != Tokens.SEMI_COLON) throw new SyntaxError (next, [Tokens.SEMI_COLON.descr]);
+	return new Assert (begin, expr, msg);
+    }
+        
     private Instruction visitReturn () {
 	_lex.rewind ();
 	auto begin = _lex.next (), next = _lex.next ();

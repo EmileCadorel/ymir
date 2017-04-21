@@ -60,6 +60,7 @@ string preCompiled (string name) {
 	StringUtils.createFunctions ();
 	ClassUtils.createFunctions ();
 	RangeUtils.createFunctions ();
+	LVisitor.createFunctions ();
 	
 	debug {
 	    writeln ("----------- PRECOMPILED-----------------");

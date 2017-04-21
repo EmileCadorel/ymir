@@ -23,9 +23,47 @@ alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 class LVisitor {
 
     static string __ForEachBody__ = "_YPForEachBody__";
+    static immutable string __AssertName__ = "_YPAssert__";
+    static immutable string __ExitName__ = "exit";
+    
     private LLabel [Instruction] _endLabels;
     static private LPairLabel __currentCondition__ = LPairLabel (null, null);
 
+    static void createFunctions () {
+	createAssert ();
+    }
+    
+
+    static void createAssert () {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	auto testVar = new LReg (LSize.BYTE);
+	auto loc = new LReg (LSize.LONG);
+	auto msg = new LReg (LSize.LONG);
+	auto entry = new LLabel (new LInstList), end = new LLabel;
+	auto test = new LBinop (testVar, new LConstDecimal (0, LSize.BYTE), Tokens.DEQUAL);
+	auto vrai = new LLabel (new LInstList), faux = new LLabel;
+	entry.insts += new LJump (test, vrai);
+	entry.insts += new LGoto (faux);
+	auto printsName = "_YN23std46stdio46print5prints";
+	vrai.insts += new LCall (printsName, make!(Array!LExp) (loc), LSize.NONE);
+	auto test2 = new LBinop (msg, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
+	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
+	vrai.insts += new LJump (test2, vrai2);
+	vrai.insts += new LGoto (faux2);
+	vrai2.insts += new LCall (printsName, make!(Array!LExp) (msg), LSize.NONE);
+	vrai.insts += vrai2;
+	vrai.insts += faux2;
+	vrai.insts += new LCall (__ExitName__, make!(Array!LExp) (new LConstDecimal (-1, LSize.INT)), LSize.NONE);
+	entry.insts += vrai;
+	entry.insts += faux;
+	auto fr = new LFrame (__AssertName__, entry, end, null, make!(Array!LReg) ([testVar, loc, msg]));
+	LFrame.preCompiled [__AssertName__] = fr;
+	writeln (fr);
+	LReg.lastId = last;
+    }
+
+    
     static LPairLabel isInCondition () {
 	return __currentCondition__;
     }
@@ -131,6 +169,7 @@ class LVisitor {
 	else if (auto _for = cast (For) elem) begin += visitFor (end, retReg, _for);
 	else if (auto _block = cast(Block) elem) begin += visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin += visitBreak (_break);
+	else if (auto _assert = cast (Assert) elem) begin += visitAssert (_assert);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
@@ -143,6 +182,7 @@ class LVisitor {
 	else if (auto _for = cast (For) elem) begin.insts += visitFor (end, retReg, _for);
 	else if (auto _block = cast(Block) elem) begin.insts += visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin.insts += visitBreak (_break);
+	else if (auto _assert = cast (Assert) elem) begin.insts += visitAssert (_assert);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
@@ -328,6 +368,41 @@ class LVisitor {
 	return list;
     }
 
+    private LInstList visitAssert (Assert elem) {
+	import utils.Options, std.format;
+	Array!LExp exprs;
+	Array!LInstList rights;
+	LInstList list = new LInstList;
+	auto it = (LVisitor.__AssertName__ in LFrame.preCompiled);
+	if (it is null) LVisitor.createAssert ();	
+	
+	auto locMsg = "Program exited on assertion failure : ";
+	if (Options.instance.isOn (OptionEnum.DEBUG)) {
+	    locMsg ~= format ("%s(%d, %d) : ",
+			      elem.token.locus.file,
+			      elem.token.locus.line,
+			      elem.token.locus.column);
+	}
+
+	LExp call;
+	auto test = visitExpression (elem.expr);
+	exprs.insertBack (test.getFirst ());
+	auto str = visitStr (cast (String) (new String (elem.token, locMsg).expression));
+	exprs.insertBack (str.getFirst ());
+	list += test;
+	list += str;
+	if (elem.msg) {
+	    auto msg = visitExpression (elem.msg);
+	    exprs.insertBack (msg.getFirst ());
+	    list += msg;
+	} else {
+	    exprs.insertBack (new LConstDecimal (0, LSize.LONG));
+	}
+	call = new LCall (LVisitor.__AssertName__, exprs, LSize.NONE);
+	list += call;
+	return list;
+    }    
+    
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
 	LInstList list = new LInstList ();
 	list += new LLocus (ret.token.locus);

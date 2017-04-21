@@ -8,11 +8,11 @@ struct
 def opBinaryRight (op : string) (a : Test, b : Test) {
     if (op == "+")
 	return Test (a.a + b.a);
-    return null;
+    assert (false, "salut");
 }
 
 def main () {
-    println (Test (1) + Test (2) + Test (3));
+    println (Test (1)  - Test (2) + Test (3));
 }
 
 

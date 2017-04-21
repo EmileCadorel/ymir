@@ -64,7 +64,7 @@ class Break : Instruction {
     }
 
     override Instruction templateReplace (Array!Var names, Array!Expression values) {
-	return new Break (this._token);
+	return new Break (this._token, this._id);
     }
     
     /**
