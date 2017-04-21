@@ -163,7 +163,7 @@ class Binary : Expression {
 	return aux;	
     }
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	auto left = this._left.templateExpReplace (names, values);
 	auto right = this._right.templateExpReplace (names, values);
 	return new Binary (this._token, left, right);

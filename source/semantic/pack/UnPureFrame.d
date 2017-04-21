@@ -76,7 +76,8 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
      */
     override FrameProto validate (Array!InfoType params) {
-	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
+	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ super.mangle (this._name);
+	string un = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);
@@ -105,7 +106,7 @@ class UnPureFrame : Frame {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }
 	    
-	    proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
 	    FrameTable.instance.insert (proto);
 
 	    Table.instance.retInfo.currentBlock = "true";	    
@@ -115,7 +116,7 @@ class UnPureFrame : Frame {
 	    }
 	    
 	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name,
+				       name, un,
 				       finalParams, block);
 
 	    proto.type = Table.instance.retInfo.info;
@@ -145,7 +146,8 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
     */
     override FrameProto validate (ParamList params) {
-	string name = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
+	string un = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
+	string name = Table.instance.namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	name = "_YN" ~ to!string (name.length) ~ name;
 	Table.instance.enterFrame (name, this._function.params.length);
 	Table.instance.enterBlock ();
@@ -173,7 +175,7 @@ class UnPureFrame : Frame {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }
 	    
-	    proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
 	    FrameTable.instance.insert (proto);
 
 	    Table.instance.retInfo.currentBlock = "true";	    
@@ -183,7 +185,7 @@ class UnPureFrame : Frame {
 	    }
 
 	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name,
+				       name, un,
 				       finalParams, block);
 
 	    proto.type = Table.instance.retInfo.info;

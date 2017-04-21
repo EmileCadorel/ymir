@@ -118,7 +118,7 @@ class ExternFrame : Frame {
 	    Table.instance.retInfo.info = this._proto.type.asType ().info;
 	}
 	    
-	this._fr = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
 	Table.instance.quitFrame ();
 	return this._fr;
     }
@@ -150,7 +150,7 @@ class ExternFrame : Frame {
 	    Table.instance.retInfo.info = this._function.type.asType ().info;
 	}
 	
-	this._fr = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
 	Table.instance.quitFrame ();
 	return this._fr;
     }

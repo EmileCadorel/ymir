@@ -33,13 +33,17 @@ class FinalFrame {
 
     /** l'identifiant du dernier symbole */
     private ulong _last;
+
+    private string _unmangleName;
     
-    this (Symbol type, string name, Array!Var vars, Block block) {
+    this (Symbol type, string name, string un, Array!Var vars, Block block) {
 	this._type = type;
 	this._vars = vars;
 	this._block = block;
 	this._name = name;
 	this._last = last;
+	import core.demangle, std.conv;
+	this._unmangleName = un;
     }
 
     /**
@@ -49,13 +53,17 @@ class FinalFrame {
 	return this._name;
     }
 
+    string unmangle () {
+	return this._unmangleName;
+    }
+    
     /** 
      Returns: le fichier dont la frame est issue
      */
     ref string file () {
 	return this._file;
-    }
-
+    }    
+    
     /**
      Returns: le type de retour de la frame
      */

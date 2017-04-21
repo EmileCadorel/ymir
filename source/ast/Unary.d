@@ -55,7 +55,7 @@ class BefUnary : Expression {
     }
     
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	return new BefUnary (this._token, this._elem.templateExpReplace (names, values));
     }        
     
@@ -123,7 +123,7 @@ class AfUnary : Expression {
 	return aux;
     }
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	return new AfUnary (this._token, this._elem.templateExpReplace (names, values));
     }
 

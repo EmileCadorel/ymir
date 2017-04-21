@@ -125,7 +125,7 @@ class LVisitor {
 	    end.insts += new LWrite (retReg, new LConstDecimal (0, LSize.LONG));
 	}
 	
-	auto fr = new LFrame (semFrame.name, entry, end, retReg, args);
+	auto fr = new LFrame (semFrame.name, semFrame.unmangle, entry, end, retReg, args);
 	fr.file = semFrame.file;
 	fr.lastId = LReg.lastId;
 	return fr;

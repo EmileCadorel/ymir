@@ -113,7 +113,7 @@ class For : Instruction {
     }
 
 
-    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
 	Array!Var var;
 	foreach (it ; this._var)
 	    var.insertBack (cast (Var) it.templateExpReplace (names, values));

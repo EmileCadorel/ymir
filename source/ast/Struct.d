@@ -87,7 +87,7 @@ class Struct : Declaration {
 	}
     }
     
-    override Declaration templateReplace (Array!Var names, Array!Expression values) {
+    override Declaration templateReplace (Array!Expression names, Array!Expression values) {
 	Array!Var params;
 	foreach (it ; this._params)
 	    params.insertBack (cast (Var) it.templateExpReplace (names, values));

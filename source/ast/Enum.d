@@ -81,7 +81,7 @@ class Enum : Declaration {
 	}
     }
 
-    override Declaration templateReplace (Array!Var names, Array!Expression values) {
+    override Declaration templateReplace (Array!Expression names, Array!Expression values) {
 	auto type = cast (Var) this._type.templateExpReplace (names, values);
 	Array!Expression values_;
 	foreach (it ; this._values) {

@@ -5,6 +5,7 @@ import std.container, std.outbuffer, std.conv;
 class LCall : LExp {
 
     private string _frame;
+    private string _un;
     private Array!LExp _params;
     private LSize _size;
     private LExp _dynFrame;
@@ -18,12 +19,21 @@ class LCall : LExp {
 	this._isVariadic = variadic;
     }
     
+    this (string frame, string un, Array!LExp params, LSize size, bool variadic = false) {
+	this._frame = frame;
+	this._un = un;
+	this._params = params;
+	this._size = size;
+	this._isVariadic = variadic;
+    }
+    
     this (string frame, Array!LExp params, LSize size, bool variadic = false) {
 	this._frame = frame;
 	this._params = params;
 	this._size = size;
 	this._isVariadic = variadic;
     }
+
     
     LExp dynFrame () {
 	return this._dynFrame;
@@ -37,6 +47,10 @@ class LCall : LExp {
 	return this._frame;
     }
 
+    string un () {
+	return this._un;
+    }
+    
     override LSize size () {
 	return this._size;
     }
@@ -52,7 +66,9 @@ class LCall : LExp {
     override string toString () {
 	auto buf = new OutBuffer ();
 	buf.writef ("Call(%s, [",
-		    this._frame !is null ? this._frame : this._dynFrame.toString);
+		    this._frame !is null ?
+		         (this._un != "" ? this._un : this._frame)
+		         : this._dynFrame.toString);
 	foreach (it ; this._params) {
 	    if (it !is this._params [$ - 1])
 		buf.writef ("%s,\n\t\t\t", it);

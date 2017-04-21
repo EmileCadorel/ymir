@@ -91,5 +91,8 @@ class StringValue : Value {
 	return inst;
     }
 
-    
+    override string toString () {
+	return "'" ~ this._value ~ "'";
+    }    
+
 }

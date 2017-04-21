@@ -15,6 +15,9 @@ import semantic.types.InfoType, semantic.pack.FrameScope;
  */
 class FrameProto {
 
+    /** Le nom de la frame non mangle */
+    private string _unmangleName;
+    
     /** Le nom de la frame */
     private string _name;
 
@@ -24,10 +27,12 @@ class FrameProto {
     /** Les paramètres de la frame */
     private Array!Var _vars;
 
-    this (string name, Symbol type, Array!Var params) {
+    this (string name, string un, Symbol type, Array!Var params) {
 	this._name = name;
 	this._type = type;
 	this._vars = params;
+	import core.demangle;
+	this._unmangleName = un;
     }
 
     /**
@@ -37,6 +42,10 @@ class FrameProto {
 	return this._name;	
     }
 
+    ref string unmangle () {
+	return this._unmangleName;
+    }
+    
     /**
      Returns: le type de retour de la frame
      */

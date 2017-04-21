@@ -10,6 +10,7 @@ class LFrame {
     private ulong _number;
     private static ulong __lastNum__ = 0;
     private string _name;
+    private string _unmangled;
     private LLabel _entry_lbl;
     private LLabel _return_lbl;
     private Array!LReg _args;
@@ -22,10 +23,20 @@ class LFrame {
     
     static LFrame[ulong] __table__;
     
-    this (ulong number, string name) {
+    this (ulong number, string name, string unmangle) {
 	this._name = name;
 	this._number = number;
 	__table__ [this._number] = this;
+	this._unmangled = this.demangle (unmangle);
+    }
+
+    this (string name, string unmangle, LLabel entry_lbl, LLabel return_lbl, LReg return_reg, Array!LReg args) {
+	this._name = name;
+	this._entry_lbl = entry_lbl;
+	this._return_reg = return_reg;
+	this._return_lbl = return_lbl;
+	this._args = args;
+	this._unmangled = this.demangle (unmangle);
     }
 
     this (string name, LLabel entry_lbl, LLabel return_lbl, LReg return_reg, Array!LReg args) {
@@ -36,6 +47,18 @@ class LFrame {
 	this._args = args;
     }
     
+    private string demangle (string entry) {
+	string ret;
+	for (auto it = 0; it < entry.length; it++) {
+	    if (entry [it] == '4' && entry [it + 1] == '6') { ret ~= '.'; it++; }
+	    else if (entry [it] == '7' || entry [it] == '9') ret ~= '.';
+	    else if (entry [it] == '(') { ret ~= entry [it .. $]; break; }
+	    else ret ~= entry [it];
+	}
+	return ret;
+    }
+
+
     static ref LFrame [string] preCompiled () {
 	return __preCompiled__;
     }
@@ -78,9 +101,9 @@ class LFrame {
     
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%s : (rr: %s, pr:",
-		    this._name,
-		    to!string (this._return_reg));
+	if (this._unmangled != "")  buf.writef ("%s => ", this._unmangled);
+	
+	buf.writef ("%s: (rr: %s, pr:", this._name, to!string (this._return_reg));
 	buf.write ("[");
 	
 	foreach (it ; this._args) {	    

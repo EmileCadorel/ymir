@@ -80,7 +80,7 @@ class Expand : Expression {
 	    this._expr.garbage ();
     }
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	auto expr = this._expr.templateExpReplace (names, values);
 	return new Expand (this._token, expr);
     }

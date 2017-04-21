@@ -34,12 +34,12 @@ class Function : Declaration {
     private Array!Var _params;
 
     /// Les template de la fonction
-    private Array!Var _tmps;
+    private Array!Expression _tmps;
     
     /// Le block de la fonction
     private Block _block;
     
-    this (Word ident, Array!Var params, Array!Var tmps, Block block) {
+    this (Word ident, Array!Var params, Array!Expression tmps, Block block) {
 	this._ident = ident;
 	this._params = params;
 	this._tmps = tmps;
@@ -47,7 +47,7 @@ class Function : Declaration {
 	this.isPublic = true;
     }
     
-    this (Word ident, Var type, Array!Var params, Array!Var tmps, Block block) {
+    this (Word ident, Var type, Array!Var params, Array!Expression tmps, Block block) {
 	this._ident = ident;
 	this._type = type;
 	this._params = params;
@@ -70,7 +70,7 @@ class Function : Declaration {
 	return this._params;
     }
 
-    ref Array!Var tmps () {
+    ref Array!Expression tmps () {
 	return this._tmps;
     }    
     
@@ -137,7 +137,7 @@ class Function : Declaration {
      Remplace les éléments template de la fonction 
      Returns: une nouvelle fonction avec les templates remplacé
      */
-    override Function templateReplace (Array!Var tmps, Array!Expression values) {
+    override Function templateReplace (Array!Expression tmps, Array!Expression values) {
 	Var type;
 	if (this._type)
 	    type = cast (Var) this._type.templateExpReplace (tmps, values);
@@ -147,7 +147,7 @@ class Function : Declaration {
 	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));
 	}
 	
-	return new Function (this._ident, type, params, make!(Array!Var), block.templateReplace (tmps, values));
+	return new Function (this._ident, type, params, make!(Array!Expression), block.templateReplace (tmps, values));
     }    
     
     /**

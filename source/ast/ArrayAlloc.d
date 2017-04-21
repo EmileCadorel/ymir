@@ -57,7 +57,7 @@ class ArrayAlloc : Expression {
 	return aux;	
     }
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	auto type = cast (Var) this._type.templateExpReplace (names, values);
 	auto size = this._size.templateExpReplace (names, values);
 	return new ArrayAlloc (this._token, type, size);

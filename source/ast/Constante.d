@@ -56,7 +56,7 @@ class Decimal : Expression {
 	return aux;
     }
 
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return new Decimal (this._token, this._type);
     }
 
@@ -113,7 +113,7 @@ class Char : Expression {
 	return aux;
     }
 
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return this.clone ();
     }
 
@@ -178,7 +178,7 @@ class Float : Expression {
 	return aux;
     }
 
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return this.clone ();
     }
 
@@ -371,7 +371,7 @@ class String : Expression {
 	return new String (this._token, this._content);
     }
     
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return this.clone ();
     }
     
@@ -421,7 +421,7 @@ class Bool : Expression {
 	return this._token.str == "true";
     }
 
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return this.clone ();
     }
     
@@ -462,7 +462,7 @@ class Null : Expression {
 	return aux;
     }
 
-    override Expression templateExpReplace (Array!Var, Array!Expression) {
+    override Expression templateExpReplace (Array!Expression, Array!Expression) {
 	return this.clone ();
     }
     

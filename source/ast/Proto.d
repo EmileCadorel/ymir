@@ -111,7 +111,7 @@ class Proto : Declaration {
 	}
     }
     
-    override Declaration templateReplace (Array!Var names, Array!Expression values) {
+    override Declaration templateReplace (Array!Expression names, Array!Expression values) {
 	Var type;
 	if (this._type)
 	    type = cast (Var) this._type.templateExpReplace (names, values);

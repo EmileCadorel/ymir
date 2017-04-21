@@ -101,7 +101,7 @@ class FuncPtr : Expression {
 
     
 
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	Array!Var params;
 	foreach (it ; this._params)
 	    params.insertBack (cast (Var) it.templateExpReplace (names, values));

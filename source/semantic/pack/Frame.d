@@ -30,7 +30,9 @@ class Frame {
     static long SAME = 10;
     static long AFF = 5;
     static long CHANGE = 7;
-    
+
+    protected int _currentScore;
+        
     this (string namespace, Function func) {
 	this._function = func;
 	this._namespace = namespace;
@@ -73,6 +75,10 @@ class Frame {
 	return this._namespace;
     }
 
+    ref int currentScore () {
+	return this._currentScore;
+    }
+    
     /**
      Vérifie que la frame s'est bien terminé sur un retour, ou qu'elle de type `void`
      Throws: NoReturnStmt
@@ -94,7 +100,9 @@ class Frame {
     protected ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
 	if (attrs.length == 0 && args.length == 0) {
-	    score.score = AFF; return score;
+	    score.score = AFF;
+	    score.score += this._currentScore;
+	    return score;
 	} else if (attrs.length == args.length) {
 	    foreach (it ; 0 .. args.length) {
 		InfoType info = null;
@@ -115,6 +123,7 @@ class Frame {
 		    score.treat.insertBack (args[it].clone ());
 		}
 	    }
+	    score.score += this._currentScore;
 	    return score;
 	}
 	return null;

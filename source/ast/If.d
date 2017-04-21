@@ -107,7 +107,7 @@ class If : Instruction {
 	return _if;
     }
 
-    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
 	auto test = this._test.templateExpReplace (names, values);
 	auto block = this._block.templateReplace (names, values);
 	if (this._else) {
@@ -196,7 +196,7 @@ class Else : Instruction {
 	return aux;
     }
 
-    override Else templateReplace (Array!Var names, Array!Expression values) {
+    override Else templateReplace (Array!Expression names, Array!Expression values) {
 	return new Else (this._token, this._block.templateReplace (names, values));
     }
     
@@ -309,7 +309,7 @@ class ElseIf : Else {
 	return _if;
     }
     
-    override Else templateReplace (Array!Var names, Array!Expression values) {
+    override Else templateReplace (Array!Expression names, Array!Expression values) {
 	auto test = this._test.templateExpReplace (names, values);
 	auto block = this._block.templateReplace (names, values);
 	if (this._else) {

@@ -236,14 +236,21 @@ class Visitor {
      */
     private Function visitFunction () {
 	auto ident = visitIdentifiant ();
-	Array!Var exps, temps;
+	bool templates = false;
+	Array!Var exps; Array!Expression temps;
 	auto word = _lex.next ();
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	_lex.next (word);
 	if (word != Tokens.RPAR) {
 	    _lex.rewind ();
 	    while (1) {
-		exps.insertBack (visitVarDeclaration ());
+		auto constante = visitConstante ();
+		if (constante is null) 
+		    temps.insertBack (visitVarDeclaration ());
+		else {
+		    templates = true;
+		    temps.insertBack (constante);
+		}
 		_lex.next (word);
 		if (word == Tokens.RPAR) break;
 		else if (word != Tokens.COMA)
@@ -253,8 +260,6 @@ class Visitor {
 	
 	_lex.next (word);
 	if (word == Tokens.LPAR) {
-	    temps = exps;
-	    exps = make!(Array!Var);
 	    _lex.next (word);
 	    if (word != Tokens.RPAR) {
 		_lex.rewind ();
@@ -267,7 +272,10 @@ class Visitor {
 		}
 	    }
 	    _lex.next (word);
-	}
+	} else if (!templates) {
+	    foreach (it ; temps) exps.insertBack (cast (Var) it);
+	    temps.clear ();
+	} else throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	
 	if (word == Tokens.COLON) {
 	    auto type = visitType ();

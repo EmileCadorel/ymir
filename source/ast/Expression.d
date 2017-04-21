@@ -38,14 +38,14 @@ class Expression : Instruction {
 	assert (false, "TODO");	
     }
 
-    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
 	return this.templateExpReplace (names, values);
     }
     
     /**
      Remplace les templates par les expressions associés
      */
-    Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	assert (false, "TODO");
     }
 

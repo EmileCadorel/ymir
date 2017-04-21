@@ -74,7 +74,7 @@ class Assert : Instruction {
 	return new Assert (this._token, expr, msg, this._isStatic);	
     }
 
-    override Instruction templateReplace (Array!Var names, Array!Expression values) {
+    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
 	if (this._msg) 
 	    return new Assert (this._token,
 			       this._expr.templateExpReplace (names, values),

@@ -80,7 +80,7 @@ class Block : Instruction {
 	return block;	
     }
 
-    override Block templateReplace (Array!Var names, Array!Expression values) {
+    override Block templateReplace (Array!Expression names, Array!Expression values) {
 	Array!Declaration decls;
 	Array!Instruction insts;
 	foreach (it ; this._decls)

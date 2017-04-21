@@ -66,7 +66,7 @@ class ParamList : Expression {
 	    it.garbage ();
     }
     
-    override ParamList templateExpReplace (Array!Var names, Array!Expression values) {
+    override ParamList templateExpReplace (Array!Expression names, Array!Expression values) {
 	Array!Expression params;
 	foreach (it ; this._params)
 	    params.insertBack(it.templateExpReplace (names, values));

@@ -98,7 +98,7 @@ class LambdaFunc : Expression {
 	    Table.instance.retInfo.info = this._ret.asType ().info;
 	}
 	
-	this._proto = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	this._proto = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
 	Table.instance.retInfo.currentBlock = "true";
 
 	auto block = this._block.block ();
@@ -108,8 +108,8 @@ class LambdaFunc : Expression {
 	}
 
 	auto finFrame = new FinalFrame (Table.instance.retInfo.info,
-					 name,
-					 finalParams, block);
+					name, name,
+					finalParams, block);
 
 	this._proto.type = Table.instance.retInfo.info;
 	FrameTable.instance.insert (finFrame);
@@ -143,7 +143,7 @@ class LambdaFunc : Expression {
     }
 
     
-    override Expression templateExpReplace (Array!Var names, Array!Expression values) {
+    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	Array!Var var;
 	foreach (it ; this._params)
 	    var.insertBack (cast (Var) it.templateExpReplace (names, values));

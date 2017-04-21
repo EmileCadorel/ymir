@@ -84,7 +84,7 @@ class PureFrame : Frame {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }
 	    
-	    this._fr = new FrameProto (name, Table.instance.retInfo.info, finalParams);
+	    this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
 	    Table.instance.retInfo.currentBlock = "true";
 	    auto block = this._function.block.block ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
@@ -92,8 +92,8 @@ class PureFrame : Frame {
 	    }
 
 	    auto finFrame =  new FinalFrame (Table.instance.retInfo.info,
-				       name,
-				       finalParams, block);
+					     name, name,
+					     finalParams, block);
 	    
 	    this._fr.type = Table.instance.retInfo.info;
 	    
