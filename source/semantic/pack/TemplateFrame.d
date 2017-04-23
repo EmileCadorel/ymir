@@ -199,8 +199,30 @@ class TemplateFrame : Frame {
 	if (type is null) return null;
 	else return typeIt (name, type.info.type, args, tmps);
     }    
-    
+
     override ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
+	if (args.length > this._function.params.length) return this.isApplicableVariadics (ident, attrs, args);
+	else return this.isApplicableSimple (ident, attrs, args);
+    }
+
+    private ApplicationScore isApplicableVariadics (Word ident, Array!Var attrs, Array!InfoType params) {
+	if (attrs.length == 0 || cast (TypedVar) attrs [$ - 1])
+	    return null;
+	else {
+	    auto types = make!(Array!InfoType) (params [0 .. attrs.length]);
+	    auto score = this.isApplicableSimple (ident, attrs, types);
+	    if (score is null || score.score == 0) return score;
+	    auto tuple = new TupleInfo ();
+	    auto last = score.treat.back ();
+	    auto tuple_types = make!(Array!InfoType) (params [attrs.length - 1 .. $]);
+	    tuple.params = tuple_types;
+	    score.treat.back () = tuple;
+	    score.score += AFF - CHANGE;
+	    return score;
+	}
+    }    
+    
+    private ApplicationScore isApplicableSimple (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
 	InfoType [] tmps;
 	tmps.length = this._function.tmps.length;

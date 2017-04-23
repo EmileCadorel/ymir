@@ -13,3 +13,7 @@ def toString (a : ptr!char) : string {
     }
     return cast:string (ret);
 }
+
+def to (string) (elem : [char]) : string {
+    return cast:string (elem);
+}
