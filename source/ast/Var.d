@@ -102,7 +102,7 @@ class Var : Expression {
 	foreach (it ; this._templates)
 	    tmps.insertBack (it.templateExpReplace (names, values));
 
-
+	
 	return new Var (this._token, tmps);
     }
     

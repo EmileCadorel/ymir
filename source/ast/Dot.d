@@ -41,6 +41,7 @@ class Dot : Expression {
      */
     override Expression expression () {
 	auto aux = new Dot (this._token);
+	this._left.print ();
 	aux._left = this._left.expression ();
 	aux._right = this._right;	
 	aux._right.inside = aux;

@@ -92,7 +92,6 @@ def opIndex (T) (a : [T], ind : range!ulong) : [T] {
     return slice (a, cast:long (ind.fst), (ind.scd));
 }
 
-
 def suite (T) (a : [T], ind : int) : [T] {
     return [a [ind]];
 }
