@@ -88,13 +88,15 @@ class If : Instruction {
 	    if (!expr.info.isImmutable) throw new NotImmutable (expr.info);
 	    else if ((cast(BoolValue) (expr.info.value)).isTrue) {
 		return this._block.instruction ();
-	    } else pass = true;
+	    } else {
+		if (this._else)
+		    return this._else.instruction ();
+		else return new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
+	    }
 	}
 	
-	Table.instance.retInfo.currentBlock = "if";	
-	Block bl;
-	if (!pass) bl = this._block.instructions ();
-	else bl = new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
+	Table.instance.retInfo.currentBlock = "if";
+	Block bl = this._block.instructions ();
 	
 	If _if;
 	if (this._else !is null) {
@@ -191,6 +193,7 @@ class Else : Instruction {
      Pour être juste toutes les instructions du block doivent être juste     
      */
     override Instruction instruction () {
+	if (this._isStatic) return this._block.instructions ();
 	Table.instance.retInfo.currentBlock = "else";
 	auto aux = new Else (this._token, this._block.instructions);
 	return aux;
@@ -291,13 +294,17 @@ class ElseIf : Else {
 	    if (!expr.info.isImmutable) throw new NotImmutable (expr.info);
 	    else if ((cast(BoolValue) (expr.info.value)).isTrue) {
 		return this._block.instructions ();
-	    } else pass = true;
+	    } else {
+		if (this._else)
+		    return this._else.instruction ();
+		else return new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
+	    }
 	}
-	
+
+
 	Table.instance.retInfo.currentBlock = "if";
-	Block bl;
-	if (!pass) bl = this._block.instructions ();
-	else bl = new Block (this._block.token, make!(Array!Declaration), make!(Array!Instruction));
+	
+	Block bl = this._block.instructions ();
 	ElseIf _if;
 	if (this._else !is null) {
 	    _if = new ElseIf (this._token, expr, bl, cast(Else) this._else.instruction (), this._isStatic);
