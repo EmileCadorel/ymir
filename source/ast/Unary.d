@@ -30,16 +30,26 @@ class BefUnary : Expression {
      Throws: UndefinedVar, UninitVar, UndefinedOp.
      */
     override Expression expression () {
-	auto aux = new BefUnary (this._token, this._elem.expression);
-	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
-	if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
-	auto type = aux._elem.info.type.UnaryOp (this._token);
-	if (type is null) {
-	    throw new UndefinedOp (this._token, aux._elem.info);
+	if (this._info is null) {
+	    auto aux = new BefUnary (this._token, this._elem.expression);
+	    if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
+	    if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
+	    auto type = aux._elem.info.type.UnaryOp (this._token);
+	    if (type is null) {
+		throw new UndefinedOp (this._token, aux._elem.info);
+	    }
+	    
+	    aux._info = new Symbol (aux._token, type);
+	    return aux;
+	} else {
+	    if (this._info.isDestructible && !this._info.value)
+		Table.instance.garbage (this._info);
+	    else if (this._info.value)
+		this.removeGarbage;
+	    
+	    return this;	    
 	}
-	
-	aux._info = new Symbol (aux._token, type);
-	return aux;
+
     }
 
     override void removeGarbage () {
@@ -60,7 +70,9 @@ class BefUnary : Expression {
     }        
     
     override Expression clone () {
-	return new BefUnary (this._token, this._elem.clone ());
+	auto aux = new BefUnary (this._token, this._elem.clone ());
+	aux.info = this._info;
+	return aux;
     }
 
     /**

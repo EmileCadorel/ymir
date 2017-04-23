@@ -62,7 +62,10 @@ class DecimalValue : Value {
 	return null;
     }
 
-    override Value UnaryOp (Tokens token) {
+    override Value UnaryOp (Word op) {
+	if (op == Tokens.MINUS) return new DecimalValue (- this._value);
+	else if (op == Tokens.DPLUS) return new DecimalValue (this._value++);
+	else if (op == Tokens.DMINUS) return new DecimalValue (this._value --);
 	return null;
     }
 

@@ -410,10 +410,8 @@ class TemplateFrame : Frame {
 		namespace ~= (_fl.totale);
 	    else if (auto _bool = cast (Bool) it)
 		namespace ~= (to!string (_bool.value));
-	    else if (auto _bin = cast (Binary) it) {
-		if (_bin.info.isImmutable) {
-		    namespace ~= (_bin.info.type.value.toString);
-		}
+	    else if (auto _val = it.info.value) {
+		namespace ~= (_val.toString);		
 	    } else 
 		assert (false, typeid (it).toString);
 	    if (it != params [$ - 1]) namespace ~= ",";

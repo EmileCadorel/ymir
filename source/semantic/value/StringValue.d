@@ -32,7 +32,7 @@ class StringValue : Value {
 	return null;
     }
 
-    override Value UnaryOp (Tokens token) {
+    override Value UnaryOp (Word token) {
 	return null;
     }
 

@@ -8,6 +8,7 @@ import syntax.Word;
 public import syntax.Tokens;
 import lint.LInstList;
 public import semantic.pack.Symbol;
+public import syntax.Word;
 
 class Value {
 
@@ -15,7 +16,7 @@ class Value {
 
     abstract Value BinaryOpRight (Tokens token, Value left);
 
-    abstract Value UnaryOp (Tokens token);
+    abstract Value UnaryOp (Word token);
 
     abstract Value AccessOp (ParamList params);
     

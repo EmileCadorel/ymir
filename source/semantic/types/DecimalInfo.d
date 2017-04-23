@@ -122,14 +122,19 @@ class DecimalInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType UnaryOp (Word op) {
+	InfoType ret;
 	if (op == Tokens.MINUS) {
-	    auto ret = new DecimalInfo (this._type);
+	    ret = new DecimalInfo (this._type);
 	    ret.lintInstS.insertBack (&DecimalUtils.InstUnop !(Tokens.MINUS));
+	    if (this._value)
+		ret.value = this._value.UnaryOp (op);
 	    return ret;
 	} else if (op == Tokens.AND && !this.isConst) return toPtr ();
-	else if (op == Tokens.DPLUS && !this.isConst) return pplus ();
-	else if (op == Tokens.DMINUS && !this.isConst) return ssub ();
-	return null;
+	else if (op == Tokens.DPLUS && !this.isConst) ret = pplus ();
+	else if (op == Tokens.DMINUS && !this.isConst) ret = ssub ();
+	if (this._value && ret)
+	    ret.value = this._value.UnaryOp (op);
+	return ret;
     }
 
     /**

@@ -67,7 +67,7 @@ class CharValue : Value {
 	return null;
     }
 
-    override Value UnaryOp (Tokens token){ return null; }
+    override Value UnaryOp (Word token){ return null; }
 
     override Value AccessOp (ParamList params){ return null; }
     

@@ -41,7 +41,6 @@ class Is : Expression {
      */
     override Expression expression () {
 	auto aux = new Is (this._token, this._left.expression, this._type.expression);
-
 	if (!(cast (Type) aux._type)) throw new UseAsType (aux._type.token);
 	if (cast (UndefInfo) aux._left) throw new UninitVar (aux._left.token);
 
