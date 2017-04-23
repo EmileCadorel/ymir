@@ -549,15 +549,13 @@ class NotImmutable : YmirException {
 class StaticAssertFailure : YmirException {
     import ast.Expression, ast.Constante;
     
-    this (Word sym, Expression msg) {
+    this (Word sym, string msg) {
 	auto buf = new OutBuffer ();
 	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
 	buf.writef ("%sErreur%s : Assertion Failure :",
 		    Colors.RED.value, Colors.RESET.value);
-	if (auto str = cast (String) msg) {
-	    buf.writefln (" %s", str.content);
-	} else buf.writefln ("");
 	
+	buf.writefln (" %s", msg);	
 	super.addLine (buf, sym.locus);
 	super.msg = buf.toString ();
     }

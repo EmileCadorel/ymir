@@ -316,6 +316,7 @@ class ArrayInfo : InfoType {
 	auto _str = new StringInfo;
 	_str.leftTreatment = &ArrayUtils.ArrayGetType;
 	_str.lintInst = &ArrayUtils.ArrayStringOf;
+	_str.value = new StringValue (this.typeString);
 	return _str;
     }
 

@@ -15,7 +15,7 @@ import semantic.types.TupleInfo;
 import std.container;
 import semantic.pack.Symbol;
 import semantic.value.Value;
-
+public import semantic.value.all;
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
 alias LInstList function (LInstList, LInstList) InstComp;

@@ -4,13 +4,19 @@ import std.array;
 import std.conv;
 
 def test (T) () {
-    static if (T is string)
-	return [T; 100UL];    
+    static if (is (T : string))
+	return "salut";
+    else if (is (T : float)) {
+	return 12.;   
+    } else static assert (false, T.typeid);
 }
 
 
 def main () {
-    let a = test!(string) ();
+    let a = test!(float) ();
+    let b = test!(string) ();
+    //let c = test!(int) ();
+    println (a, " ", b);
 }
 
 

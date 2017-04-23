@@ -25,6 +25,7 @@ class LVisitor {
     static string __ForEachBody__ = "_YPForEachBody__";
     static immutable string __AssertName__ = "_YPAssert__";
     static immutable string __ExitName__ = "exit";
+    static immutable string __PutCharName__ = "putchar";
     
     private LLabel [Instruction] _endLabels;
     static private LPairLabel __currentCondition__ = LPairLabel (null, null);
@@ -52,6 +53,7 @@ class LVisitor {
 	vrai.insts += new LJump (test2, vrai2);
 	vrai.insts += new LGoto (faux2);
 	vrai2.insts += new LCall (printsName, make!(Array!LExp) (msg), LSize.NONE);
+	vrai2.insts += new LCall (__PutCharName__, make!(Array!LExp) (new LConstDecimal (10, LSize.BYTE)), LSize.NONE);
 	vrai.insts += vrai2;
 	vrai.insts += faux2;
 	vrai.insts += new LCall (__ExitName__, make!(Array!LExp) (new LConstDecimal (-1, LSize.INT)), LSize.NONE);
@@ -461,6 +463,7 @@ class LVisitor {
 	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
 	if (auto _exp = cast (Expand) elem) return visitExpand (_exp);
 	if (auto _alloc = cast (ArrayAlloc) elem) return visitAlloc (_alloc);
+	if (auto _is = cast (Is) elem) return visitIs (_is);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -879,6 +882,10 @@ class LVisitor {
 	return inst + ret;
     }
 
+    private LInstList visitIs (Is _is) {
+	return _is.info.value.toLint (_is.info);
+    }
+    
 }
 
 

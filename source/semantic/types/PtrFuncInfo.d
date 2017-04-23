@@ -272,6 +272,7 @@ class PtrFuncInfo : InfoType {
 	    auto str = new StringInfo ();
 	    str.lintInst = &PtrFuncUtils.StringOf;
 	    str.leftTreatment = &PtrFuncUtils.GetStringOf;
+	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
 	return null;

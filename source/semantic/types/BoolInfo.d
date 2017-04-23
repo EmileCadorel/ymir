@@ -195,6 +195,7 @@ class BoolInfo : InfoType {
 	auto str = new StringInfo ();
 	str.lintInst = &BoolUtils.BoolStringOf;
 	str.leftTreatment = &BoolUtils.BoolGetStringOf;
+	str.value = new StringValue (this.typeString);
 	return str;
     }
     

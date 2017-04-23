@@ -455,6 +455,7 @@ class StructInfo : InfoType {
 	auto str = new StringInfo;
 	str.lintInst = &StructUtils.StringOf;
 	str.leftTreatment = &StructUtils.GetStringOf;
+	str.value = new StringValue (this.typeString);
 	return str;
     }
 

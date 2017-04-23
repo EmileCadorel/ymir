@@ -714,6 +714,8 @@ class Visitor {
 	    return new Null (tok);
 	else if (tok == Keys.EXPAND)
 	    return visitExpand ();
+	else if (tok == Keys.IS) 
+	    return visitIs ();
 	else _lex.rewind ();
 	return null;
     }
@@ -727,6 +729,20 @@ class Visitor {
 	next = this._lex.next ();
 	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
 	return new Expand (begin, expr);
+    }
+
+    private Expression visitIs () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next ();
+	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	next = this._lex.next ();
+	if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
+	auto type = visitType ();
+	next = this._lex.next ();
+	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	return new Is (begin, expr, type);
     }
     
     private Expression visitNumeric (Word begin) {

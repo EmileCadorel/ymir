@@ -65,6 +65,7 @@ class StringValue : Value {
     override Value DotOp (Var var) {
 	import std.conv;
 	if (var.token.str == "length") return new DecimalValue (to!string (this._value.length));
+	else if (var.token.str == "typeid") return new StringValue ("string");
 	return null;
     }
     

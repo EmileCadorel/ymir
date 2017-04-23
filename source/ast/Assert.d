@@ -56,16 +56,18 @@ class Assert : Instruction {
 	if (this._msg) {
 	    msg = this._msg.expression;
 	    if (!msg.info.type.isSame (new StringInfo))
-		throw new IncompatibleTypes (msg.info, new StringInfo ());
-	    else (cast (String)msg).content ~= "\n";
+		throw new IncompatibleTypes (msg.info, new StringInfo ());	   
 	}
 
 	if (this._isStatic) {
 	    import semantic.value.BoolValue;
+	    if (msg.info.value is null) 
+		throw new NotImmutable (msg.info);
+	    
 	    if (!expr.info.isImmutable)
 		throw new NotImmutable (expr.info);
 	    if (!(cast (BoolValue) expr.info.value).isTrue) {
-		throw new StaticAssertFailure (this._token, msg);
+		throw new StaticAssertFailure (this._token, msg.info.value.toString);
 	    }
 	} else {
 	    Table.instance.retInfo.returned ();

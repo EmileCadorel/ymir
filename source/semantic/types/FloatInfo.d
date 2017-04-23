@@ -353,6 +353,7 @@ class FloatInfo : InfoType {
 	auto str = new StringInfo ();
 	str.lintInst = &FloatUtils.FloatStringOf;
 	str.leftTreatment = &FloatUtils.FloatGetStringOf;
+	str.value = new StringValue (this.typeString);
 	return str;
     }
 

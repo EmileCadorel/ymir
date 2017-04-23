@@ -288,6 +288,7 @@ class CharInfo : InfoType {
 	    _str.lintInst = &CharUtils.CharStringOfConst;
 	else
 	    _str.lintInst = &CharUtils.CharStringOf;
+	_str.value = new StringValue (this.typeString);
 	return _str;
     }
 

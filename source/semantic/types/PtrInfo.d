@@ -350,6 +350,7 @@ class PtrInfo : InfoType {
 	    auto str = new StringInfo;
 	    str.lintInst = &PtrUtils.StringOf;
 	    str.leftTreatment = &PtrUtils.GetStringOf;
+	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
 	return null;  

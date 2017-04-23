@@ -636,6 +636,7 @@ class DecimalInfo : InfoType {
 	auto _str = new StringInfo ();
 	_str.lintInst = &DecimalUtils.StringOf;
 	_str.leftTreatment = &DecimalUtils.GetStringOf;
+	_str.value = new StringValue (this.typeString);
 	return _str;
     }
 

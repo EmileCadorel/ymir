@@ -288,7 +288,7 @@ class StringInfo : InfoType {
 	if (var.token.str == "nbRef") ret = NbRef ();
 	if (var.token.str == "length") ret = Length ();
 	else if (var.token.str == "dup") ret = Dup ();
-	else if (var.token.str == "typeid") ret = StringOf ();
+	else if (var.token.str == "typeid") return StringOf ();
 	else if (var.token.str == "ptr") ret = Ptr ();
 	if (ret && this._value) ret.value = this._value.DotOp (var);
 	return ret;
@@ -363,6 +363,7 @@ class StringInfo : InfoType {
 	auto str = new StringInfo;
 	str.lintInst = &StringUtils.StringOf;
 	str.leftTreatment = &StringUtils.GetStringOf;
+	str.value = new StringValue (this.typeString);
 	return str;
     }
 
