@@ -255,3 +255,8 @@ def equals (left : string, right : string) : bool {
     }
     return true;
 }
+
+def opIndex (str : string) : [char] {
+    return cast:[char] (str);
+}
+    

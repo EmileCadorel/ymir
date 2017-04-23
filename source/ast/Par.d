@@ -36,6 +36,7 @@ class Par : Expression {
 	this._end = end;
 	this._params = params;
 	this._left = left;
+	this._left.inside = this;
     }
 
     this (Word word, Word end) {
@@ -56,6 +57,8 @@ class Par : Expression {
 	try {
 	    aux._params = (cast(ParamList)this._params.expression ());
 	    aux._left = this._left.expression ();
+	    aux._left.inside = this;
+	    
 	    if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
 	    else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
 	    
@@ -71,9 +74,9 @@ class Par : Expression {
 		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	    }
 	
-	    if (type.treat.length != aux._params.length) {
+	    if (type.treat.length != aux._params.length) 
 		tuplingParams (type, aux);
-	    }
+	    
 	
 	    aux._score = type;
 	    aux._info = new Symbol (this._token, type.ret, true);
@@ -138,21 +141,21 @@ class Par : Expression {
     /**
      Returns: le score retourner par l'analyse sémantique
      */
-    ApplicationScore score () {
+    ref ApplicationScore score () {
 	return this._score;
     }
 
     /**
      Returns: L'expression de gauche
      */
-    Expression left () {	
+    ref Expression left () {	
 	return this._left;
     }
 
     /**
      Returns: Les paramètres de l'expression
      */
-    ParamList paramList () {
+    ref ParamList paramList () {
 	return this._params;
     }
 

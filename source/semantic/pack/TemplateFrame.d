@@ -358,7 +358,7 @@ class TemplateFrame : Frame {
 
 	Table.instance.pacifyMode ();
 	foreach (it ; 0 .. params.length) {
-	    if (params [it].info.isImmutable) {
+	    if (params [it].info.isImmutable || cast (Type) params [it]) {
 		auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
 		if (tmp is null) return null;	    
 		finals.insertBack (tmp.expression ());

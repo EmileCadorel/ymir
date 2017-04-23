@@ -12,7 +12,10 @@ class Expression : Instruction {
 
     /// L'information de l'expression
     protected Symbol _info;
-    
+
+    /// L'instruction dont fait partie l'expression
+    protected Instruction _inside;
+
     this (Word word) {
 	super (word);
     }
@@ -80,7 +83,14 @@ class Expression : Instruction {
     string prettyPrint () {
 	assert (false, "TODO " ~ typeid (this).toString ~ ".prettyPrint");
     }
-    
+
+    /**
+     L'instruction dont l'expression fait partie
+     */
+    ref Instruction inside () {
+	return this._inside;
+    }
+
     /**
      Fonction à surcharger pour l'affichage
     */

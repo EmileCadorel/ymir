@@ -1,25 +1,18 @@
 import std.stdio;
+import std.string;
+import std.array;
+import std.conv;
 
-def opBinary ("+") (a : string, b : int) {
-    return a + cast:string ([cast:char (b) + '0']);
-}
 
-def opBinary ("-") (a : string, b : int) {
-    static assert (false, "Pas Possible ça");
-}
-
-def opBinary (op : string) (a : string, b : int) {
-    let ret = a;
-    for (it in 1 .. b)
-	ret += a;
-    return ret;
+def to (string) (elem : [char]) {
+    return cast:string (elem);
 }
 
 
 def main () {
-    println ("salut" + 1);
-    //println ("salut" - 1);
-    println ("h" * 3);
+    let a = "salut";
+    let b = (a[]).to!(string);
+    println (b);
 }
 
 

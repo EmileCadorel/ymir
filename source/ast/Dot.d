@@ -5,6 +5,7 @@ import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import std.string;
+import ast.Par, ast.Instruction;
 
 /**
  Classe généré à la syntaxe par.
@@ -25,6 +26,8 @@ class Dot : Expression {
 	super (word);
 	this._left = left;
 	this._right = right;
+	this._left.inside = this;
+	this._right.inside = this;
     }
 
     this (Word word) {
@@ -39,7 +42,9 @@ class Dot : Expression {
     override Expression expression () {
 	auto aux = new Dot (this._token);
 	aux._left = this._left.expression ();
-	aux._right = this._right;
+	aux._right = this._right;	
+	aux._right.inside = aux;
+	aux._left.inside = this;
 	if (cast (UndefInfo) (aux._left.info.type)) throw new UninitVar (aux._left.token);
 	auto type = aux._left.info.type.DotOp (aux._right);
 	if (type is null) {
@@ -49,7 +54,7 @@ class Dot : Expression {
 		auto call = aux._right.expression ();
 		if (cast (Type) call || cast (UndefInfo) call.info.type)
 		    throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
-		return new DotCall (this._right.token, call, aux._left);
+		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();
 	    }
 	}
 	aux.info = new Symbol (aux._token, type);
@@ -120,10 +125,11 @@ class DotCall : Expression {
     /** Le premier paramètre de la fonction */
     private Expression _firstPar;
 
-    this (Word token, Expression call, Expression firstPar) {
+    this (Instruction inside, Word token, Expression call, Expression firstPar) {
 	super (token);
 	this._call = call;
 	this._firstPar = firstPar;
+	this._inside = inside;
     }
        
     /**
@@ -137,6 +143,28 @@ class DotCall : Expression {
 	return this;
     }	
     
+    override Expression expression () {
+	import syntax.Tokens;
+	if (!cast (Par) this._inside) {
+	    auto aux = new Par (this._token, this._token);
+	    auto word = this._token;
+	    word.str = Tokens.LPAR.descr ~ Tokens.RPAR.descr;
+	    aux.paramList = new ParamList (this._token, make!(Array!Expression) (this._firstPar));
+	    aux.left = this._call;
+	    auto type = aux.left.info.type.CallOp (aux.left.token, aux.paramList);
+	    if (type is null) {
+		throw new UndefinedOp (word, aux.left.info, aux.paramList);
+	    }
+	    
+	    aux.score = type;
+	    aux.info = new Symbol (this._token, type.ret, true);
+	    if (cast (UndefInfo) type.ret)
+		throw new TemplateInferType (aux.left.token, aux.score.token);
+	    return aux;
+	} else
+	    return this;
+    }    
+
     /**
      Returns: le premier paramètre de l'appel
      */
@@ -145,7 +173,7 @@ class DotCall : Expression {
     }
 
     override Expression clone () {
-	return new DotCall (this._token, this._call.clone (), this._firstPar.clone ());
+	return new DotCall (this._inside, this._token, this._call.clone (), this._firstPar.clone ());
     }
     
 }

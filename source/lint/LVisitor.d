@@ -59,7 +59,6 @@ class LVisitor {
 	entry.insts += faux;
 	auto fr = new LFrame (__AssertName__, entry, end, null, make!(Array!LReg) ([testVar, loc, msg]));
 	LFrame.preCompiled [__AssertName__] = fr;
-	writeln (fr);
 	LReg.lastId = last;
     }
 

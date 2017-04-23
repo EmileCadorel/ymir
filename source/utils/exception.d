@@ -72,7 +72,7 @@ class NoReturnStmt : YmirException {
  Le char d'échappement x n'existe pas
  */
 class UndefinedEscapeChar : YmirException {
-
+    
     /**
      Params:
      token = emplacement de la chaine
@@ -96,7 +96,8 @@ class UndefinedEscapeChar : YmirException {
  L'operateur op n'existe pas entre les types x et y
  */
 class UndefinedOp : YmirException {
-
+    import semantic.types.InfoType;
+    
     /**
      Params:
      token = l'operateur
@@ -104,6 +105,24 @@ class UndefinedOp : YmirException {
      right = l'element droit
      */
     this (Word token, Symbol left, Symbol right) {
+	OutBuffer buf = new OutBuffer();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
+		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
+	
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+
+    /**
+     Params:
+     token = l'operateur
+     left = l'element gauche
+     right = l'element droit
+     */
+    this (Word token, Symbol left, InfoType right) {
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
