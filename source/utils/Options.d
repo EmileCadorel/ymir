@@ -14,28 +14,28 @@ import std.file;
    <li> - un type (0 ou 1, avec ou sans param) </li> 
     </table>
  */
-alias Option = Tuple!(string, "identifiant", string, "act", string, "lact", int, "type");
+alias Option = Tuple!(string, "identifiant", string, "act", string, "lact", int, "type", string, "descr");
 
 /**
  Enumeration de options passable au compilateur
 */
 enum OptionEnum : Option {
-    /** Génére une solution avec les infos de debug */
-    DEBUG = Option ("debug", "-g", "--debug", 0),
+   /** Génére une solution avec les infos de debug */
+   DEBUG = Option ("debug", "-g", "--debug", 0, "Ecris les informations de debug dans la solution"),
     /** Affiche tout les warnings à la compile */
-    WALL = Option ("wall", "--Wall", "--Wall", 0),
-	/** specifie la cible */
-    TARGET = Option ("target", "-t", "--target", 1),
-	/** ne va pas jusqu'a l'edition de lien, génére des .o */
-    ASSEMBLE = Option ("assemble", "-c", "-c", 0),
+   WALL = Option ("wall", "--Wall", "--Wall", 0, "Affiche tous les warnings"),
+   /** specifie la cible */
+    TARGET = Option ("target", "-t", "--target", 1, "Spécifie la cible"),
+   /** ne va pas jusqu'a l'edition de lien, génére des .o */
+    ASSEMBLE = Option ("assemble", "-c", "-c", 0, "compile mais ne fait pas l'édition des liens"),
 	/** ne va pas jusqu'a l'édition de lien, génére des .s */
-    COMPILE = Option ("compile", "-S", "-S", 0),
+    COMPILE = Option ("compile", "-S", "-S", 0, "compile et assemble mais ne fait pas l'édition des liens"),
 	/** Ajoute un dossier d'importation de fichier */
-    INCLUDE = Option ("include", "-I", "-I", 1),
+    INCLUDE = Option ("include", "-I", "-I", 1, "Ajoute un dossier d'imporation de module"),
 	/** Surcharge la variable d'envirronement YS_HOME */
-    YS_PATH = Option ("ys_path", "--YS_PATH", "--YS_PATH", 1),
+    YS_PATH = Option ("ys_path", "--YS_PATH", "--YS_PATH", 1, "Spécifie l'emplacement de l'envirronnement de Ymir"),
 	/** On compile la std*/
-    STD_COMPILATION = Option ("std_compil", "--std", "--std", 0)
+    STD_COMPILATION = Option ("std_compil", "--std", "--std", 0, "Ajoute les fonctions précompilé du langage à la solution")
 }
 
 /**
@@ -49,17 +49,19 @@ class Options {
      args = les paramètre passé au programme.
      */
     void init (string [] args) {
-	foreach (it ; args [1 .. $]) {
-	    if (it.length > 0 && it [0] == '-') {
-		parseArgument (it);
-	    } else if (extension (it) == ".yr") {		
-		this._inputFiles ~= [it];
-	    } else if (extension (it) == ".a") {
-		this._libs ~= [it];
-	    } else if (extension (it) == ".o") {
-		this._libs ~= [it];
+	for (auto it = 1 ; it < args.length; it++) {
+	    string next = null;
+	    if (it < args.length - 1) next = args [it + 1];
+	    if (args [it].length > 0 && args [it] [0] == '-') {
+		if (parseArgument (args [it], next)) it ++;
+	    } else if (extension (args [it]) == ".yr") {		
+		this._inputFiles ~= [args [it]];
+	    } else if (extension (args [it]) == ".a") {
+		this._libs ~= [args [it]];
+	    } else if (extension (args [it]) == ".o") {
+		this._libs ~= [args [it]];
 	    } else {
-		throw new YmirException ("Format inconnu " ~ extension (it));
+		throw new YmirException ("Format inconnu " ~ extension (args [it]));
 	    }
 	}
 
@@ -75,29 +77,53 @@ class Options {
      Vérifie que l'argument est une option, ou un fichier source.
      Throws: YmirException, si l'argument n'existe pas
      */
-    private void parseArgument (string arg) {
+    private bool parseArgument (string arg, string next) {
 	if (arg.length >= 2 && arg [1] != '-') {
 	    auto it = find !"a.act == b"([EnumMembers!OptionEnum], arg);
-	    if (it == []) throw new YmirException ("Option : " ~ arg ~ " non definie");
-	    else this._options [it [0]] = "";	    
+	    if (it == []) throw new YmirException ("Option : [" ~ arg ~ "] non definie" ~ this.help ());
+	    else {
+		if (it [0].type == 0) {
+		    this._options [it [0]] = "";
+		    return false;
+		} else if (next != null) {
+		    this._options [it [0]] = next;
+		    return true;
+		} else throw new YmirException ("Option : Manque un nom après [" ~ arg ~ "] " ~ this.help ());
+	    }
 	} else {
 	    foreach (it ; [EnumMembers!OptionEnum]) {
 		auto index = indexOf (arg, "=");
-		if (it.type == 0 && index == -1) { // --op
-		    if (it.lact == arg) {
+		if (index == -1) { // --op
+		    if (it.lact == arg && it.type == 0) {
 			this._options [it] = "";
-			return;
+			return false;
+		    } else if (it.lact == arg && it.type == 1) {
+			if (next != null) {
+			    this._options [it] = next;
+			    return true;
+			} else throw new YmirException ("Option : Manque un nom après [" ~ arg ~ "] " ~ this.help ());
 		    }
 		} else if (it.type == 1 && index != -1) { // --op=elem
 		    if (it.lact == arg [0 .. index]) {
-			this._options [it] = arg [index .. $];
-			return;
+			this._options [it] = arg [index + 1 .. $];
+			return false;
 		    }
 		}
 	    }
 	    throw new YmirException ("Option : " ~ arg ~ " non definie");
 	}
     }
+
+    private string help () {
+	import std.outbuffer, std.format, std.string;
+	auto buf = new OutBuffer ();
+	buf.writefln ("\nusage [options] file...\nOptions:");
+	foreach (it ; [EnumMembers!OptionEnum]) {
+	    buf.writefln ("\t%s\t%s", leftJustify (format("%s, %s", it.act, it.lact), 20, ' '), it.descr);
+	}
+	buf.writefln ("\nPour signaler un bug, aller sur :\nhttps://github.com/EmileCadorel/ymir/");
+	return buf.toString ();
+    }    
 
     /**
      Returns la liste des fichiers sources

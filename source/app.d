@@ -37,8 +37,10 @@ void semanticTime (string file) {
 	} catch (YmirException yme) {
 	    yme.print ();
 	    error ++;
+	    debug { throw yme; }
 	} catch (ErrorOccurs occurs) {
 	    error += occurs.nbError;
+	    debug { throw occurs; }
 	}
     }
       
@@ -157,7 +159,9 @@ void main (string [] args) {
 	    options ~= ["-g"];
 	if (Options.instance.isOn (OptionEnum.ASSEMBLE))
 	    options ~= ["-c"];
-	
+
+	if (Options.instance.isOn (OptionEnum.TARGET))
+	    options ~= ["-o", Options.instance.getOption (OptionEnum.TARGET)];
 	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
 	    auto pid = spawnProcess (["gcc"] ~
 				     options ~
@@ -177,10 +181,9 @@ void main (string [] args) {
 	
     } catch (YmirException yme) {
 	yme.print ();
-	debug {
-	    throw yme;
-	}
+	debug { throw yme; }
     } catch (ErrorOccurs occurs) {
 	occurs.print ();
+	debug { throw occurs; }
     }
 }
