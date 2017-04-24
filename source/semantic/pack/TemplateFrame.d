@@ -172,8 +172,9 @@ class TemplateFrame : Frame {
 	    import semantic.value.BoolValue, syntax.Tokens;
 	    if (!val.info.isImmutable) assert (false, typeid (elem).toString);
 	    auto eq = cast (BoolValue) (val.info.value.BinaryOp (Tokens.DEQUAL, type.info.value));
+	    auto eq2 = cast (BoolValue) (type.info.value.BinaryOp (Tokens.DEQUAL, val.info.value));
 	    this._currentScore += SAME;
-	    if (eq && eq.isTrue) return elem;
+	    if (eq && eq.isTrue || eq2 && eq2.isTrue) return elem;
 	}
 	return null;
     }

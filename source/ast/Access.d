@@ -57,7 +57,7 @@ class Access : Expression {
 	    if (!call)
 		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	    else {
-		call.garbage ();
+		//call.garbage ();
 		return call;
 	    }
 	}
@@ -67,7 +67,6 @@ class Access : Expression {
 
     auto findOpAccess (Access aux) {
 	import ast.Par, syntax.Keys;
-	aux.removeGarbage ();
 	try {	    
 	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);
 	    auto var = new Var (word);

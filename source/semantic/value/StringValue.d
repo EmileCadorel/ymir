@@ -96,4 +96,8 @@ class StringValue : Value {
 	return "'" ~ this._value ~ "'";
     }    
 
+    string value () const {
+	return this._value;
+    }
+    
 }

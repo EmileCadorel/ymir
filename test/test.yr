@@ -13,11 +13,32 @@ def test if (is (T : int) || is (T : long))
 	return 1;
     }
 
+struct
+| a : int
+-> Test;
+
+def opBinary ('+') (a : int, b : uint) : int {
+    return cast:int (b) + a;
+}
+
+def opRange if ((is (T : int) || is (T : long)) && (is (T2 : uint) || is (T2 : ulong)))
+    (T, T2) (a : T, b : T2) : range!T {
+	return a .. cast:T(b);
+    }
+
+def opRange (a : int, b : Test) {
+    return a .. b.a;
+}
+
+def print (T) (a : range!T) {
+    print (a.fst, ' ', a.scd);
+}
+
 def main () {
-    let a = ("salut")[];
-    let b = a.to!(string);
-    let c = test!(float) ();
-    let d = test!(long) ();    
+
+    let a = "salut";
+    let b = a [];
+
 }
 
 

@@ -44,6 +44,8 @@ class CharValue : Value {
 	    if (op == Tokens.DEQUAL) return new BoolValue (this._value.to!int == dec.value);
 	    if (op == Tokens.PLUS) return new DecimalValue (this._value.to!int + dec.value);
 	    if (op == Tokens.MINUS) return new DecimalValue (this._value.to!int - dec.value);
+	} else if (auto str = cast (StringValue) right) {
+	    if (op == Tokens.DEQUAL) return new BoolValue (str.value.length == 1 && str.value [0] == this._value);
 	}
 	return null;
     }    

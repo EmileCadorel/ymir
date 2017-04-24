@@ -79,7 +79,13 @@ class ConstRange : Expression {
 	auto aux = new ConstRange (this._token, this._left.expression, this._right.expression);
 	auto type = aux._left.info.type.CompOp (aux._right.info.type);
 	if (!cast (FloatInfo) type && !cast (DecimalInfo) type && !cast (CharInfo) type) {
-	    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+	    auto call = findOpRange (aux);
+	    if (!call)
+		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+	    else {
+		//call.garbage ();
+		return call;
+	    }
 	}
 	
 	if (!type.isSame (aux._left.info.type)) {
@@ -95,6 +101,22 @@ class ConstRange : Expression {
 	return aux;
     }
 
+    auto findOpRange (ConstRange aux) {
+	import ast.Par, syntax.Keys, ast.ParamList;
+	aux.removeGarbage ();
+	try {
+	    auto word = Word (this._token.locus, Keys.OPRANGE.descr, true);
+	    auto var = new Var (word);
+	    auto params = new ParamList (this._token,
+					 make!(Array!Expression) (this._left, this._right));
+	    auto call = new Par (this._token, this._token, var, params);
+	    return call.expression;	    
+	} catch (YmirException tm) {
+	    return null;
+	}
+    }
+    
+    
     override void removeGarbage () {
 	super.removeGarbage ();
 	if (this._left)
