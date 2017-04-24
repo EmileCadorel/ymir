@@ -83,6 +83,15 @@ class ConstTuple : Expression {
 	    exprs [it] = this._params [it].clone ();
 	return new ConstTuple (this._token, this._end, exprs);
     }
+
+    override string prettyPrint () {
+	import std.outbuffer;
+	auto buf = new OutBuffer ();
+	buf.writef ("tuple(");
+	foreach (it ; this._params)
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : ")");
+	return buf.toString;
+    }
     
     
 }

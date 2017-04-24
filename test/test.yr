@@ -5,18 +5,19 @@ import std.conv;
 
 def test if (is (T : float))
     (T) () {
-	println (1);
+	return 1.0;
     }
 
-def test if (is (T : int))
+def test if (is (T : int) || is (T : long))
     (T) () {
-	println (2);
+	return 1;
     }
-
 
 def main () {
-    test!(float) ();
-    test!(int) ();
+    let a = ("salut")[];
+    let b = a.to!(string);
+    let c = test!(float) ();
+    let d = test!(long) ();    
 }
 
 

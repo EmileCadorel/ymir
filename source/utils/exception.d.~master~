@@ -429,7 +429,6 @@ class MultipleLoopName : YmirException {
  Le type x n'est pas un template
  */
 class NotATemplate : YmirException {
-    import std.container, ast.Expression;
 
     /**
      Params:
@@ -437,28 +436,8 @@ class NotATemplate : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writefln ("%sErreur%s: L'élément %s'%s'%s n'est pas un template :", Colors.RED.value,
-		      Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
-	msg = buf.toString();        
-
-    }   
-    
-    /**
-     Params:
-     token = l'identifiant du type
-     */
-    this (Word token, Array!Expression tmps) {
-	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
-	buf.writef ("%sErreur%s: Aucune spécialisation de template pour %s'%s'%s avec (", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	foreach (it ; tmps)
-	    buf.writef ("%s%s%s%s", Colors.YELLOW.value,
-			it.prettyPrint(),
-			Colors.RESET.value, 
-			it !is tmps [$ - 1] ? ", " : ") :\n");
-	
+	buf.writef ("%sErreur%s: L'élément %s'%s'%s n'est pas un template :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	buf.writefln ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
 

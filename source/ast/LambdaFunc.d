@@ -163,6 +163,16 @@ class LambdaFunc : Expression {
 	auto block = this._block;
 	return new LambdaFunc (this._token, var, ret, block);
     }
+
+    override string prettyPrint () {
+		import std.outbuffer;
+	auto buf = new OutBuffer ();
+	buf.writef ("lambda (");
+	foreach (it ; this._params)
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "):");
+	buf.writef ("%s", this._ret.prettyPrint);
+	return buf.toString ();
+    }
     
 }
 

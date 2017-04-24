@@ -97,6 +97,10 @@ class BefUnary : Expression {
 	this._elem.print (nb + 4);    
     }
 
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s%s", this._token.str, this._elem.prettyPrint);
+    }   
     
 }
 
@@ -156,5 +160,10 @@ class AfUnary : Expression {
 		  this._token.locus.column,
 		  this._token.str);
 	this._elem.print (nb + 4);    
-    }    
+    }
+    
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s%s", this._elem.prettyPrint, this._token.str);
+    }   
 }

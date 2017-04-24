@@ -14,8 +14,9 @@ def toString (a : ptr!char) : string {
     return cast:string (ret);
 }
 
-def to (T) (elem : [char]) : string {
-    static if (T is string)
+def to if (is (T : string))
+    (T) (elem : [char]) : string {
 	return cast:string (elem);
-    else static assert (false);
-}
+    }
+
+

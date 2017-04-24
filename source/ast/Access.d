@@ -139,6 +139,11 @@ class Access : Expression {
 	this._left.print (nb + 4);
 	this._params.print (nb + 4);
     }
+
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s [%s]", this._left.prettyPrint, this._params.prettyPrint);
+    }
     
     
     

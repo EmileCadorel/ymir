@@ -97,4 +97,9 @@ class Cast : Expression {
 	return this._expr;
     }
     
+    override string prettyPrint () {
+	import std.format;
+	return format ("cast:%s (%s)", this._type.prettyPrint, this._expr.prettyPrint);
+    }
+
 }

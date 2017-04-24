@@ -67,5 +67,10 @@ class Is : Expression {
     override Expression clone () {
 	return new Is (this._token, this._left.clone (), this._type.clone ());
     }
+
+    override string prettyPrint () {
+	import std.format;
+	return format ("is (%s : %s)", this._left.prettyPrint, this._type.prettyPrint);
+    }
     
 }

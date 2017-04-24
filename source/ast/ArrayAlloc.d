@@ -115,6 +115,11 @@ class ArrayAlloc : Expression {
 	return this._type;
     }
     
+    override string prettyPrint () {
+	import std.format;
+	return format ("[%s; %s]", this._type.prettyPrint (), this._size.prettyPrint ());
+    }
 
+    
 }
 

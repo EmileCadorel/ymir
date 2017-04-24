@@ -123,4 +123,14 @@ class ParamList : Expression {
 	}
     }
     
+
+    override string prettyPrint () {
+	import std.outbuffer;
+	auto buf = new OutBuffer;
+	buf.writef ("(");
+	foreach (it ; this._params)
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : ")");
+	return buf.toString;
+    }
+
 }

@@ -75,7 +75,7 @@ class Decimal : Expression {
     string value () {
 	return this._token.str;
     }
-    
+
 }
 
 
@@ -134,6 +134,10 @@ class Char : Expression {
 		  this._token.locus.column,
 		  this._code);	
    } 
+
+    override string prettyPrint () {
+	return to!string (cast (char) (this._code));
+    }
     
 }
 
@@ -207,6 +211,10 @@ class Float : Expression {
 		  this._totale);
 	
    }
+
+    override string prettyPrint () {
+	return to!string (this._totale);
+    }
     
 }
 
@@ -382,6 +390,10 @@ class String : Expression {
 	return this._content;
     }
 
+    override string prettyPrint () {
+	return "'" ~ this._content ~ "'";
+    }
+
     /**
      Affiche l'expression sous forme d'arbre.
      Params:
@@ -429,6 +441,10 @@ class Bool : Expression {
 	return new Bool (this._token);
     }
 
+    override string prettyPrint () {
+	return this._token.str;
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:
@@ -470,6 +486,10 @@ class Null : Expression {
 	return new Null (this._token);
     }
 
+    override string prettyPrint () {
+	return "null";
+    }
+    
     /**
      Affiche l'expression sous forme d'arbre.
      Params:

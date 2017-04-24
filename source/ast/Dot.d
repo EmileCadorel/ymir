@@ -114,7 +114,11 @@ class Dot : Expression {
 	this._right.print (nb + 4);
     }
 
-
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s.%s", this._left.prettyPrint, this._right.prettyPrint);
+    }
+    
 }
 
 class DotCall : Expression {
@@ -174,6 +178,11 @@ class DotCall : Expression {
 
     override Expression clone () {
 	return new DotCall (this._inside, this._token, this._call.clone (), this._firstPar.clone ());
+    }
+
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s.%s", this._firstPar.prettyPrint, this._call.prettyPrint);
     }
     
 }

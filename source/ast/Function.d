@@ -155,8 +155,11 @@ class Function : Declaration {
 	foreach (it ; this._params) {
 	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));
 	}
+	Expression test;
+	if (this._test)
+	    test = this._test.templateExpReplace (tmps, values);
 	
-	return new Function (this._ident, type, params, make!(Array!Expression), this._test.templateExpReplace (tmps, values), block.templateReplace (tmps, values));
+	return new Function (this._ident, type, params, make!(Array!Expression), test, block.templateReplace (tmps, values));
     }    
     
     /**

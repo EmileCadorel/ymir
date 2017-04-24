@@ -120,13 +120,25 @@ class FuncPtr : Expression {
 	foreach (it ; 0 .. params.length)
 	    params [it] = cast (Var) this._params [it].clone ();
 	
-	auto ret = this._ret.clone ();
+	auto ret = cast (Var) this._ret.clone ();
 	if (this._expr) {
 	    auto expr = this._expr.clone ();
-	    return new FuncPtr (this._token, params, type, expr);
+	    return new FuncPtr (this._token, params, ret, expr);
 	}	
-	return new FuncPtr (this._token, params, type);
+	return new FuncPtr (this._token, params, ret);
 	    
+    }
+
+    override string prettyPrint () {
+	import std.outbuffer;
+	auto buf = new OutBuffer ();
+	buf.writef ("function (");
+	foreach (it ; this._params)
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "):");
+	buf.writef ("%s", this._ret.prettyPrint);
+	if (this._expr)
+	    buf.writef ("(%s)", this._expr.prettyPrint);
+	return buf.toString ();
     }
     
     

@@ -249,12 +249,12 @@ class Binary : Expression {
     }
 
     override string prettyPrint () {
-	auto buf = new OutBuffer;
-	buf.writef ("(%s %s %s)",
+	import std.format;
+	return format ("(%s %s %s)",
 		      this._left.prettyPrint,
 		      this._token.str,
 		      this._right.prettyPrint);
-	return buf.toString;
     }
+    
     
 }

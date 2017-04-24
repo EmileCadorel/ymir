@@ -67,7 +67,7 @@ class Var : Expression {
 		
 		auto type = aux.info.type.TempOp (tmps);
 		if (type is null)
-		    throw new NotATemplate (this._token);
+		    throw new NotATemplate (this._token, tmps);
 		
 		aux.templates = tmps;
 		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);
@@ -182,6 +182,20 @@ class Var : Expression {
 	    it.print (nb + 4);
 	}
     }
+
+    override string prettyPrint () {
+	import std.outbuffer;
+	auto buf = new OutBuffer;
+	buf.writef ("%s", this._token);
+	if (!this._templates.empty) {
+	    buf.writef ("!(");
+	    foreach (it ; this._templates)
+		buf.writef ("%s%s", it.prettyPrint, it !is this._templates [$ - 1] ? ", " : ")");
+	}
+	return buf.toString ();
+    }
+
+    
 }
 
 /**
@@ -254,7 +268,11 @@ class ArrayVar : Var {
 	this._content.print (nb + 4);
 	
     }
-
+    
+    override string prettyPrint () {
+	import std.format;
+	return format ("[%s]", this._content.prettyPrint);
+    }    
     
 }
 
@@ -363,6 +381,12 @@ class TypedVar : Var {
 	writeln ();
     }
 
+    override string prettyPrint () {
+	import std.format;
+	if (this._type)
+	    return format ("%s : %s", this._token.str, this._type.prettyPrint);
+	else return format ("%s : %s", this._token.str, this._expType.prettyPrint);
+    }    
 }
 
 /**
@@ -393,5 +417,5 @@ class Type : Var {
     override Type asType () {
 	return this;
     }
-
+    
 }

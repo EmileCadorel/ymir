@@ -121,6 +121,11 @@ class ConstRange : Expression {
     override Expression clone () {
 	return new ConstRange (this._token, this._left.clone, this._right.clone ());
     }
+
+    override string prettyPrint () {
+	import std.format;
+	return format ("%s .. %s", this._left.prettyPrint, this._right.prettyPrint);
+    }
     
 
 }

@@ -100,6 +100,11 @@ class Expand : Expression {
 	return this._index;
     }
 
-
+    override string prettyPrint () {
+	import std.format;
+	if (this._index == 0)
+	    return format ("expand (%s)", this._expr.prettyPrint);
+	else return format ("expand (%s : %d)", this._expr.prettyPrint, this._index);
+    }    
     
 }
