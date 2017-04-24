@@ -174,6 +174,7 @@ class Binary : Expression {
 
     auto findOpBinary (Binary aux) {	
 	import ast.Par;
+	if (isTest (this._token)) return findOpTest (aux);
 	aux.removeGarbage ();
 	try {
 	    auto word = Word (this._token.locus, Keys.OPBINARY.descr, true);
@@ -195,7 +196,40 @@ class Binary : Expression {
 	    }
 	}	
     }
-    
+
+    auto findOpTest (Binary aux) {
+	import ast.Par, semantic.types.BoolInfo, semantic.types.DecimalInfo;
+	aux.removeGarbage ();
+	try {
+	    auto word = Word (this._token.locus, Keys.OPTEST.descr, true);
+	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
+	    
+	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
+	    auto call = new Par (this._token, this._token, var, params);
+	    auto ret = call.expression;
+	    if (cast (BoolInfo) ret.info.type) return ret;
+	    else if (auto dec = cast (DecimalInfo) (ret.info.type)) {		
+		auto bin = new Binary (this._token);
+		bin._left = ret;
+		auto cst = Word (this._token.locus, "0", true);
+		bin._right = new Decimal (cst, dec.type).expression ();
+		bin.info = new Symbol (aux._token, bin.left.info.type.BinaryOp (this._token, bin.right));
+		return bin;
+	    } else return null;
+	} catch (YmirException) {
+	    return null;
+	}
+    }
+
+    private bool isTest (Word token) {
+	return (token == Tokens.INF || token == Tokens.SUP ||
+		token == Tokens.INF_EQUAL || token == Tokens.SUP_EQUAL ||
+		token == Tokens.NOT_INF || token == Tokens.NOT_SUP ||
+		token == Tokens.NOT_INF_EQUAL || token == Tokens.NOT_SUP_EQUAL ||
+		token == Tokens.DEQUAL || token == Tokens.NOT_EQUAL);
+    }
+
+
     override Expression clone () {
 	auto aux = new Binary (this._token, this._left.clone (), this._right.clone ());
 	aux.info = this._info;

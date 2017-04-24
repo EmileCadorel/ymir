@@ -122,5 +122,19 @@ class For : Instruction {
 	auto block = this._block.templateReplace (names, values);
 	return new For (this._token, this._id, var, iter, block);	
     }
+
+    override void print (int nb = 0) {
+	import std.stdio, std.string;
+	writefln ("%s<While> %s(%d, %d)",
+		  rightJustify ("", nb, ' '),
+		  this._token.locus.file,
+		  this._token.locus.line,
+		  this._token.locus.column);
+
+	foreach (it ; this._var)
+	    it.print (nb + 4);
+	this._iter.print (nb + 4);
+	this._block.print (nb + 8);
+    }
     
 }

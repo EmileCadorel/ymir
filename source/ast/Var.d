@@ -186,7 +186,7 @@ class Var : Expression {
     override string prettyPrint () {
 	import std.outbuffer;
 	auto buf = new OutBuffer;
-	buf.writef ("%s", this._token);
+	buf.writef ("%s", this._token.str);
 	if (!this._templates.empty) {
 	    buf.writef ("!(");
 	    foreach (it ; this._templates)

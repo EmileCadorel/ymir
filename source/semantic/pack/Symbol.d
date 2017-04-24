@@ -179,6 +179,7 @@ class Symbol {
      Returns: l'identifiant numérique du symbole
      */
     ref ulong id () {
+	setId ();
 	return this._id;
     }	
 

@@ -354,7 +354,7 @@ class TemplateFrame : Frame {
 
 	    
 	    fr.last = Table.instance.quitFrame ();
-
+	    
 
 	    foreach (it ; func.tmps) {
 		InfoType.removeAlias (it.token.str);

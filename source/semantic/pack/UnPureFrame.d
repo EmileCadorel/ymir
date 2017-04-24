@@ -114,7 +114,7 @@ class UnPureFrame : Frame {
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    }
-	    
+
 	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
 				       name, un,
 				       finalParams, block);

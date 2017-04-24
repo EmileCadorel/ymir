@@ -2,43 +2,29 @@ import std.stdio;
 import std.string;
 import std.array;
 import std.conv;
+import std.math;
 
-def test if (is (T : float))
-    (T) () {
-	return 1.0;
+
+def opTest ('>') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] < b [it]) return false;
+	else if (a [it] > b [it]) return true;
     }
+    return false;
+}    
 
-def test if (is (T : int) || is (T : long))
-    (T) () {
-	return 1;
+def opTest ('<') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] > b [it]) return false;
+	else if (a [it] < b [it]) return true;
     }
-
-struct
-| a : int
--> Test;
-
-def opBinary ('+') (a : int, b : uint) : int {
-    return cast:int (b) + a;
-}
-
-def opRange if ((is (T : int) || is (T : long)) && (is (T2 : uint) || is (T2 : ulong)))
-    (T, T2) (a : T, b : T2) : range!T {
-	return a .. cast:T(b);
-    }
-
-def opRange (a : int, b : Test) {
-    return a .. b.a;
-}
-
-def print (T) (a : range!T) {
-    print (a.fst, ' ', a.scd);
-}
+    return false;
+}    
 
 def main () {
-
-    let a = "salut";
-    let b = a [];
-
+    let b = 'salut' < 'salut';
+    let c = 'salut' > 'salut';
+    println (b);
 }
 
 

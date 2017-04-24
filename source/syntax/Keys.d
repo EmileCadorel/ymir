@@ -45,5 +45,6 @@ enum Keys : Token {
     ASSERT = Token ("assert", 40),
     STATIC = Token ("static", 41),
     OPACCESS = Token ("opIndex", 42),
-    OPRANGE = Token ("opRange", 43)
+    OPRANGE = Token ("opRange", 43),
+    OPTEST = Token ("opTest", 44)
 }
