@@ -383,10 +383,16 @@ class TemplateFrame : Frame {
 	foreach (it ; 0 .. params.length) {
 	    if (params [it].info.isImmutable || cast (Type) params [it]) {
 		auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
-		if (tmp is null) return null;	    
+		if (tmp is null) {
+		    Table.instance.unpacifyMode ();
+		    return null;	    
+		}
 		finals.insertBack (tmp.expression ());
 		vars.insertBack (params [it]);
-	    } else throw new NotImmutable (params [it].info);
+	    } else {
+		Table.instance.unpacifyMode ();
+		throw new NotImmutable (params [it].info);
+	    }
 	}	
 
 	Table.instance.unpacifyMode ();
@@ -427,8 +433,7 @@ class TemplateFrame : Frame {
 		auto valid = func.test.expression ();
 		Table.instance.unpacifyMode ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
-		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;
-		
+		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
 	    }
 	    auto ret = new UnPureFrame (this._namespace, func);
 	    ret.currentScore = this._currentScore;

@@ -4,27 +4,19 @@ import std.array;
 import std.conv;
 import std.math;
 
-
-def opTest ('>') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] < b [it]) return false;
-	else if (a [it] > b [it]) return true;
-    }
+def opTest ('<') (a : string, b : string) {
     return false;
 }    
 
-def opTest ('<') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] > b [it]) return false;
-	else if (a [it] < b [it]) return true;
-    }
+def opTest ('>') (a : string, b : string) {
     return false;
 }    
 
 def main () {
-    let b = 'salut' < 'salut';
-    let c = 'salut' > 'salut';
-    println (b);
+    let a = 'salut';
+    let b = a < a;
+    b = (a > a);
+
 }
 
 
