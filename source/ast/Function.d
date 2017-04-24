@@ -38,22 +38,27 @@ class Function : Declaration {
     
     /// Le block de la fonction
     private Block _block;
+
+    /// Le test a effectuer sur les paramètre templates
+    private Expression _test;
     
-    this (Word ident, Array!Var params, Array!Expression tmps, Block block) {
+    this (Word ident, Array!Var params, Array!Expression tmps, Expression test, Block block) {
 	this._ident = ident;
 	this._params = params;
 	this._tmps = tmps;
 	this._block = block;
 	this.isPublic = true;
+	this._test = test;
     }
     
-    this (Word ident, Var type, Array!Var params, Array!Expression tmps, Block block) {
+    this (Word ident, Var type, Array!Var params, Array!Expression tmps, Expression test, Block block) {
 	this._ident = ident;
 	this._type = type;
 	this._params = params;
 	this._tmps = tmps;
 	this._block = block;
 	this.isPublic = true;
+	this._test = test;
     }
 
     /**
@@ -73,6 +78,10 @@ class Function : Declaration {
     ref Array!Expression tmps () {
 	return this._tmps;
     }    
+
+    Expression test () {
+	return this._test;
+    }
     
     /**
      Returns: le block de la fonction
@@ -147,7 +156,7 @@ class Function : Declaration {
 	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));
 	}
 	
-	return new Function (this._ident, type, params, make!(Array!Expression), block.templateReplace (tmps, values));
+	return new Function (this._ident, type, params, make!(Array!Expression), this._test.templateExpReplace (tmps, values), block.templateReplace (tmps, values));
     }    
     
     /**

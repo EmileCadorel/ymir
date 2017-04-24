@@ -3,15 +3,20 @@ import std.string;
 import std.array;
 import std.conv;
 
-def test (a : int) () {
-    static if (is (a : int)) {
-	return true;
-    } else
-	return false;
-}
+def test if (is (T : float))
+    (T) () {
+	println (1);
+    }
+
+def test if (is (T : int))
+    (T) () {
+	println (2);
+    }
+
 
 def main () {
-    test!(-1) ();
+    test!(float) ();
+    test!(int) ();
 }
 
 

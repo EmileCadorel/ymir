@@ -230,6 +230,20 @@ class Visitor {
 	    throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
 	return new Enum (ident, type, names, values);
     }
+
+
+    private Expression visitIfFunction () {
+	auto next = this._lex.next ();
+	bool lpar = false;
+	if (next == Tokens.LPAR) lpar = true;
+	else this._lex.rewind ();
+	auto expr = visitExpression ();
+	if (lpar) {
+	    next = this._lex.next( );
+	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	}
+	return expr;
+    }
     
     /**
      function := 'def' Identifiant ('(' var (',') var)* ')' )? '(' (var (',' var)*)? ')' (':' type)? '{' block '}'
@@ -238,7 +252,9 @@ class Visitor {
 	auto ident = visitIdentifiant ();
 	bool templates = false;
 	Array!Var exps; Array!Expression temps;
-	auto word = _lex.next ();
+	auto word = _lex.next (), _ifToken = word;
+	Expression test = null;
+	if (word == Keys.IF) { test = visitIfFunction (); word = this._lex.next (); }
 	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	_lex.next (word);
 	if (word != Tokens.RPAR) {
@@ -273,15 +289,16 @@ class Visitor {
 	    }
 	    _lex.next (word);
 	} else if (!templates) {
+	    if (test) throw new SyntaxError (_ifToken, [Tokens.LPAR.descr]);
 	    foreach (it ; temps) exps.insertBack (cast (Var) it);
 	    temps.clear ();
 	} else throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	
 	if (word == Tokens.COLON) {
 	    auto type = visitType ();
-	    return new Function (ident, type, exps, temps, visitBlock ());
+	    return new Function (ident, type, exps, temps, test, visitBlock ());
 	} else _lex.rewind ();	
-	return new Function (ident, exps, temps, visitBlock ());
+	return new Function (ident, exps, temps, test, visitBlock ());
     }
 
     /**

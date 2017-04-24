@@ -421,6 +421,14 @@ class TemplateFrame : Frame {
 	func.name = func.name ~ namespace;
 	
 	if (this._function.tmps.length == params.length) {
+	    if (func.test) {
+		Table.instance.pacifyMode ();
+		auto valid = func.test.expression ();
+		Table.instance.unpacifyMode ();
+		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
+		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;
+		
+	    }
 	    auto ret = new UnPureFrame (this._namespace, func);
 	    ret.currentScore = this._currentScore;
 	    return ret;
