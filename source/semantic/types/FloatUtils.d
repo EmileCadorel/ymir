@@ -197,6 +197,21 @@ class FloatUtils {
 	return inst;
     }
 
+
+    /**
+     L'instruction de récuperation de l'adresse d'un float.
+     Params:
+     llist = la liste d'instruction de l'operande.
+     Returns: une liste d'instruction du lint.
+    */
+    static LInstList InstAddr (LInstList llist) {
+	import lint.LAddr;
+	auto inst = new LInstList ();
+	auto exp = llist.getFirst ();
+	inst += llist;
+	inst += new LAddr (exp);
+	return inst;
+    }
     
     /**
      La constante d'init d'un float.

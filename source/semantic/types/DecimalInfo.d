@@ -130,8 +130,6 @@ class DecimalInfo : InfoType {
 		ret.value = this._value.UnaryOp (op);
 	    return ret;
 	} else if (op == Tokens.AND && !this.isConst) return toPtr ();
-	else if (op == Tokens.DPLUS && !this.isConst) ret = pplus ();
-	else if (op == Tokens.DMINUS && !this.isConst) ret = ssub ();
 	if (this._value && ret)
 	    ret.value = this._value.UnaryOp (op);
 	return ret;

@@ -161,10 +161,17 @@ class FloatInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType CompOp (InfoType other) {
+	import semantic.types.RefInfo;
 	if (cast (UndefInfo) other || cast (FloatInfo) other) {
 	    auto fl = new FloatInfo ();
 	    fl.lintInst = &FloatUtils.InstAffect;
 	    return fl;
+	} else if (auto _ref = cast (RefInfo) other) {
+	    if (cast (FloatInfo) _ref.content && !this.isConst) {
+		auto aux = new RefInfo (this.clone ());
+		aux.lintInstS.insertBack (&FloatUtils.InstAddr);
+		return aux;
+	    }
 	}
 	return null;
     }

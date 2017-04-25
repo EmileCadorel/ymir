@@ -768,7 +768,6 @@ class LVisitor {
 	Array!LInstList rights;
 	LInstList list = new LInstList;
 	LExp call;
-	
 	if (par.info.type.lintInstMult) {
 	    visitParamListMult (exprs, rights, par.score.treat, par.paramList);
 	    LInstList left;
@@ -840,7 +839,10 @@ class LVisitor {
 	if (left is elem.expr.info.type) {
 	    return visitExpression (elem.expr);
 	} else {
-	    return left.lintInst (visitExpression (elem.expr));
+	    auto inst = visitExpression (elem.expr);
+	    for (long nb = 0; nb < left.lintInstS.length; nb ++)
+		inst = left.lintInst (inst, nb);
+	    return inst;
 	}
     }
     
@@ -864,13 +866,14 @@ class LVisitor {
 	for (long nb = bin.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = bin.info.type.lintInst (left, nb);
 		
-	if (bin.info.type.rightTreatment !is null)
+	if (bin.info.type.rightTreatment !is null) 
 	    right = bin.info.type.rightTreatment (bin.info.type, bin.left, bin.right);
-	else right = visitExpression (bin.right);
-
+	else 
+	    right = visitExpression (bin.right);	
+       
 	for (long nb = bin.info.type.lintInstSR.length - 1; nb >= 0; nb --)
 	    right = bin.info.type.lintInstR (right, nb);
-	
+
 	auto ret = bin.info.type.lintInst (left, right);
 	ret.back.locus = bin.token.locus;
 	if (bin.info.isDestructible && bin.info.id != 0) {
