@@ -31,9 +31,9 @@ class Binary : Expression {
     this (Word word, Expression left, Expression right) {
 	super (word);
 	this._left = left;
-	this._left.inside = this;
+	if (this._left) this._left.inside = this;
 	this._right = right;
-	this._right.inside = this;
+	if (this._right) this._right.inside = this;
     }
 
     this (Word word) {
@@ -267,7 +267,11 @@ class Binary : Expression {
     
 
     override Expression clone () {
-	auto aux = new Binary (this._token, this._left.clone (), this._right.clone ());
+	Expression left, right;
+	if (this._left) left = this._left.clone ();
+	if (this._right) right = this._right.clone ();
+	    
+	auto aux = new Binary (this._token, left, right);
 	aux.info = this._info;
 	return aux;
     }

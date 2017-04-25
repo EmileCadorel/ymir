@@ -1,0 +1,87 @@
+import std.array;
+import std.stdio;
+
+def Array (T) () {
+    struct (a : [T], capacity : ulong, length : ulong) Test;    
+    return Test ([], 0UL, 0UL);
+}
+
+def insertBack if (U.typeid == "Test(array!" + T.typeid + ", ulong, ulong)" &&
+		   is (typeof (U.a) : [T]))    
+    (U, T) (elem : U, b : T) {
+	if (elem.capacity > elem.length) {
+	    elem.a [elem.length] = b;
+	    elem.length ++;
+	} else {
+	    let anc = elem.capacity;
+	    if (elem.capacity == 0UL) elem.capacity = 1UL;
+	    else elem.capacity *= 2UL;
+	    let aux = [T; elem.capacity];
+	    for (it in 0UL .. elem.length) {
+		aux [it] = elem.a [it];
+	    }
+	    aux [elem.length] = b;
+	    elem.length ++;
+	    elem.a = aux;
+	}
+    }    
+
+def clear if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")
+    (U) (elem : U) {
+	elem.capacity = 0UL;
+	elem.length = 0UL;
+	elem.a = [typeof (elem.a [0]) ; 0UL];
+    }
+
+def print if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")
+    (U) (test : U) {
+	print ('[');
+	for (it in test.a) {
+	    print (it);
+	    if (&it !is &test.a [test.length - 1UL])
+		print (', ');
+	    else break;
+	}
+	print (']');
+    }
+
+def dup if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")
+    (U) (elem : U) {	
+	let aux = Array!(typeof (U.a [0]))();
+	aux.a = elem.a.dup;
+	aux.capacity = elem.capacity;
+	aux.length = elem.length;
+	return aux;
+    }
+
+def opIndex if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")
+    (U, T2) (elem : U, ind : range!T2) {
+	import std.array;
+	return slice (elem.a, cast:long(ind.fst), cast:long (ind.scd));
+    }
+
+def opIndex if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)" &&
+		(is (T : int) || is (T : long) || is (T : uint) || is (T : ulong)))
+    (U, T) (elem : U, ind : T) {
+	return elem.a [ind];
+    }
+
+def opIndex if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")		
+    (U) (elem : U) {
+	import std.array;
+	return slice (elem.a, 0, elem.length);
+    }
+
+def array if (U.typeid == "Test(" + typeof (U.a).typeid + ", ulong, ulong)")
+    (U) (elem : U) {
+	return elem.a;
+    }
+
+
+def main () {
+    let a = Array!(int) ();
+    for (it in 0 .. 100) a.insertBack (it);
+    println (a.dup [0 .. 10]);
+}
+
+
