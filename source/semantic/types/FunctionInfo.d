@@ -5,6 +5,7 @@ import semantic.pack.Frame;
 import std.stdio, syntax.Word;
 import semantic.pack.FrameProto;
 import ast.Expression;
+import semantic.types.RefInfo;
 
 /**
  Classe qui regroupe le information de type des déclarations de fonctions.
@@ -105,6 +106,8 @@ class FunctionInfo : InfoType {
 	    auto info = goods[0].validate (right, right.treat);	    
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
+	    if (cast (RefInfo) right.ret)
+		right.ret.isConst = false;
 	    return right;
 	} catch (YmirException exp) {
 	    exp.print ();
@@ -155,6 +158,8 @@ class FunctionInfo : InfoType {
 	    auto info = goods [0].validate (right, right.treat);
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
+	    if (cast (RefInfo) right.ret)
+		right.ret.isConst = false;
 	    return right;
 	} catch (YmirException exp) {
 	    exp.print ();

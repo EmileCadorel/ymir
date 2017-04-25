@@ -5,28 +5,10 @@ import std.conv;
 import std.math;
 import std.algorithm.sorting;
 
-
-def suite (T) (a : [T], ind : int) : [T] {
-    return [a [ind]];
-}
-
-def suite (T) (a : [T], ind : int, left) : [T] {
-    return [a [ind]] + a.suite!(T) (expand (left));
-}   
-
-def opIndex (T) (a : [T], ind : int, left : int) : [T] {
-    return [a [ind], a [left]];
-}
-
-def opIndex (T) (a : [T], ind : int, left) : [T] {
-    return [a [ind]] + a [expand (left)];
-}
-
-
 def main () {
-    let a = [2, 3, 4, 5];
-    let b = a [0, 2, 3, 1, 0, 0, 0];
-    println (b);
+    let a = [1, 2, 3, 4];
+    println (a [0 .. 3]);
+    println (a);
 }
 
 

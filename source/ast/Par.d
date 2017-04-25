@@ -67,7 +67,6 @@ class Par : Expression {
 		aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
 	    }
 
-	    writeln (aux._params.prettyPrint ());
 	    auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	    if (type is null) {
 		auto call = findOpCall ();
@@ -83,7 +82,7 @@ class Par : Expression {
 	    
 	
 	    aux._score = type;
-	    aux._info = new Symbol (this._token, type.ret, true);
+	    aux._info = new Symbol (this._token, type.ret, type.ret.isConst);
 	    if (cast (UndefInfo) type.ret) {
 		throw new TemplateInferType (aux._left.token, aux._score.token);
 	    }

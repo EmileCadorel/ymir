@@ -1,4 +1,5 @@
 module ast.Return;
+import utils.Warning;
 import ast.Instruction;
 import ast.Expression, syntax.Word;
 import semantic.types.UndefInfo, semantic.pack.Table;
@@ -7,6 +8,7 @@ import semantic.types.VoidInfo, semantic.types.InfoType;
 import lint.LInstList;
 import semantic.pack.Symbol;
 import ast.Var, std.container;
+import semantic.types.RefInfo;
 
 /**
  L'instruction est généré à la syntaxe par.
@@ -54,13 +56,24 @@ class Return : Instruction {
 		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();
 	    } else {
 		auto type = aux._elem.info.type.CompOp (Table.instance.retInfo.info.type);
+
+		if (cast (RefInfo) (Table.instance.retInfo.info.type) && !cast (RefInfo) aux._elem.info.type && type) {
+		    Warning.instance.warning_at (this._token.locus,
+						 "Retourne un référence local '%s%s%s'",
+						 Colors.YELLOW.value,
+						 aux._elem.token.str,
+						 Colors.RESET.value
+		    );
+		}		
+
 		if (!type) 
-		    throw new IncompatibleTypes (aux._elem.info,
+		    throw new IncompatibleTypes (this._token.locus,
+						 aux._elem.info,
 						 Table.instance.retInfo.info);
 		
 		else if (type.isSame (aux._elem.info.type)) {
 		    Table.instance.retInfo.info.type = type;		    
-		} 
+		}
 	    }
 	} else {
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) is null &&

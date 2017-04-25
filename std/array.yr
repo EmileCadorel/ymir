@@ -77,8 +77,8 @@ def slice (T) (a : [T], fst : long, scd : ulong) : [T] {
 }
 
 def slice (T) (a : [T], fst : long, scd : long) : [T] {
-    import std.math;
-    let size = abs (cast:long (scd) - fst);
+    import std.math, std.int;
+    let size = abs (scd - fst);
     let ret = [T; cast:ulong (size)];
     let index = 0ul;
     for (it in fst .. scd) {
@@ -88,21 +88,14 @@ def slice (T) (a : [T], fst : long, scd : long) : [T] {
     return (ret);
 }
 
-def opIndex (T) (a : [T], ind : range!ulong) : [T] {
+def opIndex (T, T2) (a : [T], ind : range!T2) : [T] {    
     return slice (a, cast:long (ind.fst), (ind.scd));
 }
 
-// def suite (T) (a : [T], ind : int) : [T] {
-//     return [a [ind]];
-// }
+def opIndex (T) (a : [T], ind : int, left : int) : [T] {
+    return [a [ind], a [left]];
+}
 
-// def suite (T) (a : [T], ind : int, left) : [T] {
-//     return [a [ind]] + a.suite!(T) (expand (left));
-// }   
-
-// def opIndex (T) (a : [T], ind : int, left) : [T] {
-//     return a.suite!(T) (ind, left);
-// }
-
-
-
+def opIndex (T) (a : [T], ind : int, left) : [T] {
+    return [a [ind]] + a [expand (left)];
+}

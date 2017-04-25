@@ -228,6 +228,27 @@ class IncompatibleTypes : YmirException {
 	msg = buf.toString ();
     }    
 
+    /**
+     Params:
+     left = le premier type
+     right = le second type
+     */
+    this (Location locus, Symbol left, Symbol right) {
+	auto buf = new OutBuffer;
+	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
+	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
+		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
+	super.addLine (buf, left.sym.locus);
+	if (!right.sym.isEof)
+	    super.addLine (buf, right.sym.locus);
+	buf.writefln ("%sNote%s : Pour l'instruction : ", Colors.BLUE.value, Colors.RESET.value);
+	super.addLine (buf, locus);
+	msg = buf.toString ();
+    }    
+
+    
     import semantic.types.InfoType;
     this (Symbol left, InfoType right) {
 	auto buf = new OutBuffer;
