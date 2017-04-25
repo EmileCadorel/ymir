@@ -219,7 +219,7 @@ class StructUtils {
     }
 
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
-	auto type = cast (StructInfo) (left.info.type);
+	auto type = cast (StructInfo) (left.info.type);	
 	auto inst = new LInstList;
 
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;

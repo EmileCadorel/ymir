@@ -816,7 +816,7 @@ class LVisitor {
     private LInstList visitDot (Dot dot) {
 	LInstList left;
 	if (dot.info.type.leftTreatment) {
-	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
+	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);	    
 	} else left = visitExpression (dot.left);
 
 	if (dot.info.type.lintInstS.length > 0) {

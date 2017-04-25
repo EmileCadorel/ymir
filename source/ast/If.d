@@ -284,7 +284,7 @@ class ElseIf : Else {
      *       father = le block qui contient l'instruction 'else'
      */
     override void father (Block father) {
-	super._block = father;
+	super.setFatherBlock (father);
 	this._block.father = father;
 	if (this._else)
 	    this._else.father = father;

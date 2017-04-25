@@ -59,7 +59,7 @@ class Par : Expression {
 	    aux._left = this._left.expression ();
 	    aux._left.inside = this;
 	    
-	    if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
+	    if (cast (Type) aux._left !is null) throw new UseAsVar (aux._left.token, aux._left.info);
 	    else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
 
 	    bool dotCall = false;

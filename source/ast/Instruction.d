@@ -45,7 +45,7 @@ class Instruction {
     Block father () {
 	return this._block;
     }
-
+       
     /**
      Params:
      father = le block qui contient l'instruction
@@ -54,6 +54,10 @@ class Instruction {
 	this._block = father;
     }
 
+    final void setFatherBlock (Block father) {
+	this._block = father;
+    }
+    
     /**
      Fonction à surcharger pour l'analyse sémantique.
      Throws: Assert

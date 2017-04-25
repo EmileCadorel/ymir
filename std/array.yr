@@ -60,11 +60,6 @@ def front (T) (a : [T]) : T {
     return a [0];
 }
 
-def tail (T) (a : [T]) : [T] {
-    //if (a.length == 0UL) return [T; 0UL];
-    return a [1UL .. a.length];
-}
-
 def clear (T) (a : ref!([T])) {
     a = [T; 0ul];
 }
