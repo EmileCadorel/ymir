@@ -227,8 +227,6 @@ class TemplateFrame : Frame {
 	auto score = new ApplicationScore (ident);
 	InfoType [] tmps;
 	tmps.length = this._function.tmps.length;
-	foreach (it ; 0 .. this._tempParams.length)
-	    tmps [it] = this._tempParams [it].info.type;
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -439,9 +437,10 @@ class TemplateFrame : Frame {
 	    ret.currentScore = this._currentScore;
 	    return ret;
 	} else {
-	    func.tmps = make!(Array!Expression) (this._function.tmps [params.length - 1 .. $]);
+	    func.tmps = make!(Array!Expression) (this._function.tmps [params.length .. $]);
+	    foreach (it ; func.tmps)
+		write (it.prettyPrint, ",");
 	    auto aux = new TemplateFrame (this._namespace, func);
-	    aux._tempParams = vars;
 	    aux._currentScore = this._currentScore;
 	    return aux;
 	}	

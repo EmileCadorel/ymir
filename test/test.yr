@@ -5,20 +5,13 @@ import std.conv;
 import std.math;
 import std.algorithm.sorting;
 
-def opBinary ('+') (a : string, b : char) {
-    return a + ([b]).to!string;
-}
-
-def opUnary ('++') (a : ref!string) {
-    a = a + "++";
-    return a;
+def test ('+', op : char) (a, b) {
+    println ('c', op);
 }
 
 
 def main () {
-    let a = "salut";
-    let b = (a++) + 'y';
-    println (b, " ", a);
+    test!('+', '-') (12, 12);
 }
 
 
