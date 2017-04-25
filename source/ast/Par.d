@@ -69,7 +69,7 @@ class Par : Expression {
 
 	    auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	    if (type is null) {
-		auto call = findOpCall ();
+		auto call = findOpCall (aux);
 		if (!call) {
 		    if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
 			throw new UndefinedOp (this._token, aux._left.info, aux._params);
@@ -114,8 +114,9 @@ class Par : Expression {
 	par._params.params.insertBack (ctuple);
     }
 
-    private auto findOpCall () {
+    private auto findOpCall (Par aux) {
 	import syntax.Keys;
+	aux.removeGarbage ();
 	if (this._left.token == Keys.OPCALL) return null;
 	try {
 	    auto word = Word (this._token.locus, Keys.OPCALL.descr, true);

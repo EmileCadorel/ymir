@@ -58,6 +58,7 @@ class BefUnary : Expression {
 
     private auto findOpUnary (BefUnary aux) {
 	import ast.Par, syntax.Keys, ast.Constante;
+	aux.removeGarbage ();
 	if (this._token != Tokens.AND) {
 	    try {
 		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);
@@ -165,6 +166,7 @@ class AfUnary : Expression {
     
     private auto findOpUnary (BefUnary aux) {
 	import ast.Par, syntax.Keys, ast.Constante;
+	aux.removeGarbage ();
 	if (this._token != Tokens.AND) {
 	    try {
 		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);

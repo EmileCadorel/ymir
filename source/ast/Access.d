@@ -67,6 +67,7 @@ class Access : Expression {
 
     auto findOpAccess (Access aux) {
 	import ast.Par, syntax.Keys;
+	aux.removeGarbage ();
 	try {	    
 	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);
 	    auto var = new Var (word);

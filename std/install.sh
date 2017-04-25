@@ -4,11 +4,14 @@ mkdir ${HOME}/libs/ymir_std/std/
 mkdir ${HOME}/libs/ymir_std/libs/
 
 cp -r std/. ${HOME}/libs/ymir_std/std/
+cp -r core/. ${HOME}/libs/ymir_std/core/
 
 cd ${HOME}/libs/ymir_std/
 ymir -c std/stdio/*.yr
 ymir -c std/algorithm/*.yr
+ymir -c core/*.yr
 ymir --std -c std/*.yr
+
 gcc -c std/*/*.c
 
 mv *.o libs/

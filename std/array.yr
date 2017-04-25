@@ -60,12 +60,17 @@ def front (T) (a : [T]) : T {
     return a [0];
 }
 
+def tail (T) (a : [T]) : [T] {
+    //if (a.length == 0UL) return [T; 0UL];
+    return a [1UL .. a.length];
+}
+
 def clear (T) (a : ref!([T])) {
     a = [T; 0ul];
 }
 
 def slice (T) (a : [T], fst : long, scd : ulong) : [T] {
-    import std.math;
+    import std.math, std.int;
     let size = abs (cast:long (scd) - fst);
     let ret = [T; cast:ulong (size)];
     let index = 0ul;

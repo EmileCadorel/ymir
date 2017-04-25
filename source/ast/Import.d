@@ -43,6 +43,8 @@ class Import : Declaration {
 		    } else {
 			string path = Options.instance.getPath ();
 			if (path[$ - 1] != '/') path ~= "/";
+			if (!exists (path ~ it.str ~ ".yr"))
+			    throw new ImportError (it);
 			auto visitor = new Visitor (path ~ it.str ~ ".yr");
 			Table.instance.setCurrentSpace (Frame.mangle (it.str));
 			FrameTable.instance.addImport (it.str);

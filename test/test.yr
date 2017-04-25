@@ -1,14 +1,8 @@
-import std.stdio;
-import std.string;
-import std.array;
-import std.conv;
-import std.math;
-import std.algorithm.sorting;
+
 
 def main () {
-    let a = [1, 2, 3, 4];
-    println (a [0 .. 3]);
-    println (a);
+    let a = 10;
+    a--;
 }
 
 
