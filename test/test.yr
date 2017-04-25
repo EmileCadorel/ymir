@@ -1,17 +1,17 @@
 import std.stdio;
-//import std.string;
+import std.string;
 import std.array;
 import std.conv;
 import std.math;
 import std.algorithm.sorting;
 
-def test ('+', op : char) (a, b) {
-    println ('c', op);
+def opBinary ('in') (b : char, a : string) {    
+    return indexOf (a, b);
 }
 
-
 def main () {
-    test!('+', '-') (12, 12);
+    let a = 'a' in 'salut';
+    println (a);
 }
 
 
