@@ -20,5 +20,6 @@ def sort (T) (a : [T], callback : function (T, T) : bool) {
 		a [it_ + 1ul] = aux;
 	    }
 	}
-    }    
+    }
+    return a;
 }

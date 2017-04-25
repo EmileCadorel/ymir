@@ -6,6 +6,7 @@ import semantic.types.UndefInfo, utils.exception;
 import std.stdio, std.string, semantic.pack.Symbol;
 import std.container;
 import semantic.pack.Table;
+import ast.ParamList, ast.Par;
 
 /**
  Classe généré à la syntaxe pour les opérateurs unaires avant l'expression.
@@ -36,7 +37,10 @@ class BefUnary : Expression {
 	    if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	    auto type = aux._elem.info.type.UnaryOp (this._token);
 	    if (type is null) {
-		throw new UndefinedOp (this._token, aux._elem.info);
+		auto call = findOpUnary (aux);
+		if (!call) 		
+		    throw new UndefinedOp (this._token, aux._elem.info);
+		else return call;
 	    }
 	    
 	    aux._info = new Symbol (aux._token, type);
@@ -52,6 +56,22 @@ class BefUnary : Expression {
 
     }
 
+    private auto findOpUnary (BefUnary aux) {
+	import ast.Par, syntax.Keys, ast.Constante;
+	if (this._token != Tokens.AND) {
+	    try {
+		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);
+		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));		
+		auto params = new ParamList (this._token,
+					     make!(Array!Expression) (this._elem));
+		auto call = new Par (this._token, this._token, var, params);
+		return call.expression;
+	    } catch (YmirException tm) {
+		return null;
+	    }
+	} return null;
+    }
+    
     override void removeGarbage () {
 	super.removeGarbage ();
 	if (this._elem)
@@ -132,13 +152,33 @@ class AfUnary : Expression {
 	if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	auto type = aux._elem.info.type.UnaryOp (this._token);
 	if (type is null) {
-	    throw new UndefinedOp (this._token, aux._elem.info);
+	    auto call = findOpUnary (aux);
+	    if (!call)
+		throw new UndefinedOp (this._token, aux._elem.info);
+	    else return call;
 	}
 	
 	aux._info = new Symbol (aux._token, type);
 	return aux;
     }
 
+    
+    private auto findOpUnary (BefUnary aux) {
+	import ast.Par, syntax.Keys, ast.Constante;
+	if (this._token != Tokens.AND) {
+	    try {
+		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);
+		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));		
+		auto params = new ParamList (this._token,
+					     make!(Array!Expression) (this._elem));
+		auto call = new Par (this._token, this._token, var, params);
+		return call.expression;
+	    } catch (YmirException tm) {
+		return null;
+	    }
+	} return null;
+    }
+    
     override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	return new AfUnary (this._token, this._elem.templateExpReplace (names, values));
     }

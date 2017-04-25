@@ -1,22 +1,24 @@
 import std.stdio;
-import std.string;
+//import std.string;
 import std.array;
 import std.conv;
 import std.math;
+import std.algorithm.sorting;
 
-def opTest ('<') (a : string, b : string) {
-    return false;
-}    
+def opBinary ('+') (a : string, b : char) {
+    return a + ([b]).to!string;
+}
 
-def opTest ('>') (a : string, b : string) {
-    return false;
-}    
+def opUnary ('++') (a : ref!string) {
+    a = a + "++";
+    return a;
+}
+
 
 def main () {
-    let a = 'salut';
-    let b = a < a;
-    b = (a > a);
-
+    let a = "salut";
+    let b = (a++) + 'y';
+    println (b, " ", a);
 }
 
 

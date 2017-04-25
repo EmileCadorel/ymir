@@ -8,12 +8,14 @@ def abs (value) {
   return value;
 }
 
-def exp(x, n) {
+def pow (x, n) {
     let aux = x;
-    for (i in 0l .. (n - 1)) 
+    for (i in 0 .. (n - 1)) 
 	aux = aux * x;
     return aux;
 }
+
+
 
 /**
    Retourne le nombre x avec n chiffres après la virgule
