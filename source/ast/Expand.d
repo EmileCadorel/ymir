@@ -46,19 +46,13 @@ class Expand : Expression {
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
 	auto tuple = cast (TupleInfo) expr.info.type;
 	auto str = cast (StructInfo) expr.info.type;
-	if (!tuple && !str) return expr;
+	if (!tuple) return expr;
 	Array!Expression params;	
 	
 	if (tuple) {
 	    foreach (it ; 0 .. tuple.params.length) {
 		auto exp = new Expand (this._token, expr, it);
 		exp.info = new Symbol (false, exp.token, tuple.params[it].clone);
-		params.insertBack (exp);
-	    }
-	} else {
-	    foreach (it ; 0 .. str.params.length) {
-		auto exp = new Expand (this._token, expr, it);
-		exp.info = new Symbol (false, exp.token, str.params [it].clone);
 		params.insertBack (exp);
 	    }
 	}

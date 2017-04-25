@@ -95,7 +95,7 @@ class TreeInfo {
 	this._infos.back._father = this;
 	return this._infos.back;
     }
-
+    
     /**
      Returns: Le block est il cassé ?
      */
@@ -379,6 +379,21 @@ class FrameScope {
 	this._retInfo.enterBlock ();
     }
 
+    
+    void addImport (string name) {
+	if (!this._local.empty) {
+	    this._local.front.addImport (name);	    
+	}
+    }
+
+    bool wasImported (string name) {
+	foreach (it ; this._local) {
+	    if (it.wasImported (name)) return true;
+	}
+	return false;
+    }
+
+    
     /**
      On quitte le scope
      Returns: la liste des symboles à supprimé dans ce scope

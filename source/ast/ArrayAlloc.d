@@ -23,7 +23,7 @@ import std.container;
 class ArrayAlloc : Expression {
 
     /** Le type de l'allocation */
-    private Var _type;
+    private Expression _type;
 
     /** La taille de l'allocation */
     private Expression _size;
@@ -31,7 +31,7 @@ class ArrayAlloc : Expression {
     /** Le caster vers ulong */
     private InfoType _cster;
     
-    this (Word token, Var type, Expression size) {
+    this (Word token, Expression type, Expression size) {
 	super (token);
 	this._type = type;
 	this._size = size;
@@ -45,7 +45,7 @@ class ArrayAlloc : Expression {
      */
     override Expression expression () {
 	auto aux = new ArrayAlloc (this._token, this._type.expression, this._size.expression);
-
+	if (!cast (Type) aux._type) throw new UseAsType (aux._type.token);
 
 	auto ul = new Symbol (false, this._token, new DecimalInfo (DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);
@@ -58,13 +58,13 @@ class ArrayAlloc : Expression {
     }
 
     override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto type = cast (Var) this._type.templateExpReplace (names, values);
+	auto type = this._type.templateExpReplace (names, values);
 	auto size = this._size.templateExpReplace (names, values);
 	return new ArrayAlloc (this._token, type, size);
     }
 
     override Expression clone () {
-	return new ArrayAlloc (this._token, cast (Var) this._type.clone, this._size.clone ());
+	return new ArrayAlloc (this._token, this._type.clone, this._size.clone ());
     }
     
     override void removeGarbage () {

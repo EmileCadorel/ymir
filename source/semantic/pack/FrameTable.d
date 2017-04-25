@@ -25,31 +25,9 @@ class FrameTable {
     /** Le prototype de frames analysé sémantiquement */
     private Array!FrameProto _protos;
 
-    /** La liste des fichiers déjà importé */
-    private Array!string _imported;
-
     /** La liste des structures declaré */
     private Array!StructCstInfo _structs;
     
-    /**
-     Ajoute un fichier importe
-     Params:
-     name = le nom du fichier importé
-     */
-    void addImport (string name) {
-	this._imported.insertBack (name);
-    }
-
-    /**
-     Returns: le fichier a t'il été importé ?
-     */
-    bool wasImported (string name) {
-	return find (this._imported.array, name) != [];
-    }
-    
-    void clearImport () {
-	this._imported.clear ();
-    }
 
     /**
      Insertion d'une nouvelle frame pure

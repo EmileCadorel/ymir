@@ -187,6 +187,32 @@ class Table {
 	if (this._frameTable.empty) return FrameReturnInfo.empty;
 	else return this._frameTable.front.retInfo ();
     }
+
+    /**
+     Ajoute un fichier importe
+     Params:
+     name = le nom du fichier importé
+     */
+    void addImport (string name) {
+	if (this._frameTable.empty) this._globalScope.addImport (name);
+	else this._frameTable.front.addImport (name);
+    }
+
+    /**
+     Supprime tous imports reçu
+     */
+    void clearImport () {
+	this._globalScope.clearImport ();
+    }
+
+    /**
+     On a déja importé ce module ?
+     */
+    bool wasImported (string name) {
+	if (this._frameTable.empty) return this._globalScope.wasImported (name);
+	else if (this._frameTable.front.wasImported (name)) return true;
+	return this._globalScope.wasImported (name);
+    }
     
     mixin Singleton!Table;
 }

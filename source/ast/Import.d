@@ -32,12 +32,12 @@ class Import : Declaration {
     override void declare () {
 	auto space = Table.instance.namespace;
 	foreach (it ; this._params) {
-	    if (!FrameTable.instance.wasImported (it.str)) {
+	    if (!Table.instance.wasImported (it.str)) {
 		try {		
 		    if (exists (it.str ~ ".yr")) {
 			auto visitor = new Visitor (it.str ~ ".yr");
 			Table.instance.setCurrentSpace (Frame.mangle (it.str));
-			FrameTable.instance.addImport (it.str);
+			Table.instance.addImport (it.str);
 			auto prog = visitor.visit ();
 			prog.declareAsExtern ();
 		    } else {
@@ -47,7 +47,7 @@ class Import : Declaration {
 			    throw new ImportError (it);
 			auto visitor = new Visitor (path ~ it.str ~ ".yr");
 			Table.instance.setCurrentSpace (Frame.mangle (it.str));
-			FrameTable.instance.addImport (it.str);
+			Table.instance.addImport (it.str);
 			auto prog = visitor.visit ();
 			prog.declareAsExtern ();
 		    }

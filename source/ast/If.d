@@ -67,6 +67,8 @@ class If : Instruction {
     override void father (Block father) {
 	super._block = father;
 	this._block.father = father;
+	if (this._else)
+	    this._else.father = father;
     }
 
     /**
@@ -189,6 +191,16 @@ class Else : Instruction {
     }
 
     /**
+     * Met a jour le pere de l'instruction.
+     * Params:
+     *       father = le block qui contient l'instruction 'else'
+     */
+    override void father (Block father) {
+	super._block = father;
+	this._block.father = father;
+    }
+    
+    /**
      Vérification sémantique.
      Pour être juste toutes les instructions du block doivent être juste     
      */
@@ -208,16 +220,6 @@ class Else : Instruction {
      */
     Block block () {
 	return this._block;
-    }
-
-    /**
-     Met à jour le pere de l'instruction 'else'
-     Params:
-     father = le block qui contient l'instruction
-     */
-    override void father (Block father) {
-	super._block = father;
-	this._block.father = father;
     }
     
     /**
@@ -276,6 +278,18 @@ class ElseIf : Else {
 	    this._else.isStatic = isStatic;
     }
     
+    /**
+     * Met a jour le pere de l'instruction.
+     * Params:
+     *       father = le block qui contient l'instruction 'else'
+     */
+    override void father (Block father) {
+	super._block = father;
+	this._block.father = father;
+	if (this._else)
+	    this._else.father = father;
+    }
+
     /**
      Verification sémantique de l'instruction
      Pour être juste le test doit être compatible avec le type 'bool'.

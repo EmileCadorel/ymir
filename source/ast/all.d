@@ -39,3 +39,4 @@ public import ast.ArrayAlloc;
 public import ast.Enum;
 public import ast.Assert;
 public import ast.Is;
+public import ast.TypeOf;

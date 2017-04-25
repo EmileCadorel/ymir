@@ -56,7 +56,8 @@ class Visitor {
 			      Keys.FOR, Keys.FOREACH, Keys.WHILE, Keys.BREAK, Keys.THROW,
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
-			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN];
+			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
+			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF];
     }
 
     /**
@@ -733,10 +734,12 @@ class Visitor {
 	    return visitExpand ();
 	else if (tok == Keys.IS) 
 	    return visitIs ();
+	else if (tok == Keys.TYPEOF)
+	    return visitTypeOf ();
 	else _lex.rewind ();
 	return null;
     }
-
+    
     private Expression visitExpand () {
 	this._lex.rewind ();
 	auto begin = this._lex.next ();
@@ -748,6 +751,17 @@ class Visitor {
 	return new Expand (begin, expr);
     }
 
+    private Expression visitTypeOf () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next ();
+	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	auto expr = visitExpression ();
+	next = this._lex.next ();
+	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	return new TypeOf (begin, expr);
+    }
+    
     private Expression visitIs () {
 	this._lex.rewind ();
 	auto begin = this._lex.next ();
@@ -884,7 +898,13 @@ class Visitor {
     private Expression visitPthWPar (Word tok) {
 	_lex.rewind ();
 	auto constante = visitConstante ();
-	if (constante !is null) return constante;
+	if (constante !is null) {
+	    tok = this._lex.next ();
+	    if (find! ("b == a") (_suiteElem, tok) != []) {
+		return visitSuite (tok, constante);
+	    } else this._lex.rewind ();
+	    return constante;
+	}
 	auto left = visitLeftOp ();
 	tok = _lex.next ();
 	if (find ! "b == a" (_afUnary, tok) != []) {
@@ -920,11 +940,10 @@ class Visitor {
 	    auto fst = visitExpression ();
 	    auto next = _lex.next ();
 	    if (next == Tokens.SEMI_COLON) {
-		if (!cast (Var) fst) throw new SyntaxError (next, [Tokens.COMA.descr, Tokens.RCRO.descr]);
 		auto size = visitExpression ();
 		next = _lex.next ();
 		if (next != Tokens.RCRO) throw new SyntaxError (next, [Tokens.RCRO.descr]);
-		return new ArrayAlloc (begin, cast (Var) fst, size);
+		return new ArrayAlloc (begin, fst, size);
 	    } else {
 		params.insertBack (fst);
 		this._lex.rewind ();

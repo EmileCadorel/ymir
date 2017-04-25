@@ -16,6 +16,8 @@ class Scope {
     /** Les symboles à détruire en fin de scope */
     Array!Symbol _garbage;    
     
+    Array!string _imports;
+
     this () {}
 
     /**
@@ -29,6 +31,20 @@ class Scope {
 	else return null;
     }
 
+    void addImport (string name) {
+	this._imports.insertBack (name);
+    }
+
+    bool wasImported (string name) {
+	foreach (it ; this._imports)
+	    if (it == name) return true;
+	return false;
+    }
+
+    void clearImport () {
+	this._imports.clear ();
+    }
+    
     /**
      Recherche un symbole dont le nom est presque 'name'
      Params:
