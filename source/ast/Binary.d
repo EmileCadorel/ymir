@@ -175,6 +175,7 @@ class Binary : Expression {
     auto findOpBinary (Binary aux) {	
 	import ast.Par;
 	if (isTest (this._token)) return findOpTest (aux);
+	else if (isEq (this._token)) return findOpEqual (aux);
 	aux.removeGarbage ();
 	try {
 	    auto word = Word (this._token.locus, Keys.OPBINARY.descr, true);
@@ -221,14 +222,49 @@ class Binary : Expression {
 	}
     }
 
+    auto findOpEqual (Binary aux) {
+	import ast.Par, semantic.types.BoolInfo, semantic.types.DecimalInfo;
+	import ast.Unary;
+	aux.removeGarbage ();
+	try {
+	    auto word = Word (this._token.locus, Keys.OPEQUAL.descr, true);
+	    auto var = new Var (word);
+	    
+	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
+	    auto call = new Par (this._token, this._token, var, params);
+	    if (this._token == Tokens.NOT_EQUAL) {
+		auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
+		return new BefUnary (word2, call).expression ();
+	    } else return call.expression;
+	} catch (YmirException) {
+	    try {
+		auto word = Word (this._token.locus, Keys.OPEQUAL.descr, true);
+		auto var = new Var (word);
+		
+		auto params = new ParamList (this._token, make!(Array!Expression) (this._right, this._left));
+		auto call = new Par (this._token, this._token, var, params);
+		if (this._token == Tokens.NOT_EQUAL) {
+		    auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
+		    return new BefUnary (word2, call).expression ();
+		} else return call.expression;
+	    } catch (YmirException) {
+		return null;
+	    }
+	}
+    }
+    
+
     private bool isTest (Word token) {
 	return (token == Tokens.INF || token == Tokens.SUP ||
 		token == Tokens.INF_EQUAL || token == Tokens.SUP_EQUAL ||
 		token == Tokens.NOT_INF || token == Tokens.NOT_SUP ||
-		token == Tokens.NOT_INF_EQUAL || token == Tokens.NOT_SUP_EQUAL ||
-		token == Tokens.DEQUAL || token == Tokens.NOT_EQUAL);
+		token == Tokens.NOT_INF_EQUAL || token == Tokens.NOT_SUP_EQUAL);
     }
 
+    private bool isEq (Word token) {
+	return (token == Tokens.DEQUAL || token == Tokens.NOT_EQUAL);
+    }
+    
 
     override Expression clone () {
 	auto aux = new Binary (this._token, this._left.clone (), this._right.clone ());

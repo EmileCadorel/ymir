@@ -5,13 +5,18 @@ import std.conv;
 import std.math;
 import std.algorithm.sorting;
 
-def opBinary ('in') (b : char, a : string) {    
-    return indexOf (a, b);
+def opTest ('==') (a : string, b : char) {
+    static assert (false, "ici");
+}
+
+def opEquals (a : string, b : char) {
+    return a.length == 1UL && a [0] == b;
 }
 
 def main () {
-    let a = 'a' in 'salut';
-    println (a);
+    let a = ('a' == "a");
+    let c = "a" != 'e';
+    println (a, ' ', c);
 }
 
 
