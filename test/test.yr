@@ -11,7 +11,7 @@ def fibo if (N < 2)
     }
 
 def main () {
-    println (fibo!(12) ());
+    println (fibo!(8) ());
 }
 
 

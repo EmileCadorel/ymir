@@ -247,6 +247,8 @@ struct FrameReturnInfo {
     /** Le block courant */
     private TreeInfo _retInfo = null;
     
+    private bool _changed = false;
+
     /** Retourne une structure vide */
     static ref FrameReturnInfo empty () {
 	return _empty;
@@ -266,6 +268,10 @@ struct FrameReturnInfo {
 	this._retInfo.breaked ();
     }
 
+    ref bool changed () {
+	return this._changed;
+    }
+    
     /** 
      Entre dans un nouveau block
      */

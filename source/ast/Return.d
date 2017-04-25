@@ -53,7 +53,8 @@ class Return : Instruction {
 	    aux._elem = this._elem.expression ();
 	    aux._instComp = aux._elem.info.type.ReturnOp ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();
+		Table.instance.retInfo.changed = true;
+		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();	
 	    } else {
 		auto type = aux._elem.info.type.CompOp (Table.instance.retInfo.info.type);
 
@@ -72,7 +73,9 @@ class Return : Instruction {
 						 Table.instance.retInfo.info);
 		
 		else if (type.isSame (aux._elem.info.type)) {
-		    Table.instance.retInfo.info.type = type;		    
+		    Table.instance.retInfo.info.type = type;
+		    if (!Table.instance.retInfo.changed)
+			Table.instance.retInfo.info.type.value = aux._elem.info.value;
 		}
 	    }
 	} else {

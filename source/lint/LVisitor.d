@@ -766,6 +766,9 @@ class LVisitor {
     private LInstList visitPar (Par par) {
 	Array!LExp exprs;
 	Array!LInstList rights;
+	if (par.info.type.value !is null)
+	    return par.info.type.value.toLint (par.info);
+	
 	LInstList list = new LInstList;
 	LExp call;
 	if (par.info.type.lintInstMult) {

@@ -106,6 +106,7 @@ class FunctionInfo : InfoType {
 	    auto info = goods[0].validate (right, right.treat);	    
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
+	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;
@@ -158,6 +159,7 @@ class FunctionInfo : InfoType {
 	    auto info = goods [0].validate (right, right.treat);
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
+	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;
