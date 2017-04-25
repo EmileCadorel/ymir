@@ -5,18 +5,28 @@ import std.conv;
 import std.math;
 import std.algorithm.sorting;
 
-def opTest ('==') (a : string, b : char) {
-    static assert (false, "ici");
+
+def suite (T) (a : [T], ind : int) : [T] {
+    return [a [ind]];
 }
 
-def opEquals (a : string, b : char) {
-    return a.length == 1UL && a [0] == b;
+def suite (T) (a : [T], ind : int, left) : [T] {
+    return [a [ind]] + a.suite!(T) (expand (left));
+}   
+
+def opIndex (T) (a : [T], ind : int, left : int) : [T] {
+    return [a [ind], a [left]];
 }
+
+def opIndex (T) (a : [T], ind : int, left) : [T] {
+    return [a [ind]] + a [expand (left)];
+}
+
 
 def main () {
-    let a = ('a' == "a");
-    let c = "a" != 'e';
-    println (a, ' ', c);
+    let a = [2, 3, 4, 5];
+    let b = a [0, 2, 3, 1, 0, 0, 0];
+    println (b);
 }
 
 

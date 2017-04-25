@@ -70,9 +70,9 @@ class Access : Expression {
 	try {	    
 	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);
 	    auto var = new Var (word);
-	    auto params = new ParamList (this._token,
-					 make!(Array!Expression) (this._left) ~ aux._params.params);
-								  
+	    auto params = cast (ParamList) new ParamList (this._token,
+							  make!(Array!Expression) (this._left) ~ this._params.params);
+
 	    auto call = new Par (this._token, this._token, var, params);
 	    return call.expression;
 	} catch (YmirException tm) {

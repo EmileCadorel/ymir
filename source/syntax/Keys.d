@@ -48,5 +48,6 @@ enum Keys : Token {
     OPRANGE = Token ("opRange", 43),
     OPTEST = Token ("opTest", 44),
     OPUNARY = Token ("opUnary", 45),
-    OPEQUAL = Token ("opEquals", 46)
+    OPEQUAL = Token ("opEquals", 46),
+    OPCALL = Token ("opCall", 47)
 }

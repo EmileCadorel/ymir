@@ -92,17 +92,17 @@ def opIndex (T) (a : [T], ind : range!ulong) : [T] {
     return slice (a, cast:long (ind.fst), (ind.scd));
 }
 
-def suite (T) (a : [T], ind : int) : [T] {
-    return [a [ind]];
-}
+// def suite (T) (a : [T], ind : int) : [T] {
+//     return [a [ind]];
+// }
 
-def suite (T) (a : [T], ind : int, left) : [T] {
-    return [a [ind]] + a.suite!(T) (expand (left));
-}   
+// def suite (T) (a : [T], ind : int, left) : [T] {
+//     return [a [ind]] + a.suite!(T) (expand (left));
+// }   
 
-def opIndex (T) (a : [T], ind : int, left) : [T] {
-    return a.suite!(T) (ind, left);
-}
+// def opIndex (T) (a : [T], ind : int, left) : [T] {
+//     return a.suite!(T) (ind, left);
+// }
 
 
 

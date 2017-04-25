@@ -67,11 +67,15 @@ class Par : Expression {
 		aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
 	    }
 
+	    writeln (aux._params.prettyPrint ());
 	    auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 	    if (type is null) {
-		if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
-		    throw new UndefinedOp (this._token, aux._left.info, aux._params);
-		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
+		auto call = findOpCall ();
+		if (!call) {
+		    if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
+			throw new UndefinedOp (this._token, aux._left.info, aux._params);
+		    throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
+		} else return call;
 	    }
 	
 	    if (type.treat.length != aux._params.length) 
@@ -110,7 +114,21 @@ class Par : Expression {
 	par._params.params = make!(Array!Expression) (par._params.params [0 .. score.treat.length - 1].array ());
 	par._params.params.insertBack (ctuple);
     }
-    
+
+    private auto findOpCall () {
+	import syntax.Keys;
+	if (this._left.token == Keys.OPCALL) return null;
+	try {
+	    auto word = Word (this._token.locus, Keys.OPCALL.descr, true);
+	    auto var = new Var (word);
+	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left) ~ this._params.params);
+	    
+	    auto call = new Par (this._token, this._end, var, params);
+	    return call.expression;
+	} catch (YmirException) {
+	    return null;
+	}
+    }       
 
     override void removeGarbage () {
 	super.removeGarbage ();
