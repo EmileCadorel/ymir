@@ -1,1 +1,45 @@
 
+
+def opEquals (a : string, b : string) {
+    if (a.length != b.length) return false;
+    for (it in 0UL .. a.length)
+	if (a [it] != b [it]) return false;
+    return true;
+}
+
+def opIndex (str : string) : [char] {
+    return cast:[char] (str);
+}
+
+def opTest ('>') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] < b [it]) return false;
+	else if (a [it] > b [it]) return true;
+    }
+    return false;
+}    
+
+def opTest ('<') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] > b [it]) return false;
+	else if (a [it] < b [it]) return true;
+    }
+    return false;
+}    
+
+def opTest ('<=') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] > b [it]) return false;
+	else if (a [it] < b [it]) return true;
+    }
+    return true;
+}    
+
+def opTest ('>=') (a : string, b : string) {
+    for (it in 0UL .. min (a.length, b.length)) {
+	if (a [it] < b [it]) return false;
+	else if (a [it] > b [it]) return true;
+    }
+    return true;
+}    
+

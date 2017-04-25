@@ -1,8 +1,10 @@
-
+import std.array;
+import std.stdio;
 
 def main () {
-    let a = 10;
-    a--;
+    let a = 'salut';
+    let b = a [];
+    println (b [0 .. 3]);
 }
 
 

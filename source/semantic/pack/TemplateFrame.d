@@ -438,8 +438,6 @@ class TemplateFrame : Frame {
 	    return ret;
 	} else {
 	    func.tmps = make!(Array!Expression) (this._function.tmps [params.length .. $]);
-	    foreach (it ; func.tmps)
-		write (it.prettyPrint, ",");
 	    auto aux = new TemplateFrame (this._namespace, func);
 	    aux._currentScore = this._currentScore;
 	    return aux;

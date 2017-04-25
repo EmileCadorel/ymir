@@ -70,7 +70,7 @@ def clear (T) (a : ref!([T])) {
 }
 
 def slice (T) (a : [T], fst : long, scd : ulong) : [T] {
-    import std.math, std.int;
+    import std.math;
     let size = abs (cast:long (scd) - fst);
     let ret = [T; cast:ulong (size)];
     let index = 0ul;
@@ -82,7 +82,7 @@ def slice (T) (a : [T], fst : long, scd : ulong) : [T] {
 }
 
 def slice (T) (a : [T], fst : long, scd : long) : [T] {
-    import std.math, std.int;
+    import std.math;
     let size = abs (scd - fst);
     let ret = [T; cast:ulong (size)];
     let index = 0ul;
