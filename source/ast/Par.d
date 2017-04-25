@@ -61,15 +61,17 @@ class Par : Expression {
 	    
 	    if (cast (Type) aux._left !is null) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
 	    else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
-	    
+
+	    bool dotCall = false;
 	    if (auto dcall = cast (DotCall) aux._left) {
+		dotCall = true;
 		aux._left = dcall.call;
 		aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
 	    }
 
 	    auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
-	    if (type is null) {
-		auto call = findOpCall (aux);
+	    if (type is null) {		
+		auto call = !dotCall ? findOpCall (aux) : null;
 		if (!call) {
 		    if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
 			throw new UndefinedOp (this._token, aux._left.info, aux._params);
