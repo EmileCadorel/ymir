@@ -1,9 +1,13 @@
-import test.test2;
 import std.stdio;
+import std.traits;
+import std.array;
+import std.algorithm.sorting;
 
 def main () {
-    let a = "salut" + 'a';
-    println (a);
+    let a = [1, 2, 3];
+    let b = a [0, 2, 1];
+
+    println (b.sort ());
 }
 
 

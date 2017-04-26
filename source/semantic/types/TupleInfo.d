@@ -101,7 +101,7 @@ class TupleInfo : InfoType {
     }
     
     override string typeString () {
-	auto name = "(";
+	auto name = "tuple(";
 	foreach (it ; this._params) {
 	    if (auto _st = cast (TupleInfo) it)
 		name ~= "tuple(...)";

@@ -24,6 +24,12 @@ class StringValue : Value {
 	    case Tokens.DEQUAL.descr : return new BoolValue (this._value == t._value);
 	    case Tokens.NOT_EQUAL.descr : return new BoolValue (this._value != t._value);
 	    }
+	} else if (auto t = cast (CharValue) right) {
+	    switch (token.descr) {
+	    case Tokens.PLUS.descr : return new StringValue (this._value ~ to!string(t.value));
+	    case Tokens.DEQUAL.descr : return new BoolValue (this._value.length == 1 && this._value [0] == t.value);
+	    default: assert (false, to!string(token));
+	    }
 	}
 	return null;
     }

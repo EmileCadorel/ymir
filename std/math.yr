@@ -107,13 +107,15 @@ def facto(x : int) : int {
     return x;
 }
 
-def min if (is (T : ulong) || is (T : uint) || is (T : int) || is (T : long))
+public import std.traits;
+
+def min if (isDecimal!(T) ())
     (T) (a : T, b : T) {
 	if (a < b) return a;
 	return b;
     }
 
-def max if (is (T : ulong) || is (T : uint) || is (T : int) || is (T : long))
+def max if (isDecimal!(T) ())
     (T) (a : T, b : T) {
 	if (a < b) return b;
 	return a;

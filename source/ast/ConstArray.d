@@ -58,7 +58,9 @@ class ConstArray : Expression  {
 	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
 	} else {
 	    InfoType last = null;
+	    writeln (this._params.length);
 	    for (ulong i = 0; i < this._params.length; i++) {
+		writeln (this._params [i]);
 		auto expr = this._params [i].expression;
 		if (auto par = cast (ParamList) expr) {
 		    foreach (it ; par.params) aux._params.insertBack (it);
@@ -110,9 +112,8 @@ class ConstArray : Expression  {
 
     override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	Array!Expression params;
-	params.length = this._params.length;	
-	foreach (it ; 0 .. params.length) 
-	    params [it] = this._params [it].templateExpReplace (names, values);
+	foreach (it ; this._params) 
+	    params.insertBack (it.templateExpReplace (names, values));
 	return new ConstArray (this._token, params);
     }
 

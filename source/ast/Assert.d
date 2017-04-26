@@ -61,13 +61,13 @@ class Assert : Instruction {
 
 	if (this._isStatic) {
 	    import semantic.value.BoolValue;
-	    if (msg.info.value is null) 
+	    if (msg && msg.info.value is null) 
 		throw new NotImmutable (msg.info);
 	    
 	    if (!expr.info.isImmutable)
 		throw new NotImmutable (expr.info);
 	    if (!(cast (BoolValue) expr.info.value).isTrue) {
-		throw new StaticAssertFailure (this._token, msg.info.value.toString);
+		throw new StaticAssertFailure (this._token, msg ? msg.info.value.toString : this._expr.prettyPrint ());
 	    }
 	} else {
 	    Table.instance.retInfo.returned ();

@@ -288,15 +288,10 @@ class TemplateFrame : Frame {
 		foreach (it ; tmps)
 		    types.insertBack (new Type (Word.eof, it.cloneForParam ()));
 		
-		try {
-		    auto valid = func.test.templateExpReplace (this._function.tmps, types) .expression ();
-		    Table.instance.unpacifyMode ();
-		    if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
-		    else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
-		} catch (YmirException) {
-		    Table.instance.unpacifyMode ();
-		    return null;
-		}	       
+		auto valid = func.test.templateExpReplace (this._function.tmps, types) .expression ();
+		Table.instance.unpacifyMode ();
+		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
+		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
 	    }
 	    
 	    score.tmps = tmps.array ();
@@ -593,15 +588,10 @@ class TemplateFrame : Frame {
 	if (this._function.tmps.length == params.length) {
 	    if (func.test) {
 		Table.instance.pacifyMode ();
-		try {
-		    auto valid = func.test.expression ();
-		    Table.instance.unpacifyMode ();
-		    if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
-		    else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
-		} catch (YmirException) {
-		    Table.instance.unpacifyMode ();
-		    return null;
-		}
+		auto valid = func.test.expression ();
+		Table.instance.unpacifyMode ();
+		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
+		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
 	    }
 	    Frame ret;
 

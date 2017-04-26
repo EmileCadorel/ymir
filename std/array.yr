@@ -101,6 +101,6 @@ def opIndex if (isDecimal!(T2)())
 
 def opIndex if (isDecimal!(T2)())
     (T, T2) (a : [T], ind : T2, left) : [T] {
-	static assert (isTuple!(typeof (left)));
+	static assert (isTuple!(typeof (left)) ());
 	return [a [ind]] + a [expand (left)];
     }
