@@ -81,21 +81,21 @@ def merge (T) (a : [T], b : [T]) : [T] {
 }
 
 def cut (T) (a : [T], b : [T]) : [T] {
-    println (a.length, ' ', b.length);
     if (a.length <= 1UL) {
 	return merge (a, b);
     } else {
+	let aFst = cast:long (a.length) / 2L, bFst = cast:long (b.length) / 2L;
 	return
 	    merge (
-		cut (a [0UL .. (a.length / 2UL)], a [(a.length - a.length / 2UL) .. a.length]),
-		cut (b [0UL .. (b.length / 2UL)], b [(b.length - b.length / 2UL) .. b.length])
+		cut (a [0L .. aFst], a [aFst .. cast:long (a.length)]),
+		cut (b [0L .. bFst], b [bFst .. cast:long (b.length)])
 	    );
     }
 }
 
 def mergeSort (T) (a : [T]) : [T] {    
     if (a.length >= 2UL) {
-	println (a.length, ' ', cast:long (a.length) / 2);;
-	return cut (a [0UL .. (a.length / 2UL)], a [(a.length - a.length / 2UL) .. a.length]);
+	let aFst = cast:long (a.length) / 2L;
+	return cut (a [0L .. aFst], a [aFst .. cast:long (a.length)]);
     } else return a;
 }
