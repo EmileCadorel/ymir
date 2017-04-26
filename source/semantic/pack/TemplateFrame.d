@@ -16,6 +16,8 @@ import ast.FuncPtr;
 import ast.ConstArray;
 import semantic.types.RefInfo;
 import semantic.pack.UnPureFrame;
+import semantic.pack.PureFrame;
+import semantic.pack.ExternFrame;
 import ast.Constante;
 import ast.Binary;
 import utils.exception;
@@ -29,11 +31,18 @@ class TemplateFrame : Frame {
     private string _name;
 
     private bool _changed = false;
+
+    private bool _isPure = false;
+
+    private bool _isExtern = false;
     
     /**
      Les premiers paramètre templates;
      */
     private Array!Expression _tempParams;
+
+    /** Le protocole créé à la sémantique lorsque la frame est pure et extern */
+    private FrameProto _fr;
     
     /**
      Params:
@@ -45,6 +54,14 @@ class TemplateFrame : Frame {
 	this._name = func.ident.str;
     }
 
+    ref bool isPure () {
+	return this._isPure;
+    }
+
+    ref bool isExtern () {
+	return this._isExtern;
+    }
+    
     private Var typeIt (ArrayVar name, InfoType type, Array!Expression args, InfoType [] tmps) {
 	ArrayVar ret = new ArrayVar (name.token, null);
 	auto typed = typeIt (name.content, type.getTemplate (0), args, tmps);
@@ -305,6 +322,8 @@ class TemplateFrame : Frame {
     }
 
     override FrameProto validate (ApplicationScore score, Array!InfoType params) {
+	if (this._isExtern) return validateExtern ();
+	else if (this._isPure) return validate ();
 	string un = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
 	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	
@@ -383,6 +402,144 @@ class TemplateFrame : Frame {
 	return proto;	
     }
 
+    private FrameProto validateExtern () {
+	if (!this._fr) {
+	    string un = super.mangle (this._name);
+	    string name = super.mangle (this._name); 
+	    
+	    Table.instance.pacifyMode ();
+	    name ~= super.mangle("(");
+	    un ~= "(";
+	    foreach (it ; func.tmps) {
+		auto val = it.expression().info.value.toString;
+		name ~= super.mangle (val);
+		un ~= val;
+		if (it !is func.tmps [$ - 1]) {
+		    un ~= ",";
+		    name ~= super.mangle (",");
+		} else {
+		    name ~= super.mangle (")") ;
+		    un ~= ")";
+		}
+	    }
+	
+	    Table.instance.unpacifyMode ();
+
+	    auto func = this._function;
+	    auto simpleName = this._namespace ~ to!string(un.length) ~ name;
+	    un = this._namespace ~ to!string (un.length) ~ un;
+	    name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
+	
+	    Table.instance.enterFrame (name, this._function.params.length);
+	    Table.instance.enterBlock ();
+	    Table.instance.setCurrentSpace (simpleName);
+			
+	    Array!Var finalParams;
+	    foreach (it; 0 .. func.params.length) {
+		finalParams.insertBack (func.params [it].expression);	    
+		auto t = finalParams.back ().info.type.simpleTypeString ();
+		finalParams.back ().info.id = it + 1;
+		name ~= super.mangle (t);
+	    }
+	
+	    if (this._function.type is null) {
+		Table.instance.retInfo.info = new Symbol (Word.eof(), new VoidInfo ());	    
+	    } else {
+		Table.instance.retInfo.info = this._function.type.asType ().info;
+	    }
+	    this._fr = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
+	    Table.instance.quitFrame ();
+	}
+	return this._fr;
+    }
+    
+
+    override FrameProto validate () {
+	if (this._isExtern) return validateExtern ();
+	string un = super.mangle (this._name);
+	string name = super.mangle (this._name); 
+	       	       
+	Table.instance.pacifyMode ();
+	name ~= super.mangle("(");
+	un ~= "(";
+	foreach (it ; func.tmps) {
+	    auto val = it.expression().info.value.toString;
+	    name ~= super.mangle (val);
+	    un ~= val;
+	    if (it !is func.tmps [$ - 1]) {
+		un ~= ",";
+		name ~= super.mangle (",");
+	    } else {
+		name ~= super.mangle (")") ;
+		un ~= ")";
+	    }
+	}
+	
+	Table.instance.unpacifyMode ();
+
+	auto func = this._function;
+	auto simpleName = this._namespace ~ to!string(un.length) ~ name;
+	un = this._namespace ~ to!string (un.length) ~ un;
+	name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
+	
+	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterBlock ();
+	Table.instance.setCurrentSpace (simpleName);
+		
+	Array!Var finalParams;
+	foreach (it; 0 .. func.params.length) {
+	    finalParams.insertBack (func.params [it].expression);	    
+	    auto t = finalParams.back ().info.type.simpleTypeString ();
+	    finalParams.back ().info.id = it + 1;
+	    name ~= super.mangle (t);
+	}
+	
+	auto proto = FrameTable.instance.existProto (name);
+	
+	if (proto is null) {	    
+	    if (func.type is null) {
+		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
+	    } else {
+		Table.instance.retInfo.info = func.type.asType ().info;
+	    }
+	    
+	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
+	    FrameTable.instance.insert (proto);
+
+	    Table.instance.retInfo.currentBlock = "true";	    
+	    auto block = func.block.block ();
+	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
+		Table.instance.retInfo.info.type = new VoidInfo ();
+	    }
+	    
+	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
+				       name, un,
+				       finalParams, block);
+
+	    proto.type = Table.instance.retInfo.info;
+	    
+	    FrameTable.instance.insert (fr);
+	    
+	    fr.file = func.ident.locus.file;
+	    fr.dest = Table.instance.quitBlock ();
+	    super.verifyReturn (func.ident,
+				fr.type,
+				Table.instance.retInfo);
+
+	    
+	    fr.last = Table.instance.quitFrame ();
+	    
+
+	    foreach (it ; func.tmps) {
+		InfoType.removeAlias (it.token.str);
+	    }
+	    return proto;
+	}
+	
+	Table.instance.quitBlock ();
+	Table.instance.quitFrame ();
+	return proto;		
+    }
 
     override Frame TempOp (Array!Expression params) {
 	import semantic.value.all;
@@ -423,16 +580,6 @@ class TemplateFrame : Frame {
 	foreach (it ; params) {	    
 	    if (auto t = cast (Type) it)
 		namespace ~= (t.info.type.simpleTypeString);
-	    else if (auto _st = cast (String) it)
-		namespace ~= (_st.info.value.toString);
-	    else if (auto _int = cast (Decimal) it)
-		namespace ~= (_int.value);
-	    else if (auto _char = cast (Char) it)
-		namespace ~= (to!string (_char.code));
-	    else if (auto _fl = cast (Float) it)
-		namespace ~= (_fl.totale);
-	    else if (auto _bool = cast (Bool) it)
-		namespace ~= (to!string (_bool.value));
 	    else if (auto _val = it.info.value) {
 		namespace ~= (_val.toString);		
 	    } else 
@@ -456,13 +603,21 @@ class TemplateFrame : Frame {
 		    return null;
 		}
 	    }
-	    auto ret = new UnPureFrame (this._namespace, func);
+	    Frame ret;
+
+	    if (!this._isPure) ret = new UnPureFrame (this._namespace, func);
+	    else if (this._isExtern) ret = new ExternFrame (this._namespace, func);
+	    else ret = new PureFrame (this._namespace, func);
+
+	    
 	    ret.currentScore = this._currentScore;
 	    return ret;
 	} else {
 	    func.tmps = make!(Array!Expression) (this._function.tmps [params.length .. $]);
 	    auto aux = new TemplateFrame (this._namespace, func);
 	    aux._currentScore = this._currentScore;
+	    aux._isPure = this._isPure;
+	    aux._isExtern = this._isExtern;
 	    return aux;
 	}	
     }

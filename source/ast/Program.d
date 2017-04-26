@@ -14,11 +14,14 @@ class Program {
     
     static Word [] __declareAtBegins__;
 
-    this (Array!Declaration decls) {
+    private Word _locus;
+    
+    this (Word token, Array!Declaration decls) {
 	__declareAtBegins__ = [
 	    Word (Word.eof.locus, "core/int", false),
 	    Word (Word.eof.locus, "core/string", false)
 	];
+	this._locus = token;
 	this._decls = decls;
     }
 
@@ -27,8 +30,10 @@ class Program {
      */
     void declare () {
 	foreach (it ; __declareAtBegins__) {
-	    auto _imp = new Import (it, make!(Array!Word)(it));
-	    _imp.declare ();
+	    if (this._locus.locus.file != it.str ~ ".yr") {
+		auto _imp = new Import (it, make!(Array!Word)(it));
+		_imp.declare ();
+	    }
 	}
 	
 	foreach (it ; this._decls) {

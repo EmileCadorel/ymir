@@ -64,7 +64,8 @@ class Visitor {
      program := function | import | struct | class;
      */
     Program visit () {
-	Word word = this._lex.next ();
+	auto begin = this._lex.next ();
+	Word word = begin;
 	Array!Declaration decls;
 	while (!word.isEof ()) {
 	    if (word == Keys.DEF) decls.insertBack (this.visitFunction ());
@@ -82,7 +83,7 @@ class Visitor {
 	    else throw new SyntaxError (word);
 	    _lex.next (word);
 	}
-	return new Program (decls);
+	return new Program (begin, decls);
     }
 
     Array!Declaration visitPublicBlock () {

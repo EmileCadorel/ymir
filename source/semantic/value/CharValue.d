@@ -95,7 +95,7 @@ class CharValue : Value {
     }
     
     override string toString () {
-	return null;
+	return "'" ~ to!string(this._value) ~ "'";
     }
     
 }

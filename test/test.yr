@@ -1,17 +1,9 @@
+import test.test2;
 import std.stdio;
 
-def fibo if (N >= 2)
-    (N : int) () {
-	return fibo ! (N - 1)() + fibo !(N - 2) ();
-    }
-
-def fibo if (N < 2)
-    (N : int) () {
-	return N;
-    }
-
 def main () {
-    println (fibo!(8) ());
+    let a = "salut" + 'a';
+    println (a);
 }
 
 

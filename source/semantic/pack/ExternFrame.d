@@ -93,7 +93,7 @@ class ExternFrame : Frame {
 	if (this._proto is null) return validateFunc ();
 	string name = this._name;
 	if (this._from is null || this._from != "C") {
-	    name = this._namespace ~ to!string (this._name.length) ~ this._name;
+	    name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	    name = "_YN" ~ to!string (name.length) ~ name;
 	}
 	
@@ -129,7 +129,7 @@ class ExternFrame : Frame {
      Returns: le prototype de fonction, avec le nom manglé.
      */
     FrameProto validateFunc () {
-	string name = this._namespace ~ to!string (this._name.length) ~ this._name;
+	string name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
 	Table.instance.enterFrame (name, this._function.params.length);

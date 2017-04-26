@@ -1,0 +1,19 @@
+
+def isDecimal (T) () {
+    return is (T : int) || is (T : long) || is (T : short) || is (T : byte) ||
+	is (T : uint) || is (T : ulong) || is (T : ushort) || is (T : ubyte);
+}
+
+def slice if (begin < end)
+    (elem : string, begin : int, end : int) () {
+	return elem [begin] + slice !(elem, begin + 1, end)();
+    }
+
+def slice if (begin == end)
+    (elem : string, begin : int, end : int) () {
+	return "";
+    }
+
+def isTuple (T) () {
+    return (slice!(T.typeid, 0, 5) == "tuple");
+}

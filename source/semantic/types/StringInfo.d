@@ -210,6 +210,12 @@ class StringInfo : InfoType {
 	    if (this._value)
 		str.value = this._value.BinaryOp (Tokens.PLUS, t._value);
 	    return str;
+	} else if (auto t = cast (CharInfo) right.info.type) {
+	    auto str = new StringInfo ();
+	    str.lintInst = &StringUtils.InstPlusChar;
+	    if (this._value)
+		str.value = this._value.BinaryOp (Tokens.PLUS, t.value);
+	    return str;
 	}
 	return null;
     }
@@ -372,6 +378,7 @@ class StringInfo : InfoType {
      Returns: un type char ou null.
      */
     private InfoType Access (Expression expr) {
+	import semantic.types.RangeInfo;
 	if (cast(DecimalInfo) expr.info.type) {
 	    auto ch = new CharInfo;
 	    ch.lintInstMult = &StringUtils.InstAccessS;

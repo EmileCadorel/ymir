@@ -1,3 +1,9 @@
+import std.math;
+
+
+def opTest ('>') (a : int, b : string) : bool {
+    return true;
+}
 
 
 def opEquals (a : string, b : string) {
@@ -43,3 +49,11 @@ def opTest ('>=') (a : string, b : string) {
     return true;
 }    
 
+def opBinary ('+') (a : string , b : char) {
+    return a + cast:string ([b]);
+}
+
+private def creator () {
+    let useless = "a" + 'b';
+    let b = "a" < "b";
+}

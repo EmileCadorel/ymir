@@ -27,6 +27,9 @@ class StringUtils {
     /** Le nom de la fonction + de deux string */
     static immutable string __PlusString__ = "_YPPlusString";
 
+    /** Le nom de la fonction + de deux string */
+    static immutable string __PlusStringChar__ = "_YN32core46string13opBinary4039433941sc";
+
     /** Le nom de la fonction '==' de deux string */
     static immutable string __EqualString__ = "_YPEqualString";
     
@@ -432,6 +435,14 @@ class StringUtils {
 	return inst;
     }
 
+    static LInstList InstPlusChar (LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	inst += llist + rlist;
+	inst += new LCall (__PlusStringChar__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
+	return inst;
+    }
+    
     /**
      Appel de la fonction "=="
      */

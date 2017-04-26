@@ -248,39 +248,3 @@ def strip (str : string) : string {
 }
 
 
-def opIndex (str : string) : [char] {
-    return cast:[char] (str);
-}
-
-def opTest ('>') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] < b [it]) return false;
-	else if (a [it] > b [it]) return true;
-    }
-    return false;
-}    
-
-def opTest ('<') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] > b [it]) return false;
-	else if (a [it] < b [it]) return true;
-    }
-    return false;
-}    
-
-def opTest ('<=') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] > b [it]) return false;
-	else if (a [it] < b [it]) return true;
-    }
-    return true;
-}    
-
-def opTest ('>=') (a : string, b : string) {
-    for (it in 0UL .. min (a.length, b.length)) {
-	if (a [it] < b [it]) return false;
-	else if (a [it] > b [it]) return true;
-    }
-    return true;
-}    
-

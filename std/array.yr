@@ -1,5 +1,6 @@
 import std.stdio;
 import std.math;
+import std.traits;
 
 def resize (T) (a : ref!([T]), len : ulong) {
     let aux = [T; len];
@@ -88,14 +89,18 @@ def slice (T) (a : [T], fst : long, scd : long) : [T] {
     return (ret);
 }
 
-def opIndex (T, T2) (a : [T], ind : range!T2) : [T] {    
-    return slice (a, cast:long (ind.fst), (ind.scd));
-}
+def opIndex if (isDecimal!(T2)())
+    (T, T2) (a : [T], ind : range!T2) : [T] {
+	return slice (a, cast:long (ind.fst), (ind.scd));
+    }
 
-def opIndex (T) (a : [T], ind : int, left : int) : [T] {
-    return [a [ind], a [left]];
-}
+def opIndex if (isDecimal!(T2)())
+    (T, T2) (a : [T], ind : T2, left : T2) : [T] {
+	return [a [ind], a [left]];
+    }
 
-def opIndex (T) (a : [T], ind : int, left) : [T] {
-    return [a [ind]] + a [expand (left)];
-}
+def opIndex if (isDecimal!(T2)())
+    (T, T2) (a : [T], ind : T2, left) : [T] {
+	static assert (isTuple!(typeof (left)));
+	return [a [ind]] + a [expand (left)];
+    }

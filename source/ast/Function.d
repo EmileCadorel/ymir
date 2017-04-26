@@ -168,8 +168,15 @@ class Function : Declaration {
     Frame verifyPure () {
 	auto space = Table.instance.namespace ();
 	if (this._tmps.length != 0) {
-	    verifyTemplates ();
-	    return new TemplateFrame (space, this);
+	    auto isPure = verifyTemplates ();
+	    auto ret = new TemplateFrame (space, this);
+	    if (!isPure) return ret;
+	    foreach (it ; this._params)
+		if (cast (TypedVar) it is null) return ret;
+
+	    ret.isPure = true;
+	    FrameTable.instance.insert (ret);
+	    return ret;
 	}
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
@@ -180,7 +187,8 @@ class Function : Declaration {
 	return fr;
     }
 
-    void verifyTemplates () {
+    bool verifyTemplates () {
+	bool isPure = true;
 	foreach (it ; this._tmps) {
 	    if (auto tvar = cast (TypedVar) it) {
 		foreach (it_ ; this._params) {
@@ -190,8 +198,11 @@ class Function : Declaration {
 			}
 		    }
 		}
-	    }
+		isPure = false;
+	    } else if (cast (Var) it)
+		isPure = false;
 	}
+	return isPure;
     }
         
     /**
@@ -199,7 +210,18 @@ class Function : Declaration {
      */
     Frame verifyPureAsExtern () {
 	auto space = Table.instance.namespace ();
-	if (this._tmps.length != 0) return new TemplateFrame (space, this);
+	if (this._tmps.length != 0) {
+	    auto isPure = verifyTemplates ();
+	    auto ret = new TemplateFrame (space, this);
+	    if (!isPure) return ret;
+	    foreach (it ; this._params)
+		if (cast (TypedVar) it is null) return ret;
+
+	    ret.isPure = true;
+	    ret.isExtern = true;
+	    FrameTable.instance.insert (ret);
+	    return ret;	    
+	}
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    
