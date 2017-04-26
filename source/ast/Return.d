@@ -76,6 +76,8 @@ class Return : Instruction {
 		    Table.instance.retInfo.info.type = type;
 		    if (!Table.instance.retInfo.changed)
 			Table.instance.retInfo.info.type.value = aux._elem.info.value;
+		    else Table.instance.retInfo.info.type.value = null;
+		    Table.instance.retInfo.changed = true;
 		}
 	    }
 	} else {

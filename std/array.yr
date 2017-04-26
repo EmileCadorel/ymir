@@ -104,3 +104,13 @@ def opIndex if (isDecimal!(T2)())
 	static assert (isTuple!(typeof (left)) ());
 	return [a [ind]] + a [expand (left)];
     }
+
+def opEquals (T) (a : [T], b : [T]) : bool {
+    if (a.length == b.length) {
+	for (it in 0UL .. a.length) {
+	    if (a [it] != b [it]) return false;
+	}
+	return true;
+    }
+    return false;
+}

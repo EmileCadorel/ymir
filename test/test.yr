@@ -4,10 +4,8 @@ import std.array;
 import std.algorithm.sorting;
 
 def main () {
-    let a = [1, 2, 3];
-    let b = a [0, 2, 1];
-
-    println (b.sort ());
+    let a = [89, 56, 8];    
+    println (b);
 }
 
 

@@ -146,7 +146,7 @@ class Binary : Expression {
 		    if (!call)
 			throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 		    else {
-			call.garbage ();
+			//call.garbage ();
 			return call;
 		    }
 		}
@@ -235,7 +235,11 @@ class Binary : Expression {
 	    if (this._token == Tokens.NOT_EQUAL) {
 		auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
 		return new BefUnary (word2, call).expression ();
-	    } else return call.expression;
+	    } else {
+		auto ret = call.expression;
+		writeln (ret.prettyPrint);
+		return ret;
+	    }
 	} catch (YmirException) {
 	    try {
 		auto word = Word (this._token.locus, Keys.OPEQUAL.descr, true);

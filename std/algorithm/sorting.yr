@@ -1,5 +1,5 @@
 
-def sort (T) (a : [T]) {
+def sort (T) (a : [T]) : [T] {
     for (it in 0ul .. (a.length - 1UL)) {
 	for (it_ in it .. (a.length - 1ul)) {
 	    if (a [it_] > a [it_ + 1ul]) {
@@ -9,9 +9,10 @@ def sort (T) (a : [T]) {
 	    }
 	}
     }
+    return a;
 }
 
-def sort (T) (a : [T], callback : function (T, T) : bool) {
+def sort (T) (a : [T], callback : function (T, T) : bool) : [T] {
     for (it in 0ul .. (a.length - 1ul)) {
 	for (it_ in it .. (a.length - 1ul)) {
 	    if (!callback (a [it_], a [it_ + 1ul])) {

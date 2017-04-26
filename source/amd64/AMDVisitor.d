@@ -346,9 +346,10 @@ class AMDVisitor : TVisitor {
 	    where = cast (AMDReg) wh.where;
 	}
 
-	auto laux = new AMDReg (REG.aux ());
 	auto rpaire = visitExpression (lbin.right, where);
 	ret += rpaire.what;
+	REG.reserve (cast (AMDReg) rpaire.where);
+	auto laux = new AMDReg (REG.aux ());
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
 	    auto aux = new AMDReg (REG.aux ((cast (AMDObj)rpaire.where).sizeAmd));
 	    auto lpaire = visitExpression (lbin.left, laux);
@@ -361,6 +362,7 @@ class AMDVisitor : TVisitor {
 	    ret += lpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
 	}
+	REG.free (cast (AMDReg) rpaire.where);
 	if (!free) REG.free (laux);
 	return new TInstPaire (where, ret);
     }
@@ -515,6 +517,7 @@ class AMDVisitor : TVisitor {
 	    inst += new AMDMoveCast (cast (AMDObj) exp.where, reg);
 	else if (exp.where != aux)
 	    inst += new AMDMove (convToSize (reg.sizeAmd, cast (AMDObj) exp.where), reg);
+	else inst += new AMDMoveCast (aux, reg);
 	REG.free (reg);
 	return new TInstPaire (reg, inst);
 	
@@ -625,8 +628,9 @@ class AMDVisitor : TVisitor {
 	    if (read.data.size == read.size) {		
 		return visitExpression (read.data, where);
 	    } else {
-		auto cst = new LCast (read.data, read.size);
-		return visitExpression (cst, where);
+		auto cst = new LCast (read.data, LSize.ULONG);
+		auto ret = visitExpression (cst, where);
+		return ret;
 	    }		    
 	} else {
 	    auto inst = new TInstList;

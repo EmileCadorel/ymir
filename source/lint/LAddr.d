@@ -14,7 +14,7 @@ class LAddr : LExp {
     }
 
     override LSize size () {
-	return LSize.LONG;
+	return LSize.ULONG;
     }
     
     override bool isInst () {

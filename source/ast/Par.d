@@ -143,21 +143,24 @@ class Par : Expression {
 	    return null;
 	}
     }       
-
+    
     override void removeGarbage () {
 	super.removeGarbage ();
 	if (this._params)
 	    this._params.removeGarbage ();
 	if (this._left)
 	    this._left.removeGarbage ();
+	
     }
     
     override void garbage () {
-	super.garbage ();
-	if (this._params)
-	    this._params.garbage ();
-	if (this._left)
-	    this._left.garbage ();
+	if (!this.info || !this.info.isImmutable) {
+	    super.garbage ();
+	    if (this._params)
+		this._params.garbage ();
+	    if (this._left)
+		this._left.garbage ();
+	}
     }
 
     override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
@@ -217,7 +220,7 @@ class Par : Expression {
 
     override string prettyPrint () {
 	import std.format;
-	return format ("%s (%s)", this._left.prettyPrint, this._params.prettyPrint);
+	return format ("%s %s", this._left.prettyPrint, this._params.prettyPrint);
     }
     
 }

@@ -58,9 +58,7 @@ class ConstArray : Expression  {
 	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
 	} else {
 	    InfoType last = null;
-	    writeln (this._params.length);
 	    for (ulong i = 0; i < this._params.length; i++) {
-		writeln (this._params [i]);
 		auto expr = this._params [i].expression;
 		if (auto par = cast (ParamList) expr) {
 		    foreach (it ; par.params) aux._params.insertBack (it);
@@ -146,7 +144,8 @@ class ConstArray : Expression  {
 	auto buf = new OutBuffer;
 	buf.writef ("[");
 	foreach (it; this._params)
-	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "]");
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "");
+	buf.writef ("]");
 	return buf.toString ();
     }
         
