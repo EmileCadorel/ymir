@@ -74,25 +74,108 @@ def canFind (T) (a : [T], b : [T]) {
     return false;
 }
 
-/**
-   Les deux mots on un préfix commun
- */
-def commonPrefix (a : string, b : string) : string {
-    import std.math, std.string;
+
+def commonPrefix (T) (a : [T], b : [T]) : [T] {
+    import std.math, std.array;
     let nb = 0L;
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] != b [it]) {
-	    return a.substr (0L, nb);
+	    return a.slice (0L, nb);
 	} else nb ++;
     }
     return a;
 }
 
-def endsWith (a : string, b : string) : bool {
+def commonPrefix (a : string, b : string) : string {
+    import std.conv;
+    return commonPrefix (a [], b []).to!string;
+}
+
+def endsWith (T) (a : [T], b : [T]) : bool {
     if (b.length > a.length) return false;
     for (it in 0UL .. b.length) {
 	if (a [(a.length - b.length) + it] != b [it])
 	    return false;
     }
-    return true;
+    return true;    
 }
+
+def endsWith (a : string, b : string) : bool {
+    return endsWith (a[], b[]);
+}
+
+def find (T) (a : [T], b : T) : long {
+    for (it in 0UL .. a.length) {
+	if (a [it] == b) return cast:long (it);
+    }
+    return -1;    
+}
+
+def minCount (T) (a : [T]) : tuple!(T, int) {
+    let nb = 0, min = T.max;
+    for (it in 0UL .. a.length) {
+	if (a [it] < min) {
+	    nb = 1;
+	    min = a [it];
+	} else if (a [it] == min) {
+	    nb ++;
+	}
+    }
+    return (min, nb);
+}
+
+def maxCount (T) (a : [T]) : tuple!(T, int) {
+    let nb = 0, max = T.min;
+    for (it in 0UL .. a.length) {
+	if (a [it] > max) {
+	    nb = 1;
+	    max = a [it];
+	} else if (a [it] == max) {
+	    nb ++;
+	}
+    }
+    return (max, nb);    
+}
+
+def minElement (T) (a : [T]) : T {
+    let min = T.max;
+    for (it in 0UL .. a.length) {
+	if (a [it] < min) {
+	    min = a [it];
+	}
+    }
+    return min;    
+}
+
+def minIndex (T) (a : [T]) : long {
+    let min = T.max, index = -1L;
+    for (it in 0UL .. a.length) {
+	if (a [it] < min) {
+	    min = a [it];
+	    index = cast:long (it);
+	}
+    }
+    return index;    
+}
+
+def maxElement (T) (a : [T]) : T {
+    let max = T.min;
+    for (it in 0UL .. a.length) {
+	if (a [it] > max) {
+	    max = a [it];
+	}
+    }
+    return max;    
+}
+
+def maxIndex (T) (a : [T]) : long {
+    let max = T.min, index = -1L;
+    for (it in 0UL .. a.length) {
+	if (a [it] > max) {
+	    max = a [it];
+	    index = cast:long (it);
+	}
+    }
+    return index;    
+}
+

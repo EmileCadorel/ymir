@@ -16,7 +16,7 @@ class AMDUnop : TInst {
     private string opInt () {
 	if (this._op == Tokens.DIV) return "idiv";
 	else if (this._op == Tokens.MINUS) return "neg";
-	else if (this._op == Tokens.NOT) return "not";
+	else if (this._op == Tokens.NOT) return "xor";
 	else if (this._op == Tokens.DPLUS) return "inc";
 	else if (this._op == Tokens.DMINUS) return "dec";
 	else assert (false);
@@ -41,6 +41,10 @@ class AMDUnop : TInst {
 	    buf.writef ("\t%s%s\t%s, %s", op,
 			this._obj.sizeAmd.id,
 			this._obj.toString (),
+			this._obj.toString ());
+	} else if (this._op == Tokens.NOT) {
+	    buf.writef ("\t%s%s\t$1, %s", op,
+			this._obj.sizeAmd.id,
 			this._obj.toString ());
 	} else {
 	    buf.writef ("\t%s%s\t%s", op, this._obj.sizeAmd.id, this._obj.toString ());

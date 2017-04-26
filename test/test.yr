@@ -1,11 +1,10 @@
 import std.stdio;
-import std.traits;
 import std.array;
-import std.algorithm.sorting;
+import std.algorithm;
 
 def main () {
-    let a = [89, 56, 8];    
-    println (b);
+    let a = [1, 2, 7, 9], b = [2, 3, 5, 12];
+    println (merge (a, b));
 }
 
 

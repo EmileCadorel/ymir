@@ -223,8 +223,11 @@ class IncompatibleTypes : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	super.addLine (buf, left.sym.locus);
-	if (!right.sym.isEof)
+	if (!right.sym.isEof) {
+	    buf.writef ("%s:(%d, %d): ", right.sym.locus.file, right.sym.locus.line, right.sym.locus.column);
+	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
 	    super.addLine (buf, right.sym.locus);
+	}
 	msg = buf.toString ();
     }    
 
@@ -241,8 +244,11 @@ class IncompatibleTypes : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	super.addLine (buf, left.sym.locus);
-	if (!right.sym.isEof)
+	if (!right.sym.isEof) {
+	    buf.writef ("%s:(%d, %d): ", right.sym.locus.file, right.sym.locus.line, right.sym.locus.column);
+	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);	    
 	    super.addLine (buf, right.sym.locus);
+	}
 	buf.writefln ("%sNote%s : Pour l'instruction : ", Colors.BLUE.value, Colors.RESET.value);
 	super.addLine (buf, locus);
 	msg = buf.toString ();

@@ -1,26 +1,81 @@
 
 def sort (T) (a : [T]) : [T] {
-    for (it in 0ul .. (a.length - 1UL)) {
-	for (it_ in it .. (a.length - 1ul)) {
-	    if (a [it_] > a [it_ + 1ul]) {
-		let aux = a [it_];
-		a [it_] = a [it_ + 1ul];
-		a [it_ + 1ul] = aux;
+    let end = false;
+    if (a.length == 0UL) return a;
+    while (!end) {
+	end = true;
+	for (it in 0ul .. (a.length - 1UL)) {
+	    if (a [it] > a [it + 1UL]) {
+		let aux = a [it];
+		a [it] = a [it + 1UL];
+		a [it + 1UL] = aux;
+		end = false;
 	    }
 	}
     }
     return a;
 }
 
-def sort (T) (a : [T], callback : function (T, T) : bool) : [T] {
-    for (it in 0ul .. (a.length - 1ul)) {
-	for (it_ in it .. (a.length - 1ul)) {
-	    if (!callback (a [it_], a [it_ + 1ul])) {
-		let aux = a [it_];
-		a [it_] = a [it_ + 1ul];
-		a [it_ + 1ul] = aux;
-	    }
+def completeSort (T) (a : [T], b : [T]) {
+    import std.math, std.array, std.stdio;
+    let res = (a + b).sort ();
+    for (i in 0UL .. a.length)
+	a [i] = res [i];
+
+    for (i in a.length .. (b.length + a.length)) 
+	b [i - a.length] = res [i];    
+}
+
+def isPartitioned (T) (a : [T], call : function (T) : bool) : bool {
+    let current, nb = 0;
+    for (it in 0UL .. a.length) {
+	if (it == 0UL) current = call (a [it]);
+	else {
+	    if (call (a [it]) != current) {
+		if (nb == 0) {
+		    nb ++;
+		    current = !current;
+		} else return false;
+	    }			    
 	}
     }
-    return a;
+    return true;
+}
+
+def isSorted (T) (a : [T]) : bool {
+    if (a.length == 0UL) return true;
+    for (it in 0UL .. (a.length - 1UL)) {
+	if (a [it] > a [it + 1UL]) return false;
+    }
+    return true;
+}
+
+def merge (T) (a : [T], b : [T]) : [T] {
+    import std.stdio;
+    let res = [T ; a.length + b.length];
+    let i = 0UL, j = 0UL, k = 0UL;
+    while (i < a.length && j < b.length) {
+	if (a [i] < b [j]) {
+	    res [k] = a [i];
+	    i ++;
+	} else {
+	    res [k] = b [j];
+	    j ++;
+	}
+	k++;
+    }
+
+    while (i < a.length) {
+	res [k] = a [i];
+	i ++;
+	k ++;
+    }
+
+    while (j < b.length) {
+	res [k] = b [j];
+	j ++;
+	k ++;
+    }
+    
+    return res;
 }
