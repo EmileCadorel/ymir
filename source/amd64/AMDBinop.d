@@ -3,7 +3,7 @@ import target.TInst, syntax.Tokens, amd64.AMDObj;
 import amd64.AMDSize, std.outbuffer;
 import target.TInstList, amd64.AMDSet, std.algorithm;
 import amd64.AMDReg, amd64.AMDMove, amd64.AMDStd;
-import amd64.AMDUnop, amd64.AMDConst;
+import amd64.AMDUnop, amd64.AMDConst, amd64.AMDCast;
 
 class AMDBinop : TInst {
 
@@ -200,24 +200,34 @@ class AMDBinop : TInst {
 	    auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
 	    auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
 	    auto rdx = new AMDReg (REG.getReg ("rdx", this._left.sizeAmd));
+	    bool needCast = false;
 	    if (rdx == ret) 
-		ret = new AMDReg (REG.getSwap (ret.sizeAmd));
+		ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
+	    else if (ret.sizeAmd != AMDSize.QWORD && ret.sizeAmd != AMDSize.UQWORD) {
+		ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
+		needCast = true;
+	    }
 	    
 	    if (rax == lreg) {
 		this._insts += new AMDCqto;
-		if (ret != rreg)
-		    this._insts += new AMDMove (this._right, ret);
+		if (ret != rreg) {
+		    if (needCast) this._insts += new AMDCast (this._right, ret);
+		    else this._insts += new AMDMove (this._right, ret);
+		}
 		this._insts += new AMDUnop (ret, Tokens.DIV);
 	    } else if (rax == rreg) {
-		this._insts += new AMDMove (this._right, ret);
+		if (needCast) this._insts += new AMDCast (this._right, ret);
+		else this._insts += new AMDMove (this._right, ret);
 		this._insts += new AMDMove (this._left, rax);
 		this._insts += new AMDCqto;
 		this._insts += new AMDUnop (ret, Tokens.DIV);
 	    } else {
 		this._insts += new AMDMove (this._left, rax);
 		this._insts += new AMDCqto;
-		if (ret != rreg)
-		    this._insts += new AMDMove (this._right, ret);
+		if (ret != rreg) {
+		    if (needCast) this._insts += new AMDCast (this._right, ret);
+		    else this._insts += new AMDMove (this._right, ret);
+		}
 		this._insts += new AMDUnop (ret, Tokens.DIV);
 	    }
 	    
@@ -248,21 +258,33 @@ class AMDBinop : TInst {
 	auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
 	auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
 	auto rdx = new AMDReg (REG.getReg ("rdx", this._left.sizeAmd));
+	bool needCast = false;
+	if (rdx == ret) 
+	    ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
+	else if (ret.sizeAmd != AMDSize.QWORD && ret.sizeAmd != AMDSize.UQWORD) {
+	    ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
+	    needCast = true;
+	}
 	if (rax == lreg) {
 	    this._insts += new AMDCqto ();
-	    if (ret != rreg)
-		this._insts += new AMDMove (this._right, ret);
+	    if (ret != rreg) {
+		if (needCast) this._insts += new AMDCast (this._right, ret);
+		else this._insts += new AMDMove (this._right, ret);
+	    }
 	    this._insts += new AMDUnop (ret, Tokens.DIV);
 	} else if (rax == rreg) {
-	    this._insts += new AMDMove (this._right, ret);
+	    if (needCast) this._insts += new AMDCast (this._right, ret);
+	    else this._insts += new AMDMove (this._right, ret);
 	    this._insts += new AMDMove (this._left, rax);
 	    this._insts += new AMDCqto;
 	    this._insts += new AMDUnop (ret, Tokens.DIV);
 	} else {
 	    this._insts += new AMDMove (this._left, rax);
 	    this._insts += new AMDCqto ();
-	    if (ret != rreg)
-		this._insts += new AMDMove (this._right, ret);
+	    if (ret != rreg) {
+		if (needCast) this._insts += new AMDCast (this._right, ret);
+		else this._insts += new AMDMove (this._right, ret);
+	    }
 	    this._insts += new AMDUnop (ret, Tokens.DIV);
 	}
 	this._insts += new AMDMove (rdx, this._res);
