@@ -1,3 +1,6 @@
 public import std.algorithm.sorting;
 public import std.algorithm.searching;
+public import std.algorithm.comparaison;
+public import std.algorithm.iteration;
+public import std.algorithm.mutation;
 

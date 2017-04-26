@@ -1,5 +1,5 @@
 dmd: 
-	dub build --parallel
+	dub build
 
 all:
 	dub build --parallel

@@ -1,0 +1,33 @@
+public import std.traits;
+
+def min if (isDecimal!(T) ())
+    (T) (a : T, b : T) {
+	if (a < b) return a;
+	return b;
+    }
+
+def max if (isDecimal!(T) ())
+    (T) (a : T, b : T) {
+	if (a < b) return b;
+	return a;
+    }
+
+def clamp (val, lower, upper) {
+    return max (lower, min (upper, val));
+}
+
+def isPermutation (T) (a : [T], b : [T]) : bool {
+    import std.algorithm.searching;
+    if (a.length != b.length) return false;
+    for (it in 0UL .. a.length) {
+	if (count (a, a [it]) != count (b, a [it])) return false;
+    }
+    return true;
+}
+
+
+def isPermutation  (a : string, b : string) : bool {
+    import std.algorithm.searching;
+    return isPermutation (a [], b []);
+}
+

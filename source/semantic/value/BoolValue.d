@@ -28,7 +28,10 @@ class BoolValue : Value {
 
     override Value BinaryOpRight (Tokens token, Value left){ return null; }
 
-    override Value UnaryOp (Word token){ return null; }
+    override Value UnaryOp (Word token){
+	if (token == Tokens.NOT) return new BoolValue (!this._value);
+	return null;
+    }
 
     override Value AccessOp (ParamList params){ return null; }
     override Value AccessOp (Expression){ return null; }

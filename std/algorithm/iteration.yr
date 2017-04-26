@@ -1,0 +1,55 @@
+
+
+def scan (T) (a : [T], call : function (T, T) : T) : [T] {
+    let b = [T ; a.length];
+    if (b.length == 0UL) return b;
+    b [0] = a [0];
+    for (it in 0UL .. (a.length - 1UL)) {
+	b [it + 1UL] = call (b [it], a [it + 1UL]);
+    }
+    return b;
+}
+
+def each (T) (a : [T], call : function (T) : void)  {
+    for (it in a ) {
+	call (it);
+    }
+}
+
+def filter (T) (a : [T], call : function (T) : bool) : [T] {
+    let b = [T ; 0UL];
+    for (it in 0UL .. a.length) {
+	if (call (a [it]))
+	    b += [a [it]];
+    }
+    return b;
+}
+
+def reduce (T) (a : [T], call : function (T, T) : T) : T {
+    if (a.length == 0UL) return T.init;
+    else {
+	let b = a [0];
+	for (it in 1UL .. a.length) {
+	    b = call (a [it], b);
+	}
+	return b;
+    }
+}
+
+def map (T) (a : [T], call : function (T) : T) : [T] {
+    let b = [T ; a.length];
+    for (it in 0UL .. a.length) {
+	b [it] = call (a [it]);
+    }
+    return b;
+}
+
+def zip (T, T2, T3) (a : [T], b : [T2], call : function (T, T2) : T3) : [T3] {
+    if (a.length != b.length) assert (false, "Taille différente");
+    let c = [T3 ; a.length];
+    for (it in 0UL .. a.length) {
+	c [it] = call (a [it], b [it]);
+    }
+    return c;
+}
+

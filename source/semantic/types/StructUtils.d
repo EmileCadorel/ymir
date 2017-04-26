@@ -280,5 +280,9 @@ class StructUtils {
 	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
 	return inst;
     }
+
+    static LInstList InstTupleOf (LInstList, LInstList list) {
+	return list;
+    }
     
 }

@@ -76,7 +76,7 @@ def canFind (T) (a : [T], b : [T]) {
 
 
 def commonPrefix (T) (a : [T], b : [T]) : [T] {
-    import std.math, std.array;
+    import std.algorithm.comparaison, std.array;
     let nb = 0L;
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] != b [it]) {

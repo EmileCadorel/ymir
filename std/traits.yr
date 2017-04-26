@@ -4,6 +4,14 @@ def isDecimal (T) () {
 	is (T : uint) || is (T : ulong) || is (T : ushort) || is (T : ubyte);
 }
 
+def isSigned (T) () {
+    return is (T : int) || is (T : long) || is (T : short) || is (T : byte);
+}
+
+def isUnsigned (T) () {
+    return is (T : uint) || is (T : ulong) || is (T : ushort) || is (T : ubyte);
+}
+
 def slice if (begin < end && elem.length > begin)
     (elem : string, begin : ulong, end : ulong) () {
 	return slice !(elem, begin + 1UL, end)() + elem [begin];

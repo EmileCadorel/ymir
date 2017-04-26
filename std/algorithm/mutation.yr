@@ -1,0 +1,54 @@
+
+
+def copy (T) (a : [T], b : [T]) {
+    let i = 0UL;
+    while (i < a.length && i < b.length) {
+	b [i] = a [i];
+    }
+}
+
+def fill if (is (T : T2))
+    (T, T2) (a : [T], val : T2) {
+    for (it in a) {
+	it = val;
+    }
+}
+
+def fill (T) (a : [T], val : [T]) {
+    let j = 0UL;
+    for (it in a) {
+	it = val [j];
+	j ++;
+	j = j % val.length;
+    }    
+}
+
+def reverse (T) (a : [T]) : [T] {
+    let b = [T; a.length];
+    for (it in 0UL .. a.length) {
+	b [it] = a [(a.length - 1UL) - it];
+    }
+    return b;
+}
+
+def generate (T) (length : ulong, call : function (ulong) : T) : [T] {
+    let a = [T ; length];
+    for (it in 0UL .. length) {
+	a [it] = call (it);
+    }
+    return a;
+}
+
+def init (T) (length : ulong, val : T) : [T] {
+    let a = [T ; length];
+    for (it in a)
+	it = val;
+    return a;
+}
+
+def swap (T) (a : ref!T, b : ref!T) {
+    let aux = a;
+    a = b;
+    b = aux;
+}
+

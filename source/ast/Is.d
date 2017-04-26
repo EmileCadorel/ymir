@@ -7,9 +7,10 @@ import semantic.types.BoolInfo;
 import semantic.pack.Symbol;
 import semantic.types.TupleInfo;
 import semantic.types.UndefInfo;
-import std.container;
+import std.container, syntax.Keys;
 import ast.ParamList;
 import semantic.types.StructInfo;
+import semantic.types.FunctionInfo;
 import std.stdio;
 
 
@@ -28,29 +29,49 @@ class Is : Expression {
     /// Le type à droite
     private Expression _type;
 
+    private Word _expType;
+    
     this (Word begin, Expression expr, Expression type) {
 	super (begin);
 	this._left = expr;
 	this._type = type;
     }
-   
+
+    this (Word begin, Expression expr, Word type) {
+	super (begin);
+	this._left = expr;
+	this._expType = type;
+    }
+    
     /**
      Vérification sémantique
      Pour être juste le type doit éxister et l'élément tester doit être typé
      Throw: UseAsType, UninitVar
      */
     override Expression expression () {
-	auto aux = new Is (this._token, this._left.expression, this._type.expression);
-	if (!(cast (Type) aux._type)) throw new UseAsType (aux._type.token);
-	if (cast (UndefInfo) aux._left) throw new UninitVar (aux._left.token);
-
-	auto res = aux._left.info.type.isSame (aux._type.info.type);
-	auto type = new BoolInfo ();
-	aux._info = new Symbol (this._token, type, true);
-	if (!res) 
-	    aux._info.value = new BoolValue (false);
-	else aux._info.value = new BoolValue (true);
-	return aux;
+	if (this._type) {
+	    auto aux = new Is (this._token, this._left.expression, this._type.expression);
+	    if (!(cast (Type) aux._type)) throw new UseAsType (aux._type.token);
+	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
+	    
+	    auto res = aux._left.info.type.isSame (aux._type.info.type);
+	    auto type = new BoolInfo ();
+	    aux._info = new Symbol (this._token, type, true);
+	    aux._info.value = new BoolValue (res);
+	    return aux;
+	} else {
+	    auto aux = new Is (this._token, this._left.expression, this._expType);
+	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
+	    auto type = new BoolInfo ();
+	    aux._info = new Symbol (this._token, type, true);
+	    if (this._expType == Keys.FUNCTION) {
+		aux._info.value = new BoolValue (cast (FunctionInfo) (aux._left.info.type) !is null);
+	    } else {
+		aux._info.value = new BoolValue (cast (StructInfo) (aux._left.info.type) !is null ||
+						 cast (StructCstInfo) (aux._left.info.type) !is null);
+	    }
+	    return aux;
+	}
     }
 
     /**
@@ -58,8 +79,12 @@ class Is : Expression {
      */
     override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
 	auto left = this._left.templateExpReplace (names, values);
-	auto right = this._type.templateExpReplace (names, values);
-	return new Is (this._token, left, right);
+	if (this._type) {
+	    auto right = this._type.templateExpReplace (names, values);
+	    return new Is (this._token, left, right);
+	} else {
+	    return new Is (this._token, left, this._expType);
+	}
     }
 
     /**

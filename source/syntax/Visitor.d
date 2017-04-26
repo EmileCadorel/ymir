@@ -771,10 +771,18 @@ class Visitor {
 	auto expr = visitExpression ();
 	next = this._lex.next ();
 	if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
-	auto type = visitType ();
 	next = this._lex.next ();
-	if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
-	return new Is (begin, expr, type);
+	if (next == Keys.FUNCTION || next == Keys.STRUCT) {
+	    next = this._lex.next ();
+	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	    return new Is (begin, expr, next);
+	} else {
+	    this._lex.rewind ();
+	    auto type = visitType ();
+	    next = this._lex.next ();
+	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
+	    return new Is (begin, expr, type);
+	}
     }
     
     private Expression visitNumeric (Word begin) {

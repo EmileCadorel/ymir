@@ -107,16 +107,3 @@ def facto(x : int) : int {
     return x;
 }
 
-public import std.traits;
-
-def min if (isDecimal!(T) ())
-    (T) (a : T, b : T) {
-	if (a < b) return a;
-	return b;
-    }
-
-def max if (isDecimal!(T) ())
-    (T) (a : T, b : T) {
-	if (a < b) return b;
-	return a;
-    }

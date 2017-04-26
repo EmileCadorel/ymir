@@ -118,3 +118,48 @@ def opEquals (T) (a : [T], b : [T]) : bool {
     }
     return false;
 }
+
+def array (T) (a : [T]) {
+    let aux = [T ; a.length];
+    for (it in 0UL .. a.length) {
+	aux [it] = a [it];
+    }
+    return aux;    
+}
+
+def join (T) (a : [[T]]) {
+    let res = [T ; 0UL];
+    for (it in a) {
+	res += it;
+    }
+    return res;
+}
+
+def replace (T) (a : [T], b : T, c : T) {
+    let aux = [T ; a.length];
+    for (it in 0UL .. a.length) {
+	if (a [it] == b) {
+	    aux [it] = c;
+	} else aux [it] = a [it];
+    }
+    return aux;
+}
+
+def replaceFirst (T) (a : [T], b : T, c : T) {
+    let aux = [T ; a.length];
+    let j = 0UL;
+    while (j < a.length) {
+	if (a [j] == b) {
+	    aux [j] = c;
+	    break;
+	} else aux [j] = a [j];
+	j ++;
+    }
+
+    while (j < a.length) {
+	aux [j] = a [j];
+	j++;
+    }
+    
+    return aux;
+}

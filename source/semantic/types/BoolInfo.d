@@ -76,6 +76,8 @@ class BoolInfo : InfoType {
 	if (op == Tokens.NOT) {
 	    auto ret = new BoolInfo ();
 	    ret.lintInstS.insertBack (&BoolUtils.InstXor);
+	    if (this._value)
+		ret.value = this._value.UnaryOp (op);
 	    return ret;
 	} else if (op == Tokens.AND) return toPtr ();
 	return null;

@@ -1,24 +1,15 @@
 import std.stdio;
-import std.array;
-import std.algorithm;
+//import std.ascii;
+import std.conv;
 
-extern (C) printf (str : ptr!char, ...);
-extern (C) rand () : int;
-extern (C) srand (i : int);
-extern (C) time (i : int) : int;
-
+struct
+| a : int
+| b : [int]
+-> Test ;
 
 def main () {
-    /*srand (time (0));
-    let a = [int; 100UL];
-    for (i in 0 .. 100) {
-	a [i] = rand () % 100;
-    }
-    println (a.mergeSort ());*/
-    let a = [1, 4];
-    println (a.length, ' ', cast:long (a.length) / 2L);
-
-    
+    let a = Test (10, [4]);
+    println (a.to!string);
 }
 
 

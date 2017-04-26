@@ -390,7 +390,9 @@ class StructInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "typeid") return StringOf ();
+	else if (var.token.str == "typename") return TypeName ();
 	else if (var.token.str == "nbRef") return nbRef ();
+	else if (var.token.str == "tupleof") return TupleOf ();
 	else {
 	    foreach (it ; 0 .. this._attribs.length) {
 		if (var.token.str == this._attribs [it]) {
@@ -447,6 +449,18 @@ class StructInfo : InfoType {
 	t.lintInst = &StructUtils.Init;
 	return t;
     }
+
+    private InfoType TupleOf () {
+	import semantic.types.TupleInfo;
+	Array!InfoType params;
+	foreach (it ; this._params)
+	    params.insertBack (it.clone ());
+	auto t = new TupleInfo ();
+	t.params = params;
+	t.lintInst = &StructUtils.InstTupleOf;
+	t.setDestruct = null;
+	return t;
+    }
     
     /**
      surcharge de la propriété typeid.
@@ -459,6 +473,16 @@ class StructInfo : InfoType {
 	return str;
     }
 
+    /**
+     surcharge de la propriété typeid.
+     */
+    private InfoType TypeName () {
+	auto str = new StringInfo;
+	str.value = new StringValue (this._name);
+	return str;
+    }
+
+    
     private InfoType nbRef () {
 	auto nb = new DecimalInfo (DecimalConst.ULONG);
 	nb.lintInst = &StructUtils.InstNbRef;

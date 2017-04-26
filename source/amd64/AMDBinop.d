@@ -203,9 +203,10 @@ class AMDBinop : TInst {
 	    bool needCast = false;
 	    if (rdx == ret) 
 		ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
-	    else if (ret.sizeAmd != AMDSize.QWORD && ret.sizeAmd != AMDSize.UQWORD) {
+	    else if (this._right.sizeAmd != AMDSize.QWORD && this._right.sizeAmd != AMDSize.UQWORD) {
 		ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
-		needCast = true;
+		if (cast (AMDReg) this._right)
+		    needCast = true;
 	    }
 	    
 	    if (rax == lreg) {
@@ -261,9 +262,10 @@ class AMDBinop : TInst {
 	bool needCast = false;
 	if (rdx == ret) 
 	    ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
-	else if (ret.sizeAmd != AMDSize.QWORD && ret.sizeAmd != AMDSize.UQWORD) {
+	else if (this._right.sizeAmd != AMDSize.QWORD && this._right.sizeAmd != AMDSize.UQWORD) {
 	    ret = new AMDReg (REG.getSwap (AMDSize.QWORD));
-	    needCast = true;
+	    if (cast (AMDReg) this._right)
+		needCast = true;
 	}
 	if (rax == lreg) {
 	    this._insts += new AMDCqto ();

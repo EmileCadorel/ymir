@@ -1,0 +1,95 @@
+
+
+def isAlpha (a : char) : bool {
+    if (a >= 'A' && a <= 'Z') return true;
+    else if (a >= 'a' && a <= 'z') return true;
+    return false;
+}
+
+def isAlpha (a : char) () : bool {
+    static if (a >= 'A' && a <= 'Z') return true;
+    else if (a >= 'a' && a <= 'z') return true;
+    return false;
+}
+
+def isLower (a : char) : bool {
+    if (a >= 'a' && a <= 'z') return true;
+    return false;
+}
+
+def isLower (a : char) () : bool {
+    static if (a >= 'a' && a <= 'z') return true;
+    else return false;
+}
+
+def isUpper (a : char) : bool {
+    if (a >= 'A' && a <= 'Z') return true;
+    return false;
+}
+
+def isUpper (a : char) () : bool {
+    static if (a >= 'A' && a <= 'Z') return true;
+    else return false;
+}
+
+def isDigit (a : char) : bool {
+    if (a >= '0' && a <= '9') return true;
+    return false;
+}
+
+def isDigit (a : char) () : bool {
+    static if (a >= '0' && a <= '9') return true;
+    else return false;
+}
+
+def isOctalDigit (a : char)  : bool {
+    if (a >= '0' && a <= '7') return true;
+    return false;
+}
+
+def isOctalDigit (a : char) ()  : bool {
+    static if (a >= '0' && a <= '7') return true;
+    else return false;
+}
+
+def isHexDigit (a : char) : bool {
+    if (a >= '0' && a <= '9') return true;
+    else if (a >= 'A' && a <= 'F') return true;
+    else if (a >= 'a' && a <= 'f') return true;
+    return false;
+}
+
+def isHexDigit (a : char) () : bool {
+    static if (a >= '0' && a <= '9') return true;
+    else if (a >= 'A' && a <= 'F') return true;
+    else if (a >= 'a' && a <= 'f') return true;
+    else return false;
+}
+
+def isWhite (a : char) : bool {
+    return a == ' ' || a == '\n' || a == '\r' || a == '\t' || a == '\b';
+}
+
+def isWhite (a : char) () : bool {
+    return a == ' ' || a == '\n' || a == '\r' || a == '\t' || a == '\b';
+}
+
+def toLower (a : char) : char {
+    if (isUpper (a)) return a + 'a' - 'A';
+    else return a;
+}
+
+def toLower (a : char)() : char {
+    static if (isUpper!(a) ()) return a + 'a' - 'A';
+    else return a;
+}
+
+def toUpper (a : char) : char {
+    if (isLower (a)) return a + 'A' - 'a';
+    return a;
+}
+
+def toUpper (a : char) () : char {
+    static if (isLower!(a) ()) return a + 'A' - 'a';
+    else return a;
+}
