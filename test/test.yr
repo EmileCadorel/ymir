@@ -2,9 +2,23 @@ import std.stdio;
 import std.array;
 import std.algorithm;
 
+extern (C) printf (str : ptr!char, ...);
+extern (C) rand () : int;
+extern (C) srand (i : int);
+extern (C) time (i : int) : int;
+
+
 def main () {
-    let a = [1, 2, 7, 9], b = [2, 3, 5, 12];
-    println (merge (a, b));
+    /*srand (time (0));
+    let a = [int; 100UL];
+    for (i in 0 .. 100) {
+	a [i] = rand () % 100;
+    }
+    println (a.mergeSort ());*/
+    let a = [1, 4];
+    println (a.length, ' ', cast:long (a.length) / 2L);
+
+    
 }
 
 

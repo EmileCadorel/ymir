@@ -199,6 +199,10 @@ class AMDBinop : TInst {
 	    AMDReg lreg, rreg;
 	    auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
 	    auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
+	    auto rdx = new AMDReg (REG.getReg ("rdx", this._left.sizeAmd));
+	    if (rdx == ret) 
+		ret = new AMDReg (REG.getSwap (ret.sizeAmd));
+	    
 	    if (rax == lreg) {
 		this._insts += new AMDCqto;
 		if (ret != rreg)
@@ -216,6 +220,7 @@ class AMDBinop : TInst {
 		    this._insts += new AMDMove (this._right, ret);
 		this._insts += new AMDUnop (ret, Tokens.DIV);
 	    }
+	    
 	    this._insts += new AMDMove (rax, this._res);
 	} else opDivFloat ();
     }

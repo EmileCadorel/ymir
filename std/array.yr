@@ -89,6 +89,7 @@ def slice (T) (a : [T], fst : long, scd : long) : [T] {
     return (ret);
 }
 
+public import std.traits;
 def opIndex if (isDecimal!(T2)())
     (T, T2) (a : [T], ind : range!T2) : [T] {
 	return slice (a, cast:long (ind.fst), (ind.scd));
