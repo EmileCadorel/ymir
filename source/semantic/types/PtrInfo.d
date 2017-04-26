@@ -326,7 +326,7 @@ class PtrInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
-	if (var.isType) {
+	if (cast (Type) var || var.isType) {
 	    auto type = var.asType ();
 	    auto ret = type.info.type;
 	    if (ret.size == LSize.BYTE)  ret.lintInst = &PtrUtils.InstUnrefDot!(LSize.BYTE);
