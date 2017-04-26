@@ -109,9 +109,9 @@ class FuncPtr : Expression {
 	auto ret = this._ret.templateExpReplace (names, values);
 	if (this._expr) {
 	    auto expr = this._expr.templateExpReplace (names, values);
-	    return new FuncPtr (this._token, params, type, expr);
+	    return new FuncPtr (this._token, params, cast (Var) ret, expr);
 	}	
-	return new FuncPtr (this._token, params, type);
+	return new FuncPtr (this._token, params, cast (Var) ret);
     }
 
     override Expression clone () {

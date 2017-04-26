@@ -16,6 +16,7 @@ class CharValue : Value {
     }
 
     override Value BinaryOp (Tokens op, Value right) {
+	import std.stdio;
 	if (auto ch = cast (CharValue) right) {
 	    if (op == Tokens.INF) return new BoolValue (this._value < ch._value);
 	    if (op == Tokens.SUP) return new BoolValue (this._value > ch._value);
@@ -28,8 +29,8 @@ class CharValue : Value {
 
 	    if (op == Tokens.NOT_INF_EQUAL) return new BoolValue (this._value > ch._value);
 	    if (op == Tokens.DEQUAL) return new BoolValue (this._value == ch._value);
-	    if (op == Tokens.PLUS) return new CharValue (cast (char) (this._value + ch._value));
-	    if (op == Tokens.MINUS) return new CharValue (cast (char) (this._value - ch._value));
+	    if (op == Tokens.PLUS) return new CharValue (cast (char) (cast(int)(this._value) + cast(int)(ch._value)));	    
+	    if (op == Tokens.MINUS) return new CharValue (cast (char) (this._value - ch._value));	    
 	} else if (auto dec = cast (DecimalValue) right) {
 	    if (op == Tokens.INF) return new BoolValue (this._value.to!int < dec.value);
 	    if (op == Tokens.SUP) return new BoolValue (this._value.to!int > dec.value);
@@ -85,9 +86,7 @@ class CharValue : Value {
        
     override LInstList toLint (Symbol sym) {
 	import lint.LConst, lint.LSize;
-	if (this._value)
-	    return new LInstList (new LConstDecimal (true, LSize.BYTE));
-	else return new LInstList (new LConstDecimal (false, LSize.BYTE));
+	return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
     }       
 
     char value () {

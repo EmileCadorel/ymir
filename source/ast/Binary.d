@@ -236,9 +236,7 @@ class Binary : Expression {
 		auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
 		return new BefUnary (word2, call).expression ();
 	    } else {
-		auto ret = call.expression;
-		writeln (ret.prettyPrint);
-		return ret;
+		return call.expression;
 	    }
 	} catch (YmirException) {
 	    try {
