@@ -393,6 +393,7 @@ class StructInfo : InfoType {
 	else if (var.token.str == "typename") return TypeName ();
 	else if (var.token.str == "nbRef") return nbRef ();
 	else if (var.token.str == "tupleof") return TupleOf ();
+	else if (var.token.str == "ptr") return Ptr ();
 	else {
 	    foreach (it ; 0 .. this._attribs.length) {
 		if (var.token.str == this._attribs [it]) {
@@ -460,6 +461,13 @@ class StructInfo : InfoType {
 	t.lintInst = &StructUtils.InstTupleOf;
 	t.setDestruct = null;
 	return t;
+    }
+
+    private InfoType Ptr () {
+	import semantic.types.PtrInfo, semantic.types.VoidInfo;
+	auto ret = new PtrInfo (new VoidInfo);
+	ret.lintInst = &StructUtils.InstPtr;
+	return ret;
     }
     
     /**

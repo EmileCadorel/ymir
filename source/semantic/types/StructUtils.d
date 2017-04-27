@@ -284,5 +284,14 @@ class StructUtils {
     static LInstList InstTupleOf (LInstList, LInstList list) {
 	return list;
     }
+
+    static LInstList InstPtr (LInstList, LInstList list) {
+	auto inst = new LInstList;
+	auto leftExp = list.getFirst ();
+	inst += list;
+	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), Tokens.PLUS);
+	return inst;
+    }
+    
     
 }

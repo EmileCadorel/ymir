@@ -195,7 +195,7 @@ class AMDBinop : TInst {
     }
     
     private void opDiv () {
-	if (this._left.sizeAmd.id <= AMDSize.QWORD.id) {
+	if (this._left.sizeAmd != AMDSize.SPREC && this._left.sizeAmd != AMDSize.DPREC) {
 	    AMDReg lreg, rreg;
 	    auto ret = initLR (lreg, rreg, this._left, this._right, this._res);
 	    auto rax = new AMDReg (REG.getReg ("rax", this._left.sizeAmd));
@@ -209,7 +209,7 @@ class AMDBinop : TInst {
 		    needCast = true;
 	    }
 	    
-	    if (rax == lreg) {
+	    if (rax == lreg && !lreg.isOff) {
 		this._insts += new AMDCqto;
 		if (ret != rreg) {
 		    if (needCast) this._insts += new AMDCast (this._right, ret);
