@@ -657,6 +657,8 @@ class LVisitor {
     }
     
     private LInstList visitVar (Var elem) {
+	if (elem.info.value)
+	    return elem.info.value.toLint (elem.info);
 	return new LInstList (new LReg (elem.info.id, elem.info.type.size));
     }
 

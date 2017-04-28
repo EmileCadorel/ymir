@@ -20,6 +20,7 @@ class Visitor {
     private Token[] _afUnary;
     private Token[] _suiteElem;
     private Token[] _forbiddenIds;
+    private Token[] _decoKeys;
     
     this (string file) {
 	this._lex = new Lexer (file,
@@ -57,7 +58,9 @@ class Visitor {
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
-			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF];
+			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE, Keys.CONST];
+
+	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST];	
     }
 
     /**
@@ -532,17 +535,25 @@ class Visitor {
 	auto tok = _lex.next ();
 	Word token;
 	Array!Var decls;
+	Array!Word decos;
 	Array!Expression insts;
 	while (1) {
+	    auto deco = this._lex.next ();
+	    if (find (_decoKeys, deco) != [])
+		decos.insertBack (deco);
+	    else {
+		decos.insertBack (Word.eof); this._lex.rewind ();
+	    }
 	    auto var = visitVar ();
 	    decls.insertBack (var);
 	    _lex.next (token).rewind ();
 	    if (token == Tokens.EQUAL) {
-		auto next = visitExpressionUlt (var);
-		
+		auto next = visitExpressionUlt (var);		
 		if (next !is var) {
 		    insts.insertBack (next);
-		}
+		} else insts.insertBack (null);
+	    } else {
+		insts.insertBack (null);
 	    }
 	    token = _lex.next ();
 	    if (token == Tokens.SEMI_COLON) break;
@@ -550,7 +561,7 @@ class Visitor {
 		throw new SyntaxError (token, [Tokens.SEMI_COLON.descr, Tokens.COMA.descr]);
 	    
 	}
-	return new VarDecl (tok, decls, insts);
+	return new VarDecl (tok, decos, decls, insts);
     }
 
     /**

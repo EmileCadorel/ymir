@@ -50,5 +50,7 @@ enum Keys : Token {
     OPUNARY = Token ("opUnary", 45),
     OPEQUAL = Token ("opEquals", 46),
     OPCALL = Token ("opCall", 47),
-    TYPEOF = Token ("typeof", 48)
+    TYPEOF = Token ("typeof", 48),
+    CONST = Token ("const", 49),
+    IMMUTABLE = Token ("immutable", 50)
 }

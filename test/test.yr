@@ -1,18 +1,19 @@
 import std.stdio;
-import std.datetime;
-import std.conv;
+import std.traits;
 
-struct
-| a: int
--> Str;
+def fibo if (N < 2UL)
+    (N : ulong) () {
+	return N;
+    }
 
-enum
-| A : Str (10)
--> Test;
+def fibo if (N >= 2UL)
+    (N : ulong) () {
+	return fibo !(N - 1UL)() + fibo !(N - 2UL) ();
+    }
 
 def main () {
-    let a = Test.A;
-    println (a.a);
+    let immutable a = 5UL, immutable b = a + 3U;
+    println (fibo!(b) ());
 }
 
 

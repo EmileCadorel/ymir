@@ -50,6 +50,8 @@ class Var : Expression {
      Throws: UndefinedVar, si l'identifiant n'existe pas
      */
     override Var expression () {
+	if (this._info && this._info.isImmutable)
+	    return this;
 	if (!isType) {
 	    auto aux = new Var (this._token);	    
 	    aux.info = Table.instance.get (this._token.str);

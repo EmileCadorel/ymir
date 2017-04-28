@@ -19,11 +19,15 @@ class VarDecl : Instruction {
 
     /// Les expressions à droite des variables déclarées.
     private Array!Expression _insts;
+
+    /// Les décorateurs des variables
+    private Array!Word _decos;
     
-    this (Word word, Array!Var decls, Array!Expression insts) {
+    this (Word word, Array!Word decos, Array!Var decls, Array!Expression insts) {
 	super (word);
 	this._decls = decls;
 	this._insts = insts;
+	this._decos = decos;
     }
 
     this (Word word) {
@@ -37,17 +41,35 @@ class VarDecl : Instruction {
      Throws: ErrorOccurs, si il y a eu des erreurs lors de l'analyse.
      */
     override Instruction instruction () {
+	import syntax.Keys;
 	auto auxDecl = new VarDecl (this._token);
 	auto error = 0;
+	ulong id = 0;
 	foreach (it ; this._decls) {
 	    try {
 		auto aux = new Var (it.token);
 		auto info = Table.instance.get (it.token.str);		
 		if (info !is null && Table.instance.sameFrame (info)) throw new ShadowingVar (it.token, info.sym);
-		aux.info = new Symbol (aux.token, new UndefInfo ());
-		aux.info.isConst = false;
+		
+		if (this._decos [id] == Keys.IMMUTABLE) {
+		    import ast.Binary;
+		    if (auto bin = cast (Binary) this._insts [id]) {
+			auto type = bin.right.expression ();
+			aux.info = new Symbol (aux.token, type.info.type.clone (), true);
+			aux.info.value = type.info.type.value;
+			if (!aux.info.isImmutable) throw new NotImmutable (this._insts [id].info);
+			type.removeGarbage ();
+			this._insts [id] = null;
+		    } else 
+			throw new ImmutableWithoutValue (it.token);		    
+		} else {
+		    aux.info = new Symbol (aux.token, new UndefInfo ());
+		    aux.info.isConst = false;
+		}
+		
 		Table.instance.insert (aux.info);
 		auxDecl._decls.insertBack (aux);
+		id ++;
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;
@@ -58,7 +80,8 @@ class VarDecl : Instruction {
 
 	foreach (it ; this._insts) {
 	    try {
-		auxDecl._insts.insertBack (it.expression ());
+		if (it)
+		    auxDecl._insts.insertBack (it.expression ());
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;
@@ -80,7 +103,7 @@ class VarDecl : Instruction {
 	    insts.insertBack (it.templateExpReplace (names, values));
 	}
 	
-	return new VarDecl (this._token, decls, insts);
+	return new VarDecl (this._token, this._decos.dup(), decls, insts);
     }
     
     /**
