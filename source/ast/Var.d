@@ -7,6 +7,7 @@ import utils.exception;
 import semantic.types.ArrayInfo;
 import ast.FuncPtr;
 import semantic.pack.Table;
+import syntax.Keys, semantic.types.RefInfo;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -23,8 +24,16 @@ class Var : Expression {
     /// Les arguments templates de la variable
     private Array!Expression _templates;
 
+    /// L'élément de décoration de la variable (const, ref)
+    protected Word _deco;
+    
     this (Word ident) {
 	super (ident);
+    }
+    
+    this (Word ident, Word deco) {
+	super (ident);
+	this._deco = deco;
     }
     
     this (Word ident, Array!Expression templates) {
@@ -114,8 +123,13 @@ class Var : Expression {
      info = le symbole du type à affecter à la variable
      */
     TypedVar setType (Symbol info) {
-	auto type = new Type (info.sym, info.type.cloneForParam ());
-	return new TypedVar (this._token, type);
+	if (this._deco == Keys.REF) {
+	    auto type = new Type (info.sym, info.type.cloneForParam ());
+	    return new TypedVar (this._token, type);
+	} else {
+	    auto type = new Type (info.sym, info.type.cloneForParam ());
+	    return new TypedVar (this._token, type, this._deco);
+	}
     }
 
     /**
@@ -124,8 +138,13 @@ class Var : Expression {
      info = l'information du type à affecter à la variable
      */
     TypedVar setType (InfoType info) {
-	auto type = new Type (this._token, info.cloneForParam ());
-	return new TypedVar (this._token, type);
+	if (this._deco == Keys.REF) {
+	    auto type = new Type (this._token, info.cloneForParam ());
+	    return new TypedVar (this._token, type);
+	} else {
+	    auto type = new Type (this._token, info.cloneForParam ());
+	    return new TypedVar (this._token, type, this._deco);
+	}
     }    
 
     /**
@@ -170,6 +189,10 @@ class Var : Expression {
 	return this._templates;
     }
 
+    Word deco () {
+	return this._deco;
+    }
+    
     override Expression clone () {
 	Array!Expression tmps;
 	foreach (it; this._templates)
@@ -310,26 +333,45 @@ class TypedVar : Var {
 	this._type = type;
     }
 
+    this (Word ident, Var type, Word deco) {
+	super (ident);
+	this._type = type;
+	this._deco = deco;
+    }
+    
     this (Word ident, Expression type) {
 	super (ident);
 	this._expType = type;	
     }
 
+    this (Word ident, Expression type, Word deco) {
+	super (ident);
+	this._expType = type;
+	this._deco = deco;
+    }
+
+    
     /**
      Vérification sémantique.
      Pour être juste la variable ne doit pas éxister et l'element de droite doit être un type.    
      */
-    override Var expression () {
+    override Var expression () {	
 	if (this._type) {
 	    auto aux = new TypedVar (this._token, this._type.asType ());
-	    aux.info = new Symbol (this._token, aux._type.info.type, false);
+	    if (this._deco == Keys.REF) {
+		aux.info = new Symbol (this._token, new RefInfo (aux._type.info.type), false);
+	    } else
+		aux.info = new Symbol (this._token, aux._type.info.type, this._deco == Keys.CONST);
 	    Table.instance.insert (aux.info);
 	    return aux;
 	} else {
 	    auto ptr = cast (FuncPtr) this._expType.expression ();
 	    if (ptr) {
 		auto aux = new TypedVar (this._token, new Type (ptr.token, ptr.info.type));
-		aux.info = new Symbol (this._token, aux._type.info.type, false);
+		if (this._deco == Keys.REF)
+		    aux.info = new Symbol (this._token, new RefInfo (aux._type.info.type), false);
+		else
+		    aux.info = new Symbol (this._token, aux._type.info.type, this._deco == Keys.CONST);
 		Table.instance.insert (aux.info);
 		return aux;
 	    } else assert (false);
@@ -344,9 +386,9 @@ class TypedVar : Var {
     
     override Var templateExpReplace (Array!Expression names, Array!Expression values) {
 	if (this._type)
-	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (names, values));
+	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (names, values), this._deco);
 	else
-	    return new TypedVar (this._token, this._expType.templateExpReplace (names, values));	
+	    return new TypedVar (this._token, this._expType.templateExpReplace (names, values), this._deco);	
     }
     
     /**
@@ -358,9 +400,9 @@ class TypedVar : Var {
 
     override Expression clone () {
 	if (this._type)
-	    return new TypedVar (this._token, cast (Var) this._type.clone ());
+	    return new TypedVar (this._token, cast (Var) this._type.clone (), this._deco);
 	else
-	    return new TypedVar (this._token, this._expType.clone ());
+	    return new TypedVar (this._token, this._expType.clone (), this._deco);
     }
     
     ref Expression expType () {
@@ -373,11 +415,15 @@ class TypedVar : Var {
     InfoType getType () {
 	if (type) {
 	    auto type = this._type.asType ();
-	    return type.info.type;
+	    if (this._deco == Keys.REF)
+		return new RefInfo (type.info.type);
+	    else return type.info.type;
 	} else {
 	    if (this._expType.info is null)
 		this._expType = this._expType.expression ();
-	    return this._expType.info.type;
+	    if (this._deco == Keys.REF)
+		return new RefInfo (this._expType.info.type);
+	    else return this._expType.info.type;
 	}
     }
 

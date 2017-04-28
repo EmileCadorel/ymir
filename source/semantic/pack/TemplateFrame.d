@@ -5,7 +5,7 @@ import ast.ParamList, semantic.pack.Frame;
 import std.container, ast.Var, std.conv;
 import semantic.pack.Table, semantic.pack.Symbol;
 import semantic.types.UndefInfo, semantic.types.VoidInfo;
-import semantic.pack.FrameTable, syntax.Word;
+import semantic.pack.FrameTable, syntax.Word, syntax.Keys;
 import semantic.pack.FrameProto;
 import semantic.pack.FinalFrame;
 import semantic.types.TupleInfo;
@@ -259,11 +259,13 @@ class TemplateFrame : Frame {
 		    if (tvar.type) {
 			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, tmps);			
 			if (tmp is null) return null;
-			info = tmp.asType ().info.type.clone ();
+			if (tvar.deco == Keys.REF) info = new RefInfo (tmp.asType ().info.type.clone ());
+			else info = tmp.asType ().info.type.clone ();
 		    } else {
 			auto tmp = typeIt (tvar.expType, args [it], this._function.tmps, tmps);
 			if (tmp is null) return null;
-			info = tmp.expression.info.type.clone ();
+			if (tvar.deco == Keys.REF)  info = new RefInfo (tmp.expression.info.type.clone ());
+			else info = tmp.expression.info.type.clone ();
 		    }
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
@@ -276,8 +278,14 @@ class TemplateFrame : Frame {
 		} else {
 		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it])
 			return null;
+		    auto var = cast (Var) attrs [it];
+		    if (var.deco == Keys.REF) {
+			auto type = args [it].CompOp (new RefInfo (args [it].clone ()));
+			if (type is null) return null;
+			score.treat.insertBack (type);
+		    } else
+			score.treat.insertBack (args[it].clone ());
 		    score.score += CHANGE;
-		    score.treat.insertBack (args [it].clone ());
 		}
 	    }
 	    

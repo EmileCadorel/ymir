@@ -58,7 +58,9 @@ class Visitor {
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
-			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE, Keys.CONST];
+			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE, Keys.CONST,
+			      Keys.REF
+	];
 
 	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST];	
     }
@@ -366,20 +368,25 @@ class Visitor {
      vardecl := var (':' type)?
      */
     private Var visitVarDeclaration () {
+	auto deco = this._lex.next ();
+	if (deco != Keys.CONST && deco != Keys.REF) {
+	    this._lex.rewind ();
+	    deco = Word.eof;
+	}
 	auto ident = visitIdentifiant ();
 	Word next = _lex.next ();
 	if (next == Tokens.COLON) {
 	    next = _lex.next ();
 	    if (next == Keys.FUNCTION) {
 		auto type = visitFuncPtrSimple ();
-		return new TypedVar (ident, type);
+		return new TypedVar (ident, type, deco);
 	    } else {
 		_lex.rewind ();
 		auto type = visitType ();
-		return new TypedVar (ident, type);
+		return new TypedVar (ident, type, deco);
 	    }
 	} else _lex.rewind ();
-	return new Var (ident);
+	return new Var (ident, deco);
     }
     
     

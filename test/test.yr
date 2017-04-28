@@ -1,19 +1,17 @@
 import std.stdio;
 import std.traits;
+import std.datetime;
+import std.algorithm;
+import std.array;
 
-def fibo if (N < 2UL)
-    (N : ulong) () {
-	return N;
-    }
-
-def fibo if (N >= 2UL)
-    (N : ulong) () {
-	return fibo !(N - 1UL)() + fibo !(N - 2UL) ();
-    }
 
 def main () {
-    let const b = 12;
-    
+    let a = [1, 2, 3];
+    println (a.scan (
+	function (a : int, b : int) : int{
+	    return a + b;
+	}	
+    ));
 }
 
 

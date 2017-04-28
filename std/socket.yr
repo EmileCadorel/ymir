@@ -32,11 +32,11 @@ def perror (str : string) {
     perror (str.ptr);
 }
 
-def bind (sock : ref!int, self : sockaddr_in) : int {
+def bind (ref sock : int, self : sockaddr_in) : int {
     return my_bind (sock, self.family, self.port, self.s_addr);
 }
 
-def accept (sock : ref!int, addr : ref!string, port : ref!int) : int {
+def accept (ref sock : int, ref addr : string, ref port : int) : int {
     let s_addr = ptr!(char).init, s_port = int.init;
     let clientfd = my_accept (sock, &s_addr, &s_port);
     port = s_port;
@@ -48,7 +48,7 @@ def send (sock : int, msg : string) {
     send (sock, msg.ptr, msg.length, 0);
 }
 
-def recv (sock : int, msg : ref!string) : uint {
+def recv (sock : int, ref msg : string) : uint {
     let str = malloc (1024u * char.sizeof);
     let len = recv (sock, str, 1024u, 0);
     if (len > 0u)
@@ -57,7 +57,7 @@ def recv (sock : int, msg : ref!string) : uint {
     return len;
 }
 
-def recv (sock : int, msg : ref!string, len : uint) {
+def recv (sock : int, ref msg : string, len : uint) {
     let str = malloc (len * char.sizeof);
     len = recv (sock, str, len, 0);
     if (len > 0u) 

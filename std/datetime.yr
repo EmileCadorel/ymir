@@ -87,7 +87,7 @@ def getMonthName (mnt : short) : string {
     assert (false, "Pas un mois " + to!(string)(mnt));
 }
 
-def getMonth (nbDays : ref!ulong, year : ref!int) : ulong {
+def getMonth (ref nbDays : ulong, year : int) : ulong {
     let days = [31U, 28U, 31U, 30U, 31U, 30U, 31U, 31U, 30U, 31U, 30U, 31U];
 
     if (isBisextille (year)) {
@@ -98,7 +98,7 @@ def getMonth (nbDays : ref!ulong, year : ref!int) : ulong {
     while (nbDays > 0UL && curr < days.length) {
 	if (nbDays < days [curr]) break;
 	nbDays -= days [curr];
-	curr ++;
+	curr += 1UL;
     }
     
     nbDays += 1UL;
@@ -139,12 +139,12 @@ def currTime () : Time {
     ti.msec = cast:short (t.usec / 1000UL);
     ti.usec = cast:short (t.usec % 1000UL);
 
-    let years = cast:short(t.sec / (60U * 60U * 24U * 7U * 52U) + 1970U);
+    let years = cast:short (t.sec / (60U * 60U * 24U * 7U * 52U) + 1970U);
     t.sec = t.sec % (getSeconds (ti.years));
     
     let nbDays = t.sec / (60U * 60U * 24U) - cast:ulong (getDays (years));
     
-    ti.months = cast:short (getMonth (nbDays, years));    
+    ti.months = cast:short (getMonth (nbDays, years));
     ti.weeks = cast:short (nbDays / 7U);    
     ti.years = years;
 

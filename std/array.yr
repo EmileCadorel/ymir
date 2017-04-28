@@ -2,7 +2,7 @@ import std.stdio;
 import std.math;
 import std.traits;
 
-def resize (T) (a : ref!([T]), len : ulong) {
+def resize (T) (ref a : [T], len : ulong) {
     let aux = [T; len];
     if (len < a.length)
 	for (it in 0ul .. len) aux [it] = a [it];
@@ -11,7 +11,7 @@ def resize (T) (a : ref!([T]), len : ulong) {
     a = aux;
 }
 
-def cresize (T) (a : ref!([T]), len : ulong) {
+def cresize (T) (ref a : [T], len : ulong) {
     let aux = [int; len];
     if (len < a.length) {
 	for (it in 0ul .. len)
@@ -23,7 +23,7 @@ def cresize (T) (a : ref!([T]), len : ulong) {
     a = aux;
 }
 
-def insertBack (T) (a : ref!([T]), elem : T) {
+def insertBack (T) (ref a : [T], elem : T) {
     let aux = [T; a.length + 1u];
     for (it in 0ul .. a.length)
 	aux [it] = a [it];
@@ -31,7 +31,7 @@ def insertBack (T) (a : ref!([T]), elem : T) {
     a = aux;
 }
 
-def removeBack (T) (a : ref!([T])) : T {
+def removeBack (T) (ref a : [T]) : T {
     let ret = a [a.length - 1u];
     a.resize (a.length - 1u);
     return ret;
@@ -61,7 +61,7 @@ def front (T) (a : [T]) : T {
     return a [0];
 }
 
-def clear (T) (a : ref!([T])) {
+def clear (T) (ref a : [T]) {
     a = [T; 0ul];
 }
 

@@ -94,6 +94,7 @@ class For : Instruction {
 	    if (info !is null) throw new ShadowingVar (it.token, info.sym);	    
 	    aux.back.info = new Symbol (aux.back.token, new UndefInfo ());
 	    aux.back.info.isConst = false;
+	    aux.back.info.value = null;
 	}
 
 	auto expr = this._iter.expression;

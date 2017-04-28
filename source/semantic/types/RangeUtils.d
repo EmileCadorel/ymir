@@ -199,6 +199,7 @@ class RangeUtils {
      Returns: la boucle final.
      */
     static LInstList InstApply (LInstList func, LInstList block) {
+	import std.stdio;
 	return func.replace ("tmp_block", block);
     }
 

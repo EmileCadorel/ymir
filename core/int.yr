@@ -1,14 +1,14 @@
 
 
 def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint))
-    ('++', T) (a : ref!T) {
+    ('++', T) (ref a : T) {
 	static if (is (T : ulong)) a = a + 1UL;
 	else a = a + cast:T (1UL);
 	return a;
     }
 
 def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint))
-    ('--', T) (a : ref!T) {
+    ('--', T) (ref a : T) {
 	static if (is (T : ulong)) a = a - 1UL;
 	else a = a - cast:T (1UL);
 	return a;

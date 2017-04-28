@@ -52,5 +52,6 @@ enum Keys : Token {
     OPCALL = Token ("opCall", 47),
     TYPEOF = Token ("typeof", 48),
     CONST = Token ("const", 49),
-    IMMUTABLE = Token ("immutable", 50)
+    IMMUTABLE = Token ("immutable", 50),
+    REF = Token ("ref", 51)
 }

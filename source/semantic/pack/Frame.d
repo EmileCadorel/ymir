@@ -5,11 +5,13 @@ import syntax.Word, ast.Block, semantic.pack.FrameTable;
 import std.stdio, std.conv, std.container, std.outbuffer;
 import semantic.types.VoidInfo, ast.ParamList;
 import utils.exception;
+import semantic.types.RefInfo;
 import semantic.types.InfoType, semantic.pack.FrameScope;
 import semantic.pack.FrameProto;
 import semantic.types.FunctionInfo;
 import semantic.types.StructInfo;
 import ast.Expression;
+import syntax.Keys;
 
 /**
  Ancêtre de tout les types de frame:
@@ -119,8 +121,14 @@ class Frame {
 		    } else return null;
 		} else {
 		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it]) return null;
+		    auto var = cast (Var) attrs [it];
+		    if (var.deco == Keys.REF) {
+			auto type = args [it].CompOp (new RefInfo (args [it].clone ()));
+			if (type is null) return null;
+			score.treat.insertBack (type);
+		    } else
+			score.treat.insertBack (args[it].clone ());
 		    score.score += CHANGE;
-		    score.treat.insertBack (args[it].clone ());
 		}
 	    }
 	    score.score += this._currentScore;

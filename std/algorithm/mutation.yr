@@ -46,7 +46,7 @@ def init (T) (length : ulong, val : T) : [T] {
     return a;
 }
 
-def swap (T) (a : ref!T, b : ref!T) {
+def swap (T) (ref a : T, ref b : T) {
     let aux = a;
     a = b;
     b = aux;

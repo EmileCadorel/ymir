@@ -290,6 +290,7 @@ class LVisitor {
 	inst += new LLocus (_for.token.locus);
 	Array!Expression params;
 	foreach (it ; _for.vars) {
+	    it.info.value = null;
 	    params.insertBack (it);
 	}
 	
