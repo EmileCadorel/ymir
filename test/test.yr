@@ -1,11 +1,12 @@
 import std.stdio;
-import std.array, std.conv;
-import std.file;
+import std.math;
+import std.file, std.path;
 import std.string;
 
+def writeln (a) println (a);
+
 def main () {
-    println (mkdirRecurse ("out/test/"));
-    rmdir ("out/test");
+
 }
 
 

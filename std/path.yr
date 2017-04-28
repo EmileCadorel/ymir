@@ -1,0 +1,54 @@
+import std.string, std.file;
+
+
+def isRooted (path : string) : bool {
+    let p = path.stripLeft ();
+    return p.length > 0UL && p [0] == '/';
+}
+
+def isAbsolute (path : string) : bool {
+    return isRooted (path);
+}
+
+def buildPath (begin : string, end : string) : string {
+    let b = begin.stripRight (), e = end.stripLeft ();
+    if (b.length > 0UL && b [b.length - 1UL] != '/' &&
+	e.length > 0UL && e [0] != '/') return b + '/' + end;
+    else return b + end;
+}
+
+def absolutePath (path : string, base : string) : string {
+    if (path is null) return null;
+    else if isAbsolute (path) return path;
+    else return buildPath (base, path);
+}
+
+def absolutePath (path : string) : string {
+    let base = getcwd ();
+    if (path is null) return null;
+    else if isAbsolute (path) return path;
+    else return buildPath (base, path);
+}
+
+def dirName (path : string) : string {
+    let end = path.lastIndexOf ('/');
+    if (end != path.length) return path.substr (0, end + 1UL);
+    else return '';
+}
+
+def extension (path : string) : string {
+    let end = path.lastIndexOf ('.');
+    if (end != path.length) return path.substr (cast:int(end), path.length);
+    else return '';
+}
+
+def setExtension (path : string, ext : string) : string {
+    let end = path.lastIndexOf ('.');
+    let beg = ext.stripLeft ();
+    if (beg.length > 0UL && beg [0] == '.') 
+	beg = beg.substr (1, beg.length);
+            
+    if (end != path.length) return path.substr (0, end) + '.' + beg;
+    return path + '.' + beg;
+}
+
