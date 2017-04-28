@@ -29,6 +29,7 @@ def to if (is (T : string))
 
 def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
     (T, T2) (elem : T2) : string {
+	import std.traits;
 	if (elem < 0) return "-" + to!(T) (-elem);
 	else if (elem == 0) return "0";
 	let nb = elem, size = 0UL;
@@ -44,6 +45,7 @@ def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
 
 def to if (is (T : string) && is (T2 : short))
     (T, T2) (elem : T2) : string {
+	import std.traits;
 	return to!(string) (cast:int(elem));
     }
 

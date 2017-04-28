@@ -182,7 +182,7 @@ def to if (is (T : string))
 
 
 def to if (is (T : Date)) 
-    (T) (elem : Time) {
+    (T) (elem : Time) {	
 	let date = Date (0S, 0S, 0S, 0B, 0S, 0S, 0S);
 	let nbDays = cast:long (getDays (elem.years));
 	date.days = (elem.weeks * 7S + elem.days);
@@ -197,6 +197,7 @@ def to if (is (T : Date))
 
 def to if (is (T : string))
     (T) (elem : Date) {
+	import std.traits, std.conv;
 	return getDayOfWeek (elem.dname) + " " + to!(string) (elem.days)
 	    + " " + getMonthName (elem.months)
 	    + " " + to!(string) (elem.years) 

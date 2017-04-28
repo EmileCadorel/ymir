@@ -1,12 +1,8 @@
 import std.stdio;
-import test.test2;
-
-
-
+import std.datetime;
 
 def main () {
-    test (10);
-    
+    println (date ().to!string);
 }
 
 

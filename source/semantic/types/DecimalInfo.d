@@ -466,14 +466,15 @@ class DecimalInfo : InfoType {
 		} else {
 		    auto ret = ot.clone ();
 		    final switch (ot.type.id) {
-		    case DecimalConst.BYTE.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
-		    case DecimalConst.SHORT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.SHORT)); break;
-		    case DecimalConst.INT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.INT)); break;
-		    case DecimalConst.LONG.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.LONG)); break;
+		    case DecimalConst.BYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
+		    case DecimalConst.SHORT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.SHORT)); break;
+		    case DecimalConst.INT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.INT)); break;
+		    case DecimalConst.LONG.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.LONG)); break;
 		    }
 		    ret.lintInst = &DecimalUtils.InstOp ! (op);
 		    if (this._value)
 			ret.value = this.value.BinaryOp (op, ot.value);
+		    else ret.value = null;
 		    return ret;
 		}		
 	    } else if (!this._type.isSigned && !ot.type.isSigned) {
@@ -492,14 +493,15 @@ class DecimalInfo : InfoType {
 		} else {
 		    auto ret = ot.clone ();
 		    final switch (ot.type.id) {
-		    case DecimalConst.UBYTE.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
-		    case DecimalConst.USHORT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.USHORT)); break;
-		    case DecimalConst.UINT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.UINT)); break;
-		    case DecimalConst.ULONG.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.ULONG)); break;
+		    case DecimalConst.UBYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
+		    case DecimalConst.USHORT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.USHORT)); break;
+		    case DecimalConst.UINT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UINT)); break;
+		    case DecimalConst.ULONG.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.ULONG)); break;
 		    }
 		    ret.lintInst = &DecimalUtils.InstOp !(op);
 		    if (this._value)
 			ret.value = this.value.BinaryOp (op, ot.value);
+		    else ret.value = null;
 		    return ret;		
 		}
 	    }
