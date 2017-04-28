@@ -59,36 +59,36 @@ class VarDecl : Instruction {
 			aux.info.value = type.info.type.value;
 			if (!aux.info.isImmutable) throw new NotImmutable (this._insts [id].info);
 			type.removeGarbage ();
+			Table.instance.insert (aux.info);
+			auxDecl._decls.insertBack (aux);
 			this._insts [id] = null;
 		    } else 
 			throw new ImmutableWithoutValue (it.token);		    
+		} else if (this._decos [id] == Keys.CONST) {
+		    import ast.Binary;
+		    aux.info = new Symbol (aux.token, new UndefInfo (), false);		    
+		    Table.instance.insert (aux.info);
+		    auxDecl._decls.insertBack (aux);
+		    if (auto bin = cast (Binary) this._insts [id]) {
+			auxDecl._insts.insertBack (bin.expression ());
+			auto var = aux.expression ();
+			var.info.isConst = true;
+		    } else 
+			throw new ConstWithoutValue (it.token);		    
 		} else {
-		    aux.info = new Symbol (aux.token, new UndefInfo ());
-		    aux.info.isConst = false;
+		    aux.info = new Symbol (aux.token, new UndefInfo (), false);
+		    Table.instance.insert (aux.info);
+		    auxDecl._decls.insertBack (aux);
+		    if (this._insts [id])
+			auxDecl._insts.insertBack (this._insts [id].expression ());
 		}
 		
-		Table.instance.insert (aux.info);
-		auxDecl._decls.insertBack (aux);
 		id ++;
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;
 	    } catch (ErrorOccurs err) {
 		error += err.nbError;
-	    }
-	}
-
-	foreach (it ; this._insts) {
-	    try {
-		if (it)
-		    auxDecl._insts.insertBack (it.expression ());
-	    } catch (YmirException exp) {
-		exp.print ();
-		error ++;
-		debug { throw exp; }
-	    } catch (ErrorOccurs err) {
-		error += err.nbError;
-		debug { throw err; }
 	    }
 	}
 

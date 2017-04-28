@@ -12,8 +12,8 @@ def fibo if (N >= 2UL)
     }
 
 def main () {
-    let immutable a = 5UL, immutable b = a + 3U;
-    println (fibo!(b) ());
+    let const b = 12;
+    
 }
 
 
