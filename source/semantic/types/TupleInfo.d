@@ -161,8 +161,6 @@ class TupleInfo : InfoType {
      */
     private InfoType StringOf () {
 	auto str = new StringInfo ();
-	str.lintInst = &TupleUtils.TupleStringOf;
-	str.leftTreatment = &TupleUtils.TupleGetStringOf;
 	str.value = new StringValue (this.typeString);
 	return str;
     }

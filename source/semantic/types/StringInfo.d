@@ -367,8 +367,6 @@ class StringInfo : InfoType {
      */
     private InfoType StringOf () {
 	auto str = new StringInfo;
-	str.lintInst = &StringUtils.StringOf;
-	str.leftTreatment = &StringUtils.GetStringOf;
 	str.value = new StringValue (this.typeString);
 	return str;
     }

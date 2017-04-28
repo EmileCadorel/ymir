@@ -817,10 +817,11 @@ class LVisitor {
     }
     
     private LInstList visitDot (Dot dot) {
-	LInstList left;
+	LInstList exprs;
 	if (dot.info.type.leftTreatment) {
-	    left = dot.info.type.leftTreatment (dot.info.type, dot.left, null);	    
-	} else left = visitExpression (dot.left);
+	    exprs = dot.info.type.leftTreatment (dot.info.type, dot.left, null); 
+	}
+	auto left = visitExpression (dot.left);
 
 	if (dot.info.type.lintInstS.length > 0) {
 	    for (long nb = dot.info.type.lintInstS.length - 1; nb >= 0; nb --) {
@@ -828,7 +829,7 @@ class LVisitor {
 	    }
 	}
 	
-	auto inst = dot.info.type.lintInst (LInstList.init, left);
+	auto inst = dot.info.type.lintInst (exprs, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);
 	    auto last = inst.getFirst ();

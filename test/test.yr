@@ -1,8 +1,18 @@
 import std.stdio;
 import std.datetime;
+import std.conv;
+
+struct
+| a: int
+-> Str;
+
+enum
+| A : Str (10)
+-> Test;
 
 def main () {
-    println (date ().to!string);
+    let a = Test.A;
+    println (a.a);
 }
 
 

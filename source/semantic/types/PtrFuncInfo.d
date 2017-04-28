@@ -270,8 +270,6 @@ class PtrFuncInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.token.str == "typeid") {
 	    auto str = new StringInfo ();
-	    str.lintInst = &PtrFuncUtils.StringOf;
-	    str.leftTreatment = &PtrFuncUtils.GetStringOf;
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}

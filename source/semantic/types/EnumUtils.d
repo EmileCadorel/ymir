@@ -22,7 +22,7 @@ class EnumUtils {
 	return LVisitor.visitExpressionOutSide (inf.values [ret.toGet]);
     }
 
-    static LInstList Attrib (LInstList, LInstList left) {
+    static LInstList Attrib (LInstList left, LInstList) {
 	return left;
     }
 

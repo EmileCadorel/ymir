@@ -39,8 +39,6 @@ class NullInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.token.str == "typeid") {
 	    auto str = new StringInfo;
-	    str.lintInst = &PtrUtils.StringOf;
-	    str.leftTreatment = &PtrUtils.GetStringOf;
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
