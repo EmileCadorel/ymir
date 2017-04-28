@@ -1,12 +1,12 @@
 import std.stdio;
-import std.math;
-import std.file, std.path;
-import std.string;
+import test.test2;
 
-def writeln (a) println (a);
+
+
 
 def main () {
-
+    test (10);
+    
 }
 
 

@@ -1,0 +1,14 @@
+import test.test;
+
+
+def testIci (T) (a : T) {
+    println (a);
+}
+
+def test (T) (a : T) {
+
+    extern (C) putchar (a : char);
+    
+    testIci (a);
+    putchar ('t');
+}

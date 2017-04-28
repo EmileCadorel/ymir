@@ -118,7 +118,9 @@ class Proto : Declaration {
 	Array!Var params;
 	foreach (it ; this._params)
 	    params.insertBack(cast (Var) it.templateExpReplace (names, values));
-	return new Proto (this._ident, type, params, this._isVariadic);
+	auto ret = new Proto (this._ident, type, params, this._isVariadic);
+	ret.from = this._from;
+	return ret;
     }
 
 
