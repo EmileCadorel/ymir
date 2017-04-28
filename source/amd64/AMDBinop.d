@@ -267,7 +267,7 @@ class AMDBinop : TInst {
 	    if (cast (AMDReg) this._right)
 		needCast = true;
 	}
-	if (rax == lreg) {
+	if (rax == lreg && !lreg.isOff) {
 	    this._insts += new AMDCqto ();
 	    if (ret != rreg) {
 		if (needCast) this._insts += new AMDCast (this._right, ret);

@@ -27,7 +27,7 @@ def to if (is (T : string))
 	return cast:string (elem);
     }
 
-def to if (is (T : string) && isSigned!(T2)() && !is (T2 : byte))
+def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
     (T, T2) (elem : T2) : string {
 	if (elem < 0) return "-" + to!(T) (-elem);
 	else if (elem == 0) return "0";
@@ -40,6 +40,11 @@ def to if (is (T : string) && isSigned!(T2)() && !is (T2 : byte))
 	    elem /= to!(T2) (10UB);
 	}	
 	return cast:string (res);
+    }
+
+def to if (is (T : string) && is (T2 : short))
+    (T, T2) (elem : T2) : string {
+	return to!(string) (cast:int(elem));
     }
 
 def to if (is (T : string) && is (T2 : byte))

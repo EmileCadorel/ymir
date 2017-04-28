@@ -44,8 +44,9 @@ class ArrayAlloc : Expression {
      Throws: UseAsType, IncompatibleTypes
      */
     override Expression expression () {
+	import semantic.types.StructInfo;
 	auto aux = new ArrayAlloc (this._token, this._type.expression, this._size.expression);
-	if (!cast (Type) aux._type) throw new UseAsType (aux._type.token);
+	if (!cast (Type) aux._type && !(cast (StructCstInfo) aux._type.info.type)) throw new UseAsType (aux._type.token);
 
 	auto ul = new Symbol (false, this._token, new DecimalInfo (DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);

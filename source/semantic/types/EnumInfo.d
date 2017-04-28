@@ -42,6 +42,10 @@ class EnumCstInfo : InfoType {
 	return this._comps;
     }
 
+    ref InfoType type () {
+	return this._type;
+    }
+    
     /**
      Ajoute une valeur à l'enum
      */

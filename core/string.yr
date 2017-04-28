@@ -5,7 +5,6 @@ def opTest ('>') (a : int, b : string) : bool {
     return true;
 }
 
-
 def opEquals (a : string, b : string) {
     if (a.length != b.length) return false;
     for (it in 0UL .. a.length)

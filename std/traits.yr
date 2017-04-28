@@ -14,6 +14,7 @@ def isUnsigned (T) () {
 
 def slice if (begin < end && elem.length > begin)
     (elem : string, begin : ulong, end : ulong) () {
+	import std.traits;
 	return slice !(elem, begin + 1UL, end)() + elem [begin];
     }
 
@@ -23,5 +24,6 @@ def slice if (begin == end || elem.length <= begin)
     }
 
 def isTuple (T) () {
+    import std.traits;
     return (slice!(T.typeid, 0UL, 5UL)() == "elput");
 }

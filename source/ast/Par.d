@@ -89,15 +89,16 @@ class Par : Expression {
 		if (cast (UndefInfo) type.ret) {
 		    throw new TemplateInferType (aux._left.token, aux._score.token);
 		}
-		
+
+		if (aux.info.value) aux.removeGarbage ();
 		return aux;
 	    } catch (YmirException exp) {
 		aux.removeGarbage ();
 		throw exp;
 	    }
 	} else {
-	    if (this._info.isDestructible)
-		Table.instance.garbage (this._info);
+	    /*if (this._info.isDestructible)
+	     Table.instance.garbage (this._info);*/
 	    aux.info = this._info;
 	}
 	
@@ -149,8 +150,7 @@ class Par : Expression {
 	if (this._params)
 	    this._params.removeGarbage ();
 	if (this._left)
-	    this._left.removeGarbage ();
-	
+	    this._left.removeGarbage ();	
     }
     
     override void garbage () {

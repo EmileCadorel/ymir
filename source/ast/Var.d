@@ -92,8 +92,8 @@ class Var : Expression {
 	    auto name = cast (Var) names [it];
 	    if (name && name.token.str == this._token.str) {
 		auto clo = values [it].clone ();
-		if (!cast (Decimal) clo)
-		    clo.token = this._token;
+		/*if (!cast (Decimal) clo)
+		 clo.token = this._token;*/
 		return clo;
 	    }
 	}
@@ -132,8 +132,18 @@ class Var : Expression {
      Throws: UseAsType, si le type n'existe pas.
      */
     Type asType () {	
-	if (!InfoType.exist (this._token.str)) throw new UseAsType (this._token);
-	else {
+	if (!InfoType.exist (this._token.str)) {
+	    import semantic.types.EnumInfo;
+	    auto en = Table.instance.get (this._token.str);
+	    if (en !is null) {
+		if (auto encst = cast (EnumCstInfo) en.type) {
+		    auto type = encst.type;
+		    if (type) 
+			return new Type (this._token, type.clone ());		    
+		}		    
+	    }
+	    throw new UseAsType (this._token);
+	} else {
 	    import std.array;
 	    Array!Expression temp;
 	    foreach (it ; this._templates) {
@@ -162,7 +172,9 @@ class Var : Expression {
 	Array!Expression tmps;
 	foreach (it; this._templates)
 	    tmps.insertBack (it.clone ());
-	return new Var (this._token, tmps);
+	auto res = new Var (this._token, tmps);
+	res.info = this._info;
+	return res;
     }
     
     /**

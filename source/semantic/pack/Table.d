@@ -166,6 +166,18 @@ class Table {
 	return ret;
     }
 
+    /++
+     Params:
+     sym = un symbole
+     Returns: Le symbole a été déclarer dans cette frame ?
+     +/
+    bool sameFrame (Symbol sym) {
+	if (this._frameTable.empty) return true;
+	auto ret = this._frameTable.front [sym.sym.str];
+	if (ret is null) return false;
+	return true;
+    }
+    
 
     /**
      Cherche tous les symboles dont le nom est presque 'name'

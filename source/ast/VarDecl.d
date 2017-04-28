@@ -42,8 +42,8 @@ class VarDecl : Instruction {
 	foreach (it ; this._decls) {
 	    try {
 		auto aux = new Var (it.token);
-		auto info = Table.instance.get (it.token.str);
-		if (info !is null) throw new ShadowingVar (it.token, info.sym);
+		auto info = Table.instance.get (it.token.str);		
+		if (info !is null && Table.instance.sameFrame (info)) throw new ShadowingVar (it.token, info.sym);
 		aux.info = new Symbol (aux.token, new UndefInfo ());
 		aux.info.isConst = false;
 		Table.instance.insert (aux.info);

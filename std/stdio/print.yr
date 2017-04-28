@@ -28,6 +28,10 @@ def print (i : ulong) : void {
     printf (("%lu").ptr, i);
 }
 
+def print (i : ptr!void) : void {
+    printf (("%lu").ptr, i);
+}
+
 def print (i : uint) : void {
     printf (("%u").ptr, i);
 }

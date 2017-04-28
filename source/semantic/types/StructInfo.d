@@ -100,7 +100,10 @@ class StructCstInfo : InfoType {
     /**
      Returns: false
      */
-    override bool isSame (InfoType) {
+    override bool isSame (InfoType ot) {
+	if (auto stcst = cast (StructCstInfo) ot) {
+	    return stcst.name == this._name;
+	}
 	return false;
     }
 

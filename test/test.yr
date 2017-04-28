@@ -1,15 +1,11 @@
 import std.stdio;
-//import std.ascii;
-import std.conv;
-
-struct
-| a : int
-| b : [int]
--> Test ;
+import std.array, std.conv;
+import std.file;
+import std.string;
 
 def main () {
-    let a = Test (10, [4]);
-    println (a.to!string);
+    println (mkdirRecurse ("out/test/"));
+    rmdir ("out/test");
 }
 
 

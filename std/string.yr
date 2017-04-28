@@ -172,6 +172,34 @@ def splitLines (str : string) : [string] {
     return ret;
 }
 
+/**   
+   Params:
+   str = le texte a splitter
+   Returns: un tableau de chaine, chaque case correspond à une ligne
+ */
+def split (str : string) : [string] {
+    let ret = [''];
+    for (it in str) {
+	if (it == ' ') ret += [''];
+	else ret [ret.length - 1ul].append (it);
+    }
+    return ret;
+}
+
+/**   
+   Params:
+   str = le texte a splitter
+   Returns: un tableau de chaine, chaque case correspond à une ligne
+ */
+def split (str : string, br : char) : [string] {
+    let ret = [''];
+    for (it in str) {
+	if (it == br) ret += [''];
+	else ret [ret.length - 1ul].append (it);
+    }
+    return ret;
+}
+
 
 def isWhite (c : char) : bool {
     return !(c != '\n' && c != '\t' && c != '\v' && c != '\r' && c != ' ');
@@ -247,4 +275,12 @@ def strip (str : string) : string {
     return '';
 }
 
+
+def toStringz (str : string) : string {
+    let res = [char; str.length + 1UL];
+    for (it in 0UL .. str.length)
+	res [it] = str [it];
+    res [str.length] = '\0';
+    return cast:string(res);
+}
 

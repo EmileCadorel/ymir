@@ -118,6 +118,7 @@ class TemplateFrame : Frame {
 	return null;
     }
 
+    
     private Var typeIt (Var name, InfoType type, Array!Expression args, InfoType [] tmps) {
 	if (type is null) return null;
 	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
@@ -128,6 +129,7 @@ class TemplateFrame : Frame {
 	    this._currentScore += CHANGE;
 	    return new Var (name.token, make!(Array!Expression) (typed));
 	}
+	
 	
 	Array!Expression params;
 	foreach (it ; 0 .. name.templates.length) {
@@ -168,6 +170,7 @@ class TemplateFrame : Frame {
 	else return typeIt (name, type.info.type, args, tmps);
     }
 
+    
     private Expression typeIt (Expression elem, InfoType type, Array!Expression args, InfoType [] tmps) {
 	if (auto fn = cast (FuncPtr) elem)
 	    return typeIt (fn, type, args, tmps);
@@ -181,7 +184,7 @@ class TemplateFrame : Frame {
     private Expression typeIt (Expression elem, Expression type, Array!Expression args, InfoType [] tmps) {
 	if (auto fn = cast (FuncPtr) elem)
 	    return typeIt (fn, type, args, tmps);
-	else if (auto var = cast (Var) elem)
+	else if (auto var = cast (Var) elem) 
 	    return typeIt (var, type, args, tmps);
 	else if (auto cst = cast (ConstArray) elem)
 	    return typeIt (cst, type, args, tmps);
@@ -406,9 +409,13 @@ class TemplateFrame : Frame {
 	    name ~= super.mangle("(");
 	    un ~= "(";
 	    foreach (it ; func.tmps) {
-		auto val = it.expression().info.value.toString;
-		name ~= super.mangle (val);
-		un ~= val;
+		if (auto _val = it.expression ().info.value) {
+		    name ~= super.mangle (_val.toString);
+		    un ~= _val.toString;		    
+		} else {
+		    name ~= super.mangle (it.info.typeString);
+		    un ~= it.info.typeString;
+		}			
 		if (it !is func.tmps [$ - 1]) {
 		    un ~= ",";
 		    name ~= super.mangle (",");
@@ -458,9 +465,13 @@ class TemplateFrame : Frame {
 	name ~= super.mangle("(");
 	un ~= "(";
 	foreach (it ; func.tmps) {
-	    auto val = it.expression().info.value.toString;
-	    name ~= super.mangle (val);
-	    un ~= val;
+	    if (auto _val = it.expression ().info.value) {
+		name ~= super.mangle (_val.toString);
+		un ~= _val.toString;		    
+	    } else {
+		name ~= super.mangle (it.info.typeString);
+		un ~= it.info.typeString;
+	    }			
 	    if (it !is func.tmps [$ - 1]) {
 		un ~= ",";
 		name ~= super.mangle (",");
@@ -549,18 +560,21 @@ class TemplateFrame : Frame {
 
 	Table.instance.pacifyMode ();
 	foreach (it ; 0 .. params.length) {
-	    if (params [it].info.isImmutable || cast (Type) params [it]) {
-		auto tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    
-		if (tmp is null) {
-		    Table.instance.unpacifyMode ();
-		    return null;	    
-		}
-		finals.insertBack (tmp.expression ());
-		vars.insertBack (params [it]);
+	    Expression tmp;
+	    if (params [it].info.isImmutable ||	cast (Type) params [it]) {
+		tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    		
+	    } else if (auto tp = cast (StructCstInfo) params [it].info.type) {
+		tmp = typeIt (this._function.tmps [it], tp, this._function.tmps, totals);
 	    } else {
 		Table.instance.unpacifyMode ();
 		throw new NotImmutable (params [it].info);
 	    }
+	    if (tmp is null) {
+		Table.instance.unpacifyMode ();
+		return null;	    
+	    }
+	    finals.insertBack (tmp.expression ());
+	    vars.insertBack (params [it]);
 	}	
 
 	Table.instance.unpacifyMode ();
@@ -573,12 +587,10 @@ class TemplateFrame : Frame {
 	string namespace = "(";
 	auto func = this._function.templateReplace (this._function.tmps, params);	
 	foreach (it ; params) {	    
-	    if (auto t = cast (Type) it)
-		namespace ~= (t.info.type.simpleTypeString);
-	    else if (auto _val = it.info.value) {
+	    if (auto _val = it.info.value) {
 		namespace ~= (_val.toString);		
-	    } else 
-		assert (false, typeid (it).toString);
+	    } else
+		namespace ~= (it.info.type.simpleTypeString);
 	    if (it != params [$ - 1]) namespace ~= ",";
 	    else namespace ~= ")";
 	}

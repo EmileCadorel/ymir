@@ -50,8 +50,9 @@ class Is : Expression {
      */
     override Expression expression () {
 	if (this._type) {
+	    import semantic.types.StructInfo;
 	    auto aux = new Is (this._token, this._left.expression, this._type.expression);
-	    if (!(cast (Type) aux._type)) throw new UseAsType (aux._type.token);
+	    if (!(cast (Type) aux._type) && !(cast (StructCstInfo) aux._type.info.type)) throw new UseAsType (aux._type.token);
 	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
 	    
 	    auto res = aux._left.info.type.isSame (aux._type.info.type);
