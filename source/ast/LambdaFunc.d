@@ -36,6 +36,9 @@ class LambdaFunc : Expression {
     /***/
     private FrameProto _proto;
 
+    /++ L'expression dans le cas de '=>' +/
+    private Expression _expr;
+    
     /** */
     private static ulong __last__;
     
@@ -46,6 +49,20 @@ class LambdaFunc : Expression {
 	this._block = block;
     }
 
+    this (Word begin, Array!Var params, Expression ret) {
+	super (begin);
+	this._params = params;
+	this._expr = ret;	
+    }
+   
+    this (Word begin, Array!Var params, Block ret) {
+	super (begin);
+	this._params = params;
+	this._block = ret;	
+    }
+
+    
+    
     /** 
      Returns: le contenu de la lambda expression.
     */
@@ -61,6 +78,7 @@ class LambdaFunc : Expression {
     }
     
     override Expression expression () {
+	if (this._expr) return expressionWithExpr ();	
 	string name = "_YP" ~ Table.instance.namespace () ~ "lambda";
 		
 	Table.instance.enterFrame (name, this._params.length);
@@ -68,15 +86,16 @@ class LambdaFunc : Expression {
 	
 	Expression [] temp;
 	temp.length = this._params.length + 1;
-	temp [0] = this._ret.asType ();
+	if (this._ret !is null)
+	    temp [0] = this._ret.asType ();
+	else temp [0] = null;
+	
 	foreach (it ; 0 .. this._params.length) {	    
 	    if (auto t = cast(TypedVar) this._params [it])
-		temp [it + 1] = t.type ().asType ();
+		temp [it + 1] = new Type (t.type.token, t.getType ().clone ());
 	    else throw new NeedAllType (this._params[it].token, "lambda");
 	}
 	
-	auto t_info = InfoType.factory (this._token, temp);
-
 	Array!Var finalParams;
 	foreach (it ; 0 .. this._params.length) {
 	    auto info = this._params [it].expression;
@@ -86,11 +105,8 @@ class LambdaFunc : Expression {
 	    name ~= Frame.mangle (t);
 	}
 
-	auto ret = new LambdaFunc (this._token, finalParams, this._ret, this._block);
-	ret._info = new Symbol (this._token, t_info, true);
 	name ~= to!string (__last__++);
-	
-	
+		
 	Table.instance.setCurrentSpace (name);
 	if (this._ret is null) {
 	    Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
@@ -120,10 +136,25 @@ class LambdaFunc : Expression {
 	Frame.verifyReturn (this._token, this._proto.type, Table.instance.retInfo);
 	finFrame.last = Table.instance.quitFrame ();
 
+	if (temp [0] is null) {
+	    temp [0] = new Type (this._token, this._proto.type.type.cloneForParam);
+	}
 
-
+	auto word = Word (this._token.locus, Keys.FUNCTION.descr, true);
+	auto t_info = InfoType.factory (word, temp);
+	auto ret = new LambdaFunc (this._token, finalParams, this._ret, block);
+	ret._info = new Symbol (this._token, t_info, true);
+	
 	ret._proto = this._proto;
 	return ret;
+    }
+
+    private Expression expressionWithExpr () {
+	import ast.Instruction, ast.Declaration, ast.Return;
+	Array!Instruction insts;
+	insts.insertBack (new Return (this._expr.token, this._expr));
+	auto block = new Block (this._expr.token, make!(Array!Declaration) (), insts);
+	return new LambdaFunc (this._token, this._params, block).expression ();
     }
     
     override void removeGarbage () {

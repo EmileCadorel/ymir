@@ -63,6 +63,8 @@ class Lexer {
 	this._enableComment = on;
     }
 
+    
+    
     /**
      Recupere le mot suivant
      Params:
@@ -110,6 +112,15 @@ class Lexer {
     void rewind (ulong nb = 1) {
 	this._current -= nb;
     }
+
+    ulong tell () {
+	return this._current;
+    }
+
+    void seek (ulong where) {
+	this._current = where;
+    }
+    
     
     private Lexer get (ref Word word) {
 	do {

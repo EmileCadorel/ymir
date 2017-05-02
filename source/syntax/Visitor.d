@@ -21,6 +21,7 @@ class Visitor {
     private Token[] _suiteElem;
     private Token[] _forbiddenIds;
     private Token[] _decoKeys;
+    private bool _lambdaPossible;
     
     this (string file) {
 	this._lex = new Lexer (file,
@@ -62,7 +63,8 @@ class Visitor {
 			      Keys.REF
 	];
 
-	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST];	
+	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST];
+	this._lambdaPossible = true;
     }
 
     /**
@@ -388,6 +390,51 @@ class Visitor {
 	} else _lex.rewind ();
 	return new Var (ident, deco);
     }
+
+    private TypedVar visitTypedVarDeclaration () {
+	auto deco = this._lex.next ();
+	if (deco != Keys.CONST && deco != Keys.REF) {
+	    this._lex.rewind ();
+	    deco = Word.eof;
+	}
+	auto ident = visitIdentifiant ();
+	Word next = _lex.next ();
+	if (next == Tokens.COLON) {
+	    next = _lex.next ();
+	    if (next == Keys.FUNCTION) {
+		auto type = visitFuncPtrSimple ();
+		return new TypedVar (ident, type, deco);
+	    } else {
+		_lex.rewind ();
+		auto type = visitType ();
+		return new TypedVar (ident, type, deco);
+	    }
+	} throw new SyntaxError (next, [Tokens.COLON.descr]);
+    }
+    
+
+    /**
+     vardecl := var (':' type)?
+     */
+    private bool canVisitVarDeclaration () {
+	auto nb = this._lex.tell (), ret = false;
+	auto deco = this._lex.next ();
+	if (deco != Keys.CONST && deco != Keys.REF) {
+	    this._lex.rewind ();
+	    deco = Word.eof;
+	}
+	
+	if (canVisitIdentifiant ()) {
+	    auto ident = visitIdentifiant ();
+	    Word next = _lex.next ();
+	    if (next == Tokens.COLON) {
+		ret = true;
+	    }
+	}
+	this._lex.seek (nb);
+	return ret;
+    }
+
     
     
     /**
@@ -456,6 +503,37 @@ class Visitor {
 	return ident;
     }
 
+    private bool canVisitIdentifiant () {	
+	auto ident = _lex.next ();
+	this._lex.rewind ();
+	if (ident.isToken ())
+	    return false;
+	
+	if (find !"b == a" (this._forbiddenIds, ident) != [])
+	    return false;
+	
+	if (ident.str.length == 0) return false;
+	auto i = 0;
+	foreach (it ; ident.str) {
+	    if ((it >= 'a' && it <= 'z') || (it >= 'A' && it <= 'Z')) break;
+	    else if (it != '_') return false;
+	    i++;
+	}
+	i++;
+	if (ident.str.length < i)
+	    return false;
+	
+	foreach (it ; ident.str [i .. $]) {
+	    if ((it < 'a' || it > 'z')
+		&& (it < 'A' || it > 'Z')
+		&& (it != '_')
+		&& (it < '0' || it > '9'))
+		return false;
+	}
+	
+	return true;
+    }
+    
     /**
      block := '{' instruction* '}'
              | instruction
@@ -715,10 +793,11 @@ class Visitor {
     private Expression visitPthPar (Word token) {
 	Array!Expression params;
 	Word tok;
+	if (this._lambdaPossible && canVisitVarDeclaration ()) return visitLambda ();	
 	while (true) {
 	    params.insertBack (visitExpressionUlt ());
 	    tok = _lex.next ();
-	    if (tok == Tokens.RPAR) break; 
+	    if (tok == Tokens.RPAR) break;
 	    else if (tok != Tokens.COMA)
 		throw new SyntaxError (tok, [Tokens.RPAR.descr, Tokens.COMA.descr]);
 	}
@@ -786,7 +865,9 @@ class Visitor {
 	auto begin = this._lex.next ();
 	auto next = this._lex.next ();
 	if (next != Tokens.LPAR) throw new SyntaxError (next, [Tokens.LPAR.descr]);
+	this._lambdaPossible = false;
 	auto expr = visitExpression ();
+	this._lambdaPossible = true;
 	next = this._lex.next ();
 	if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
 	next = this._lex.next ();
@@ -1029,7 +1110,7 @@ class Visitor {
 	return new FuncPtr (begin, params, ret);
     }
 
-
+    
     /**
      func := 'function' '(' (var (',' var)*)? ')' ':' var
      */
@@ -1066,6 +1147,27 @@ class Visitor {
 	return new FuncPtr (begin, params, ret);
     }
 
+    private Expression visitLambda () {
+	Array!Var params;
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	while (true) {
+	    params.insertBack (visitTypedVarDeclaration ());
+	    auto next = this._lex.next ();
+	    if (next == Tokens.RPAR) break;
+	    else if (next != Tokens.COMA)
+		throw new SyntaxError (next, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+	}
+	auto next = this._lex.next ();
+	if (next == Tokens.IMPLIQUE) {
+	    auto expr = visitExpressionUlt ();
+	    return new LambdaFunc (begin, params, expr);
+	} else if (next == Tokens.LACC) {
+	    this._lex.rewind ();
+	    auto block = visitBlock ();
+	    return new LambdaFunc (begin, params, block);
+	} else throw new SyntaxError (next);
+    }    
     
     
     private Expression visitSuite (Word token, Expression left) {

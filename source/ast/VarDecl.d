@@ -87,6 +87,7 @@ class VarDecl : Instruction {
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;
+		debug { throw exp; }
 	    } catch (ErrorOccurs err) {
 		error += err.nbError;
 	    }
