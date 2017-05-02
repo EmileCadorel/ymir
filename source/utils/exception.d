@@ -68,6 +68,19 @@ class NoReturnStmt : YmirException {
     }
 }
 
+class ReturnVoid : YmirException {
+
+    this (Word token, Symbol type) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sErreur%s : Retour d'un élément de type '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString ();
+    }
+}
+
 /**
  Le char d'échappement x n'existe pas
  */

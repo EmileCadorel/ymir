@@ -1,9 +1,17 @@
 import std.stdio;
 import std.conv;
 import std.array;
+import std.algorithm;
 
-def main (args : [string]) {
-    println (args);
+def main () {
+    let a, i = 12;
+    
+    if (i < 10) {
+	a = 1.8;
+    }
+
+    println (a);
+    
 }
 
 

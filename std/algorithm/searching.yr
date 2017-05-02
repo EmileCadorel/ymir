@@ -111,6 +111,13 @@ def find (T) (a : [T], b : T) : long {
     return -1;    
 }
 
+def find (T) (a : [T], b : T, call : function (T, T):bool) : long {
+    for (it in 0UL .. a.length) {
+	if (call (a [it], b)) return cast:long (it);
+    }
+    return -1;    
+}
+
 def minCount (T) (a : [T]) : tuple!(T, int) {
     let nb = 0, min = T.max;
     for (it in 0UL .. a.length) {

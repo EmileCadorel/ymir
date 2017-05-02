@@ -17,6 +17,7 @@ import lint.LInst;
 import std.array, std.typecons;
 import semantic.types.StructInfo;
 import semantic.value.all;
+import lint.LUnop;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -542,13 +543,31 @@ class LVisitor {
 	if (!type.content.isDestructible) {
 	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
 	    if (exist is null) ArrayUtils.createCstArray ();
-	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));	    
 	} else {
 	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
 	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
 	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
 	    if (exist is null) ArrayUtils.createDstArray ();
 	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
+	    	    
+	    auto it = new LReg (LSize.LONG);
+	    auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LWrite (new LRegRead (it, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG));
+	    auto faux = new LLabel;
+	    auto index = new LReg (LSize.LONG);
+	    auto test = new LBinop (index, new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
+	    inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
+	    inst += debut;
+	    inst += new LJump (test, vrai);
+	    inst += new LGoto (faux);
+	    vrai.insts += new LWrite (it, new LBinop (aux, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
+										 new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
+							    Tokens.PLUS));
+	    vrai.insts += block;
+	    vrai.insts += new LUnop (index, Tokens.DPLUS, true);
+	    vrai.insts += new LGoto (debut);
+	    inst += vrai;
+	    inst += faux;
 	}
 	
 	inst += aux;
@@ -860,8 +879,17 @@ class LVisitor {
     
     private LInstList visitVarDecl (VarDecl elem) {
 	LInstList inst = new LInstList;
-	foreach (it ; elem.insts) {
-	    inst += visitExpression (it);
+	foreach (it ; 0 .. elem.insts.length) {
+	    if (elem.insts [it]) {
+		inst += visitExpression (elem.insts [it]);
+	    } else {
+		inst = visitExpression (elem.decls [it]);	      
+		auto var = inst.getFirst ();
+		if (var.size != LSize.FLOAT && var.size != LSize.DOUBLE)
+		    inst += new LWrite (var, new LConstDecimal (0, var.size));
+		else
+		    inst += new LWrite (var, new LConstDouble (0));
+	    }
 	}
 	return inst;
     }

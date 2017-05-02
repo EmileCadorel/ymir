@@ -5,8 +5,10 @@ extern (C) printf (c : ptr!char, ...);
 def print (c : char) : void
     putchar (c);
 
-def print (s : string) : void
-    for (it in s) putchar (it);
+def print (s : string) : void {
+    if (s is null) print ('null');
+    else for (it in s) putchar (it);
+}
 
 def print (i : long) : void {
     printf (("%ld").ptr, i);

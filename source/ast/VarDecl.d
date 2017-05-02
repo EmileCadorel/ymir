@@ -81,6 +81,8 @@ class VarDecl : Instruction {
 		    auxDecl._decls.insertBack (aux);
 		    if (this._insts [id])
 			auxDecl._insts.insertBack (this._insts [id].expression ());
+		    else
+			auxDecl._insts.insertBack (null);
 		}
 		
 		id ++;
@@ -114,6 +116,10 @@ class VarDecl : Instruction {
 	return this._insts;
     }
 
+    Array!Var decls () {
+	return this._decls;
+    }
+    
     /**
      Affiche l'instruction sous forme d'arbre
      Params:

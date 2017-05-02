@@ -51,6 +51,8 @@ class Return : Instruction {
 	aux._instCast = Table.instance.retInfo.info;		
 	if (this._elem !is null) {
 	    aux._elem = this._elem.expression ();
+	    if (cast (VoidInfo) aux._elem.info.type)
+		throw new ReturnVoid (this._token, aux._elem.info);
 	    aux._instComp = aux._elem.info.type.ReturnOp ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.changed = true;

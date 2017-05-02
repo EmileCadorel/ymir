@@ -4,8 +4,8 @@ def scan (T) (a : [T], call : function (T, T) : T) : [T] {
     let b = [T ; a.length];
     if (b.length == 0UL) return b;
     b [0] = a [0];
-    for (it in 0UL .. (a.length - 1UL)) {
-	b [it + 1UL] = call (b [it], a [it + 1UL]);
+    for (it in 1UL .. (a.length)) {
+	b [it] = call (b [it - 1UL], a [it]);
     }
     return b;
 }
@@ -26,7 +26,7 @@ def filter (T) (a : [T], call : function (T) : bool) : [T] {
 }
 
 def reduce (T) (a : [T], call : function (T, T) : T) : T {
-    if (a.length == 0UL) return T.init;
+    if (a.length == 0UL) return "";
     else {
 	let b = a [0];
 	for (it in 1UL .. a.length) {
@@ -36,8 +36,8 @@ def reduce (T) (a : [T], call : function (T, T) : T) : T {
     }
 }
 
-def map (T) (a : [T], call : function (T) : T) : [T] {
-    let b = [T ; a.length];
+def map (T, U) (a : [T], call : function (T) : U) : [U] {
+    let b = [U ; a.length];
     for (it in 0UL .. a.length) {
 	b [it] = call (a [it]);
     }

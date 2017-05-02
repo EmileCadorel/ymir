@@ -1,5 +1,6 @@
 import std.math;
 import std.algorithm;
+import std.conv;
 
 def opTest ('>') (a : int, b : string) : bool {
     return true;
@@ -57,7 +58,7 @@ private def creator () {
     let b = "a" < "b";
 }
 
-def getArgs (argc, argv) : [string] {
+def getArgs (argc : int, argv : ptr!(ptr!char)) : [string] {
     let ret = [string; 0UL];
     for (it in 0 .. argc) {
 	ret += [(*(argv + (it * 8))).to!string];
