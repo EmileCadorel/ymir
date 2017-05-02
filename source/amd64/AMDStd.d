@@ -46,7 +46,7 @@ class AMDPush : TInst {
     this (AMDObj reg) {
 	this._reg = reg;
     }
-
+    
     override string toString () {
 	OutBuffer buf = new OutBuffer ();
 	buf.writef ("\tpush%s\t%s", this._reg.sizeAmd.id, this._reg.toString());

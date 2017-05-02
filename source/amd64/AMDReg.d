@@ -271,6 +271,7 @@ class AMDReg : AMDObj {
     private string _name;
     private bool _isStd = false;
     private bool _isOff = false;
+    private bool _pos = false;
     private long _offset;
     static long __globalOffset__ = 0;   
     static long [ulong] __offsets__;
@@ -302,6 +303,17 @@ class AMDReg : AMDObj {
 	this._size = size;
 	this.toAsm ();
     }
+
+    this (AMDSize size, ulong offset) {
+	this._isStd = true;
+	this._id = lastId ();
+	this._size = size;
+	this._offset = offset;
+	this._isOff = true;
+	this._pos = true;
+	auto r = REG.getReg ("rbp");
+	this._name = r.name;
+    }
     
     this (string name, AMDSize size) {
 	this._isStd = true;
@@ -330,7 +342,7 @@ class AMDReg : AMDObj {
 	if (!reg) return false;
 	else {
 	    if (this._isOff) {
-		if (!reg._isOff || reg._offset != this._offset || this._name != reg._name)
+		if (!reg._isOff || reg._offset != this._offset || this._name != reg._name || reg._pos != this._pos)
 		    return false;
 		return true;
 	    } else if (this._isStd) {
@@ -406,7 +418,10 @@ class AMDReg : AMDObj {
 	auto buf = new OutBuffer;
 	if (this._isStd) {
 	    if (this._isOff && this._offset != 0) {
-		return to!string (-this._offset) ~ "(%" ~ this._name ~ ")";		
+		if (!this._pos)
+		    return to!string (-this._offset) ~ "(%" ~ this._name ~ ")";
+		else
+		    return to!string (this._offset) ~ "(%" ~ this._name ~ ")";
 	    } else if (this._isOff) {
 		return "(%" ~ this._name ~ ")";
 	    } else return "%" ~ this._name;

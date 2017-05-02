@@ -37,8 +37,15 @@ class AMDVisitor : TVisitor {
 	entry.inst += new AMDCfiDefCfaRegister (6);
 	entry.inst += new AMDBinop (stack, rsp, Tokens.MINUS);
 	ulong nbInt, nbFloat;
+	auto currOff = 0;
 	foreach (it ; 0 .. frame.args.length) {
-	    entry.inst += new AMDMove (new AMDReg (REG.param (nbInt, nbFloat, getSize (frame.args[it].size))),
+	    auto reg = new AMDReg (REG.param (nbInt, nbFloat, getSize (frame.args[it].size)));
+	    if (reg.isOff) {
+		if (currOff == 0) currOff = 8 + (8 * cast (int) (frame.args.length - it));
+		reg = new AMDReg (getSize (frame.args [it].size), currOff);
+		currOff -= 8;
+	    }
+	    entry.inst += new AMDMove (reg,
 				       new AMDReg (frame.args[it].id,
 						   getSize (frame.args[it].size)));
 	}
@@ -444,13 +451,32 @@ class AMDVisitor : TVisitor {
     
     override protected TInstPaire visitCall (LCall lcall) {
 	auto inst = new TInstList;
-	ulong nbInt, nbFloat;
+	ulong nbInt, nbFloat, nbPush = 0;
 	foreach (it ; 0 .. lcall.params.length) {
 	    auto reg = new AMDReg (REG.param (nbInt, nbFloat, getSize (lcall.params [it].size)));
 	    auto par = visitExpression (lcall.params [it], reg);
 	    inst += par.what;
-	    if (par.where != reg)
+	    if (reg.isOff) {
+		nbPush += 1;
+		if (cast (AMDConstDecimal) par.where || cast (AMDConstUDecimal) par.where) {
+		    auto cst = cast (AMDConstDecimal) par.where;
+		    if (cst !is null) {
+			inst += new AMDPush (new AMDConstDecimal (cst.value, AMDSize.QWORD));
+		    } else {
+			auto cst2 = cast (AMDConstDecimal) par.where;
+			inst += new AMDPush (new AMDConstUDecimal (cst.value, AMDSize.UQWORD));
+		    }
+		} else if ((cast(AMDObj)par.where).sizeAmd.size != AMDSize.QWORD.size) {
+		    auto aux = new AMDReg (REG.aux (AMDSize.QWORD));
+		    inst += new AMDMoveCast (cast (AMDObj) par.where, aux);
+		    inst += new AMDPush (aux);
+	    } else inst += new AMDPush (cast (AMDObj) par.where);
+	    } else if (par.where != reg)		
 		inst += new AMDMove (cast (AMDObj)par.where, reg);
+	}
+	
+	if (nbPush % 2 == 1) {
+	    inst = new TInstList (new AMDBinop (new AMDConstDecimal (8, AMDSize.QWORD), new AMDReg (REG.getReg ("rsp")), Tokens.MINUS)) + inst;				  
 	}
 	
 	if (lcall.isVariadic) {
