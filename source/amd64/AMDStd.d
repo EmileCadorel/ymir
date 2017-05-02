@@ -17,7 +17,8 @@ class AMDGlobal : TInst {
 
 
 enum AMDTypes : string {
-    FUNCTION = "@function"
+    FUNCTION = "@function",
+	OBJECT = "@object"
 }
 
 class AMDType : TInst {
@@ -30,7 +31,7 @@ class AMDType : TInst {
     }
 
     override string toString () {
-	return "\t.type\t" ~ this._name ~ ", " ~ this._type;
+	return "\t.type\t" ~ this._name ~ ", " ~ this._type ~ "\n";
     }
 }
 
@@ -158,12 +159,23 @@ class AMDCfiEndProc : TInst {
 
 class AMDInstSize : TInst {
     private string _name;
+    private string _size;
+
     this (string name) {
 	this._name = name;
+	this._size = null;
     }
 
+    this (string name, string size) {
+	this._name = name;
+	this._size = size;
+    }
+    
     override string toString () {
-	return "\t.size\t" ~ this._name ~ ", .-" ~ this._name ~ "\n";
+	if (this._size is null)
+	    return "\t.size\t" ~ this._name ~ ", .-" ~ this._name ~ "\n";
+	else
+	    return "\t.size\t" ~ this._name ~ ", " ~ this._size ~ "\n";
     }
 }
 

@@ -3,15 +3,18 @@ import std.conv;
 import std.array;
 import std.algorithm;
 
-def main () {
-    let a, i = 12;
-    
-    if (i < 10) {
-	a = 1.8;
+def uniform () {
+    let static init = false;
+    if (init == false) {
+	init = true;
+	println ("Init");
     }
+}
 
-    println (a);
-    
+
+def main () {
+    for (it in 0 .. 10)
+	uniform ();
 }
 
 

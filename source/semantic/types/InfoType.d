@@ -104,6 +104,8 @@ class InfoType {
     /** Le type est il constant ? */
     private bool _isConst = true;
 
+    private bool _isStatic = false;
+    
     /** Si le type est un attribut de structure, c'est son numéro */
     private ulong _toGet;
     
@@ -230,6 +232,10 @@ class InfoType {
 	return this._isConst;
     }
 
+    ref bool isStatic () {
+	return this._isStatic;
+    }
+    
     /**
      Returns: La valeur contenant dans l'objet
      */

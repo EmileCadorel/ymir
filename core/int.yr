@@ -1,3 +1,4 @@
+import std.traits;
 
 
 def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint))
@@ -12,6 +13,12 @@ def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint)
 	static if (is (T : ulong)) a = a - 1UL;
 	else a = a - cast:T (1UL);
 	return a;
+    }
+
+def opBinary if (isDecimal!(T)() && isSigned!(T2)())
+    ('^^', T, T2) (a : T, b : T2) {
+	import std.math;
+	return pow (a, b);
     }
 
 

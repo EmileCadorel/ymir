@@ -8,8 +8,10 @@ class LReg : LExp {
     private ulong _id;
     private LSize _size;
     private string _name;
+    private string _value;
     private ulong _length;
-
+    private bool _isStatic;
+    
     this (LSize size) {
 	this._id = __last__;
 	__last__ ++;
@@ -20,6 +22,14 @@ class LReg : LExp {
 	this._id = id;
 	this._size = size;
     }
+
+    this (ulong id, LSize size, string name, string value) {
+	this._id = id;
+	this._size = size;
+	this._isStatic = true;
+	this._name = name;
+	this._value = value;
+    }    
     
     static ulong lastId () {
 	ulong ret = __last__;
@@ -35,6 +45,18 @@ class LReg : LExp {
 	return this._id;
     }
 
+    bool isStatic () {
+	return this._isStatic;
+    }
+
+    string name () {
+	return this._name;
+    }
+
+    string value () {
+	return this._value;
+    }
+    
     override bool isInst () {
 	return false;
     }

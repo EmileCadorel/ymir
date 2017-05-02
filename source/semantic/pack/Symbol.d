@@ -24,6 +24,8 @@ class Symbol {
 
     /** Le type va être envoyé dans le GC */
     private bool _garbage;
+
+    private Value _staticValue;
     
     /**
      Params:
@@ -112,6 +114,14 @@ class Symbol {
      */
     ref bool isConst () {
 	return this._type.isConst;
+    }
+
+    bool isStatic () {
+	return this._staticValue !is null;
+    }
+    
+    ref Value staticValue () {
+	return this._staticValue;
     }
 
     /**

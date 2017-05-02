@@ -118,6 +118,11 @@ void toFile (Array!TFrame frames, string filename) {
     foreach (it ; frames) {
 	file.write (it.toString ());
     }
+
+    file.write ("\t.data\n");
+    foreach (it ; TData.insts.inst) {
+	file.write (it.toString ());
+    }
 }
 
 

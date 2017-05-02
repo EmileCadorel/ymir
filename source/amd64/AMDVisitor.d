@@ -638,7 +638,7 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (addr.exp, aux);	
 	auto reg = cast (AMDReg) exp.where;
 	auto rbp = new AMDReg (REG.getReg ("rbp"));
-	if (reg is null || !reg.isOff) assert (false, "Rhaaa, addresse sur un element constant");
+	if ((reg is null || !reg.isOff) && !cast (AMDStaticReg) exp.where) assert (false, "Rhaaa, addresse sur un element constant");
 	inst += exp.what;
 	auto ret = new AMDReg (REG.getReg ("rax"));
 	inst += new AMDLeaq (reg, ret);
@@ -833,7 +833,20 @@ class AMDVisitor : TVisitor {
     }
     
     override protected TInstPaire visit (LReg reg) {
-	return new TInstPaire (new AMDReg (reg.id, getSize (reg.size)), new TInstList);
+	import amd64.AMDRodata;
+	if (reg.isStatic) {
+	    if (!AMDData.exists (reg.name ~ reg.id.to!string)) {
+		auto list = new TInstList;
+		AMDData.insts += new AMDType (reg.name ~ '.' ~ reg.id.to!string, AMDTypes.OBJECT);
+		AMDData.insts += new AMDInstSize (reg.name ~ '.' ~ reg.id.to!string, getSize (reg.size).size.to!string);
+		auto label = new AMDLabel (reg.name ~ '.' ~ reg.id.to!string, new TInstList);
+		label.inst +=  new AMDLong (reg.value);
+		AMDData.insts += label;
+		AMDData.add (reg.name ~ reg.id.to!string);
+	    }
+	    return new TInstPaire (new AMDStaticReg (getSize (reg.size), reg.name ~ '.' ~ reg.id.to!string), new TInstList);
+	} else 
+	    return new TInstPaire (new AMDReg (reg.id, getSize (reg.size)), new TInstList);
     }
 
     override protected TInstPaire  visit (LReg reg, TExp) {

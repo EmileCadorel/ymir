@@ -56,7 +56,7 @@ class BoolValue : Value {
     }
     
     override string toString () {
-	return null;
+	return this._value == true ? "1" : "0";
     }
     
 }

@@ -60,10 +60,10 @@ class Visitor {
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
 			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE, Keys.CONST,
-			      Keys.REF
+			      Keys.REF, Keys.STATIC
 	];
 
-	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST];
+	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST, Keys.STATIC];
 	this._lambdaPossible = true;
     }
 

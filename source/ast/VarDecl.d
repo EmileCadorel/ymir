@@ -4,6 +4,7 @@ import std.container, syntax.Word, utils.YmirException;
 import semantic.pack.Table, semantic.pack.Symbol;
 import std.stdio, std.string, std.outbuffer;
 import semantic.types.UndefInfo, utils.exception;
+import ast.Binary;
 
 /**
  Cette classe est généré à la syntaxe par
@@ -52,7 +53,6 @@ class VarDecl : Instruction {
 		if (info !is null && Table.instance.sameFrame (info)) throw new ShadowingVar (it.token, info.sym);
 		
 		if (this._decos [id] == Keys.IMMUTABLE) {
-		    import ast.Binary;
 		    if (auto bin = cast (Binary) this._insts [id]) {
 			auto type = bin.right.expression ();
 			aux.info = new Symbol (aux.token, type.info.type.clone (), true);
@@ -65,7 +65,6 @@ class VarDecl : Instruction {
 		    } else 
 			throw new ImmutableWithoutValue (it.token);		    
 		} else if (this._decos [id] == Keys.CONST) {
-		    import ast.Binary;
 		    aux.info = new Symbol (aux.token, new UndefInfo (), false);		    
 		    Table.instance.insert (aux.info);
 		    auxDecl._decls.insertBack (aux);
@@ -75,6 +74,18 @@ class VarDecl : Instruction {
 			var.info.isConst = true;
 		    } else 
 			throw new ConstWithoutValue (it.token);		    
+		} else if (this._decos [id] == Keys.STATIC) {
+		    if (auto bin = cast (Binary) this._insts [id]) {
+			auto type = bin.right.expression ();
+			aux.info = new Symbol (aux.token, type.info.type.cloneForParam (), false);
+			aux.info.staticValue = type.info.type.value;
+			if (!aux.info.isStatic)
+			    throw new NotImmutable (this._insts [id].info);
+			type.removeGarbage ();
+			Table.instance.insert (aux.info);
+			auxDecl._decls.insertBack (aux);
+			this._insts [id] = null;
+		    } else throw new StaticWithoutValue (it.token);
 		} else {
 		    aux.info = new Symbol (aux.token, new UndefInfo (), false);
 		    Table.instance.insert (aux.info);

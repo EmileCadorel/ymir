@@ -218,7 +218,7 @@ class LVisitor {
     
     private LInstList visitIf (ref LLabel end, ref LReg retReg, If _if) {
 	auto insts = new LInstList;
-	if (_if.info.value) {
+	if (_if.info.value && !_if.test.info.isStatic) {
 	    return visitIfWithValue (end, retReg, _if);
 	}
 	insts += new LLocus (_if.token.locus);
@@ -320,7 +320,7 @@ class LVisitor {
 	}
 	auto elseif = cast(ElseIf)_else;
 	auto insts = new LInstList;
-	if (elseif.info.value) {
+	if (elseif.info.value && !elseif.test.info.isStatic) {
 	    return visitElseIfWithValue (end, retReg, elseif);
 	}
 	insts += new LLocus (_else.token.locus);
@@ -677,9 +677,12 @@ class LVisitor {
     }
     
     private LInstList visitVar (Var elem) {
-	if (elem.info.value)
+	if (elem.info.value && !elem.info.isStatic)
 	    return elem.info.value.toLint (elem.info);
-	return new LInstList (new LReg (elem.info.id, elem.info.type.size));
+	else if (elem.info.isStatic) {
+	    return new LInstList (new LReg (elem.info.id, elem.info.type.size, elem.token.str, elem.info.staticValue.toString));
+	} else
+	    return new LInstList (new LReg (elem.info.id, elem.info.type.size));
     }
 
     private LInstList visitBool (Bool elem) {
@@ -882,7 +885,7 @@ class LVisitor {
 	foreach (it ; 0 .. elem.insts.length) {
 	    if (elem.insts [it]) {
 		inst += visitExpression (elem.insts [it]);
-	    } else {
+	    } else if (!elem.decls [it].isStatic) {
 		inst = visitExpression (elem.decls [it]);	      
 		auto var = inst.getFirst ();
 		if (var.size != LSize.FLOAT && var.size != LSize.DOUBLE)

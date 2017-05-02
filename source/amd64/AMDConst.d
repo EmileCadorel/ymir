@@ -3,6 +3,7 @@ import amd64.AMDObj, amd64.AMDSize, std.conv;
 import target.TInst, amd64.AMDRodata, std.outbuffer;
 import std.format, std.string, std.array;
 import amd64.AMDStd;
+import amd64.AMDReg;
 
 class AMDConst : AMDObj {
 }
@@ -127,6 +128,27 @@ class AMDOLabel : TInst {
 	return this._name ~ to!string (this._id) ~ ":\n";
     }    
 }
+
+class AMDStaticReg : AMDReg {
+
+    private string _name;
+    private AMDSize _size;
+
+    this (AMDSize size, string name) {
+	this._size = size;
+	this._name = name;
+    }
+
+    override AMDSize sizeAmd () {
+	return this._size;
+    }
+    
+    override string toString () {
+	return this._name ~ "(%rip)";
+    }    
+    
+}
+
 
 class AMDLong : TInst {
     private string _nb;

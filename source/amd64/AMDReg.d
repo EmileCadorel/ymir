@@ -277,6 +277,8 @@ class AMDReg : AMDObj {
     static long [ulong] __offsets__;
     static ulong __lastId__;
     
+    protected this () {}
+
     this (R info) {
 	if (info.name !is null) {
 	    this._isStd = true;
@@ -314,7 +316,7 @@ class AMDReg : AMDObj {
 	auto r = REG.getReg ("rbp");
 	this._name = r.name;
     }
-    
+
     this (string name, AMDSize size) {
 	this._isStd = true;
 	this._name = name;

@@ -632,6 +632,18 @@ class ConstWithoutValue : YmirException {
 }
 
 
+class StaticWithoutValue : YmirException {
+
+    this (Word sym) {
+	auto buf = new OutBuffer ();
+	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
+	buf.writefln ("%sErreur%s : Déclaration d'une variable static sans valeur",
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, sym.locus);
+	msg = buf.toString ();
+    }
+}
+
 
 class StaticAssertFailure : YmirException {
     import ast.Expression, ast.Constante;
