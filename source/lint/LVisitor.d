@@ -673,15 +673,20 @@ class LVisitor {
     }
 
     private LInstList visitDec (Decimal _dec) {
-	final switch (_dec.type.id) {
-	case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.BYTE));
-	case DecimalConst.UBYTE.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UBYTE));
-	case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.SHORT));
-	case DecimalConst.USHORT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.USHORT));
-	case DecimalConst.INT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.INT));
-	case DecimalConst.UINT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UINT));
-	case DecimalConst.LONG.id: return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.LONG));
-	case DecimalConst.ULONG.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.ULONG));
+	import utils.exception;
+	try {
+	    final switch (_dec.type.id) {
+	    case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.BYTE));
+	    case DecimalConst.UBYTE.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UBYTE));
+	    case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.SHORT));
+	    case DecimalConst.USHORT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.USHORT));
+	    case DecimalConst.INT.id : return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.INT));
+	    case DecimalConst.UINT.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.UINT));
+	    case DecimalConst.LONG.id: return new LInstList (new LConstDecimal (to!long (_dec.value), LSize.LONG));
+	    case DecimalConst.ULONG.id : return new LInstList (new LConstUDecimal (to!ulong (_dec.value), LSize.ULONG));
+	    }
+	} catch (ConvOverflowException exp) {
+	    throw new CapacityOverflow (_dec.info, _dec.value.to!string);
 	}
     }
     

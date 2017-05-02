@@ -99,7 +99,23 @@ class DecimalValue : Value {
     
     override LInstList toLint (Symbol sym) {
 	import lint.LConst, lint.LSize;
-	return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
+	import ast.Constante, semantic.types.DecimalInfo;
+	import utils.exception;
+	auto type = cast (DecimalInfo) (sym.type);
+	try {
+	    final switch (type.type.id) {
+	    case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (this._value.to!byte, LSize.BYTE));
+	    case DecimalConst.UBYTE.id : return new LInstList (new LConstDecimal (this._value.to!ubyte, LSize.UBYTE));
+	    case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (this._value.to!short, LSize.SHORT));
+	    case DecimalConst.USHORT.id : return new LInstList (new LConstDecimal (this._value.to!ushort, LSize.USHORT));
+	    case DecimalConst.INT.id : return new LInstList (new LConstDecimal (this._value.to!int, LSize.INT));
+	    case DecimalConst.UINT.id : return new LInstList (new LConstDecimal (this._value.to!uint, LSize.UINT));
+	    case DecimalConst.LONG.id : return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
+	    case DecimalConst.ULONG.id : return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+	    }
+	} catch (ConvOverflowException exp) {
+	    throw new CapacityOverflow (sym, this._value.to!string);
+	}
     }
 
     override string toString () {

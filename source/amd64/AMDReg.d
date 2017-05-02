@@ -141,7 +141,7 @@ class AMDRegTable {
 	if (elem is null) {
 	    foreach (key, value ; __table__) {
 		if (name in value) {
-		    auto reg = (size in value);
+		    auto reg = (signedOne (size) in value);
 		    if (reg is null) assert (false, "Pas de registre " ~ name ~ " de taille " ~ to!string (size));
 		    return *reg;
 		}
@@ -153,7 +153,7 @@ class AMDRegTable {
 		auto reg = (AMDSize.DPREC in *elem);
 		return *reg;
 	    }
-	    auto reg = (size in *elem);
+	    auto reg = (signedOne (size) in *elem);
 	    if (reg is null) assert (false, "Pas de registre " ~ name);
 	    return *reg;
 	}
@@ -169,7 +169,7 @@ class AMDRegTable {
 	    } return AMDRegInfo.empty (size);
 	} else {
 	    if (nbInt < __params__.length) {
-		auto reg = (size in (__params__ [nbInt]));
+		auto reg = (signedOne (size) in (__params__ [nbInt]));
 		nbInt++;
 		if (reg is null) assert (false);
 		return *reg;
@@ -179,11 +179,11 @@ class AMDRegTable {
 
     static R getSwap (AMDSize size = AMDSize.QWORD) {
 	if (size == AMDSize.SPREC || size == AMDSize.DPREC) {
-	    auto elem = (size in __table__ ["xmm0"]);
+	    auto elem = (signedOne (size) in __table__ ["xmm0"]);
 	    if (elem !is null) return *elem;
 	    else assert (false);
 	} else {
-	    auto elem = (size in __table__ ["r14"]);
+	    auto elem = (signedOne (size) in __table__ ["r14"]);
 	    if (elem !is null) return *elem;
 	    else assert (false);
 	}
@@ -195,7 +195,7 @@ class AMDRegTable {
 		auto inside = (reg.name in __free__);
 		if (inside is null || * inside) {
 		    __free__ [reg.name] = false;
-		    auto it = (size in reg);
+		    auto it = (signedOne (size) in reg);
 		    if (it is null) assert (false, "Taille inconny pour " ~ reg.name ~ " " ~ to!string (size));
 		    return *it;
 		}
@@ -205,7 +205,7 @@ class AMDRegTable {
 		auto inside = (reg.name in __free__);	    
 		if (inside is null || *inside) {
 		    __free__ [reg.name] = false;
-		    auto it = (size in reg);
+		    auto it = (signedOne (size) in reg);
 		    if (it is null) assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
 		    return *it;
 		}
@@ -230,7 +230,7 @@ class AMDRegTable {
 	    return *it;	    
 	} else {
 	    auto reg = __table__ ["rax"];
-	    auto it = (size in reg);
+	    auto it = (signedOne (size) in reg);
 	    if (it is null)
 		assert (false, "Taille inconnu pour " ~ reg.name ~ " " ~ to!string(size));
 	    return *it;

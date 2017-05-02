@@ -853,8 +853,23 @@ class OutOfRange : YmirException {
 		      id, length);
 	super.addLine (buf, sym.sym.locus);
 	msg = buf.toString ();
+    }    
+}
+
+class CapacityOverflow : YmirException {
+
+    this (Symbol sym, string val) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Dépassement de capacité du type '%s%s%s', '%s%s%s'",
+		      sym.sym.locus.file,
+		      sym.sym.locus.line,
+		      sym.sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, sym.typeString (), Colors.RESET.value,
+		      Colors.YELLOW.value, val, Colors.RESET.value
+	);
+	super.addLine (buf, sym.sym.locus);
+	msg = buf.toString ();
     }
-
-
     
 }
