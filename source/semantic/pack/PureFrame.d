@@ -22,6 +22,9 @@ class PureFrame : Frame {
     /** la frame à déjà été validé ? */
     private bool valid = false;
 
+    /++ Les paramètres du main on déjà été validé +/
+    private bool _pass = false;
+
     /**
      Params:
      namespace = le contexte de la frame
@@ -56,6 +59,7 @@ class PureFrame : Frame {
      */
     override FrameProto validate () {
 	if (!valid) {
+	    if (this._name == "main" && !this._pass) return validateMain ();
 	    valid = true;
 	    string name = this._name;
 	    if (this._name != "main") {
@@ -117,6 +121,61 @@ class PureFrame : Frame {
 	}
 	return this._fr;
     }    
-    
-}
 
+    private FrameProto validateMain () {
+	import ast.all, semantic.types.ArrayInfo, semantic.types.StringInfo;
+	if (this._function.params.length == 1) {
+	    auto tok = this._function.params [0].token;
+	    if (auto a = cast (TypedVar) this._function.params [0]) {
+		auto type = a.getType ();
+		if (!type.isSame (new ArrayInfo (new StringInfo))) 
+		    throw new WrongTypeForMain (this._function.ident);
+	    } else {
+		auto str = Word (tok.locus, "string", false);
+		this._function.params [0] = new TypedVar (tok,
+							  new ArrayVar (tok, new Var (str)));		
+	    }
+
+	    auto finalParam = make!(Array!Var) (
+		new TypedVar (Word (tok.locus, "#argc", false),
+			      new Var (Word (tok.locus, "int", false))),
+		new TypedVar (Word (tok.locus, "#argv", false),
+			 new Var (Word (tok.locus, "ptr", false),
+				  make!(Array!Expression) (
+				      new Var (Word (tok.locus, "ptr", false),
+					       make!(Array!Expression) (
+						   new Var (Word(tok.locus, "char", false)))
+				      )
+				  )
+			 )
+		)
+	    );
+	    
+	    auto blk = this._function.block;
+	    blk.insts = make!(Array!Instruction) (
+		new VarDecl (tok,
+			     make!(Array!Word) (Word (tok.locus, "const", false)),
+			     make!(Array!Var) (new Var (tok)),
+			     make!(Array!Expression) (
+				 new Binary (Word (tok.locus, Tokens.EQUAL.descr, false),
+					     new Var (tok),
+					     new Par (tok, tok, new Var (Word (tok.locus, "getArgs", false)),
+						      new ParamList (tok,
+								     make!(Array!Expression) (
+									 new Var (Word (tok.locus, "#argc", false)),
+									 new Var (Word (tok.locus, "#argv", false))
+								     )
+						      )
+					     )
+				 )
+			     )
+		)
+	    ) ~ blk.insts;
+	    this._function.params = finalParam;
+	} else if (this._function.params.length != 0)
+	    throw new WrongTypeForMain (this._function.ident);
+	
+	this._pass = true;
+	return validate ();
+    }
+}

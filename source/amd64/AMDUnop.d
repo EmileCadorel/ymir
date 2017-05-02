@@ -31,10 +31,9 @@ class AMDUnop : TInst {
     override string toString () {
 	auto buf = new OutBuffer ();
 	string op;
+	
 	if (this._obj.sizeAmd == AMDSize.BYTE) op = this.opInt ();
-	else if (this._obj.sizeAmd == AMDSize.WORD) op = this.opInt ();
-	else if (this._obj.sizeAmd == AMDSize.DWORD) op = this.opInt ();
-	else if (this._obj.sizeAmd == AMDSize.QWORD) op = this.opInt ();
+	else if (isInt (this._obj.sizeAmd)) op = this.opInt ();
 	else if (this._obj.sizeAmd == AMDSize.SPREC) op = this.opFloat ();
 	else if (this._obj.sizeAmd == AMDSize.DPREC) op = this.opFloat ();
 	if (this._op == Tokens.SQRT) {

@@ -56,3 +56,12 @@ private def creator () {
     let useless = "a" + 'b';
     let b = "a" < "b";
 }
+
+def getArgs (argc, argv) : [string] {
+    let ret = [string; 0UL];
+    for (it in 0 .. argc) {
+	ret += [(*(argv + (it * 8))).to!string];
+    }
+    return ret;
+}
+

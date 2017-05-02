@@ -112,7 +112,7 @@ class Block : Instruction {
     /**
      Returns: la liste des instructions du block.
      */
-    Array!Instruction insts () {
+    ref Array!Instruction insts () {
 	return this._insts;
     }
 

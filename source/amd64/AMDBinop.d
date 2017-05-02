@@ -305,11 +305,8 @@ class AMDBinop : TInst {
 	    auto size = this._left.sizeAmd;
 	    string op;
 	    if (cast (AMDConst) this._left) size = this._right.sizeAmd;
-	    
-	    if (size == AMDSize.BYTE) op = opInt ();	
-	    else if (size == AMDSize.WORD) op = opInt ();
-	    else if (size == AMDSize.DWORD) op = opInt ();
-	    else if (size == AMDSize.QWORD) op = opInt ();
+
+	    if (isInt (size)) op = opInt;
 	    else if (size == AMDSize.SPREC) op = opFloat ();
 	    else if (size == AMDSize.DPREC) op = opFloat ();
 	    else assert (false);

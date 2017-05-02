@@ -91,7 +91,7 @@ class UnPureFrame : Frame {
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= (t);
+	    name ~= super.mangle (t);
 	}
 
 	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name);
@@ -160,7 +160,7 @@ class UnPureFrame : Frame {
 	    } else finalParams.insertBack (this._function.params [it].expression);
 	    auto t = finalParams.back ().info.type.simpleTypeString ();
 	    finalParams.back ().info.id = it + 1;
-	    name ~= (t);
+	    name ~= super.mangle (t);
 	}
 	
 	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);

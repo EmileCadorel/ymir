@@ -873,3 +873,19 @@ class CapacityOverflow : YmirException {
     }
     
 }
+
+class WrongTypeForMain : YmirException {
+
+    this (Word sym) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: La fonction main doit être main ([string]) ou main ()",
+		      sym.locus.file,
+		      sym.locus.line,
+		      sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, sym.locus);
+	msg = buf.toString ();
+    }
+
+    
+}

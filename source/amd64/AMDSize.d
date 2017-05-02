@@ -86,4 +86,18 @@ AMDSize signedOne(AMDSize size) {
     }
 }
 
+bool isInt (AMDSize size) {
+    switch (size.value) {
+    case AMDSize.BYTE.value : return true;
+    case AMDSize.UBYTE.value : return true;
+    case AMDSize.WORD.value : return true;
+    case AMDSize.UWORD.value : return true;
+    case AMDSize.DWORD.value : return true;
+    case AMDSize.UDWORD.value : return true;
+    case AMDSize.QWORD.value : return true;
+    case AMDSize.UQWORD.value : return true;
+    default: return false;
+    }
+}
+
 

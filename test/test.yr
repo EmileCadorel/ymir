@@ -1,13 +1,9 @@
 import std.stdio;
+import std.conv;
+import std.array;
 
-
-def test (a, b, c, d, e, f, g, h, i) {
-    println (g, ' ', h, ' ', i);
-}
-
-
-def main () {
-    test (1, 2, 3, 4, 5, 6, 9, 10, 11);
+def main (args : [string]) {
+    println (args);
 }
 
 
