@@ -79,16 +79,21 @@ class Options {
      */
     private bool parseArgument (string arg, string next) {
 	if (arg.length >= 2 && arg [1] != '-') {
-	    auto it = find !"a.act == b"([EnumMembers!OptionEnum], arg);
-	    if (it == []) throw new YmirException ("Option : [" ~ arg ~ "] non definie" ~ this.help ());
-	    else {
-		if (it [0].type == 0) {
-		    this._options [it [0]] = "";
-		    return false;
-		} else if (next != null) {
-		    this._options [it [0]] = next;
-		    return true;
-		} else throw new YmirException ("Option : Manque un nom après [" ~ arg ~ "] " ~ this.help ());
+	    if (arg [0 .. 2] == "-l") {
+		this._links ~= [arg];
+		return false;
+	    } else {
+		auto it = find !"a.act == b"([EnumMembers!OptionEnum], arg);
+		if (it == []) throw new YmirException ("Option : [" ~ arg ~ "] non definie" ~ this.help ());
+		else {
+		    if (it [0].type == 0) {
+			this._options [it [0]] = "";
+			return false;
+		    } else if (next != null) {
+			this._options [it [0]] = next;
+			return true;
+		    } else throw new YmirException ("Option : Manque un nom après [" ~ arg ~ "] " ~ this.help ());
+		}
 	    }
 	} else {
 	    foreach (it ; [EnumMembers!OptionEnum]) {
@@ -158,6 +163,10 @@ class Options {
 	else return null;
     }
 
+    const (string[]) links () {
+	return this._links;
+    }
+    
     /**
      Returns: Le path YS_PATH
      */
@@ -184,6 +193,9 @@ class Options {
 
     /** Fichier .o et .a */
     private string [] _libs;
+
+    /** -l.. */
+    private string [] _links;
     
     /** le path YS_PATH */
     private string _ysPath;

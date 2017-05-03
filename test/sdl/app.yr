@@ -1,0 +1,11 @@
+import sdl, input;
+
+extern (C) pause ();
+
+def main () {
+    let win = initSDL ("Test", 800, 600);
+    while (!poll ()) {
+	win.clear ();
+	win.swapWindow ();
+    }
+}

@@ -171,7 +171,11 @@ void main (string [] args) {
 	    auto pid = spawnProcess (["gcc"] ~
 				     options ~
 				     files ~
-				     Options.instance.libs ~ ["-lm"]);
+				     Options.instance.libs ~
+				     ["-lm"] ~
+				     Options.instance.links
+				     
+	    );
 	    if (wait (pid) != 0) assert ("Compilation raté");	
 	}
 	

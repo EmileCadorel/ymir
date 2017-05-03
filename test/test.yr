@@ -3,19 +3,10 @@ import std.conv, std.array;
 import std.algorithm;
 import std.parallelism;
 
-def foo (rank : ulong, total : ulong, desc : [int]) {
-    send (desc [1], cast:int(rank % total) + 1, (rank, 'r'));
-    let res = (0UL, '0');
 
-    recv (desc [0], res);    
-    println (rank, ' from <= ', res);
-    return 0;
-}
 
 def main (args) {
-    let desc = spawn ((args [1]).to!ulong, &foo);
-    joinAll (desc [1UL .. desc.length]);
-    write (desc [0], [-1]);    
+    
 }
 
 

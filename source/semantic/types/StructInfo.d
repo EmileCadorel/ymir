@@ -507,7 +507,7 @@ class StructInfo : InfoType {
 	auto type = this._params [nb].clone ();
 	if (auto _cst = cast (StructCstInfo) type) {
 	    auto word = Word.eof;
-	    word.str = this._name;
+	    word.str = _cst._name;
 	    type = _cst.create (word, []);
 	}
 	type.toGet = nb;

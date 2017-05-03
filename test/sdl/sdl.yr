@@ -1,0 +1,101 @@
+import std.string;
+
+enum
+| SDL_WINDOW_OPENGL : 2
+| SDL_WINDOW_SHOWN : 4
+| SDL_GL_DOUBLEBUFFER : 5
+| SDL_GL_DEPTH_SIZE : 6
+| SDL_WINDOW_RESIZABLE : 32
+| SDL_INIT_VIDEO : 32
+-> SDL_Cst;
+
+enum
+| GL_COLOR_BUFFER_BIT : 16384
+| GL_DEPTH_BUFFER_BIT : 256
+| GL_TEXTURE_2D : 3553
+| GL_DEPTH_TEST : 2929
+| GL_CULL_FACE : 2884
+| GL_BLEND : 3042
+-> GL_Cst;
+
+extern (C) SDL_Quit ();
+extern (C) SDL_Init (int) : int;
+extern (C) SDL_GL_SetAttribute (int, int);
+extern (C) SDL_CreateWindow (name : ptr!char, posx : int, posy : int, width : int, height : int, options : int) : ptr!void;
+
+extern (C) SDL_GL_CreateContext (win : ptr!void) : ptr!void;
+
+extern (C) glewInit () : int;
+extern (C) glewGetErrorString (int) : ptr!char;
+
+extern (C) glEnable (int);
+extern (C) glClearColor (float, float, float, float);
+extern (C) glClear (int);
+extern (C) SDL_GL_SwapWindow (win : ptr!void);
+
+struct
+| content : ptr!void
+-> SDL_Window;
+
+
+def createWindow (name : string, width : int, height : int) : SDL_Window {
+    if (SDL_Init (SDL_Cst.SDL_INIT_VIDEO) < 0) {
+	SDL_Quit ();
+	assert (false, "Init sdl failed");
+    }
+
+    return SDL_Window (
+	SDL_CreateWindow (name.toStringz.ptr,
+			  0, 0, width, height,
+			  SDL_Cst.SDL_WINDOW_SHOWN |
+			  SDL_Cst.SDL_WINDOW_RESIZABLE |
+			  SDL_Cst.SDL_WINDOW_OPENGL)
+    );
+    
+}
+
+struct
+| val : ptr!void
+-> GL_Context;
+
+def createContext (win : SDL_Window) : GL_Context {
+    return GL_Context (
+	SDL_GL_CreateContext (win.content)
+    );
+}
+
+struct
+| win : SDL_Window
+| ctx : GL_Context
+-> Window;
+
+def initSDL (name : string, width : int, height : int) : Window {
+    import std.conv;
+    let win = createWindow (name, width, height);
+    let context = createContext (win);
+    let e = glewInit ();
+    if (e != 0) {
+	assert (false, to!(string) (glewGetErrorString (e)));
+    }
+
+    glEnable (GL_Cst.GL_TEXTURE_2D);
+    glEnable (GL_Cst.GL_CULL_FACE);
+    glEnable (GL_Cst.GL_DEPTH_TEST);
+    glClearColor (0., 0., 0., 1.);
+    return Window (win, context);
+}
+
+def clear (win : Window) {
+    glClear (GL_Cst.GL_COLOR_BUFFER_BIT | GL_Cst.GL_DEPTH_BUFFER_BIT);
+}
+
+def swapWindow (window : Window) {
+    SDL_GL_SwapWindow (window.win.content);
+}
+
+
+
+
+
+
+

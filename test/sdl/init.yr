@@ -1,0 +1,23 @@
+
+
+
+extern (C) SDL_PollEvent (a : ptr!ubyte);
+
+enum
+| SDL_KEYDOW : 768
+| SDL_QUIT : 256
+-> SDL_EventCst;
+
+
+def poll () : bool {
+    let event = [ubyte; 56UL]; // SDL_Event fait 56 byte
+    if (SDL_PollEvent (event.ptr)) {
+	if ((event.ptr).int == SDL_EventCst.SDL_KEYDOW) {
+	    println ("Key_Down");
+	    return false;
+	} else if ((event.ptr).int == SDL_EventCst.SDL_QUIT) {
+	    return true;
+	}
+    } 
+    
+}
