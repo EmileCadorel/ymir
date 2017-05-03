@@ -649,11 +649,16 @@ class LVisitor {
     }
 
     private LInstList visitBefUnary (BefUnary unary) {
-	auto ret = visitExpression (unary.elem);
-	for (long nb = unary.info.type.lintInstS.length - 1; nb >= 0; nb --) {
-	    ret = unary.info.type.lintInst (ret, nb);
+	import semantic.types.PtrFuncUtils;
+	if (cast (PtrFuncInfo) unary.info.type) {
+	    return PtrFuncUtils.InstConstFunc (unary.info.type, null, null);
+	} else {
+	    auto ret = visitExpression (unary.elem);
+	    for (long nb = unary.info.type.lintInstS.length - 1; nb >= 0; nb --) {
+		ret = unary.info.type.lintInst (ret, nb);
+	    }
+	    return ret;
 	}
-	return ret;
     }
     
     private LInstList visitStr (String elem) {
@@ -848,6 +853,7 @@ class LVisitor {
     
     private LInstList visitDot (Dot dot) {
 	LInstList exprs;
+	if (dot.info.value) return dot.info.value.toLint (dot.info);
 	if (dot.info.type.leftTreatment) {
 	    exprs = dot.info.type.leftTreatment (dot.info.type, dot.left, null); 
 	}

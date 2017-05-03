@@ -171,7 +171,7 @@ class AMDRegTable {
 	    if (nbInt < __params__.length) {
 		auto reg = (signedOne (size) in (__params__ [nbInt]));
 		nbInt++;
-		if (reg is null) assert (false);
+		if (reg is null) assert (false, to!string (size));
 		return *reg;
 	    } return AMDRegInfo.empty (size);
 	}

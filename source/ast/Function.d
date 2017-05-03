@@ -225,7 +225,7 @@ class Function : Declaration {
 	foreach (it ; this._params) {
 	    if (cast(TypedVar) (it) is null) return new UnPureFrame (space, this);
 	    
-	}
+	}	
 	auto fr = new ExternFrame (space, this);
 	FrameTable.instance.insert (fr);
 	return fr;
@@ -264,7 +264,7 @@ class Function : Declaration {
 	}
 	writeln ();
 	foreach (it ; this._params) {
-	    it.print (nb + 4);
+	    writefln("%s%s", rightJustify ("", nb + 4, ' '), it.prettyPrint);
 	}
 
 	this._block.print (nb + 4);

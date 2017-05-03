@@ -379,6 +379,18 @@ class ArrayUtils {
 	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
 	return inst;
     }
+
+    /**
+     Returns: la liste d'instruction de récupération du ptr!char de la string.
+     */
+    static LInstList InstPtr (LInstList, LInstList list) {
+	auto inst = new LInstList;
+	auto leftExp = list.getFirst ();
+	inst += list;
+	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS);
+	return inst;
+    }
+
     
 
     /**

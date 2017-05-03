@@ -152,6 +152,8 @@ class TupleInfo : InfoType {
 
     override InfoType DotOp (Var var) {
 	if (var.token.str == "typeid") return StringOf ();
+	else if (var.token.str == "sizeof") return SizeOf ();
+	else if (var.token.str == "ptr") return Ptr ();
 	return null;
     }
    
@@ -165,7 +167,22 @@ class TupleInfo : InfoType {
 	return str;
     }
 
+    private InfoType Ptr () {
+	import semantic.types.PtrInfo, semantic.types.VoidInfo;
+	auto ret = new PtrInfo (new VoidInfo);
+	ret.lintInst = &StructUtils.InstPtr;
+	return ret;
+    }
+
     
+    private InfoType SizeOf () {
+	import semantic.types.DecimalInfo, ast.Constante;
+	auto ret = new DecimalInfo (DecimalConst.UBYTE);
+	ret.lintInst = &TupleUtils.SizeOf;
+	ret.leftTreatment = &TupleUtils.GetSizeOf;
+	return ret;
+    }
+
     override InfoType destruct () {
 	if (this._destruct is null) return null;
 	auto ret = this.clone ();

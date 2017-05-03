@@ -1,0 +1,66 @@
+import std.traits;
+
+public extern (C) rand () : int;
+public extern (C) srand (i : int);
+public extern (C) time (i : int) : int;
+
+def uniform if (isDecimal!(T) () && isDecimal!(T2)())
+    (T, T2) (a : T, b : T2) : int {
+	let static init = false;
+	if (!init) {
+	    init = true;
+	    srand (time (0));
+	}
+	
+	return rand () % cast:int((b - a) + a);
+    }
+
+def uniform if(!isDecimal!(T)())
+    (T) (a : T, b : T) : float {
+	let static init = false;
+	if (!init) {
+	    init = true;
+	    srand (time (0));
+	}
+	
+	return (cast:float (rand ()) / cast:float(int.max)) * (b - a) + a;
+    }
+
+def choice (T) (arr : [T]) {
+    let a = uniform (0UL, arr.length);
+    return arr [a];
+}
+
+def shuffle (T) (arr : [T]) : [T] {
+    import std.algorithm;
+    for (it in 0UL .. arr.length) {
+	let ch = uniform (0UL, arr.length);
+	swap (arr [it], arr [ch]);
+    }
+    return arr;
+}
+
+
+def dice (fst : int, params) {
+    import std.stdio;
+    let a = uniform (0., 1.);
+
+    def dice (proba : float, nb : int, fst : int) {
+	if (proba < (cast:float (fst) / 100.0)) return nb;
+	else {
+	    return 0;
+	}
+    }
+
+    def dice (proba : float, nb : int, fst : int, params) {
+	if (proba < (cast:float (fst) / 100.0)) return nb;
+	else {
+	    return dice (-(cast:float(fst) / 100.0) + proba, nb + 1, expand (params));
+	}
+    }   
+    
+    if (a < cast:float (fst) / 100.0) return 1;
+    else {
+	return dice (-(cast:float(fst) / 100.0) + a, 2, expand (params));
+    }
+}

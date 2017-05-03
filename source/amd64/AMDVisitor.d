@@ -155,17 +155,18 @@ class AMDVisitor : TVisitor {
     
     private TInstList visitWriteRegRead (LWrite write) {
 	auto inst = new TInstList;
-	auto left = visitExpression (write.left);
 	auto right = visitExpression (write.right);
 	auto rreg = cast (AMDObj) right.where;
 	inst += right.what;
 	if (cast (AMDConst) rreg is null) {
-	    auto aux = new AMDReg (REG.getSwap (rreg.sizeAmd));
+	    auto aux = new AMDReg (REG.aux (rreg.sizeAmd));
+	    auto left = visitExpression (write.left);
 	    inst += new AMDMove (cast (AMDObj) right.where, aux);
 	    inst += left.what;
 	    inst += new AMDMove (aux, cast (AMDObj) left.where);
 	    REG.free (aux);
 	} else {
+	    auto left = visitExpression (write.left);
 	    inst += left.what;
 	    inst += new AMDMove (rreg, cast (AMDObj) left.where);
 	}
@@ -257,8 +258,8 @@ class AMDVisitor : TVisitor {
 	auto laux = new AMDReg (REG.aux (AMDSize.BYTE));
 	auto rpaire = visitExpression (lbin.right, where);
 	
-	ret += rpaire.what;
 	if (cast (LRegRead) lbin.right && rpaire.where != where) {
+	    ret += rpaire.what;
 	    auto aux = new AMDReg (REG.aux ((cast (AMDObj)rpaire.where).sizeAmd));
 	    auto lpaire = visitExpression (lbin.left, laux);
 	    ret += new AMDMove (cast (AMDObj) rpaire.where, aux);		
@@ -268,6 +269,7 @@ class AMDVisitor : TVisitor {
 	} else {
 	    auto lpaire = visitExpression (lbin.left, laux);
 	    ret += lpaire.what;
+	    ret += rpaire.what;
 	    ret += new AMDBinop (where, cast (AMDObj) lpaire.where, cast (AMDObj) rpaire.where, lbin.op);
 	}
 	if (!free) REG.free (laux);
@@ -518,7 +520,10 @@ class AMDVisitor : TVisitor {
 	    auto expr = visitExpression (lcall.dynFrame);
 	    auto aux = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));
 	    inst += expr.what;
-	    inst += new AMDCallDyn (cast (AMDObj) expr.where);
+	    if (auto cst = cast (AMDConstFunc) expr.where)
+		inst += new AMDCall (cst.name);
+	    else 
+		inst += new AMDCallDyn (cast (AMDObj) expr.where);
 	}
 	
 	auto retReg = new AMDReg (REG.getRet (lcall.size != LSize.NONE ? getSize (lcall.size) : AMDSize.QWORD));

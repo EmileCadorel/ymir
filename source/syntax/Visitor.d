@@ -463,7 +463,13 @@ class Visitor {
 		}
 	    } else if (next != Keys.IS) {
 		_lex.rewind ();
-		params.insertBack (visitExpression ());
+		auto constante = visitConstante ();
+		if (constante !is null) 
+		    params.insertBack (constante);
+		else {
+		    auto ident_ = visitIdentifiant ();
+		    params.insertBack (new Var (ident_));
+		}
 	    } else _lex.rewind (2);
 	    return new Var (ident, params);
 	} else _lex.rewind ();
@@ -704,7 +710,10 @@ class Visitor {
 		    tok.str = Keys.NOT_IS.descr;
 		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
-	    }
+	    } else if (tok == Tokens.DDOT) {
+		auto right = visitPth ();
+		return visitUlow (new ConstRange (tok, left, right));
+	    } 
 	    _lex.rewind ();
 	}
 	return left;
@@ -723,7 +732,10 @@ class Visitor {
 		    tok.str = Keys.NOT_IS.descr;
 		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
-	    }
+	    } else if (tok == Tokens.DDOT) {
+		auto right = visitPth ();
+		return visitHigh (new ConstRange (tok, left, right));
+	    } 
 	    _lex.rewind ();
 	}
 	return left;
@@ -754,10 +766,7 @@ class Visitor {
     	if (find!"b == a" (_highOp, tok) != []) {
     	    auto right = visitPth ();
     	    return visitHigh (new Binary (tok, left, right));
-    	} else if (tok == Tokens.DDOT) {
-	    auto right = visitPth ();
-	    return visitHigh (new ConstRange (tok, left, right));
-	} else if (tok == Keys.IN) {
+    	} else if (tok == Keys.IN) {
 	    auto right = visitPth ();
 	    return visitHigh (new Binary (tok, left, right));
 	} else _lex.rewind ();
@@ -769,9 +778,6 @@ class Visitor {
 	if (find!"b == a" (_highOp, tok) != []) {
 	    auto right = visitPth ();
 	    return visitHigh (new Binary (tok, left, right));
-	} else if (tok == Tokens.DDOT) {
-	    auto right = visitPth ();
-	    return visitHigh (new ConstRange (tok, left, right));
 	} else if (tok == Keys.IN) {
 	    auto right = visitPth ();
 	    return visitHigh (new Binary (tok, left, right));
@@ -1124,7 +1130,7 @@ class Visitor {
 	if (word != Tokens.RPAR) {
 	    this._lex.rewind ();
 	    while (true) {
-		params.insertBack (visitVarDeclaration ());
+		params.insertBack (visitType ());
 		word = this._lex.next ();
 		if (word == Tokens.RPAR) break;
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
@@ -1139,10 +1145,6 @@ class Visitor {
 	    word = this._lex.next ();
 	    if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
 	    return new FuncPtr (begin, params, ret, expr);
-	} else if (word == Tokens.LACC) {
-	    this._lex.rewind ();
-	    auto block = visitBlock ();
-	    return new LambdaFunc (begin, params, ret, block);
 	} else this._lex.rewind ();
 	return new FuncPtr (begin, params, ret);
     }

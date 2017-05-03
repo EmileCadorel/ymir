@@ -419,8 +419,7 @@ class TypedVar : Var {
 		return new RefInfo (type.info.type);
 	    else return type.info.type;
 	} else {
-	    if (this._expType.info is null)
-		this._expType = this._expType.expression ();
+	    this._expType = this._expType.expression ();
 	    if (this._deco == Keys.REF)
 		return new RefInfo (this._expType.info.type);
 	    else return this._expType.info.type;

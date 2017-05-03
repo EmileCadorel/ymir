@@ -287,6 +287,7 @@ class ArrayInfo : InfoType {
 	if (var.token.str == "nbRef") return NbRef ();
 	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;
+	else if (var.token.str == "ptr") return toPtr;
 	return null;
     }
 
@@ -298,7 +299,18 @@ class ArrayInfo : InfoType {
 	l.lintInst = &ArrayUtils.InstNbRef;
 	return l;
     }
-
+    
+    /**
+     Le pointeur vers le contenu de la chaine.
+     Returns: un type ptr!char
+     */
+    private InfoType toPtr () {
+	import semantic.types.PtrInfo;
+	auto ret = new PtrInfo (this._content.clone ());
+	ret.lintInst = &ArrayUtils.InstPtr;
+	return ret;
+    }
+    
     /**
      Returns: Le type résultat de 'array.length'
      */

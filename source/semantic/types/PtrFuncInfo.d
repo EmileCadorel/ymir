@@ -303,17 +303,21 @@ class PtrFuncInfo : InfoType {
 	return buf.toString ();
     }
     
-    /**
-     Returns: le score du type (pour la transformation en lint).
-     */
-    ApplicationScore score () {
-	return this._score;
-    }
-
     override InfoType getTemplate (ulong i) {
 	if (i < this._params.length) return this._params [i];
 	else return this._ret;
     }
     
+    ref InfoType ret () {
+	return this._ret;
+    }
+
+    ref Array!InfoType params () {
+	return this._params;
+    }
+
+    ref ApplicationScore score () {
+	return this._score;
+    }
     
 }

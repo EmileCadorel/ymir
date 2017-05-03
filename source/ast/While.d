@@ -66,6 +66,7 @@ class While : Instruction {
 	if (!this._name.isEof ())
 	    this._block.setIdent (this._name);
 	Table.instance.retInfo.currentBlock = "while";
+	Table.instance.retInfo.changed = true;
 	auto bl = this._block.block;
 	auto _while = new While (this._token, expr, bl);
 	_while._info = type;

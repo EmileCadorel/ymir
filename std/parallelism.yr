@@ -1,0 +1,148 @@
+import std.stdio;
+
+def pipe (ref a : [int]) : int {
+    extern (C) pipe (a : ptr!int) : int;
+    import std.stdio;
+    if (a.length != 2UL) {
+	a = [int; 2UL];
+    }
+    return pipe (a.ptr);
+}
+
+extern (C) close (a : int);
+extern (C) open (a : int);
+
+def read (desc : int, ref msg : string) {
+    extern (C) read (a : int, msg : ptr!void, len : int);
+    let len = 0UL;
+    read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+    if (len == 0UL) msg = null;
+    let ret = cast:string ([char; len]);
+    read (desc, cast:ptr!(void) (ret.ptr), cast:int(len));
+    msg = ret;
+}
+
+def read (T) (desc : int, ref msg : [T]) {
+    extern (C) read (a : int, msg : ptr!void, len : int);
+    let len = 0UL;
+    read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+    if (len == 0UL) msg = null;
+    let ret = [T; len];
+    read (desc, cast:ptr!(void) (ret.ptr), cast:int(len) * cast:int (T.sizeof));
+    msg = ret;
+}
+
+def read if (!is (T : string) && !is (T : struct) && !isArray!(T)())
+    (T) (desc : int) : T {
+	let msg = T.init;
+	extern (C) read (a : int, msg : ptr!void, len : int);
+	let len = 0UL;
+	read (desc, cast:ptr!(void) (&msg), cast:int(T.sizeof));
+	return msg;
+    }
+
+def write (desc : int, msg : string) {
+    extern (C) write (a : int, msg : ptr!void, len : int);
+    let len = msg.length;
+    write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+    if len != 0UL
+	write (desc, cast:ptr!(void) (msg.ptr), cast:int(msg.length));
+}
+
+def write (T) (desc : int, msg : [T]) {
+    extern (C) write (a : int, msg : ptr!void, len : int);
+    let len = msg.length;
+    write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+    if len != 0UL
+	write (desc, cast:ptr!(void) (msg.ptr), cast:int(msg.length * T.sizeof));
+}
+
+def write if (!is (T : string) && !is (T : struct) && !isArray!(T) ())
+    (T) (desc : int, msg : T) {
+	extern (C) write (a : int, msg : ptr!void, len : int);
+	write (desc, cast:ptr!(void) (&msg), cast:int(T.sizeof));
+    }
+
+def write if (isTuple !(T) ())
+    (T) (desc : int, elem : T) {
+	extern (C) write (a : int, msg : ptr!void, len : int);
+	write (desc, cast:ptr!(void) (elem.ptr), cast:int(T.sizeof));
+    }
+
+def send if (isTuple!(T) ())
+    (T) (desc : int, i : int, what : T) {
+	extern (C) write (a : int, msg : ptr!void, len : int);
+	let res = (i, expand (what));
+	let len = cast:ulong (res.sizeof);
+	write (desc, cast:ptr!(void) (&len), cast:int (ulong.sizeof));	
+	write (desc, res.ptr, cast:int(res.sizeof));
+    }
+
+def recv if (isTuple!(T) ())
+    (T) (desc : int, a : T)  {
+	import std.conv;
+	extern (C) read (a : int, msg : ptr!void, len : int);
+	let len = 0UL;
+	read (desc, cast:ptr!(void) (&len), cast:int (len.sizeof));
+	if (len != T.sizeof) assert (false, to!(string) (len) + ' ' + to!(string) (cast:int(T.sizeof)));
+	read (desc, a.ptr, cast:int(T.sizeof));
+    }
+
+def joinAll (a : [int]) {
+    extern (C) wait (pid : int, a : ptr!int, int);
+    
+    for (it in 0UL .. a.length) {
+	let stat = int.init;
+	wait (a [it], &stat, 0);
+    }
+}
+
+
+def spawn (nb : ulong, call : function (ulong, ulong, [int]):int) : [int] { 
+    extern (C) fork () : int;
+    extern (C) exit (int);
+    extern (C) getpid () : int;
+    let desc = [int; nb], pids = [int; nb];
+    let c2p = [0, 0];
+    pipe (c2p);
+    for (it in 1UL .. (nb + 1UL)) {
+	let p2c = [0, 0];
+	pipe (p2c);
+	
+	let a = fork ();
+	if (a == 0) {
+	    close (c2p [0]);
+	    close (p2c [1]);
+	    exit (call (it, nb, [p2c [0], c2p [1]]));
+	} else {
+	    pids [it - 1UL] = a;
+	    close (p2c [0]);
+	    desc [it - 1UL] = p2c [1];
+	}
+    }
+    
+    let pid = fork ();
+    if (pid == 0) {
+	close (c2p [1]);    
+	exit (spawnRoutine (nb, c2p [0], desc));
+    } else 
+	close (c2p [0]);
+    
+    return [c2p [1]] + pids;
+}
+
+
+private def spawnRoutine (nb : ulong, _in : int, desc : [int]) : int {
+    import std.conv, std.array;
+    let msg = [ubyte ; 0UL];
+    for (it in 0UL .. nb) {
+	read (_in, msg);
+	if ((msg.ptr + 0).int == -1) break;
+	else {
+	    let to_ = (msg.ptr + 0).int;
+	    write (desc [to_ - 1], msg [4UL .. msg.length]);
+	}
+    }
+    return 0;
+}
+

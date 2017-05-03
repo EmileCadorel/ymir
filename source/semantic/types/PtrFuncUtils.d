@@ -114,7 +114,7 @@ class PtrFuncUtils {
 	inst += leftExp;
 	return inst;
     }
-
+    
     /**
      Constante de nom du pointeur sur fonction.
      Params:

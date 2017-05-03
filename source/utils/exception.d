@@ -520,7 +520,7 @@ class UndefinedType : YmirException {
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 
 	super.addLine (buf, token.locus);
-	msg = buf.toString();        
+	this.msg = buf.toString();        
     }
 
     /**
@@ -534,7 +534,7 @@ class UndefinedType : YmirException {
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, msg);
 
 	super.addLine (buf, token.locus);
-	msg = buf.toString();        
+	this.msg = buf.toString();        
     }
     
 }

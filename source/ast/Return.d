@@ -55,8 +55,10 @@ class Return : Instruction {
 		throw new ReturnVoid (this._token, aux._elem.info);
 	    aux._instComp = aux._elem.info.type.ReturnOp ();
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.changed = true;
-		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();	
+		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();
+		if (!Table.instance.retInfo.changed) {		    
+		    Table.instance.retInfo.changed = true;
+		} else Table.instance.retInfo.info.type.value = null;
 	    } else {
 		auto type = aux._elem.info.type.CompOp (Table.instance.retInfo.info.type);
 

@@ -98,6 +98,7 @@ class If : Instruction {
 	}
 	
 	Table.instance.retInfo.currentBlock = "if";
+	Table.instance.retInfo.changed = true;
 	Block bl = this._block.instructions ();
 	
 	If _if;
@@ -207,6 +208,7 @@ class Else : Instruction {
     override Instruction instruction () {
 	if (this._isStatic) return this._block.instructions ();
 	Table.instance.retInfo.currentBlock = "else";
+	Table.instance.retInfo.changed = true;
 	auto aux = new Else (this._token, this._block.instructions);
 	return aux;
     }

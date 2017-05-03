@@ -60,5 +60,32 @@ class TupleUtils {
 	return left;
     }
 
-    
+    static LInstList GetSizeOf (InfoType, Expression left, Expression) {
+	import semantic.types.StructUtils;
+	auto type = cast (TupleInfo) left.info.type;
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	foreach (it ; type.params) {
+	    final switch (it.size.id) {
+	    case LSize.ULONG.id: nbUlong ++; break;
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.UINT.id: nbUint ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.USHORT.id: nbUshort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.UBYTE.id: nbUbyte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }		
+	}
+	auto size = StructUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto list = new LInstList (size);
+	return list;
+    }
+
+    static LInstList SizeOf (LInstList left, LInstList) {
+	return left;
+    }
+
+
 }

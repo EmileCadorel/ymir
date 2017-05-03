@@ -27,3 +27,9 @@ def isTuple (T) () {
     import std.traits;
     return (slice!(T.typeid, 0UL, 5UL)() == "elput");
 }
+
+def isArray (T) () {
+    import std.traits;
+    return (slice!(T.typeid, 0UL, 5UL)() == "yarra");
+}
+

@@ -34,10 +34,9 @@ def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
 	else if (elem == 0) return "0";
 	let nb = elem, size = 0UL;
 	while (nb > 0) { nb /= to!(T2) (10B); size ++; }       
-	let res = [char ; size];
-	
-	for (it in size .. 0UL) {
-	    res [it - 1UL] = cast:char ((elem % to!(T2) (10UB))) + '0';
+	let res = [char ; size];	
+	for (it in 0UL .. size) {
+	    res [size - it - 1UL] = cast:char ((elem % to!(T2) (10UB))) + '0';
 	    elem /= to!(T2) (10UB);
 	}	
 	return cast:string (res);
@@ -62,6 +61,20 @@ def to if (is (T : string) && is (T2 : byte))
 	if (left <= 9) ret [0] = cast:char (left) + '0';
 	else ret [0] = cast:char (left - 10) + 'a';
 	return cast:string (ret);
+    }
+
+def to if (isDecimal!(T)())
+    (T) (elem : string) : T {
+	import std.conv;
+	let res = T.init;
+	for (it in 0UL .. elem.length) {
+	    let current = elem [it];	    
+	    if (current >= '0' && current <= '9') {
+		res *= cast:T(10UB);
+		res += cast:T (current - '0');
+	    } else assert (false, to!(string) (current));
+	}
+	return res;
     }
 
 def to if (is (T : string) && isUnsigned!(T2)())

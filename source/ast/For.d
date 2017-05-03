@@ -106,6 +106,7 @@ class For : Instruction {
 	if (!this._id.isEof ()) this._block.setIdent (this._id);
 	
 	Table.instance.retInfo.currentBlock = "for";
+	Table.instance.retInfo.changed = true;
 	auto bl = this._block.block;
 	auto res = new For (this._token, this._id, aux, expr, bl);
 	res._ret = type;

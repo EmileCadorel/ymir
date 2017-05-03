@@ -90,6 +90,7 @@ class Binary : Expression {
 		  throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}	
 	aux.info = new Symbol (false, aux._token, type);
+	Table.instance.retInfo.changed = true;
 	return aux;
     }
 
@@ -118,6 +119,7 @@ class Binary : Expression {
 	}
 	
 	aux.info = new Symbol (aux._token, type);
+	Table.instance.retInfo.changed = true;
 	return aux;	
     }
     
@@ -162,7 +164,7 @@ class Binary : Expression {
 	
 	if (aux.info.value) {
 	    aux.removeGarbage ();
-	}	
+	} 
 	return aux;	
     }
 

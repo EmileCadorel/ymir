@@ -102,7 +102,7 @@ class FunctionInfo : InfoType {
 	    if (goods.length == 0) return null;
 	    else if (goods.length != 1)
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
-	    
+
 	    auto info = goods[0].validate (right, right.treat);	    
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
@@ -173,6 +173,32 @@ class FunctionInfo : InfoType {
 	}	
     }
 
+    override InfoType UnaryOp (Word op) {
+	if (op == Tokens.AND) return toPtr ();
+	return null;
+    }
+
+    private InfoType toPtr () {
+	import semantic.pack.PureFrame, semantic.types.PtrFuncInfo;
+	if (this._infos.length == 1) {
+	    auto fr = cast (PureFrame) this._infos [0];
+	    if (!fr) return null;
+	    auto proto = fr.validate ();
+	    Array!InfoType params;
+	    foreach (it ; proto.vars) {
+		params.insertBack (it.info.type);
+	    }
+	    auto ret = proto.type.type;
+	    auto ptr = new PtrFuncInfo ();
+	    ptr.isConst = true;
+	    ptr.params = params;
+	    ptr.ret = ret;	    
+	    ptr.score = this.CallOp (fr.ident, params);
+	    
+	    return ptr;
+	} else return null;
+    }
+    
     override InfoType TempOp (Array!Expression params) {
 	Array!Frame ret;
 	foreach (it ; this._infos) {
@@ -192,7 +218,7 @@ class FunctionInfo : InfoType {
      namespace = le contexte que l'on quitte.     
      */
     override void quit (string namespace) {
-	foreach (it; 0 .. this._infos.length) {
+	for (auto it = 0; it < this._infos.length; it ++) {
 	    if (this._infos [it].namespace == namespace) {		
 		this._infos.linearRemove (this._infos[it .. it + 1]);
 	    }

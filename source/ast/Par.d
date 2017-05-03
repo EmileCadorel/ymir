@@ -91,6 +91,7 @@ class Par : Expression {
 		}
 
 		if (aux.info.value) aux.removeGarbage ();
+		else Table.instance.retInfo.changed = true;
 		return aux;
 	    } catch (YmirException exp) {
 		aux.removeGarbage ();
