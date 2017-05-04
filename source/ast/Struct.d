@@ -24,9 +24,12 @@ class Struct : Declaration {
     /// Les paramètre de la srtucture
     private Array!Var _params;
 
-    this (Word ident, Array!Var params) {
+    private Array!Var _tmps;
+    
+    this (Word ident, Array!Var tmps, Array!Var params) {
 	this._ident = ident;
 	this._params = params;
+	this._tmps = tmps;
 	this._isPublic = true;
     }
 
@@ -54,7 +57,7 @@ class Struct : Declaration {
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
-	    auto str = new StructCstInfo (this._ident.str);
+	    auto str = new StructCstInfo (this._ident.str, this._tmps);
 	    FrameTable.instance.insert (str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
@@ -73,8 +76,8 @@ class Struct : Declaration {
 	    if (exist) {
 		throw new ShadowingVar (this._ident, exist.sym);
 	    } else {
-		auto str = new StructCstInfo (this._ident.str);
-		str.isExtern = true;
+		auto str = new StructCstInfo (this._ident.str, this._tmps);
+		str.isExtern = this._tmps.length == 0;
 		auto sym = new Symbol(this._ident, str);
 		Table.instance.insert (sym);
 		InfoType.addCreator (this._ident.str);
@@ -92,7 +95,7 @@ class Struct : Declaration {
 	foreach (it ; this._params)
 	    params.insertBack (cast (Var) it.templateExpReplace (names, values));
 	
-	auto st = new Struct (this._ident, params);
+	auto st = new Struct (this._ident, this._tmps, params);
 	st._isPublic = this._isPublic;
 	return st;
     }

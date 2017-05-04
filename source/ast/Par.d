@@ -69,7 +69,7 @@ class Par : Expression {
 		    aux._left = dcall.call;
 		    aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
 		}
-		
+
 		auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 		if (type is null) {		
 		    auto call = !dotCall ? findOpCall (aux) : null;

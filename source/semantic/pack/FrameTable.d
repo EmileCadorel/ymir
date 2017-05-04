@@ -103,6 +103,13 @@ class FrameTable {
 	return null;
     }
 
+    StructCstInfo existStruct (string name) {
+	foreach (it ; this._structs) {
+	    if (it.name == name) return it;
+	}
+	return null;
+    }
+    
     /**
      Returns: la liste des structures
      */

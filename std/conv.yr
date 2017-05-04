@@ -108,22 +108,27 @@ def to if (is (T : string))
 	return ret;
     }
 
-def addTupleComa (left) {
-    return to!(string) (left);
-}
+def addTupleComa if (!isTuple!(T)())
+    (T) (left : T) : string {
+	return to!(string) (left);
+    }
 
-def addTupleComa (left, elem) {
-    return to!(string)(left) + ", " + addTupleComa (expand (elem));
+def addTupleComa (T, T2) (left : T, elem : T2) : string {
+    if (elem !is null)
+	return to!(string)(left) + ", " + addTupleComa (expand (elem));
+    else
+	return to!(string)(left) + ", null";
 }
 
 def to if (is (T : string) && isTuple!(T2) ())
-    (T, T2) (elem : T2) {		
+    (T, T2) (elem : T2) : string {	
 	return 'tuple(' + addTupleComa (expand (elem)) + ')';	
     }
 
 def to if (is (T : string) && is (T2 : struct))
     (T, T2) (elem : T2) {
-	return T2.typename + "(" + addTupleComa (expand (elem.tupleof)) + ")";
+	if (elem is null) return T2.typename;	
+	else return T2.typename + "(" + addTupleComa (expand (elem.tupleof)) + ")";
     }
 
 	

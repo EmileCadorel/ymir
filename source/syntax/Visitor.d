@@ -178,24 +178,22 @@ class Visitor {
     private Struct visitStruct () {
 	Word word = this._lex.next (), ident;
 	Array!Var exps;
+	Array!Var temps;
 	if (word == Tokens.LPAR) {
-	    word = this._lex.next ();
-	    if (word != Tokens.RPAR) {
-		_lex.rewind ();
+	    auto next = this._lex.next ();
+	    if (next != Tokens.RPAR) {
+		this._lex.rewind ();
 		while (1) {
-		    exps.insertBack (visitVarDeclaration ());
-		    _lex.next (word);
-		    if (word == Tokens.RPAR) break;
-		    else if (word != Tokens.COMA)
-			throw new SyntaxError (word, [Tokens.RPAR.descr, Tokens.COMA.descr]);
+		    temps.insertBack (visitType ());
+		    next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+		    if (next == Tokens.RPAR) break;
 		}
 	    }
-	    ident = visitIdentifiant ();
 	    word = this._lex.next ();
-	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
-	} else if (word == Tokens.PIPE) {
+	}
+	if (word == Tokens.PIPE) {
 	    while (true) {
-		exps.insertBack (visitVarDeclaration ());
+		exps.insertBack (visitStructVarDeclaration ());
 		this._lex.next (word);
 		if (word == Tokens.ARROW) break;
 		else if (word != Tokens.PIPE)
@@ -204,9 +202,8 @@ class Visitor {
 	    ident = visitIdentifiant ();
 	    word = this._lex.next ();
 	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	    
-	} else throw new SyntaxError (word, [Tokens.LPAR.descr]);
-	    return new Struct (ident, exps);
-	    
+	} else throw new SyntaxError (word, [Tokens.PIPE.descr]);
+	return new Struct (ident, temps, exps);	
     }    
 
     /**
@@ -390,6 +387,20 @@ class Visitor {
 	} else _lex.rewind ();
 	return new Var (ident, deco);
     }
+
+    private TypedVar visitStructVarDeclaration () {
+	auto ident = visitIdentifiant ();
+	Word next  = _lex.next (Tokens.COLON);
+	next = _lex.next ();
+	if (next == Keys.FUNCTION) {
+	    auto type = visitFuncPtrSimple ();
+	    return new TypedVar (ident, type, Word.eof);
+	} else {
+	    _lex.rewind ();
+	    auto type = visitType ();
+	    return new TypedVar (ident, type, Word.eof);
+	}
+    }    
 
     private TypedVar visitTypedVarDeclaration () {
 	auto deco = this._lex.next ();

@@ -1,12 +1,28 @@
 import std.stdio;
-import std.conv, std.array;
-import std.algorithm;
-import std.parallelism;
+import std.conv;
 
 
+struct (K)
+| a : K
+| b : Test!K
+-> Test;
 
-def main (args) {
-    
+struct (K)
+| a : int
+-> Test2;
+
+def test (a) {
+    println (a);
+}
+
+def test (T, T2) (a : T, b : T2) {
+    if (b !is null) test (expand (b.tupleof));
+    println (a);
+}
+
+def main () {
+    let a = Test!int(1, Test!(int) (12, null));
+    println (a.to!string);
 }
 
 

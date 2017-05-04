@@ -26,9 +26,11 @@ void semanticTime (string file) {
     foreach (it ; FrameTable.instance.structs) {
 	auto name = Word.eof;
 	name.str = it.name;
-	auto type = cast (StructInfo) it.create (name, []);
-	StructUtils.createCstStruct (type.name, type.params);
-	StructUtils.createDstStruct (type.name, type.params);
+	if (it.needCreation) {
+	    auto type = cast (StructInfo) it.create (name, []);
+	    StructUtils.createCstStruct (Frame.mangle (type.name), type.params);
+	    StructUtils.createDstStruct (Frame.mangle (type.name), type.params);
+	}
     }
     
     foreach (it ; FrameTable.instance.pures) {		

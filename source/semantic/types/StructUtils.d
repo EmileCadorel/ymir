@@ -9,10 +9,12 @@ import lint.LVisitor, semantic.types.InfoType;
 import ast.Expression, lint.LFrame, semantic.types.ClassUtils;
 import lint.LCall, lint.LAddr, semantic.types.StructInfo;
 import semantic.types.UndefInfo, ast.Var, semantic.pack.Symbol;
+import semantic.pack.Frame;
 
 class StructUtils {
     
     static string __CstName__ = "_YPCstStruct";
+    static string __CstNameEmpty__ = "_YPCstStructEmpty";
     static string __DstName__ = "_YPDstStruct";
 
 
@@ -77,9 +79,8 @@ class StructUtils {
 		interne += type.lintInst (llist, rlist);
 	    } else assert (false, typeid (it).toString);
 	    
-	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
-	
 						 
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
@@ -89,6 +90,24 @@ class StructUtils {
 	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
 	LFrame.preCompiled [__CstName__ ~ name] = fr;	
+	LReg.lastId = last;
+	createSimpleCstStruct (name, size, params);
+    }
+    
+    static void createSimpleCstStruct (string name, LBinop size, Array!InfoType params) {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	Array!LReg regs;
+	auto retReg = new LReg (LSize.LONG);
+	auto entry = new LLabel (new LInstList), end = new LLabel;
+	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
+				   new LConstDecimal (1, LSize.LONG));
+	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
+	
+	auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
+	fr.isStd = false;
+	LFrame.preCompiled [__CstNameEmpty__ ~ name] = fr;	
 	LReg.lastId = last;
     }
 
@@ -130,17 +149,32 @@ class StructUtils {
     
     static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
 	auto type = cast (StructInfo) _type;
+	string name = Frame.mangle (type.name);
 	if (!_extern) {
-	    auto it = (__CstName__ ~ type.name) in LFrame.preCompiled;
-	    if (it is null) createCstStruct (type.name, type.params);
-	    it = (__DstName__ ~ type.name) in LFrame.preCompiled;
-	    if (it is null) createDstStruct (type.name, type.params);
+	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
+	    if (it is null) createCstStruct (name, type.params);
+	    it = (__DstName__ ~ name) in LFrame.preCompiled;
+	    if (it is null) createDstStruct (name, type.params);
 	}
 	auto inst = new LInstList ();
-	inst += new LConstFunc (__CstName__ ~ type.name);
+	inst += new LConstFunc (__CstName__ ~ name);
 	return inst;
     }
 
+    static LInstList InstCreateCstEmpty (bool _extern) (InfoType _type, Expression, Expression) {
+	auto type = cast (StructInfo) _type;
+	string name = Frame.mangle (type.name);
+	if (!_extern) {
+	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
+	    if (it is null) createCstStruct (name, type.params);
+	    it = (__DstName__ ~ name) in LFrame.preCompiled;
+	    if (it is null) createDstStruct (name, type.params);
+	}
+	auto inst = new LInstList ();
+	inst += new LConstFunc (__CstNameEmpty__ ~ name);
+	return inst;
+    }
+    
     static LInstList InstCall (LInstList llist, Array!LInstList rlist) {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
@@ -153,6 +187,15 @@ class StructUtils {
 	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	return inst;
     }
+
+    static LInstList InstCallEmpty (LInstList llist, Array!LInstList) {
+	auto inst = new LInstList;
+	auto leftExp = llist.getFirst ();
+	Array!LExp params;
+	inst += llist;
+	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
+	return inst;
+    }    
 
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
@@ -296,5 +339,33 @@ class StructUtils {
 	return inst;
     }
     
+    static LInstList GetSizeOf (InfoType, Expression left, Expression) {
+	import semantic.types.StructUtils;
+	auto type = cast (StructInfo) left.info.type;
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	foreach (it ; type.params) {
+	    final switch (it.size.id) {
+	    case LSize.ULONG.id: nbUlong ++; break;
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.UINT.id: nbUint ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.USHORT.id: nbUshort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.UBYTE.id: nbUbyte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }		
+	}
+	auto size = StructUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto list = new LInstList (size);
+	return list;
+    }
+
+    static LInstList SizeOf (LInstList left, LInstList) {
+	return left;
+    }
+
+
     
 }

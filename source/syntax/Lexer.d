@@ -102,9 +102,12 @@ class Lexer {
 	this.next (word);
 	foreach (Token it ; params)
 	    if (word == it.descr) return word;
-	throw new SyntaxError (word, params);
+	string [] need = new string [params.length];
+	foreach (i, it ; params)
+	    need [i] = it.descr;
+	throw new SyntaxError (word, need);
     }
-
+   
     
     /**
      Retour en arriere dans le fichier

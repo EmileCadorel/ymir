@@ -27,14 +27,21 @@ class StructCstInfo : InfoType {
     /** Les types des parametres de la structure*/
     private Array!InfoType _types;
 
+    /** Les templates découvert à la syntaxe */
+    private Array!Var _tmps;
+    
+    /** Les templates utilisé pour la spécilisation */
+    private Array!InfoType _oldTmps;
+    
     /** Le nom des parametres*/
     private Array!string _names;
-
+    
     /** La structure a été importé ?*/
     private bool _extern;
     
-    this (string name) {
+    this (string name, Array!Var tmps) {
 	this._name = name;
+	this._tmps = tmps;
 	this._destruct = &StructUtils.InstDestruct;
     }
 
@@ -54,6 +61,10 @@ class StructCstInfo : InfoType {
 	this._params.insertBack (type);
     }
 
+    bool needCreation () {
+	return this._tmps.length == 0;
+    }
+    
     /**
      Returns: le nom de la structure
      */
@@ -70,10 +81,15 @@ class StructCstInfo : InfoType {
      Returns: une instance de StructInfo
      */
     static InfoType create (Word name, Expression [] templates) {
+	import std.format;
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
 	if (cst is null) assert (false, "Nooooon !!!");
-	if (templates.length != 0) throw new NotATemplate (name);
-	if (cst._types.empty) {
+	if (templates.length != cst._tmps.length)
+	    throw new UndefinedType (name, format("prend %d type en template", cst._tmps.length));
+	if (cst._tmps.length != 0)
+	    return cst.TempOp (make!(Array!Expression) (templates)).emptyCall (name).ret;
+	
+	if (cst._types.empty) {	    	    
 	    foreach (it ; cst._params) {
 		auto printed = false;
 		auto sym = Table.instance.get (it.type.token.str);
@@ -82,8 +98,8 @@ class StructCstInfo : InfoType {
 		    if (_st) {
 			cst._types.insertBack (_st);
 			cst._names.insertBack (it.token.str);
-			printed = true;
-		    }
+			printed = true;			
+		    }		    
 		}
 		if (!printed) {
 		    cst._types.insertBack (it.getType ());
@@ -92,8 +108,63 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	auto ret = cast (StructInfo) StructInfo.create (cst._name, cst._names, cst._types);
+	auto ret = cast (StructInfo) StructInfo.create (cst._name, cst._names, cst._types, cst._oldTmps);
 	ret.isExtern = cst._extern;
+	return ret;
+    }
+
+    private InfoType create (Word name) {
+	if (this._types.empty) {	    	    
+	    foreach (it ; this._params) {
+		auto printed = false;
+		auto sym = Table.instance.get (it.type.token.str);
+		if (sym) {
+		    auto _st = cast (StructCstInfo) (sym.type);
+		    if (_st) {
+			this._types.insertBack (_st.TempOp (it.type.templates));
+			this._names.insertBack (it.token.str);
+			printed = true;			
+		    }		    
+		}
+		if (!printed) {
+		    this._types.insertBack (it.getType ());
+		    this._names.insertBack (it.token.str);
+		}
+	    }
+	}
+	
+	auto ret = cast (StructInfo) StructInfo.create (this._name, this._names, this._types, this._oldTmps);
+	ret.isExtern = this._extern;
+	return ret;
+    }    
+
+    override StructCstInfo TempOp (Array!Expression templates) {
+	import semantic.pack.FrameTable;
+	Array!Expression names, values;
+	Array!InfoType types;
+	string name = this._name;
+	name ~= "!(";
+	foreach (it ; 0 .. this._tmps.length) {
+	    auto type = cast (Type) templates [it];
+	    if (type is null) throw new UseAsType (templates [it].token);
+	    else {
+		names.insertBack (this._tmps [it]);
+		values.insertBack (type);
+		types.insertBack (type.info.type);
+		name ~= type.info.type.typeString;
+		if (it != this._tmps.length - 1)
+		    name ~= ", ";
+	    }
+	}
+	name ~= ")";
+	auto str = FrameTable.instance.existStruct (name);
+	if (str) return str;
+	
+	auto ret = new StructCstInfo (name, make!(Array!Var));
+	ret._oldTmps = types;
+	foreach (it ; this._params) {
+	    ret.addAttrib (cast (TypedVar) it.templateExpReplace (names, values));
+	}
 	return ret;
     }
     
@@ -121,6 +192,20 @@ class StructCstInfo : InfoType {
 	assert (false, "constructeur de structure en param !?!");
     }
 
+    private ApplicationScore emptyCall (Word token) {
+	token.str = this._name;
+	auto ret = this.create (token);
+	ret.lintInstMult = &StructUtils.InstCallEmpty;
+	auto score = new ApplicationScore (token);
+	if (this._extern) 
+	    ret.leftTreatment = &StructUtils.InstCreateCstEmpty!true;
+	else
+	    ret.leftTreatment = &StructUtils.InstCreateCstEmpty!false;
+	score.dyn = true;
+	score.ret = ret;
+	return score;
+    }
+    
     /**
      On utilise la constructeur de la structure pour générer un instance 
      Params:
@@ -128,6 +213,7 @@ class StructCstInfo : InfoType {
      params = les paramètres passé à la structure
      */
     override ApplicationScore CallOp (Word token, ParamList params) {
+	if (params.length == 0) return emptyCall (token);
 	if (params.params.length != this._params.length) {
 	    return null;
 	}
@@ -149,7 +235,7 @@ class StructCstInfo : InfoType {
 	    } else return null;
 	}
 	
-	auto ret = StructInfo.create (this._name, names, types);
+	auto ret = StructInfo.create (this._name, names, types, this._oldTmps);
 	ret.lintInstMult = &StructUtils.InstCall;
 	if (this._extern) 
 	    ret.leftTreatment = &StructUtils.InstCreateCst!true;
@@ -223,8 +309,7 @@ class StructCstInfo : InfoType {
     override void quit (string) {
 	InfoType.removeCreator (this._name);
     }
-    
-    
+      
 }
 
 /**
@@ -237,17 +322,20 @@ class StructInfo : InfoType {
 
     /** Les noms de attributs de la structure */
     private Array!string _attribs;
-
+    
+    private Array!InfoType _tmps;
+    
     /** Le nom de la structure */    
     private string _name;
 
     /** La structure a été importé */
     private bool _extern;
 
-    private this (string name, Array!string names, Array!InfoType params) {
+    private this (string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
 	this._name = name;
 	this._attribs = names;
 	this._params = params;
+	this._tmps = olds;
 	this._destruct = &StructUtils.InstDestruct;
     }
 
@@ -265,8 +353,8 @@ class StructInfo : InfoType {
      names = les noms des attributs
      params = les types des attributs
      */
-    static InfoType create (string name, Array!string names, Array!InfoType params) {
-	return new StructInfo (name, names, params);
+    static InfoType create (string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
+	return new StructInfo (name, names, params, olds);
     }
 
     
@@ -277,6 +365,10 @@ class StructInfo : InfoType {
 	return this._params;
     }
 
+    ref Array!string attribs () {
+	return this._attribs;
+    }
+    
     /**
      Returns: le nom de la structure
      */    
@@ -397,6 +489,7 @@ class StructInfo : InfoType {
 	else if (var.token.str == "nbRef") return nbRef ();
 	else if (var.token.str == "tupleof") return TupleOf ();
 	else if (var.token.str == "ptr") return Ptr ();
+	else if (var.token.str == "sizeof") return SizeOf ();
 	else {
 	    foreach (it ; 0 .. this._attribs.length) {
 		if (var.token.str == this._attribs [it]) {
@@ -472,6 +565,14 @@ class StructInfo : InfoType {
 	ret.lintInst = &StructUtils.InstPtr;
 	return ret;
     }
+
+    private InfoType SizeOf () {
+	import semantic.types.DecimalInfo, ast.Constante;
+	auto ret = new DecimalInfo (DecimalConst.UBYTE);
+	ret.lintInst = &StructUtils.SizeOf;
+	ret.leftTreatment = &StructUtils.GetSizeOf;
+	return ret;
+    }
     
     /**
      surcharge de la propriété typeid.
@@ -504,11 +605,12 @@ class StructInfo : InfoType {
      Accés à un paramètre de la structure.
      */
     private InfoType GetAttrib (ulong nb) {
+	import std.array;
 	auto type = this._params [nb].clone ();
 	if (auto _cst = cast (StructCstInfo) type) {
 	    auto word = Word.eof;
 	    word.str = _cst._name;
-	    type = _cst.create (word, []);
+	    type = _cst.create (word);
 	}
 	type.toGet = nb;
 	type.lintInst = &StructUtils.Attrib;
@@ -561,7 +663,7 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction concervées.
      */
     override InfoType clone () {
-	auto ret = create (this._name, this._attribs, this._params);
+	auto ret = create (this._name, this._attribs, this._params, this._tmps);
 	if (this._destruct is null) ret.setDestruct (null);
 	return ret;
     }
@@ -570,7 +672,7 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction remise à zero.
     */
     override InfoType cloneForParam () {
-	return create (this._name, this._attribs, this._params);
+	return create (this._name, this._attribs, this._params, this._tmps);
     }
 
     /**
@@ -583,6 +685,12 @@ class StructInfo : InfoType {
 	return ret;
     }
 
+    override InfoType getTemplate (ulong id) {
+	if (id < this._tmps.length)
+	    return this._tmps [id];
+	return null;
+    }
+    
     /**
      Returns: la taille en mémoire du type.
      */
