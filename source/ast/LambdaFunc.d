@@ -81,7 +81,7 @@ class LambdaFunc : Expression {
 	if (this._expr) return expressionWithExpr ();	
 	string name = "_YP" ~ Table.instance.namespace () ~ "lambda";
 		
-	Table.instance.enterFrame (name, this._params.length);
+	Table.instance.enterFrame (name, this._params.length, true);
 	Table.instance.enterBlock ();
 	
 	Expression [] temp;

@@ -35,6 +35,8 @@ class Frame {
 
     protected int _currentScore;
         
+    protected bool _isInternal = false;
+
     this (string namespace, Function func) {
 	this._function = func;
 	this._namespace = namespace;
@@ -79,6 +81,10 @@ class Frame {
 
     ref int currentScore () {
 	return this._currentScore;
+    }
+
+    ref bool isInternal () {
+	return this._isInternal;
     }
     
     /**

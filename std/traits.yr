@@ -33,3 +33,7 @@ def isArray (T) () {
     return (slice!(T.typeid, 0UL, 5UL)() == "yarra");
 }
 
+def isPrimitive (T) () {
+    return !is (T : string) && !isArray!(T) () && !isTuple!(T) () && !is (T : struct);
+}
+

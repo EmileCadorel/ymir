@@ -1,5 +1,6 @@
 import std.stdio;
 
+
 def pipe (ref a : [int]) : int {
     extern (C) pipe (a : ptr!int) : int;
     import std.stdio;
@@ -11,9 +12,10 @@ def pipe (ref a : [int]) : int {
 
 extern (C) close (a : int);
 extern (C) open (a : int);
+extern (C) read (a : int, msg : ptr!void, len : int);
+extern (C) write (a : int, msg : ptr!void, len : int);
 
 def read (desc : int, ref msg : string) {
-    extern (C) read (a : int, msg : ptr!void, len : int);
     let len = 0UL;
     read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
     if (len == 0UL) msg = null;
@@ -23,7 +25,6 @@ def read (desc : int, ref msg : string) {
 }
 
 def read (T) (desc : int, ref msg : [T]) {
-    extern (C) read (a : int, msg : ptr!void, len : int);
     let len = 0UL;
     read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
     if (len == 0UL) msg = null;
@@ -42,7 +43,6 @@ def read if (!is (T : string) && !is (T : struct) && !isArray!(T)())
     }
 
 def write (desc : int, msg : string) {
-    extern (C) write (a : int, msg : ptr!void, len : int);
     let len = msg.length;
     write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
     if len != 0UL
@@ -50,7 +50,6 @@ def write (desc : int, msg : string) {
 }
 
 def write (T) (desc : int, msg : [T]) {
-    extern (C) write (a : int, msg : ptr!void, len : int);
     let len = msg.length;
     write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
     if len != 0UL

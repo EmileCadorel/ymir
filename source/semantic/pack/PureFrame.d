@@ -67,7 +67,7 @@ class PureFrame : Frame {
 		name = "_YN" ~ to!string (name.length) ~ name;
 	    }
 	    
-	    Table.instance.enterFrame (name, this._function.params.length);
+	    Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	    Table.instance.enterBlock ();
 	    
 	    Array!Var finalParams;

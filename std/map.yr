@@ -1,0 +1,103 @@
+import std.stdio;
+public import std.traits;
+
+struct (K, V)
+| key : K
+| value : V
+| left : MapEntry!(K, V)
+| right : MapEntry!(K, V)
+-> MapEntry;
+
+def map (K, V) () : MapEntry !(K, V) {
+    return null;
+}
+
+def opIndex if (isPrimitive!(V)())
+    (K, V) (ref mp : MapEntry!(K, V), key : K) : ref V {	
+	def find (ref mp : MapEntry!(K, V), key : K) : ref V {
+	    if (mp is null) {
+		mp = MapEntry!(K, V) (key, V.init, null, null);
+		return mp.value;
+	    } else if (key == mp.key) return mp.value;
+	    else if (key < mp.key) return find (mp.left, key);
+	    else return find (mp.right, key);
+	}
+
+	if (mp is null) {
+	    mp = MapEntry!(K, V) (key, V.init, null, null);
+	    return mp.value;
+	} else if (key == mp.key) return mp.value;    
+	else if (key < mp.key) return find (mp.left, key);
+	else return find (mp.right, key);
+    }
+
+
+def opIndex if (!isPrimitive!(V)())
+    (K, V) (ref mp : MapEntry!(K, V), key : K) : ref V {	
+	def find (ref mp : MapEntry!(K, V), key : K) : ref V {
+	    if (mp is null) {
+		mp = MapEntry!(K, V) (key, null, null, null);
+		return mp.value;
+	    } else if (key == mp.key) return mp.value;
+	    else if (key < mp.key) return find (mp.left, key);
+	    else return find (mp.right, key);
+	}
+
+	if (mp is null) {
+	    mp = MapEntry!(K, V) (key, null, null, null);
+	    return mp.value;
+	} else if (key == mp.key) return mp.value;    
+	else if (key < mp.key) return find (mp.left, key);
+	else return find (mp.right, key);
+    }
+
+def insert (K, V) (ref mp : MapEntry!(K, V), key : K, value : V) : void {
+    if (mp is null) {
+	mp = MapEntry!(K, V) (key, value, null, null);
+    } else if (key < mp.key) {
+	mp.left.insert (key, value);
+    } else 
+	mp.right.insert (key, value);
+}
+
+def keys (K, V) (mp : MapEntry!(K, V)) : [K] {
+    if (mp is null) return [K; 0U];
+    else {
+	let ret = [mp.key];
+	if (mp.left !is null) ret = keys (mp.left) + ret;
+	if (mp.right !is null) ret = ret + keys (mp.right);
+	return ret;
+    }
+}
+
+def printAll (K, V) (mp : MapEntry!(K, V)) : void {
+    if (mp !is null) {
+	if (mp.left !is null) {
+	    printAll (mp.left);
+	    print (', ');
+	}
+	
+	print (mp.key, ' : ', mp.value);
+	if (mp.right !is null) {
+	    print (', ');
+	    printAll (mp.right);
+	}
+    }
+}
+
+def print (K, V) (mp : MapEntry!(K, V)) {    
+    print ("[");
+    printAll (mp);
+    print ("]");
+}
+
+def find (K, V) (ref mp : MapEntry!(K, V), key : K) : ptr!V {
+    if (mp is null) return null;
+    else if (key == mp.key) return &mp.value;
+    else if (key < mp.key) return find (mp.left, key);
+    else return find (mp.right, key);
+}
+
+def opBinary ('in', K, V) (key : K, mp : MapEntry!(K, V)) : ptr!V {    
+    return find (mp, key);    
+}

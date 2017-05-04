@@ -53,9 +53,10 @@ class Block : Instruction {
 	Array!Instruction insts;
 	auto error = 0;
 	auto block = new Block (this._token, make!(Array!Declaration), insts);
+	
 	//On declare tous les elements internes au block
 	foreach (it ; this._decls) {
-	    it.declare ();
+	    it.declareAsInternal ();
 	}
 
 	foreach (it ; this._insts) {

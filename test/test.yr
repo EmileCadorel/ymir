@@ -1,44 +1,17 @@
 import std.stdio;
-import std.conv;
+import std.map;
 
-struct (K, V)
-| key : K
-| value : V
-| left : MapEntry!(K, V)
-| right : MapEntry!(K, V)
--> MapEntry;
-
-def map (K, V) () {
-    return MapEntry!(K, V) ();
-}
-
-def find (K, V) (mp : MapEntry!(K, V), key : K) : V {
-    if (mp is null) return null;
-    else if (key == mp.key) return mp.value;
-    else if (key < mp.key) return find (mp.left, key);
-    else return find (mp.right, key);
-}
-
-def opIndex (K, V) (mp : MapEntry!(K, V), key : K) : V {
-    return find (mp, key);
-}
-
-def insert (K, V) (ref mp : MapEntry!(K, V), key : K, value : V) : void {
-    if (mp is null) {
-	mp = MapEntry!(K, V) (key, value, null, null);
-    } else if (key < mp.key) {
-	mp.left.insert (key, value);
-    } else
-	mp.right.insert (key, value);
-}
 
 
 
 def main () {
-    let assoc = map!(int, string) ();
-    assoc.insert (1, "salut");
-
-    println (assoc [1]);
+    let a = map!(string, int) ();
+    a ["salut"] = 10;
+    let b = "salut" in a;
+    *b = 123;
+    
+    println (a);
+    
 }
 
 

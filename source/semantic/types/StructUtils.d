@@ -121,9 +121,14 @@ class StructUtils {
 	    case LSize.FLOAT.id: nbFloat ++; break;
 	    case LSize.DOUBLE.id: nbDouble ++; break;
 	    }
+
 	    
 	    auto left = (new LRegRead (retReg, size, it.size));
-	    interne += new LWrite (left, new LConstDecimal (0, it.size));	    
+	    if (it.size != LSize.FLOAT && it.size != LSize.DOUBLE)
+		interne += new LWrite (left, new LConstDecimal (0, it.size));
+	    else
+		interne += new LWrite (left, new LConstDouble (0));
+	    
 	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 	

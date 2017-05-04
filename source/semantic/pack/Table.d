@@ -61,9 +61,9 @@ class Table {
      */
     void setCurrentSpace (string space) {
 	if (!this._frameTable.empty) 
-	    this._frameTable.front ().namespace = space;
+	    this._frameTable.front ().namespace = space;	
 	else
-	    this._namespace = space;
+	    this._namespace = space;	
     }
 
     /**
@@ -72,9 +72,9 @@ class Table {
      space = le contexte de la frame.
      nbParam = le nombre de paramètre de la frame.
      */
-    void enterFrame (string space, ulong nbParam) {
+    void enterFrame (string space, ulong nbParam, bool internal) {
 	Symbol.insertLast (nbParam);
-	this._frameTable.insertFront (new FrameScope (space));
+	this._frameTable.insertFront (new FrameScope (space, internal));
     }
 
     /**
@@ -160,8 +160,14 @@ class Table {
      Returns: le symbole ou null
      */
     Symbol get (string name) {
-	if (this._frameTable.empty) return this._globalScope [name];
+	if (this._frameTable.empty) return this._globalScope [name];	
 	auto ret = this._frameTable.front [name];
+	if (ret is null && this._frameTable.front.isInternal) {
+	    auto aux = this._frameTable.front;
+	    this._frameTable.removeFront ();
+	    ret = this._frameTable.front [name];
+	    this._frameTable.insertFront (aux);
+	}
 	if (ret is null) return this._globalScope [name];
 	return ret;
     }
@@ -223,6 +229,13 @@ class Table {
     bool wasImported (string name) {
 	if (this._frameTable.empty) return this._globalScope.wasImported (name);
 	else if (this._frameTable.front.wasImported (name)) return true;
+	else if (this._frameTable.front.isInternal) {
+	    auto aux = this._frameTable.front;
+	    this._frameTable.removeFront ();
+	    auto ret = this._frameTable.front.wasImported (name);
+	    this._frameTable.insertFront (aux);
+	    if (ret) return true;
+	}
 	return this._globalScope.wasImported (name);
     }
     

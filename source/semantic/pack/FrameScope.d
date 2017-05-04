@@ -27,7 +27,7 @@ class TreeInfo {
 
     /** Le pere du block courant (peut être null) */
     private TreeInfo _father;
-
+    
     this (string name) {
 	this._name = name;
     }
@@ -83,7 +83,7 @@ class TreeInfo {
     string name () {
 	return this._name;
     }
-
+    
     /** 
      Un nouveau block est declaré
      Params:
@@ -371,9 +371,12 @@ class FrameScope {
     /** Le contexte de la frame */
     private string _namespace;
 
-    this (string namespace) {
+    bool _isInternal;
+    
+    this (string namespace, bool isInternal) {
 	this._retInfo.currentBlock = "";
 	this._namespace = namespace;
+	this._isInternal = isInternal;
 	this.enterBlock ();
     }
     
@@ -399,6 +402,9 @@ class FrameScope {
 	return false;
     }
 
+    ref bool isInternal () {
+	return this._isInternal;
+    }    
     
     /**
      On quitte le scope

@@ -97,7 +97,7 @@ class ExternFrame : Frame {
 	    name = "_YN" ~ to!string (name.length) ~ name;
 	}
 	
-	Table.instance.enterFrame (name, this._proto.params.length);
+	Table.instance.enterFrame (name, this._proto.params.length, this._isInternal);
 
 	Array!Var finalParams;
 	foreach (it ; 0 .. this._proto.params.length) {
@@ -132,7 +132,7 @@ class ExternFrame : Frame {
 	string name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
-	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Array!Var finalParams;
 	foreach (it ; 0 .. this._function.params.length) {
 	    auto info = this._function.params [it].expression;

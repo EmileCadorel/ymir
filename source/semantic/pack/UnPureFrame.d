@@ -80,7 +80,7 @@ class UnPureFrame : Frame {
 	string un = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
-	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
 	Array!Var finalParams;
@@ -149,7 +149,7 @@ class UnPureFrame : Frame {
 	string un = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
 	string name = Table.instance.namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
 	name = "_YN" ~ to!string (name.length) ~ name;
-	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
 	Array!Var finalParams;

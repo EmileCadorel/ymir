@@ -24,6 +24,13 @@ class Declaration {
     void declareAsExtern () {}
 
     /**
+     Fonction a surcharge pour se déclarer à l'interieur d'un block.
+     */
+    void declareAsInternal () {
+	declare ();
+    }
+    
+    /**
      Returns: la declaration est publique.
      */
     bool isPublic () {

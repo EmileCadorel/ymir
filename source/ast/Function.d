@@ -118,7 +118,32 @@ class Function : Declaration {
 	}
     }
 
+    /**
+     Declare la fonction dans la table de symbol après vérification.
+     Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.
+     Throws: ShadowingVar
+     */
+    override void declareAsInternal () {
+	Frame fr = verifyPure ();
+	fr.isInternal = true;
+	auto space = Table.instance.namespace ();
 
+	auto it = Table.instance.get (this._ident.str);
+	if (it !is null) {
+	    auto fun = cast (FunctionInfo) it.type;
+	    if (fun is null) {
+		throw new ShadowingVar (this._ident, it.sym);
+	    }
+	    fun.insert (fr);
+	    Table.instance.insert (it);
+	} else {
+	    auto fun = new FunctionInfo (this._ident.str, space);
+	    fun.insert (fr);
+	    Table.instance.insert (new Symbol (this._ident, fun, true));
+	}    
+    }
+
+       
     /**
      Declare une fonction dans la table des symboles après vérification.
      Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.

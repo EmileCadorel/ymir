@@ -328,7 +328,7 @@ class TemplateFrame : Frame {
 	
 	name = "_YN" ~ to!string (name.length) ~ name;
 	
-	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
 	Array!Expression types;	
@@ -433,7 +433,7 @@ class TemplateFrame : Frame {
 	    un = this._namespace ~ to!string (un.length) ~ un;
 	    name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
 	
-	    Table.instance.enterFrame (name, this._function.params.length);
+	    Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	    Table.instance.enterBlock ();
 	    Table.instance.setCurrentSpace (simpleName);
 			
@@ -489,7 +489,7 @@ class TemplateFrame : Frame {
 	un = this._namespace ~ to!string (un.length) ~ un;
 	name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
 	
-	Table.instance.enterFrame (name, this._function.params.length);
+	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	Table.instance.setCurrentSpace (simpleName);
 		

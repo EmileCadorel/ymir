@@ -89,7 +89,8 @@ class LConstFloat : LConst {
     private float _value;
     
     this (float value) {
-	this._value = value;
+	assert (false);
+	//this._value = value;
     }
 
     override LSize size () {

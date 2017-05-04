@@ -57,11 +57,6 @@ class Access : Expression {
 	    if (!call)
 		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	    else {
-		foreach (it ; aux._params.params)
-		    writeln (it.info.type.typeString);
-		foreach (it; (cast(Par)call).score.treat) {
-		    writeln (it.typeString);
-		}
 		//call.garbage ();
 		return call;
 	    }

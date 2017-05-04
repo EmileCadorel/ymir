@@ -218,7 +218,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList FloatInit (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (0.0f));
+	return new LInstList (new LConstDouble (0.0f));
     }
 
     /**
@@ -226,7 +226,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Max (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.max));
+	return new LInstList (new LConstDouble (double.max));
     }
 
     /**
@@ -234,7 +234,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Min (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.min_normal));
+	return new LInstList (new LConstDouble (double.min_normal));
     }
 
     /**
@@ -242,7 +242,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Nan (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.nan));
+	return new LInstList (new LConstDouble (double.nan));
     }
 
     /**
@@ -250,7 +250,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Dig (LInstList, LInstList) {
-	return new LInstList (new LConstDecimal (float.dig, LSize.INT));
+	return new LInstList (new LConstDecimal (double.dig, LSize.INT));
     }
 
     /**
@@ -258,7 +258,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Epsilon (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.epsilon));
+	return new LInstList (new LConstDouble (double.epsilon));
     }
 
     /**
@@ -266,7 +266,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList MantDig (LInstList, LInstList) {
-	return new LInstList (new LConstDecimal (float.mant_dig, LSize.INT));
+	return new LInstList (new LConstDecimal (double.mant_dig, LSize.INT));
     }
 
     /**
@@ -274,7 +274,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
     */
     static LInstList Max10Exp (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.max_10_exp));
+	return new LInstList (new LConstDouble (double.max_10_exp));
     }
 
     /**
@@ -282,7 +282,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList MaxExp (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.max_exp));
+	return new LInstList (new LConstDouble (double.max_exp));
     }
 
     /**
@@ -290,7 +290,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Min10Exp (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.min_10_exp));
+	return new LInstList (new LConstDouble (double.min_10_exp));
     }
 
     /**
@@ -298,7 +298,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList MinExp (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.min_exp));
+	return new LInstList (new LConstDouble (double.min_exp));
     }
 
     /**
@@ -306,7 +306,7 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Inf (LInstList, LInstList) {
-	return new LInstList (new LConstFloat (float.infinity));
+	return new LInstList (new LConstDouble (double.infinity));
     }
 
     /**
