@@ -422,9 +422,9 @@ class LVisitor {
 		list += rlist;
 	    }
 	    
-	    if (!ret.instCast.type.isSame (ret.elem.info.type)) {		
-		for (long nb = ret.instCast.type.lintInstS.length - 1; nb >= 0; nb --) {
-		    list += ret.instCast.type.lintInst (list, nb);		
+	    if (ret.instCast && !ret.instCast.isSame (ret.elem.info.type)) {		
+		for (long nb = ret.instCast.lintInstS.length - 1; nb >= 0; nb --) {
+		    list += ret.instCast.lintInst (list, nb);		
 		}
 	    }
 	    list += (new LWrite (retReg,  list.getFirst ()));	    

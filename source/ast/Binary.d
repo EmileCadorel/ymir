@@ -219,7 +219,10 @@ class Binary : Expression {
 		bin.info = new Symbol (aux._token, bin.left.info.type.BinaryOp (this._token, bin.right));
 		return bin;
 	    } else return null;
-	} catch (YmirException) {
+	} catch (YmirException exp) {
+	    debug {
+		exp.print ();
+	    }
 	    return null;
 	}
     }

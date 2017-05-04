@@ -121,15 +121,7 @@ class TemplateFrame : Frame {
     
     private Var typeIt (Var name, InfoType type, Array!Expression args, InfoType [] tmps) {
 	if (type is null) return null;
-	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);
-	else if (name.token.str == "ref" && !cast (RefInfo) type) {
-	    if (name.templates.length != 1) return null;
-	    auto typed = typeIt (name.templates [0], type, args, tmps);
-	    if (!typed) return null;
-	    this._currentScore += CHANGE;
-	    return new Var (name.token, make!(Array!Expression) (typed));
-	}
-	
+	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);		
 	
 	Array!Expression params;
 	foreach (it ; 0 .. name.templates.length) {
@@ -153,7 +145,7 @@ class TemplateFrame : Frame {
 		    this._changed = true;
 		}
 		this._currentScore += CHANGE;
-		return new Type (name.token, type.clone ());
+		return new Type (name.token, tmps [it].clone ());
 	    }	    
 	}
 	
@@ -257,7 +249,7 @@ class TemplateFrame : Frame {
 		if (auto tvar = cast (TypedVar) param) {
 		    this._changed = false;
 		    if (tvar.type) {
-			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, tmps);			
+			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, tmps);
 			if (tmp is null) return null;
 			if (tvar.deco == Keys.REF) info = new RefInfo (tmp.asType ().info.type.clone ());
 			else info = tmp.asType ().info.type.clone ();
@@ -267,6 +259,7 @@ class TemplateFrame : Frame {
 			if (tvar.deco == Keys.REF)  info = new RefInfo (tmp.expression.info.type.clone ());
 			else info = tmp.expression.info.type.clone ();
 		    }
+		    
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
 			score.score += this._changed ? CHANGE : SAME;

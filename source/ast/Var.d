@@ -105,6 +105,9 @@ class Var : Expression {
 		auto clo = values [it].clone ();
 		/*if (!cast (Decimal) clo)
 		 clo.token = this._token;*/
+		if (auto v = cast (Var) clo) {
+		    v.deco = this._deco;
+		}
 		return clo;
 	    }
 	}
@@ -114,7 +117,9 @@ class Var : Expression {
 	    tmps.insertBack (it.templateExpReplace (names, values));
 
 	
-	return new Var (this._token, tmps);
+	auto ret =  new Var (this._token, tmps);
+	ret.deco = this._deco;
+	return ret;
     }
     
     /**
@@ -159,8 +164,11 @@ class Var : Expression {
 	    if (en !is null) {
 		if (auto encst = cast (EnumCstInfo) en.type) {
 		    auto type = encst.type;
-		    if (type) 
-			return new Type (this._token, type.clone ());		    
+		    if (type) {
+			if (this._deco == Keys.REF) 
+			    return new Type (this._token, new RefInfo (type.clone ()));
+			else return new Type (this._token, type.clone ());
+		    }
 		}		    
 	    }
 	    throw new UseAsType (this._token);
@@ -171,6 +179,8 @@ class Var : Expression {
 		temp.insertBack (it.expression);
 	    }
 	    auto t_info = InfoType.factory (this._token, temp.array ());
+	    if (this._deco == Keys.REF)
+		t_info = new RefInfo (t_info);
 	    return new Type (this._token, t_info);
 	}
     }
@@ -189,7 +199,7 @@ class Var : Expression {
 	return this._templates;
     }
 
-    Word deco () {
+    ref Word deco () {
 	return this._deco;
     }
     
@@ -199,6 +209,7 @@ class Var : Expression {
 	    tmps.insertBack (it.clone ());
 	auto res = new Var (this._token, tmps);
 	res.info = this._info;
+	res.deco = this._deco;
 	return res;
     }
     
@@ -467,13 +478,17 @@ class Type : Var {
     }
 
     override Type clone () {
-	return new Type (this._token, this._info.type.clone ());
+	auto ret = new Type (this._token, this._info.type.clone ());
+	ret.deco = this._deco;
+	return ret;
     }
     
     /**
      Returns: 'this'
      */
     override Type asType () {
+	if (this._deco == Keys.REF && !cast(RefInfo) this._info.type)
+	    return new Type (this._token, new RefInfo (this._info.type));
 	return this;
     }
     

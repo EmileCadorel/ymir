@@ -5,6 +5,7 @@ import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import semantic.pack.Table;
+import ast.Par, syntax.Keys;
 
 /**
  Classe généré par la syntaxe.
@@ -12,7 +13,6 @@ import semantic.pack.Table;
  ---
  expression '[' ParamList ']'
  ---
-
 */
 class Access : Expression {
     
@@ -57,6 +57,11 @@ class Access : Expression {
 	    if (!call)
 		throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 	    else {
+		foreach (it ; aux._params.params)
+		    writeln (it.info.type.typeString);
+		foreach (it; (cast(Par)call).score.treat) {
+		    writeln (it.typeString);
+		}
 		//call.garbage ();
 		return call;
 	    }
@@ -66,7 +71,6 @@ class Access : Expression {
     }
 
     auto findOpAccess (Access aux) {
-	import ast.Par, syntax.Keys;
 	aux.removeGarbage ();
 	try {	    
 	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);

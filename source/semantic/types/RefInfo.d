@@ -179,7 +179,7 @@ class RefInfo : InfoType {
      var = l'attribut demandé.
      Returns: le type résultat ou null.
     */
-    override InfoType DotOp (Var var) {
+    override InfoType DotOp (Var var) {	
 	auto aux = this._content.DotOp (var);
 	if (aux !is null) {
 	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));

@@ -23,7 +23,7 @@ class Return : Instruction {
     private Expression _elem; 
 
      /// L'information de cast du type à retourner (peut être null)
-    private Symbol _instCast;
+    private InfoType _instCast;
 
     /// l'information de pre-traitement avant de retourner l'instruction (peut être null)
     private InfoType _instComp; 
@@ -48,7 +48,6 @@ class Return : Instruction {
     override Instruction instruction () {
 	auto aux = new Return (this._token);
 	Table.instance.retInfo.returned ();
-	aux._instCast = Table.instance.retInfo.info;		
 	if (this._elem !is null) {
 	    aux._elem = this._elem.expression ();
 	    if (cast (VoidInfo) aux._elem.info.type)
@@ -61,16 +60,7 @@ class Return : Instruction {
 		} else Table.instance.retInfo.info.type.value = null;
 	    } else {
 		auto type = aux._elem.info.type.CompOp (Table.instance.retInfo.info.type);
-
-		if (cast (RefInfo) (Table.instance.retInfo.info.type) && !cast (RefInfo) aux._elem.info.type && type) {
-		    Warning.instance.warning_at (this._token.locus,
-						 "Retourne un référence local '%s%s%s'",
-						 Colors.YELLOW.value,
-						 aux._elem.token.str,
-						 Colors.RESET.value
-		    );
-		}		
-
+		aux._instCast = type;
 		if (!type) 
 		    throw new IncompatibleTypes (this._token.locus,
 						 aux._elem.info,
@@ -82,7 +72,7 @@ class Return : Instruction {
 			Table.instance.retInfo.info.type.value = aux._elem.info.value;
 		    else Table.instance.retInfo.info.type.value = null;
 		    Table.instance.retInfo.changed = true;
-		}
+		}		
 	    }
 	} else {
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) is null &&
@@ -118,7 +108,7 @@ class Return : Instruction {
     /**
      Returns: le caster de l'expression (peut être null)
      */
-    Symbol instCast () {
+    InfoType instCast () {
 	return this._instCast;
     }
 

@@ -301,7 +301,13 @@ class Visitor {
 	} else throw new SyntaxError (word, [Tokens.LPAR.descr]);
 	
 	if (word == Tokens.COLON) {
+	    auto deco = this._lex.next ();
+	    if (deco != Keys.REF) {
+		deco = Word.eof;
+		this._lex.rewind ();
+	    }
 	    auto type = visitType ();
+	    type.deco = deco;
 	    return new Function (ident, type, exps, temps, test, visitBlock ());
 	} else _lex.rewind ();	
 	return new Function (ident, exps, temps, test, visitBlock ());

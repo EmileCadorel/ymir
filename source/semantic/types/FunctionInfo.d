@@ -134,7 +134,7 @@ class FunctionInfo : InfoType {
 	try {
 	    foreach (it ; 0 .. this._infos.length)
 		total.insertBack (this._infos[it].isApplicable (params));
-	    
+
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
 	    foreach (it ; 0 .. total.length) {
