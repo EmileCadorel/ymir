@@ -91,19 +91,47 @@ class StructUtils {
 	fr.isStd = false;
 	LFrame.preCompiled [__CstName__ ~ name] = fr;	
 	LReg.lastId = last;
-	createSimpleCstStruct (name, size, params);
+	createSimpleCstStruct (name, params);
     }
     
-    static void createSimpleCstStruct (string name, LBinop size, Array!InfoType params) {
+    static void createSimpleCstStruct (string name, Array!InfoType params) {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
 	Array!LReg regs;
 	auto retReg = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel;
+	auto interne = new LInstList;
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+
+	Word aff = Word.eof;
+	aff.str = Tokens.EQUAL.descr;
+	auto var = new Var (aff);
+	var.info = new Symbol (false, aff, new UndefInfo);
+	foreach (it ; params) {
+	    final switch (it.size.id) {
+	    case LSize.ULONG.id: nbUlong ++; break;
+	    case LSize.LONG.id: nbLong ++; break;
+	    case LSize.INT.id: nbInt ++; break;
+	    case LSize.UINT.id: nbUint ++; break;
+	    case LSize.SHORT.id: nbShort ++; break;
+	    case LSize.USHORT.id: nbUshort ++; break;
+	    case LSize.BYTE.id: nbByte ++; break;
+	    case LSize.UBYTE.id: nbUbyte ++; break;
+	    case LSize.FLOAT.id: nbFloat ++; break;
+	    case LSize.DOUBLE.id: nbDouble ++; break;
+	    }
+	    
+	    auto left = (new LRegRead (retReg, size, it.size));
+	    interne += new LWrite (left, new LConstDecimal (0, it.size));	    
+	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	}
+	
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
 				   new LConstDecimal (1, LSize.LONG));
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
+	entry.insts += interne;
 	
 	auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
@@ -262,11 +290,16 @@ class StructUtils {
     }
 
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
-	auto type = cast (StructInfo) (left.info.type);	
+	import semantic.types.RefInfo;
+	auto _ref = cast (RefInfo) (left.info.type);
+	auto type = cast (StructInfo) (left.info.type);
+	if (_ref) {
+	    type = cast (StructInfo) _ref.content;
+	}
 	auto inst = new LInstList;
 
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	foreach (it ; 0 .. ret.toGet) {	    
+	foreach (it ; 0 .. ret.toGet) {
 	    final switch (type.params [it].size.id) {
 	    case LSize.LONG.id: nbLong ++; break;
 	    case LSize.ULONG.id: nbUlong ++; break;
