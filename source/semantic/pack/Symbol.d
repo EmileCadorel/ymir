@@ -119,6 +119,12 @@ class Symbol {
     bool isStatic () {
 	return this._staticValue !is null;
     }
+
+    bool isType () {
+	if (this._type)
+	    return this._type.isType;
+	return false;
+    }
     
     ref Value staticValue () {
 	return this._staticValue;

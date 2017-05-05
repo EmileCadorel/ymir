@@ -87,5 +87,28 @@ class TupleUtils {
 	return left;
     }
 
+    static LInstList InstCreateCstEmpty (InfoType _type, Expression _tuple, Expression) {
+	import semantic.pack.Frame, semantic.types.StructUtils;
+	
+	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _type.simpleTypeString ());
+	auto type = cast(TupleInfo) _type;
+	auto it = (StructUtils.__CstName__ ~ tupleName) in LFrame.preCompiled;
+	if (it is null) StructUtils.createCstStruct (tupleName, type.params);
+	it = (StructUtils.__DstName__ ~ tupleName) in LFrame.preCompiled;
+	if (it is null) StructUtils.createDstStruct (tupleName, type.params);
+	
+	return new LInstList (new LConstFunc (StructUtils.__CstNameEmpty__ ~ tupleName));
+    }
+
+    static LInstList InstCallEmpty (LInstList llist, LInstList) {
+	auto inst = new LInstList ();
+	auto leftExp = llist.getFirst ();
+	Array!LExp params;
+	inst += llist;
+	inst += new LCall ((cast(LConstFunc) leftExp).name, params, LSize.LONG);
+	return inst;
+    }
+
+    
 
 }

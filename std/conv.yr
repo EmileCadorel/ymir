@@ -98,14 +98,23 @@ def to if (isDecimal!(T)() && isDecimal!(T2) ())
 
 def to if (is (T : string))
     (T, T2) (elem : [T2]) {
-	let ret = "[";
-	for (it in 0UL .. elem.length) {
-	    ret += to!(string) (elem [it]);
-	    if (it != elem.length - 1UL)
-		ret += ", ";
-	}	
-	ret += "]";
-	return ret;
+	if (elem is null) return 'null';
+	else {
+	    let ret = "[";
+	    for (it in 0UL .. elem.length) {
+		ret += to!(string) (elem [it]);
+		if (it != elem.length - 1UL)
+		    ret += ", ";
+	    }	
+	    ret += "]";
+	    return ret;
+	}
+    }
+
+def to if (is (T : string))
+    (T) (elem : T) {
+	if (elem is null) return 'null';
+	else return elem;
     }
 
 def addTupleComa if (!isTuple!(T)())
@@ -113,11 +122,15 @@ def addTupleComa if (!isTuple!(T)())
 	return to!(string) (left);
     }
 
-def addTupleComa (T, T2) (left : T, elem : T2) : string {
-    if (elem !is null)
-	return to!(string)(left) + ", " + addTupleComa (expand (elem));
-    else
-	return to!(string)(left) + ", null";
+def addTupleComa (T) (left : T, elem) : string {
+    static if (!isPrimitive!(typeof (elem))() && !isTuple!(typeof (elem))()) {
+	if (elem !is null)
+	    return to!(string)(left) + ", " + addTupleComa (expand (elem));
+	else
+	    return to!(string)(left) + ", null";
+    } else {
+	return to!(string) (left) + ", " + addTupleComa (expand (elem));
+    }
 }
 
 def to if (is (T : string) && isTuple!(T2) ())

@@ -12,8 +12,7 @@ import semantic.types.StringInfo;
 class TupleInfo : InfoType {
     
     /** Les paramètres du tuple */
-    private Array!InfoType _params;
-
+    private Array!InfoType _params;    
 
     this () {
 	this._destruct = &StructUtils.InstDestruct;
@@ -80,6 +79,7 @@ class TupleInfo : InfoType {
      Returns: le type résultat ou null.
      */    
     private InfoType AffectRight (Expression left) {
+	if (this._isType) return null;
 	if (cast (UndefInfo) left.info.type) {
 	    auto ret = new TupleInfo ();
 	    foreach (it ; this._params) {
@@ -92,6 +92,7 @@ class TupleInfo : InfoType {
     }
 
     override InfoType CompOp (InfoType other) {
+	if (this._isType) return null;
 	if (other.isSame (this) || cast (UndefInfo) other) {
 	    auto tu = this.clone ();
 	    tu.lintInst = &TupleUtils.InstAffectRight;
@@ -102,10 +103,11 @@ class TupleInfo : InfoType {
     
     override string typeString () {
 	auto name = "tuple(";
+	if (this._isType) name = "tuple!(";
 	foreach (it ; this._params) {
-	    if (auto _st = cast (TupleInfo) it)
+	    if (auto _st = cast (TupleInfo) it) {
 		name ~= "tuple(...)";
-	    else name ~= it.typeString ();
+	    } else name ~= it.typeString ();
 	    if (it !is this._params [$ - 1]) name ~= ", ";	    
 	}
 	name ~= ")";
@@ -120,13 +122,14 @@ class TupleInfo : InfoType {
 	return name ~ "_";
     }
     
-    override InfoType clone () {
+    override TupleInfo clone () {
 	auto tu = new TupleInfo ();
 	foreach (it; this._params) {
 	    tu._params .insertBack (it.clone ());
 	}
 	if (this._destruct is null) tu.setDestruct (null);
 	tu.value = this._value;
+	tu._isType = this._isType;
 	return tu;
     }
 
@@ -154,6 +157,7 @@ class TupleInfo : InfoType {
 	if (var.token.str == "typeid") return StringOf ();
 	else if (var.token.str == "sizeof") return SizeOf ();
 	else if (var.token.str == "ptr") return Ptr ();
+	else if (var.token.str == "empty") return Empty ();
 	return null;
     }
    
@@ -183,12 +187,21 @@ class TupleInfo : InfoType {
 	return ret;
     }
 
+    private InfoType Empty () {
+	auto ret = this.clone ();
+	ret._isType = false;
+	ret.lintInst = &TupleUtils.InstCallEmpty;
+	ret.leftTreatment = &TupleUtils.InstCreateCstEmpty;
+	return ret;
+    }
+    
     override InfoType destruct () {
-	if (this._destruct is null) return null;
+	if (this._destruct is null || this._isType) return null;
 	auto ret = this.clone ();
 	ret.setDestruct (this._destruct);
 	return ret;
     }
+
 
     override LSize size () {
 	return LSize.LONG;

@@ -33,7 +33,8 @@ class BefUnary : Expression {
     override Expression expression () {
 	if (this._info is null) {
 	    auto aux = new BefUnary (this._token, this._elem.expression);
-	    if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
+	    if (cast (Type) aux._elem !is null) throw new UseAsVar (aux._elem.token, aux._elem.info);
+	    if (aux._elem.info.isType) throw new UseAsVar (aux._elem.token, aux._elem.info);
 	    if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	    auto type = aux._elem.info.type.UnaryOp (this._token);
 	    if (type is null) {
@@ -149,7 +150,9 @@ class AfUnary : Expression {
      */
     override Expression expression () {
 	auto aux = new BefUnary (this._token, this._elem.expression);
-	if (cast (Type) aux._elem !is null) throw new UndefinedVar (aux._elem.token, Table.instance.getAlike (aux._elem.token.str));
+	if (cast (Type) aux._elem !is null) throw new UseAsVar (aux._elem.token, aux._elem.info);
+	if (aux._elem.info.isType) throw new UseAsVar (aux._elem.token, aux._elem.info);
+	
 	if (cast (UndefInfo) aux._elem.info.type !is null) throw new UninitVar (aux._elem.token);
 	auto type = aux._elem.info.type.UnaryOp (this._token);
 	if (type is null) {

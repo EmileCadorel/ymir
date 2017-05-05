@@ -864,7 +864,7 @@ class LVisitor {
 		left = dot.info.type.lintInst (left, nb);
 	    }
 	}
-	
+
 	auto inst = dot.info.type.lintInst (exprs, left);
 	if (dot.info.isDestructible) {
 	    auto sym = new LReg (dot.info.id, dot.info.type.size);

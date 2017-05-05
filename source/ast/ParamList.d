@@ -49,6 +49,8 @@ class ParamList : Expression {
 		    throw new UninitVar (aux._params.back.token);
 		else if (cast (Type) aux._params.back ())
 		    throw new UseAsVar (aux._params.back().token, aux._params.back ().info);
+		else if (aux._params.back ().info.isType)
+		    throw new UseAsVar (aux._params.back().token, aux._params.back ().info);		
 	    }
 	}
 	return aux;

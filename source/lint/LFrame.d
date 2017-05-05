@@ -49,7 +49,7 @@ class LFrame {
     
     private string demangle (string entry) {
 	string ret;
-	for (auto it = 0; it < entry.length; it++) {
+	for (auto it = 0; it < entry.length - 1; it++) {
 	    if (entry [it] == '4' && entry [it + 1] == '6') { ret ~= '.'; it++; }
 	    else if (entry [it] == '7' || entry [it] == '9') ret ~= '.';
 	    else if (entry [it] == '(') { ret ~= entry [it .. $]; break; }

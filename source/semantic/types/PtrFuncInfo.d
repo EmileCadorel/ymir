@@ -272,10 +272,40 @@ class PtrFuncInfo : InfoType {
 	    auto str = new StringInfo ();
 	    str.value = new StringValue (this.typeString);
 	    return str;
-	}
+	} else if (var.token.str == "paramTuple") return ParamTuple ();
+	else if (var.token.str == "retType") return RetType ();	
 	return null;
     }    
 
+
+    private InfoType ParamTuple () {
+	import semantic.types.TupleInfo, semantic.types.ClassUtils;
+	InfoType ret;
+	if (this._params.length == 0) return new VoidInfo ();
+	else if (this._params.length == 1) {
+	    ret = this._params [0].clone ();
+	} else {
+	    auto aux = new TupleInfo ();
+	    Array!InfoType params;
+	    foreach (it ; this._params) {
+		params.insertBack (it.clone ());
+	    }
+	    aux.params = params;
+	    ret = aux;
+	}
+	ret.isType = true;
+	ret.lintInst = &ClassUtils.InstNop;
+	return ret;
+    }
+
+    private InfoType RetType () {
+	import semantic.types.ClassUtils;	
+	auto ret = this._ret.clone ();
+	ret.isType = true;
+	ret.lintInst = &ClassUtils.InstNop;
+	return ret;
+    }
+    
     /**
      Returns: le nom du type.
      */
@@ -290,7 +320,7 @@ class PtrFuncInfo : InfoType {
 	buf.writef ("):%s", this._ret.typeString);
 	return buf.toString ();
     }
-
+        
     /**
      Returns: le nom simple du type.
      */

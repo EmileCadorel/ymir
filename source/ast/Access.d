@@ -50,7 +50,8 @@ class Access : Expression {
 	aux._left = this._left.expression ();
 	if (cast (Type) aux._left) throw new UndefinedVar (aux._left.token, Table.instance.getAlike (aux._left.token.str));
 	else if (cast(UndefInfo) aux._left.info) throw new UninitVar (aux._left.token);
-
+	else if (aux._left.info.isType) throw new UseAsVar (aux._left.token, aux._left.info);
+	
 	auto type = aux._left.info.type.AccessOp (aux._left.token, aux._params);
 	if (type is null) {
 	    auto call = findOpAccess (aux);

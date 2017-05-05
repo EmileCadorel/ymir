@@ -895,9 +895,10 @@ class Visitor {
 	if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
 	next = this._lex.next ();
 	if (next == Keys.FUNCTION || next == Keys.STRUCT) {
+	    auto expType = next;
 	    next = this._lex.next ();
 	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);
-	    return new Is (begin, expr, next);
+	    return new Is (begin, expr, expType);
 	} else {
 	    this._lex.rewind ();
 	    auto type = visitType ();

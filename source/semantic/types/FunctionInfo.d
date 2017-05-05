@@ -229,7 +229,8 @@ class FunctionInfo : InfoType {
      Returns: le nom du type fonction
      */
     override string typeString () {
-	return "function <" ~ this._namespace ~ "." ~ this._name ~ ">";
+	import semantic.pack.Frame;
+	return "function <" ~ Frame.demangle (this._namespace) ~ "." ~ Frame.demangle (this._name) ~ ">";
     }    
 
     /**

@@ -43,7 +43,7 @@ class Expand : Expression {
      */
     override Expression expression () {
 	auto expr = this._expr.expression ();
-	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
+	if (cast (Type) expr || expr.info.isType) throw new UseAsVar (expr.token, expr.info);
 	auto tuple = cast (TupleInfo) expr.info.type;
 	auto str = cast (StructInfo) expr.info.type;
 	if (!tuple) return expr;

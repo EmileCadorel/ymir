@@ -185,6 +185,17 @@ class Frame {
 	return s;
     }
 
+    static string demangle (string entry) {
+	string ret;
+	for (auto it = 0; it < entry.length - 1; it++) {
+	    if (entry [it] == '4' && entry [it + 1] == '6') { ret ~= '.'; it++; }
+	    else if (entry [it] == '7' || entry [it] == '9') ret ~= '.';
+	    else ret ~= entry [it];
+	}
+	ret ~= entry [$ - 1];
+	return ret;
+    }
+    
     /**
      Returns: la fonction associé à la frame
      */

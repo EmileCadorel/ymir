@@ -105,6 +105,8 @@ class InfoType {
     private bool _isConst = true;
 
     private bool _isStatic = false;
+
+    protected bool _isType = false;
     
     /** Si le type est un attribut de structure, c'est son numéro */
     private ulong _toGet;
@@ -234,6 +236,10 @@ class InfoType {
 
     ref bool isStatic () {
 	return this._isStatic;
+    }
+
+    ref bool isType () {
+	return this._isType;
     }
     
     /**
@@ -502,7 +508,7 @@ class InfoType {
      Returns: le type a t'il un destructeur ?
      */
     bool isDestructible () {
-	return this._destruct !is null && this._isGarbaged;
+	return this._destruct !is null && this._isGarbaged && !this._isType;
     }
 
     void isGarbaged (bool isIt) {

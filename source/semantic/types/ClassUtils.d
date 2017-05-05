@@ -260,5 +260,9 @@ class ClassUtils {
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
+
+    static LInstList InstNop (LInstList, LInstList) {
+	return new LInstList ();
+    }
     
 }
