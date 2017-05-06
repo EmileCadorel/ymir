@@ -28,6 +28,7 @@ class TypeOf : Expression {
     this (Word begin, Expression expr) {
 	super (begin);
 	this._expr = expr;
+	this._expr.inside = this;
     }
 
     /**

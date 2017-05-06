@@ -30,6 +30,8 @@ class Access : Expression {
 	this._end = end;
 	this._params = params;
 	this._left = left;
+	this._left.inside = this;
+	this._params.inside = this;
     }
 
     this (Word word, Word end) {

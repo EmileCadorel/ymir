@@ -28,6 +28,9 @@ class Assert : Instruction {
 	super (word);
 	this._expr = test;
 	this._msg = msg;
+	this._expr.inside = this;
+	if (this._msg)
+	    this._msg.inside = this;
 	this._isStatic = isStatic;
     }
 
@@ -58,7 +61,7 @@ class Assert : Instruction {
 	    if (!msg.info.type.isSame (new StringInfo))
 		throw new IncompatibleTypes (msg.info, new StringInfo ());	   
 	}
-
+	
 	if (this._isStatic) {
 	    import semantic.value.BoolValue;
 	    if (msg && msg.info.value is null) 

@@ -35,6 +35,7 @@ class Return : Instruction {
     this (Word word, Expression elem) {
 	super (word);
 	this._elem = elem;
+	this._elem.inside = this;
     }
 
     /**

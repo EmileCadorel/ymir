@@ -26,8 +26,11 @@ def filter (T) (a : [T], call : function (T) : bool) : [T] {
 }
 
 def reduce (T) (a : [T], call : function (T, T) : T) : T {
-    if (a.length == 0UL) return "";
-    else {
+    if (a.length == 0UL) {
+	static if (isPrimitive!(T) ())
+	    return T.init;
+	else return null;
+    } else {
 	let b = a [0];
 	for (it in 1UL .. a.length) {
 	    b = call (a [it], b);

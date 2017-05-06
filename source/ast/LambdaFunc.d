@@ -46,13 +46,14 @@ class LambdaFunc : Expression {
 	super (begin);
 	this._params = params;
 	this._ret = type;
-	this._block = block;
+	this._block = block;	
     }
 
     this (Word begin, Array!Var params, Expression ret) {
 	super (begin);
 	this._params = params;
-	this._expr = ret;	
+	this._expr = ret;
+	this._expr.inside = this;
     }
    
     this (Word begin, Array!Var params, Block ret) {

@@ -27,7 +27,10 @@ class FuncPtr : Expression {
 	super (begin);
 	this._params = params;
 	this._ret = type;
+	this._ret.inside = this;	    
 	this._expr = expr;
+	if (this._expr)
+	    this._expr.inside = this;
     }
 
     /**

@@ -42,7 +42,8 @@ class AMDLocus : TInst {
 
     this (Location locus) {
 	this._loc = locus;
-	this._id = AMDFile.__locusFiles__ [locus.file];
+	if (this._loc.file != "") 
+	    this._id = AMDFile.__locusFiles__ [locus.file];
     }
 
     Location loc () {
@@ -50,7 +51,7 @@ class AMDLocus : TInst {
     }
     
     override string toString () {
-	if (Options.instance.isOn (OptionEnum.DEBUG)) {
+	if (Options.instance.isOn (OptionEnum.DEBUG) && this._loc.file != "") {
 	    auto buf = new OutBuffer ();
 	    buf.writef ("\t.loc\t%d %d %d", this._id, this._loc.line, 0);
 	    return buf.toString ();

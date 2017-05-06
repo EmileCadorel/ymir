@@ -37,6 +37,7 @@ class Par : Expression {
 	this._params = params;
 	this._left = left;
 	this._left.inside = this;
+	this._params.inside = this;
     }
 
     this (Word word, Word end) {
@@ -87,7 +88,7 @@ class Par : Expression {
 		
 		aux._score = type;
 		aux._info = new Symbol (this._token, type.ret, type.ret.isConst);
-		if (cast (UndefInfo) type.ret) {
+		if (cast (UndefInfo) type.ret && this._inside) {
 		    throw new TemplateInferType (aux._left.token, aux._score.token);
 		}
 

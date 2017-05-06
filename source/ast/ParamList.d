@@ -22,6 +22,8 @@ class ParamList : Expression {
     this (Word word, Array!Expression params) {
 	super (word);
 	this._params = params;
+	foreach (it ; this._params)
+	    it.inside = this;
     }
 
     this (Word word) {

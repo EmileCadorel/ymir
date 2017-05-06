@@ -34,6 +34,7 @@ class If : Instruction {
     this (Word word, Expression test, Block block, bool isStatic = false) {
 	super (word);
 	this._test = test;
+	this._test.inside = this;
 	this._block = block;
 	this._isStatic = isStatic;	
     }
@@ -41,6 +42,7 @@ class If : Instruction {
     this (Word word, Expression test, Block block, Else else_, bool isStatic = false) {
 	super (word);
 	this._test = test;
+	this._test.inside = this;
 	this._block = block;
 	this._else = else_;
 	this._isStatic = isStatic;
@@ -264,12 +266,14 @@ class ElseIf : Else {
     this (Word word, Expression test, Block block, bool isStatic = false) {
 	super (word, block);
 	this._test = test;
+	this._test.inside = this;
 	this._isStatic = isStatic;
     }
 
     this (Word word, Expression test, Block block, Else else_, bool isStatic = false) {
 	super (word, block);
 	this._test = test;
+	this._test.inside = this;
 	this._else = else_;
 	this._isStatic = isStatic;
     }

@@ -28,11 +28,13 @@ class Expand : Expression {
     this (Word begin, Expression expr) {
 	super (begin);
 	this._expr = expr;
+	this._expr.inside = this;
     }
 
     this (Word begin, Expression expr, ulong index) {
 	super (begin);
 	this._expr = expr;
+	this._expr.inside = this;
 	this._index = index;
     }
     

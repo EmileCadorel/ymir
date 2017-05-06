@@ -39,6 +39,8 @@ class ConstRange : Expression {
 	super (token);
 	this._left = left;
 	this._right = right;
+	this._left.inside = this;
+	this._left.inside = this;
     }
 
     /**

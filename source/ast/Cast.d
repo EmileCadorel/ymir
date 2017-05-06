@@ -26,6 +26,8 @@ class Cast : Expression {
 	super (begin);
 	this._type = type;
 	this._expr = expr;
+	this._type.inside = this;
+	this._expr.inside = this;
     }
 
     /**

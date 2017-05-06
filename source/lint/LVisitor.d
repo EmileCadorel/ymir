@@ -2,6 +2,7 @@ module lint.LVisitor;
 import semantic.pack.FrameTable, semantic.pack.Frame;
 import lint.LFrame, lint.LInstList, lint.LLabel, lint.LReg;
 import semantic.types.VoidInfo, lint.LSize;
+import semantic.types.UndefInfo;
 import lint.LConst, lint.LRegRead, lint.LJump;
 import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
 import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
@@ -25,7 +26,7 @@ class LVisitor {
 
     static string __ForEachBody__ = "_YPForEachBody__";
     static immutable string __AssertName__ = "_YPAssert__";
-    static immutable string __ExitName__ = "exit";
+    static immutable string __AbortName__ = "abort";
     static immutable string __PutCharName__ = "putchar";
     
     private LLabel [Instruction] _endLabels;
@@ -54,10 +55,10 @@ class LVisitor {
 	vrai.insts += new LJump (test2, vrai2);
 	vrai.insts += new LGoto (faux2);
 	vrai2.insts += new LCall (printsName, make!(Array!LExp) (msg), LSize.NONE);
-	vrai2.insts += new LCall (__PutCharName__, make!(Array!LExp) (new LConstDecimal (10, LSize.BYTE)), LSize.NONE);
 	vrai.insts += vrai2;
 	vrai.insts += faux2;
-	vrai.insts += new LCall (__ExitName__, make!(Array!LExp) (new LConstDecimal (-1, LSize.INT)), LSize.NONE);
+	vrai.insts += new LCall (__PutCharName__, make!(Array!LExp) (new LConstDecimal (10, LSize.BYTE)), LSize.NONE);
+	vrai.insts += new LCall (__AbortName__, make!(Array!LExp) (new LConstDecimal (-1, LSize.INT)), LSize.NONE);
 	entry.insts += vrai;
 	entry.insts += faux;
 	auto fr = new LFrame (__AssertName__, entry, end, null, make!(Array!LReg) ([testVar, loc, msg]));
@@ -163,28 +164,30 @@ class LVisitor {
     }
     
     private void visitInstruction (ref LInstList begin, ref LLabel end, ref LReg retReg, Instruction elem) {
-	if (auto exp = cast(Expression)elem) begin += visitExpression (exp);
-	else if (auto decl = cast(VarDecl)elem) begin += visitVarDecl (decl);
-	else if (auto ret = cast(Return)elem) begin += visitReturn (end, retReg, ret);
-	else if (auto _if = cast(If)elem) begin += visitIf (end, retReg, _if);
-	else if (auto _while = cast(While) elem) begin += visitWhile (end, retReg, _while);
-	else if (auto _for = cast (For) elem) begin += visitFor (end, retReg, _for);
-	else if (auto _block = cast(Block) elem) begin += visitBlock (end, retReg, _block);
-	else if (auto _break = cast (Break) elem) begin += visitBreak (_break);
-	else if (auto _assert = cast (Assert) elem) begin += visitAssert (_assert);
+	auto loc = new LInstList (new LLocus (elem.token.locus));
+	if (auto exp = cast(Expression)elem) begin += loc + visitExpression (exp);
+	else if (auto decl = cast(VarDecl)elem) begin += loc + visitVarDecl (decl);
+	else if (auto ret = cast(Return)elem) begin += loc + visitReturn (end, retReg, ret);
+	else if (auto _if = cast(If)elem) begin += loc + visitIf (end, retReg, _if);
+	else if (auto _while = cast(While) elem) begin += loc + visitWhile (end, retReg, _while);
+	else if (auto _for = cast (For) elem) begin += loc + visitFor (end, retReg, _for);
+	else if (auto _block = cast(Block) elem) begin += loc + visitBlock (end, retReg, _block);
+	else if (auto _break = cast (Break) elem) begin += loc + visitBreak (_break);
+	else if (auto _assert = cast (Assert) elem) begin += loc + visitAssert (_assert);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
     private void visitInstruction (ref LLabel begin, ref LLabel end, ref LReg retReg, Instruction elem) {
-	if (auto exp = cast(Expression)elem) begin.insts += visitExpression (exp);
-	else if (auto decl = cast(VarDecl)elem) begin.insts += visitVarDecl (decl);
-	else if (auto ret = cast(Return)elem) begin.insts += visitReturn (end, retReg, ret);
-	else if (auto _if = cast(If)elem) begin.insts += visitIf (end, retReg, _if);
-	else if (auto _while = cast(While)elem) begin.insts += visitWhile (end, retReg, _while);
-	else if (auto _for = cast (For) elem) begin.insts += visitFor (end, retReg, _for);
-	else if (auto _block = cast(Block) elem) begin.insts += visitBlock (end, retReg, _block);
-	else if (auto _break = cast (Break) elem) begin.insts += visitBreak (_break);
-	else if (auto _assert = cast (Assert) elem) begin.insts += visitAssert (_assert);
+	auto loc = new LInstList (new LLocus (elem.token.locus));
+	if (auto exp = cast(Expression)elem) begin.insts += loc + visitExpression (exp);
+	else if (auto decl = cast(VarDecl)elem) begin.insts += loc + visitVarDecl (decl);
+	else if (auto ret = cast(Return)elem) begin.insts += loc + visitReturn (end, retReg, ret);
+	else if (auto _if = cast(If)elem) begin.insts += loc + visitIf (end, retReg, _if);
+	else if (auto _while = cast(While)elem) begin.insts += loc + visitWhile (end, retReg, _while);
+	else if (auto _for = cast (For) elem) begin.insts += loc + visitFor (end, retReg, _for);
+	else if (auto _block = cast(Block) elem) begin.insts += loc + visitBlock (end, retReg, _block);
+	else if (auto _break = cast (Break) elem) begin.insts += loc + visitBreak (_break);
+	else if (auto _assert = cast (Assert) elem) begin.insts += loc + visitAssert (_assert);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
@@ -221,7 +224,7 @@ class LVisitor {
 	if (_if.info.value && !_if.test.info.isStatic) {
 	    return visitIfWithValue (end, retReg, _if);
 	}
-	insts += new LLocus (_if.token.locus);
+	
 	LLabel faux = new LLabel ();
 	LLabel vrai = new LLabel ();
 	LLabel fin = new LLabel ();
@@ -256,7 +259,6 @@ class LVisitor {
 
     private LInstList visitWhile (ref LLabel end, ref LReg retReg, While _while) {
 	auto inst = new LInstList;
-	inst += new LLocus (_while.token.locus);
 	LLabel faux = new LLabel (), vrai = new LLabel, debut = new LLabel;
 	this._endLabels [_while.block] = faux;
 	LInstList left;
@@ -288,7 +290,6 @@ class LVisitor {
 
     private LInstList visitFor (ref LLabel _end, ref LReg retReg, For _for) {
 	auto inst = new LInstList;
-	inst += new LLocus (_for.token.locus);
 	Array!Expression params;
 	foreach (it ; _for.vars) {
 	    it.info.value = null;
@@ -323,7 +324,6 @@ class LVisitor {
 	if (elseif.info.value && !elseif.test.info.isStatic) {
 	    return visitElseIfWithValue (end, retReg, elseif);
 	}
-	insts += new LLocus (_else.token.locus);
 	LLabel faux = new LLabel, vrai = new LLabel;
 	LInstList left;
 	__currentCondition__ = LPairLabel (vrai, faux);
@@ -354,7 +354,6 @@ class LVisitor {
     
     private LInstList visitBreak (Break elem) {
 	auto list = new LInstList;
-	list += new LLocus (elem.token.locus);
 	auto current = elem.father;
 	ulong nb = 0;
 	while (current !is null && nb < elem.nbBlock) {
@@ -380,13 +379,11 @@ class LVisitor {
 	auto it = (LVisitor.__AssertName__ in LFrame.preCompiled);
 	if (it is null) LVisitor.createAssert ();	
 	
-	auto locMsg = "Program exited on assertion failure : ";
-	if (Options.instance.isOn (OptionEnum.DEBUG)) {
-	    locMsg ~= format ("%s(%d, %d) : ",
-			      elem.token.locus.file,
-			      elem.token.locus.line,
-			      elem.token.locus.column);
-	}
+	auto locMsg = "Program crashed on assertion failure : ";
+	locMsg ~= format ("%s(%d, %d) : ",
+			  elem.token.locus.file,
+			  elem.token.locus.line,
+			  elem.token.locus.column);	
 
 	LExp call;
 	auto test = visitExpression (elem.expr);
@@ -409,7 +406,6 @@ class LVisitor {
     
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
 	LInstList list = new LInstList ();
-	list += new LLocus (ret.token.locus);
 	if (ret.elem !is null) {
 	    LInstList rlist;
 	    if (ret.instComp !is null) {
@@ -445,27 +441,28 @@ class LVisitor {
     }
     
     private LInstList visitExpression (Expression elem) {
-	if (auto bin = cast(Binary) elem) return visitBinary (bin);
-	if (auto var = cast(Var)elem) return visitVar (var);
-	if (auto _dec = cast(Decimal)elem) return visitDec (_dec);
-	if (auto _float = cast(Float)elem) return visitFloat (_float);
-	if (auto _char = cast(Char) elem) return visitChar (_char);
-	if (auto _par = cast (Par) elem) return visitPar (_par);
-	if (auto _cast = cast(Cast) elem) return visitCast (_cast);
-	if (auto _str = cast(String) elem) return visitStr (_str);
-	if (auto _access = cast (Access) elem) return visitAccess (_access);
-	if (auto _dot = cast (Dot) elem) return visitDot (_dot);
-	if (auto _bool = cast (Bool) elem) return visitBool (_bool);
-	if (auto _unop = cast (BefUnary) elem) return visitBefUnary (_unop);
-	if (auto _null = cast (Null) elem) return visitNull (_null);
-	if (auto _carray = cast (ConstArray) elem) return visitConstArray (_carray);
-	if (auto _crange = cast (ConstRange) elem) return visitConstRange (_crange);
-	if (auto _fptr = cast (FuncPtr) elem) return visitFuncPtr (_fptr);
-	if (auto _lambda = cast (LambdaFunc) elem) return visitLambda (_lambda);
-	if (auto _tuple = cast (ConstTuple) elem) return visitConstTuple (_tuple);
-	if (auto _exp = cast (Expand) elem) return visitExpand (_exp);
-	if (auto _alloc = cast (ArrayAlloc) elem) return visitAlloc (_alloc);
-	if (auto _is = cast (Is) elem) return visitIs (_is);
+	auto loc = new LInstList (new LLocus (elem.token.locus));
+	if (auto bin = cast(Binary) elem) return loc + visitBinary (bin);
+	if (auto var = cast(Var)elem) return loc + visitVar (var);
+	if (auto _dec = cast(Decimal)elem) return loc + visitDec (_dec);
+	if (auto _float = cast(Float)elem) return loc + visitFloat (_float);
+	if (auto _char = cast(Char) elem) return loc + visitChar (_char);
+	if (auto _par = cast (Par) elem) return loc + visitPar (_par);
+	if (auto _cast = cast(Cast) elem) return loc + visitCast (_cast);
+	if (auto _str = cast(String) elem) return loc + visitStr (_str);
+	if (auto _access = cast (Access) elem) return loc + visitAccess (_access);
+	if (auto _dot = cast (Dot) elem) return loc + visitDot (_dot);
+	if (auto _bool = cast (Bool) elem) return loc + visitBool (_bool);
+	if (auto _unop = cast (BefUnary) elem) return loc + visitBefUnary (_unop);
+	if (auto _null = cast (Null) elem) return loc + visitNull (_null);
+	if (auto _carray = cast (ConstArray) elem) return loc + visitConstArray (_carray);
+	if (auto _crange = cast (ConstRange) elem) return loc + visitConstRange (_crange);
+	if (auto _fptr = cast (FuncPtr) elem) return loc + visitFuncPtr (_fptr);
+	if (auto _lambda = cast (LambdaFunc) elem) return loc + visitLambda (_lambda);
+	if (auto _tuple = cast (ConstTuple) elem) return loc + visitConstTuple (_tuple);
+	if (auto _exp = cast (Expand) elem) return loc + visitExpand (_exp);
+	if (auto _alloc = cast (ArrayAlloc) elem) return loc + visitAlloc (_alloc);
+	if (auto _is = cast (Is) elem) return loc + visitIs (_is);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -804,7 +801,7 @@ class LVisitor {
 	if (par.info.type.value !is null)
 	    return par.info.type.value.toLint (par.info);
 	
-	LInstList list = new LInstList;
+	LInstList list = new LInstList ();
 	LExp call;
 	if (par.info.type.lintInstMult) {
 	    visitParamListMult (exprs, rights, par.score.treat, par.paramList);
@@ -825,7 +822,7 @@ class LVisitor {
 	    }
 	}
 	
-	if (cast (VoidInfo) par.score.ret is null) {
+	if (cast (VoidInfo) par.score.ret is null && cast (UndefInfo) par.score.ret is null) {
 	    auto reg = new LReg (par.info.id, par.score.ret.size);	    
 	    list += new LWrite (reg, call);
 	} else 	list += call;
@@ -834,7 +831,7 @@ class LVisitor {
 
     private LInstList visitAccess (Access access) {
 	Array!LInstList exprs;
-	auto inst = new LInstList;
+	auto inst = new LInstList ();
 	foreach (it ; 0 .. access.params.length) {
 	    exprs.insertBack (visitExpression (access.params [it]));
 	}
@@ -930,7 +927,7 @@ class LVisitor {
 	    auto reg = new LReg (bin.info.id, bin.info.type.size);
 	    ret += new LWrite (reg, last);
 	}
-	auto inst = new LInstList (new LLocus (bin.token.locus));
+	auto inst = new LInstList ();
 	return inst + ret;
     }
 

@@ -32,12 +32,14 @@ class While : Instruction {
 	super (word);
 	this._name = name;
 	this._test = test;
+	this._test.inside = this;
 	this._block = block;
     }
     
     this (Word word, Expression test, Block block) {
 	super (word);
 	this._test = test;
+	this._test.inside = this;
 	this._block = block;
 	this._name.setEof ();
     }

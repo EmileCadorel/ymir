@@ -35,6 +35,8 @@ class ArrayAlloc : Expression {
 	super (token);
 	this._type = type;
 	this._size = size;
+	this._size.inside = this;
+	this._type.inside = this;
     }
 
 

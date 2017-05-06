@@ -40,8 +40,9 @@ class For : Instruction {
     this (Word token, Word id, Array!Var var, Expression iter, Block block) {
 	super (token);
 	this._id = id;
-	this._var = var;
+	this._var = var;	
 	this._iter = iter;
+	this._iter.inside = this;
 	this._block = block;
     }        
 

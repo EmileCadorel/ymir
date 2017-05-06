@@ -30,6 +30,8 @@ class ConstArray : Expression  {
     this (Word token, Array!Expression params) {
 	super (token);
 	this._params = params;
+	foreach (it ; this._params)
+	    it.inside = this;
     }
 
     /**

@@ -36,6 +36,8 @@ class Is : Expression {
 	super (begin);
 	this._left = expr;
 	this._type = type;
+	this._left.inside = this;
+	this._type.inside = this;
     }
 
     this (Word begin, Expression expr, Word type) {

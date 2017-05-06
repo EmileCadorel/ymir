@@ -23,6 +23,7 @@ class BefUnary : Expression {
     this (Word word, Expression elem) {
 	super (word);
 	this._elem = elem;
+	this._elem.inside = this;
     }
 
     /**
@@ -141,6 +142,7 @@ class AfUnary : Expression {
     this (Word word, Expression elem) {
 	super (word);
 	this._elem = elem;
+	this._elem.inside = this;
     }
 
     /**

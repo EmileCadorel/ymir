@@ -39,6 +39,8 @@ class Var : Expression {
     this (Word ident, Array!Expression templates) {
 	super (ident);
 	this._templates = templates;
+	foreach (it ; this._templates)
+	    it.inside = this;
     }
 
     /**

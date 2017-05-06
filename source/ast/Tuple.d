@@ -23,6 +23,8 @@ class ConstTuple : Expression {
     this (Word word, Word end, Array!Expression params) {
 	super (word);
 	this._params = params;
+	foreach (it ; this._params)
+	    it.inside = this;
     }
     
     Array!Expression params () {
