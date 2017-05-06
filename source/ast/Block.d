@@ -66,6 +66,8 @@ class Block : Instruction {
 		    throw new UnreachableStmt (it.token);
 		insts.insertBack (it.instruction);
 		insts.back ().father = block;
+	    } catch (RecursiveExpansion exp) {
+		throw exp;
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;

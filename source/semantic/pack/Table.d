@@ -2,6 +2,7 @@ module semantic.pack.Table;
 import utils.Singleton, semantic.pack.Symbol;
 import semantic.pack.FrameScope, semantic.pack.Scope;
 import std.container;
+import utils.exception, syntax.Word;
 
 /**
  Cette classe singleton, regroupe toutes les informations sémantique de déclaration de symboles.
@@ -19,6 +20,10 @@ class Table {
 
     /** La zone est garbage ? */
     private bool _pacified;
+
+    private ulong _nbFrame = 0;
+    
+    private immutable __maxNbRec__ = 300;
     
     private this () {
 	_globalScope = new Scope ();
@@ -66,6 +71,12 @@ class Table {
 	    this._namespace = space;	
     }
 
+    void addCall (Word sym) {
+	if (this._nbFrame > __maxNbRec__) {
+	    throw new RecursiveExpansion (sym);
+	}
+    }
+    
     /**
      On entre dans une nouvelle frame.
      Params:
@@ -75,6 +86,7 @@ class Table {
     void enterFrame (string space, ulong nbParam, bool internal) {
 	Symbol.insertLast (nbParam);
 	this._frameTable.insertFront (new FrameScope (space, internal));
+	this._nbFrame ++;
     }
 
     /**
@@ -84,6 +96,7 @@ class Table {
     ulong quitFrame () {
 	if (!this._frameTable.empty) {
 	    this._frameTable.removeFront ();
+	    this._nbFrame --;
 	    return Symbol.removeLast ();
 	}
 	return 0;
@@ -238,6 +251,11 @@ class Table {
 	}
 	return this._globalScope.wasImported (name);
     }
-    
+
+    /** Returns: Le nombre d'appel en cours */
+    ulong nbRecursive () {
+	return this._nbFrame;
+    }
+
     mixin Singleton!Table;
 }

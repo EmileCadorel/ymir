@@ -97,6 +97,8 @@ class VarDecl : Instruction {
 		}
 		
 		id ++;
+	    } catch (RecursiveExpansion exp) {
+		throw exp;
 	    } catch (YmirException exp) {
 		exp.print ();
 		error ++;

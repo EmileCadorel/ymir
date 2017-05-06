@@ -914,3 +914,18 @@ class WrongTypeForMain : YmirException {
 
     
 }
+
+class RecursiveExpansion : YmirException {
+
+    this (Word sym) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Nombre d'expansion récursive statique atteinte",
+		      sym.locus.file,
+		      sym.locus.line,
+		      sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, sym.locus);
+	msg = buf.toString ();	
+    }
+
+}

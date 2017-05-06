@@ -6,6 +6,7 @@ import std.stdio, syntax.Word;
 import semantic.pack.FrameProto;
 import ast.Expression;
 import semantic.types.RefInfo;
+import semantic.pack.Table;
 
 /**
  Classe qui regroupe le information de type des déclarations de fonctions.
@@ -103,6 +104,7 @@ class FunctionInfo : InfoType {
 	    else if (goods.length != 1)
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 
+	    Table.instance.addCall (func_token);
 	    auto info = goods[0].validate (right, right.treat);	    
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
@@ -110,7 +112,10 @@ class FunctionInfo : InfoType {
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;
+	} catch (RecursiveExpansion exp) {
+	    throw exp;
 	} catch (YmirException exp) {
+	    if (cast(RecursiveExpansion) exp) throw exp;
 	    exp.print ();
 	    throw new TemplateCreation (func_token);
 	} catch (ErrorOccurs err) {
@@ -156,6 +161,8 @@ class FunctionInfo : InfoType {
 	    else if (goods.length > 1) {
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 	    }
+
+	    Table.instance.addCall (func_token);
 	    auto info = goods [0].validate (right, right.treat);
 	    right.name = info.name;
 	    right.ret = info.type.type.cloneForParam ();
@@ -163,7 +170,10 @@ class FunctionInfo : InfoType {
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;
+	} catch (RecursiveExpansion exp) {
+	    throw exp;
 	} catch (YmirException exp) {
+	    if (cast(RecursiveExpansion) exp) throw exp;
 	    exp.print ();
 	    throw new TemplateCreation (func_token);
 	} catch (ErrorOccurs err) {

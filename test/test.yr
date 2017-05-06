@@ -3,14 +3,14 @@ import std.map;
 import std.algorithm;
 import std.random;
 
-def test (n : int) {
-    if (n > 0)
-	test (n - 1);
-    else
-	assert (false);
+def test (n : int) () : void {
+    static if (n > 0)
+	test! (n - 1)();
+    else 
+	static assert (false);
 }
 
 def main () {
-    let a = 10;
-    test (a);
+    let immutable a = 299;
+    test !(a)();
 }
