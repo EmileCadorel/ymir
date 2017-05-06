@@ -36,4 +36,3 @@ def main (args) {
     let a = spawn (nb, &slave);
     joinAll (a);
 }
-
