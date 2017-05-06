@@ -144,6 +144,15 @@ def to if (is (T : string) && is (T2 : struct))
 	else return T2.typename + "(" + addTupleComa (expand (elem.tupleof)) + ")";
     }
 
+def to if (is (T : [ubyte]))
+    (T) (a : string) {
+	let res = [ubyte; a.length];
+	for (it in 0UL .. a.length) {
+	    res [it] = cast:ubyte (a[it]);
+	}
+	return res;
+    }
+
 	
 
 

@@ -1,5 +1,6 @@
 import std.stdio;
-
+public import std.conv;
+import std.array;
 
 def pipe (ref a : [int]) : int {
     extern (C) pipe (a : ptr!int) : int;
@@ -18,10 +19,30 @@ extern (C) write (a : int, msg : ptr!void, len : int);
 def read (desc : int, ref msg : string) {
     let len = 0UL;
     read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
-    if (len == 0UL) msg = null;
-    let ret = cast:string ([char; len]);
+    let ret = cast:string ([char; len]);    
     read (desc, cast:ptr!(void) (ret.ptr), cast:int(len));
     msg = ret;
+}
+
+def read if (is (T : string))
+    (T) (desc : int) {
+	extern (C) read (a : int, msg : ptr!void, len : int);
+	let len = 0UL;
+	read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+	if (len == 0UL) return '';
+	let ret = [char; len];    
+	read (desc, cast:ptr!(void) (ret.ptr), cast:int(len));
+	return cast:string (ret);
+    }
+
+def read if (isArray!(T)())
+    (T) (desc : int) {
+	let len = 0UL;
+	read (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+	extern (C) read (a : int, msg : ptr!void, len : int);
+	let ret = [T; len];
+	read (desc, cast:ptr!(void) (ret.ptr), cast:int(len) * cast:int (T.sizeof));
+	return cast:T (ret);
 }
 
 def read (T) (desc : int, ref msg : [T]) {
@@ -35,19 +56,18 @@ def read (T) (desc : int, ref msg : [T]) {
 
 def read if (!is (T : string) && !is (T : struct) && !isArray!(T)())
     (T) (desc : int) : T {
-	let msg = T.init;
+	let msg = [ubyte; T.sizeof];
 	extern (C) read (a : int, msg : ptr!void, len : int);
-	let len = 0UL;
-	read (desc, cast:ptr!(void) (&msg), cast:int(T.sizeof));
-	return msg;
+	read (desc, cast:ptr!(void) (msg.ptr), cast:int(T.sizeof));
+	return msg.ptr.T;
     }
 
-def write (desc : int, msg : string) {
-    let len = msg.length;
-    write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
-    if len != 0UL
-	write (desc, cast:ptr!(void) (msg.ptr), cast:int(msg.length));
-}
+def write if (is(T : string))
+    (T) (desc : int, msg) {
+	let len = msg.length;
+	write (desc, cast:ptr!(void) (&len), cast:int(ulong.sizeof));
+	write (desc, cast:ptr!(void) (msg.ptr), cast:int(msg.length));	
+    }
 
 def write (T) (desc : int, msg : [T]) {
     let len = msg.length;
@@ -58,28 +78,93 @@ def write (T) (desc : int, msg : [T]) {
 
 def write if (!is (T : string) && !is (T : struct) && !isArray!(T) ())
     (T) (desc : int, msg : T) {
-	extern (C) write (a : int, msg : ptr!void, len : int);
 	write (desc, cast:ptr!(void) (&msg), cast:int(T.sizeof));
     }
 
 def write if (isTuple !(T) ())
     (T) (desc : int, elem : T) {
-	extern (C) write (a : int, msg : ptr!void, len : int);
 	write (desc, cast:ptr!(void) (elem.ptr), cast:int(T.sizeof));
     }
 
-def send if (isTuple!(T) ())
-    (T) (desc : int, i : int, what : T) {
-	extern (C) write (a : int, msg : ptr!void, len : int);
-	let res = (i, expand (what));
-	let len = cast:ulong (res.sizeof);
-	write (desc, cast:ptr!(void) (&len), cast:int (ulong.sizeof));	
-	write (desc, res.ptr, cast:int(res.sizeof));
+
+def bufferize if (is (T : string))
+    (T) (a : T) {
+	let buf = [ubyte; 8UL];
+	buf.ptr.ulong = a.length;
+	return buf + to!([ubyte]) (a);
     }
 
+def bufferize if (isPrimitive!(T) ())
+    (T) (elem : T) {
+	let buf = [ubyte; T.sizeof];
+	buf.ptr.T = elem;
+	return buf;
+    }
+
+def bufferize if (isArray!(T) ())
+    (T) (elem : T) {
+	let buf = [ubyte; 8UL];
+	buf.ptr.ulong = elem.length;
+	return buf + cast:[ubyte] (elem);
+    }
+
+def writeTuple (fst) {
+    static if (isTuple!(typeof(fst)) ()) {
+	return writeTuple (expand (fst));
+    } else {
+	return bufferize !(typeof(fst)) (expand (fst));
+    }
+}
+
+def writeTuple (fst, next) {
+    let ret;
+    static if (isTuple!(typeof (fst)) ()) {
+	ret = writeTuple (expand (fst));
+    } else {
+	ret = bufferize !(typeof(fst)) (fst);
+    }
+    return ret + writeTuple (expand (next));
+}
+
+def readTuple (T) (desc : int, fst : T) {
+    static if (isTuple!(typeof (fst)) ()) {
+	return readTuple (desc, expand (fst));
+    } else {
+	return read !(typeof (fst)) (desc);
+    }
+}
+
+def readTuple (T) (desc : int) {
+    return read !(T) (desc);
+}
+
+
+def readTuple (T) (desc : int, fst : T, next) {
+    static if (isTuple!(typeof (fst)) ()) {
+	return (
+	    expand (readTuple (desc, expand (fst))),
+	    expand (readTuple (desc, expand (next)))
+	);
+    } else {
+	return (read !(typeof(fst))(desc), expand (readTuple (desc, expand (next))));
+    }
+}
+
+def send (T) (desc : int, i : int, what : T) {
+    extern (C) write (a : int, msg : ptr!void, len : int);
+    let name = what.typeid;
+    let nameLen = name.length;
+    let buf = writeTuple (expand (what));	
+    let len = buf.length + name.length + (int.sizeof) + (ulong.sizeof);
+    write (desc, cast:ptr!(void) (&len), cast:int (ulong.sizeof));
+    write (desc, cast:ptr!(void) (&i), cast:int (int.sizeof));
+    write (desc, cast:ptr!(void) (&nameLen), cast:int (ulong.sizeof));
+    write (desc, cast:ptr!(void) (name.ptr), cast:int (name.length));
+    write (desc, cast:ptr!(void) (buf.ptr), cast:int (buf.length));
+}
+
 def recv if (isTuple!(T) ())
-    (T) (desc : int, a : T)  {
-	import std.conv;
+    (T) (desc : int, a : T)  {       
 	extern (C) read (a : int, msg : ptr!void, len : int);
 	let len = 0UL;
 	read (desc, cast:ptr!(void) (&len), cast:int (len.sizeof));
@@ -87,13 +172,56 @@ def recv if (isTuple!(T) ())
 	read (desc, a.ptr, cast:int(T.sizeof));
     }
 
+def receive (desc : int, foos) {
+    let type = '';
+    read (desc, type);
+    
+    def callTuple (desc : int, name : string, foo) {
+	static if (isTuple!(typeof (foo.paramTuple)) ()) {
+	    let t = foo.paramTuple.empty;
+	    let n = t.typeid;
+	    if (n == name) {
+		let aux = readTuple (desc, expand (t));
+		foo (expand (aux));
+	    } else assert (false);
+	} else {
+	    let n = foo.paramTuple.typeid;
+	    if (n == name) {
+		let aux = readTuple !(typeof (foo.paramTuple)) (desc);
+		foo (expand (aux));
+	    } else assert (false);
+	}
+    }
+    
+    def callTuple (desc : int, name : string, foo, foos) {
+		static if (isTuple!(typeof (foo.paramTuple)) ()) {
+	    let t = foo.paramTuple.empty;
+	    let n = t.typeid;
+	    if (n == name) {
+		let aux = readTuple (desc, expand (t));
+		foo (expand (aux));
+	    } else callTuple (desc, name, expand (foos));
+	} else {
+	    let n = foo.paramTuple.typeid;
+	    if (n == name) {
+		let aux = readTuple !(typeof (foo.paramTuple)) (desc);
+		foo (expand (aux));
+	    } else callTuple (desc, name, expand (foos));
+	}
+    }
+
+    callTuple (desc, type, expand (foos));    
+}
+
 def joinAll (a : [int]) {
     extern (C) wait (pid : int, a : ptr!int, int);
+    import std.traits;
     
-    for (it in 0UL .. a.length) {
+    for (it in 1UL .. a.length) {
 	let stat = int.init;
 	wait (a [it], &stat, 0);
     }
+    write (a [0], -1); 
 }
 
 
@@ -132,14 +260,15 @@ def spawn (nb : ulong, call : function (ulong, ulong, [int]):int) : [int] {
 
 
 private def spawnRoutine (nb : ulong, _in : int, desc : [int]) : int {
-    import std.conv, std.array;
+    import std.conv;
     let msg = [ubyte ; 0UL];
-    for (it in 0UL .. nb) {
+    while (true) {
 	read (_in, msg);
 	if ((msg.ptr + 0).int == -1) break;
-	else {
+	else {	    
 	    let to_ = (msg.ptr + 0).int;
-	    write (desc [to_ - 1], msg [4UL .. msg.length]);
+	    let aux = msg [4UL .. msg.length];
+	    write (desc [to_ - 1], cast:ptr!void (aux.ptr), cast:int (aux.length));
 	}
     }
     return 0;
