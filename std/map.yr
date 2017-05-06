@@ -91,13 +91,14 @@ def print (K, V) (mp : MapEntry!(K, V)) {
     print ("]");
 }
 
-def find (K, V) (ref mp : MapEntry!(K, V), key : K) : ptr!V {
-    if (mp is null) return null;
-    else if (key == mp.key) return &mp.value;
-    else if (key < mp.key) return find (mp.left, key);
-    else return find (mp.right, key);
-}
-
 def opBinary ('in', K, V) (key : K, mp : MapEntry!(K, V)) : ptr!V {    
+
+    def find (K, V) (ref mp : MapEntry!(K, V), key : K) : ptr!V {
+	if (mp is null) return null;
+	else if (key == mp.key) return &mp.value;
+	else if (key < mp.key) return find (mp.left, key);
+	else return find (mp.right, key);
+    }
+
     return find (mp, key);    
 }

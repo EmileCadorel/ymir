@@ -1,0 +1,38 @@
+import std.stdio;
+import std.parallelism;
+import std.traits;
+import std.array;
+
+def ping (thisId : ulong, id : int, comm : int) {
+    send (comm, id, ("salut", thisId));
+    send (comm, id, "salut");
+}
+
+def pong (id : ulong, comm : int) {
+    println ("Récéption id", id); 
+    for (it in 0 .. 2) {
+	receive (comm,
+		 (msg : string) {
+		     println (msg);
+		 },
+		 (msg : string, a : ulong) {
+		     println (msg, ' de : ', a);
+		 }
+	);
+    }
+}
+
+def slave (id : ulong, nb : ulong, pipes : [int]) : int {
+    if (id % 2UL == 0UL) pong (id, pipes [0]);
+    else ping (id, cast:int(id + 1UL % nb), pipes [1]);    
+    return 0;
+}
+
+def main (args) {
+    let nb = args [1].to!ulong;
+    if (nb % 2UL != 0UL) {
+	assert (false, "On a besoin d'un nombre pair de process pas " + args [1]);
+    }
+    let a = spawn (nb, &slave);
+    joinAll (a);
+}

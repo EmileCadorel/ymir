@@ -138,7 +138,6 @@ def readTuple (T) (desc : int) {
     return read !(T) (desc);
 }
 
-
 def readTuple (T) (desc : int, fst : T, next) {
     static if (isTuple!(typeof (fst)) ()) {
 	return (
@@ -224,7 +223,6 @@ def joinAll (a : [int]) {
     write (a [0], -1); 
 }
 
-
 def spawn (nb : ulong, call : function (ulong, ulong, [int]):int) : [int] { 
     extern (C) fork () : int;
     extern (C) exit (int);
@@ -258,7 +256,6 @@ def spawn (nb : ulong, call : function (ulong, ulong, [int]):int) : [int] {
     return [c2p [1]] + pids;
 }
 
-
 private def spawnRoutine (nb : ulong, _in : int, desc : [int]) : int {
     import std.conv;
     let msg = [ubyte ; 0UL];
@@ -273,4 +270,3 @@ private def spawnRoutine (nb : ulong, _in : int, desc : [int]) : int {
     }
     return 0;
 }
-

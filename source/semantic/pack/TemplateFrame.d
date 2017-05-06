@@ -351,8 +351,8 @@ class TemplateFrame : Frame {
 	    name ~= super.mangle (t);
 	}
 	
-
-	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name);	
+	auto spaceName = super.mangle (this._name);
+	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (spaceName.length) ~ spaceName);	
 	auto proto = FrameTable.instance.existProto (name);
 	
 	if (proto is null) {
