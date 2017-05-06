@@ -728,7 +728,7 @@ class Visitor {
 		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
 	    } else if (tok == Tokens.DDOT) {
-		auto right = visitPth ();
+		auto right = visitLow ();
 		return visitUlow (new ConstRange (tok, left, right));
 	    } 
 	    _lex.rewind ();
@@ -750,7 +750,7 @@ class Visitor {
 		    return visitUlow (new Binary (tok, left, right));
 		} else _lex.rewind ();
 	    } else if (tok == Tokens.DDOT) {
-		auto right = visitPth ();
+		auto right = visitLow ();
 		return visitHigh (new ConstRange (tok, left, right));
 	    } 
 	    _lex.rewind ();

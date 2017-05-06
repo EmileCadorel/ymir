@@ -7,6 +7,13 @@ def copy (T) (a : [T], b : [T]) {
     }
 }
 
+def copy (T) (a : [T], b : [T], len : ulong) {
+    let i = 0UL;
+    while (i < len) {
+      b [i] = a [i];
+    }
+}
+
 def fill if (is (T : T2))
     (T, T2) (a : [T], val : T2) {
     for (it in a) {
