@@ -53,5 +53,6 @@ enum Keys : Token {
     TYPEOF = Token ("typeof", 48),
     CONST = Token ("const", 49),
     IMMUTABLE = Token ("immutable", 50),
-    REF = Token ("ref", 51)
+    REF = Token ("ref", 51),
+    THIS = Token ("this", 52)
 }

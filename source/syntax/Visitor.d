@@ -59,8 +59,8 @@ class Visitor {
 			      Keys.TRY, Keys.SWITCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
 			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
-			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE, Keys.CONST,
-			      Keys.REF, Keys.STATIC
+			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE,
+			      Keys.CONST, Keys.REF
 	];
 
 	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST, Keys.STATIC];
@@ -80,6 +80,7 @@ class Visitor {
 	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
+	    else if (word == Keys.CLASS) decls.insertBack (this.visitClass ());
 	    else if (word == Keys.PUBLIC) {
 		auto pub_decls = visitPublicBlock ();
 		foreach (it ; pub_decls) decls.insertBack (it);
@@ -104,6 +105,7 @@ class Visitor {
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
 		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
+		else if (word == Keys.CLASS) decls.insertBack (this.visitClass ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
 		decls.back ().isPublic = true;
@@ -114,6 +116,7 @@ class Visitor {
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
 	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
+	    else if (next == Keys.CLASS) decls.insertBack (this.visitClass ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = true;
 	}
@@ -131,6 +134,7 @@ class Visitor {
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
 		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
+		else if (word == Keys.CLASS) decls.insertBack (this.visitClass ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
 		decls.back ().isPublic = false;
@@ -141,6 +145,7 @@ class Visitor {
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
 	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
+	    else if (next == Keys.CLASS) decls.insertBack (this.visitClass ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = false;
 	}
@@ -361,6 +366,73 @@ class Visitor {
 	return ret;
     }
 
+
+    private Class visitClass () {
+	auto ident = this.visitIdentifiant ();
+	auto next = this._lex.next ();
+	Array!Expression temps;
+	Array!TypedVar thisVars, staticVars;
+	Var parent;
+	if (next == Tokens.LPAR) {
+	    next = this._lex.next ();
+	    if (next != Tokens.RPAR) {
+		this._lex.rewind ();
+		while (1) {
+		    temps.insertBack (visitType ());
+		    next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+		    if (next == Tokens.RPAR) break;
+		}
+	    }
+	    next = this._lex.next ();
+	}
+
+	if (next == Tokens.COLON) {
+	    parent = visitType ();
+	    next = this._lex.next ();
+	}
+	if (next != Tokens.LACC) throw new SyntaxError (next, [Tokens.LACC.descr]);
+	
+	bool doneStatic = false, doneThis = false;
+	foreach (it; 0 .. 2) {
+	    next = this._lex.next ();
+	    if (next == Tokens.PIPE) {
+		Array!TypedVar aux;
+		while (true) {
+		    aux.insertBack (this.visitStructVarDeclaration ());
+		    next = this._lex.next (Tokens.PIPE, Tokens.ARROW);
+		    if (next == Tokens.ARROW) break;
+		}
+		next = this._lex.next (Keys.THIS, Keys.STATIC);
+		if (next == Keys.THIS && !doneThis) {doneThis = true; thisVars = aux;}
+		else if (!doneStatic) {doneStatic = true; staticVars = aux;}
+		else throw new SyntaxError (next, doneStatic ? [Keys.THIS.descr] : [Keys.STATIC.descr]);
+		this._lex.next (Tokens.SEMI_COLON);
+	    } else {
+		this._lex.rewind ();
+		break;
+	    }
+	}
+
+	Array!Declaration decls, cst, dest;
+	while (true) {
+	    next = this._lex.next ();
+	    //if (next == Keys.NEW) cst.insertBack (visitConstruct ());
+	    //if (next == Keys.DELETE) dst.insertBack (visitDestruct ());
+	    if (next == Keys.DEF) decls.insertBack (visitFunction ());
+	    else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+	    else if (next == Keys.STRUCT) decls.insertBack (visitStruct ());
+	    else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
+	    else if (next == Tokens.RACC) break;
+	    else throw new SyntaxError (next, [Keys.NEW.descr,
+					       Keys.DELETE.descr,
+					       Keys.DEF.descr,
+					       Keys.IMPORT.descr,
+					       Keys.STRUCT.descr,
+					       Keys.STRUCT.descr,
+					       Keys.EXTERN.descr, Tokens.RACC.descr]);
+	}	
+	return new Class (ident, parent, temps, thisVars, staticVars, cst, dest, decls);
+    }    
     
     /**
      var := type; 

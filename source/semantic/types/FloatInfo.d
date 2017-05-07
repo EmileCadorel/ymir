@@ -139,15 +139,16 @@ class FloatInfo : InfoType {
 	if (cast(FloatInfo)other !is null) return this;
 	else if (auto ot = cast (DecimalInfo) other) {
 	    auto l = ot.clone ();
-	    final switch (ot.size.id) {
-	    case DecimalConst.BYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.BYTE)); break;
-	    case DecimalConst.UBYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UBYTE)); break;
-	    case DecimalConst.SHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.SHORT)); break;
-	    case DecimalConst.USHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.USHORT)); break;
-	    case DecimalConst.INT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.INT)); break;
-	    case DecimalConst.UINT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UINT)); break;
-	    case DecimalConst.LONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.LONG)); break;
-	    case DecimalConst.ULONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.ULONG)); break;
+	    switch (ot.size.id) {
+	    case LSize.BYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.BYTE)); break;
+	    case LSize.UBYTE.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UBYTE)); break;
+	    case LSize.SHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.SHORT)); break;
+	    case LSize.USHORT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.USHORT)); break;
+	    case LSize.INT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.INT)); break;
+	    case LSize.UINT.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.UINT)); break;
+	    case LSize.LONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.LONG)); break;
+	    case LSize.ULONG.id : l.lintInstS.insertBack (&FloatUtils.InstCastDec! (DecimalConst.ULONG)); break;
+	    default : { import std.conv; assert (false, to!(string)(ot.size)); }
 	    }
 	    return l;
 	}

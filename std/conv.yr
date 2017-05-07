@@ -152,8 +152,47 @@ def to if (is (T : [ubyte]))
 	}
 	return res;
     }
+       
+def to if (is (T : string))
+    (T) (elem : float) : string {
+	import std.traits;
+	if (elem < 0.) return "-" + to!(string) (-elem);
+	else if (elem == 0.) return "0";
+	let prec = 5UL;
+	let f = cast:int (elem * 100000.);
+	let size = 0UL, nb = f;	
+	while (nb > 0) { nb /= 10; size ++; }
+	let aux = [char; size + 1UL];
+	for (id in 0UL .. size + 1UL) {
+	    if (id == prec) {aux [aux.length - id - 1UL] = '.';}
+	    else {
+		aux [aux.length - id - 1UL] =  cast:char (f % 10) + '0';
+		f /= 10;
+	    }	    
+	}
+	return cast:string (aux);
+    }
+       
+def to if (is (T : string))
+    (T) (elem : float, prec : ulong) : string {
+	import std.traits;
+	if (elem < 0.) return "-" + to!(string) (-elem);
+	else if (elem == 0.) return "0";
+	let f = cast:ulong (elem * cast:float(10UL ^^ cast:long(prec)));
+	let size = 0UL, nb = f;	
+	while (nb > 0UL) { nb /= 10UL; size ++; }
+	if (size < prec) assert (false, "Précision trop grande " + to!string (prec));
+	let aux = [char; size + 1UL];
+	for (id in 0UL .. size + 1UL) {
+	    if (id == prec) aux [aux.length - id - 1UL] = '.';
+	    else {
+		aux [aux.length - id - 1UL] =  cast:char (f % 10UL) + '0';
+		f /= 10UL;
+	    }	    
+	}
+	return cast:string (aux);
+    }
 
-	
 
 
 

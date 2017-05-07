@@ -96,7 +96,7 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef (" %s%s%s%s%s", line[0 .. locus.column - 1],
+	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
 			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
@@ -106,7 +106,7 @@ class YmirException : Exception {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writefln (" %s", rightJustify ("", locus.length, '^'));
+	    buf.writefln ("%s", rightJustify ("", locus.length, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}
@@ -124,7 +124,7 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef (" %s%s%s%s%s%s%s%s%s", line[0 .. locus.column - 1],
+	    buf.writef ("%s%s%s%s%s%s%s%s%s", line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
 			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
@@ -139,12 +139,12 @@ class YmirException : Exception {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writef (" %s", rightJustify ("", locus.length, '^'));
+	    buf.writef ("%s", rightJustify ("", locus.length, '^'));
 	    foreach (it ; locus.column + locus.length - 1 .. locus2.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writefln (" %s", rightJustify ("", locus2.length, '^'));
+	    buf.writefln ("%s", rightJustify ("", locus2.length, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}
@@ -162,7 +162,7 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef (" %s%s%s%s%s", line[0 .. locus.column + index],
+	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column + index],
 			Colors.YELLOW.value,
 			line[locus.column + index .. locus.column + index + length],
 			Colors.RESET.value,
@@ -172,7 +172,7 @@ class YmirException : Exception {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writefln (" %s", rightJustify ("", length, '^'));
+	    buf.writefln ("%s", rightJustify ("", length, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}

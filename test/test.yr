@@ -1,21 +1,26 @@
 import std.stdio;
-import std.map;
-import std.algorithm;
-import std.string;
-import std.random;
-import std.array;
+import std.conv;
+import std.math;
+
+class A (T, U) {
+    | a : T
+    | b : U
+    -> this;
+    | b : s
+    -> static;
+
+    def test () {
+	let a = (this.a + static.b) / this.b;
+    }
+}
+
+class B(T, U) : A!(U, T) {    
+}
+
 
 def main () {
-    let a = ({
-	    void test (int a, int b) {		
-		return 10;			
-	    }					
-	});
     
-    a.splitLines
-	.map((a : string) => strip (a))
-	.each ((a : string) {
-		println (a);
-	}
-    );   
 }
+
+
+		 
