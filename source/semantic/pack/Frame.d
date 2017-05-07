@@ -217,5 +217,35 @@ class Frame {
     Frame TempOp (Array!Expression params) {
 	return null;
     }
+
+    /**
+       Returns: Le prototype de la fonction formaté
+     */
+    string protoString () {
+	auto buf = new OutBuffer ();
+	buf.writef("def %s.%s ", this.demangle (this._namespace), this._function.name);
+	if (!this._function.tmps.empty) {
+	    if (this._function.test) 
+		buf.writef ("if (%s) ", this._function.test.prettyPrint);	    
+	    buf.writef ("(");
+	    foreach (it ; this._function.tmps) {
+		buf.writef ("%s", it.prettyPrint);
+		if (it !is this._function.tmps [$ - 1])
+		    buf.writef (", ");
+	    }
+	    buf.writef (")");
+	}
+	buf.writef ("(");
+	foreach (it ; this._function.params) {
+	    buf.writef ("%s", it.prettyPrint);
+	    if (it !is this._function.params [$ - 1])
+		buf.writef (", ");
+	}
+	buf.writef (")");
+	if (this._function.type) {
+	    buf.writef (" : %s",this._function.type.prettyPrint);
+	}
+	return buf.toString ();
+    }
     
 }

@@ -3,14 +3,16 @@ import std.map;
 import std.algorithm;
 import std.random;
 
-def test (n : int) () : void {
-    static if (n > 0)
-	test! (n - 1)();
-    else 
-	static assert (false);
+def foo if (is (T : string))
+    (T) (a : T) {
+    }
+
+extern (C) foo (a : int, b : float) : int;
+
+def foo (a, b) {
+    return 10;
 }
 
 def main () {
-    let immutable a = 299;
-    test !(a)();
+    let a = foo (10);
 }

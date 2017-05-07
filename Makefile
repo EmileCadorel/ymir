@@ -1,15 +1,15 @@
 dmd: 
-	dub build
+	dub build --parallel
 
 all:
-	dub build
+	dub build --parallel
 
 std: all
 	cp ymir ${HOME}/libs/ymir
 	./std/install.sh
 
 final:
-	dub build --build=release
+	dub build --build=release --parallel
 
 clean:
 	dub clean

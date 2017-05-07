@@ -178,5 +178,30 @@ class ExternFrame : Frame {
 	if (this._proto is null) return super.ident ();
 	return this._proto.ident;
     }
+
+    override string protoString () {
+	import std.outbuffer;
+	if (this._function) return super.protoString ();
+	else {	   
+	    auto buf = new OutBuffer ();
+	    buf.writef("def %s.%s ", super.demangle (this._namespace), this._name);
+	    if (this._from !is null && this._from != "") {
+		buf.writef ("(%s)", this._from);
+	    }
+	    buf.writef ("(");
+	    foreach (it ; this._proto.params) {
+		buf.writef ("%s", it.prettyPrint);
+		if (it !is this._proto.params [$ - 1])
+		    buf.writef (", ");
+	    }
+	    buf.writef (")");
+	    if (this._proto.type) {
+		buf.writef (" : %s",this._proto.type.prettyPrint);
+	    }
+	    return buf.toString ();
+	}
+	
+    }
+
     
 }    

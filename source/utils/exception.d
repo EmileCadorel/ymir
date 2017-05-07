@@ -173,6 +173,8 @@ class UndefinedOp : YmirException {
      right = l'element de droite
      */
     this (Word token, Symbol left, ParamList right) {
+	import semantic.types.FunctionInfo;
+	
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
@@ -184,9 +186,19 @@ class UndefinedOp : YmirException {
 			Colors.YELLOW.value, it.info.type.typeString (), Colors.RESET.value);
 	    if (it !is right.params [$ - 1]) buf.writef (", ");
 	}
-	
-	buf.writefln ("):");	
-	super.addLine (buf, token.locus);
+
+	if (auto fun = cast(FunctionInfo) left.type) {
+	    buf.writefln ("): Candidates are");
+	    super.addLine (buf, token.locus);
+	    foreach (key, value ; fun.candidates) {
+		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);
+		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
+		super.addLine (buf, key.locus);
+	    }
+	} else {	
+	    buf.writefln ("):");
+	    super.addLine (buf, token.locus);
+	}
 	msg = buf.toString();        
     }
 
@@ -198,6 +210,7 @@ class UndefinedOp : YmirException {
      right = l'element de droite
      */
     this (Word token, Word token2, Symbol left, ParamList right) {
+	import semantic.types.FunctionInfo;
 	OutBuffer buf = new OutBuffer();
 	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Operateur '%s%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
@@ -210,8 +223,19 @@ class UndefinedOp : YmirException {
 	    if (it !is right.params [$ - 1]) buf.writef (", ");
 	}
 	
-	buf.writefln ("):");	
-	super.addLine (buf, token.locus, token2.locus);
+	if (auto fun = cast(FunctionInfo) left.type) {
+	    buf.writefln ("): Candidates are");
+	    super.addLine (buf, token.locus);
+	    foreach (key, value ; fun.candidates) {
+		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);
+		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
+		super.addLine (buf, key.locus);
+	    }
+	} else {	
+	    buf.writefln ("):");
+	    super.addLine (buf, token.locus);
+	}
+
 	msg = buf.toString();        
     }
     

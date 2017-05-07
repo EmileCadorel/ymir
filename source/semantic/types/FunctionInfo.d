@@ -249,6 +249,17 @@ class FunctionInfo : InfoType {
     override string simpleTypeString () {
 	return "f_";
     }
-    
+
+    /**
+       Returns: la liste des prototypes de fonctions possible
+     */
+    string [Word] candidates () {
+	string [Word] rets;
+	foreach (it ; this._infos) {
+	    rets [it.ident] = it.protoString;
+	}
+	return rets;
+    }
+
 }
 

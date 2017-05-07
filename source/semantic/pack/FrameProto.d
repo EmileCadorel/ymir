@@ -59,5 +59,7 @@ class FrameProto {
     ref Array!Var vars () {
 	return this._vars;
     }       
+    
+
 }
 
