@@ -1,18 +1,21 @@
 import std.stdio;
 import std.map;
 import std.algorithm;
+import std.string;
 import std.random;
-
-def foo if (is (T : string))
-    (T) (a : T) {
-    }
-
-extern (C) foo (a : int, b : float) : int;
-
-def foo (a, b) {
-    return 10;
-}
+import std.array;
 
 def main () {
-    let a = foo (10);
+    let a = ({
+	    void test (int a, int b) {		
+		return 10;			
+	    }					
+	});
+    
+    a.splitLines
+	.map((a : string) => strip (a))
+	.each ((a : string) {
+		println (a);
+	}
+    );   
 }

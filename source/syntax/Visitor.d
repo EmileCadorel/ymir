@@ -26,10 +26,10 @@ class Visitor {
     this (string file) {
 	this._lex = new Lexer (file,
 			       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
-			      [[Tokens.LCOMM1, Tokens.RCOMM1],
-			       [Tokens.LCOMM2, Tokens.RETOUR],
+			       [[Tokens.LCOMM1, Tokens.RCOMM1],
+				[Tokens.LCOMM2, Tokens.RETOUR],
 			        [Tokens.LCOMM3, Tokens.RCOMM3]]);
-
+	
 	this._ultimeOp = [Tokens.DIV_AFF, Tokens.AND_AFF, Tokens.PIPE_EQUAL,
 			  Tokens.MINUS_AFF, Tokens.PLUS_AFF, Tokens.LEFTD_AFF,
 			  Tokens.RIGHTD_AFF, Tokens.EQUAL, Tokens.STAR_EQUAL,
@@ -845,7 +845,7 @@ class Visitor {
 	    return visitNumeric (tok);
 	else if (tok == Tokens.DOT)
 	    return visitFloat (tok);
-	else if (tok == Tokens.APOS || tok == Tokens.GUILL)
+	else if (tok == Tokens.APOS || tok == Tokens.GUILL || tok == Tokens.BSTRING)
 	    return visitString (tok);
 	else if (tok == Keys.TRUE || tok == Keys.FALSE)
 	    return new Bool (tok);
@@ -1007,17 +1007,27 @@ class Visitor {
     }
 
     private Expression visitString (Word word) {
-	_lex.skipEnable (Tokens.SPACE, false);
+	_lex.skipEnable (Tokens.SPACE, false);       
 	_lex.commentEnable (false);
+	if (word == Tokens.BSTRING) {
+	    word.str = Tokens.ESTRING.descr;
+	    _lex.skipEnable (Tokens.RETOUR, false);
+	    _lex.skipEnable (Tokens.RRETOUR, false);
+	    _lex.skipEnable (Tokens.TAB, false);
+	}
+	
 	Word next, beg;
 	string val = "";
 	while (1) {
 	    next = _lex.next ();
-	    if (next.isEof ()) throw new SyntaxError (next);
+	    if (next.isEof ()) throw new SyntaxError (next);	    
 	    else if (next == word) break;
 	    else val ~= next.str;
 	}
 	_lex.skipEnable (Tokens.SPACE);
+	_lex.skipEnable (Tokens.RETOUR);
+	_lex.skipEnable (Tokens.RRETOUR);	
+	_lex.skipEnable (Tokens.TAB);
 	_lex.commentEnable ();
 	if (word == Tokens.APOS) {
 	    auto c = isChar (val);

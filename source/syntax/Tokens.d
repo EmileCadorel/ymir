@@ -73,7 +73,9 @@ enum Tokens : Token {
     LCOMM3 = Token ("/*", 66),
     RCOMM3 = Token ("*/", 67),
     SQRT = Token ("¬", 68),
-    ARROW = Token ("->",  69)
+    ARROW = Token ("->",  69),
+    BSTRING = Token ("({", 70),
+    ESTRING = Token ("})", 71)
 }    
 
 
