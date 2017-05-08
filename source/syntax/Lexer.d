@@ -275,6 +275,7 @@ class StringLexer : Lexer {
     }    
     
     protected override void constructWord (ref Word word, ulong beg, ulong _max, string line, ulong where) {
+	import syntax.Keys;
 	if (beg == line.length + 1) {
 	    this._beg += line.length;
 	    word.str = line;
@@ -285,7 +286,7 @@ class StringLexer : Lexer {
 	    word.str = line [0 .. min(beg, line.length)];
 	    this._beg = (where + beg);
 	}
-	word.locus = Location (this._line, this._column, word.str.length, this._content);
+	word.locus = Location (this._line, this._column, word.str.length, Keys.MIXIN.descr, this._content);
     }
 
     override bool isMixinContext () {

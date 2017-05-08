@@ -1,5 +1,3 @@
-
-
 def scan (T) (a : [T], call : function (T, T) : T) : [T] {
     let b = [T ; a.length];
     if (b.length == 0UL) return b;
@@ -10,13 +8,45 @@ def scan (T) (a : [T], call : function (T, T) : T) : [T] {
     return b;
 }
 
+def scan (op : string, T) (a : [T]) : [T] {
+    import std.traits;
+    let call = binaryFun!(op, T, T) ();
+    let b = [T ; a.length];
+    if (b.length == 0UL) return b;
+    b [0] = a [0];
+    for (it in 1UL .. (a.length)) {
+	b [it] = call (b [it - 1UL], a [it]);
+    }
+    return b;
+}
+
+
 def each (T) (a : [T], call : function (T) : void)  {
     for (it in a ) {
 	call (it);
     }
 }
 
+def each (op : string, T) (a : [T]) : void {
+    import std.traits;
+    let call = unaryFunVoid!(op, T) ();
+    for (it in a) {
+	call (it);
+    }
+}
+
 def filter (T) (a : [T], call : function (T) : bool) : [T] {
+    let b = [T ; 0UL];
+    for (it in 0UL .. a.length) {
+	if (call (a [it]))
+	    b += [a [it]];
+    }
+    return b;
+}
+
+def filter (op : string, T) (a : [T]) : [T] {
+    import std.traits;
+    let call = unaryFun!(op, T) ();
     let b = [T ; 0UL];
     for (it in 0UL .. a.length) {
 	if (call (a [it]))
@@ -39,6 +69,22 @@ def reduce (T) (a : [T], call : function (T, T) : T) : T {
     }
 }
 
+def reduce (op : string, T) (a : [T]) : T {
+    import std.traits;    
+    if (a.length == 0UL) {
+	static if (isPrimitive!(T) ())
+	    return T.init;
+	else return null;
+    } else {
+	let call = binaryFun!(op, T, T) ();
+	let b = a [0];
+	for (it in 1UL .. a.length) {
+	    b = call (a [it], b);
+	}
+	return b;
+    }
+}
+
 def map (T, U) (a : [T], call : function (T) : U) : [U] {
     let b = [U ; a.length];
     for (it in 0UL .. a.length) {
@@ -47,9 +93,30 @@ def map (T, U) (a : [T], call : function (T) : U) : [U] {
     return b;
 }
 
+def map (op : string, T) (a : [T])  {
+    import std.traits;
+    let call = unaryFun!(op, T) ();
+    let b = [typeof (call.retType) ; a.length];
+    for (it in 0UL .. a.length) {
+	b [it] = call (a [it]);
+    }
+    return b;
+}
+
+
 def zip (T, T2, T3) (a : [T], b : [T2], call : function (T, T2) : T3) : [T3] {
     if (a.length != b.length) assert (false, "Taille différente");
     let c = [T3 ; a.length];
+    for (it in 0UL .. a.length) {
+	c [it] = call (a [it], b [it]);
+    }
+    return c;
+}
+
+def zip (op : string, T, T2) (a : [T], b : [T2])  {
+    import std.traits;
+    let call = binaryFun!(op, T, T2) ();
+    let c = [typeof (call.retType) ; a.length];
     for (it in 0UL .. a.length) {
 	c [it] = call (a [it], b [it]);
     }

@@ -37,3 +37,27 @@ def isPrimitive (T) () {
     return !is (T : string) && !isArray!(T) () && !isTuple!(T) () && !is (T : struct);
 }
 
+
+def binaryFun (op : string, T, T2) () {
+    mixin (	   
+	   "let ret = (a : "  + T.typeid + ", b : " + T2.typeid + ") =>" + op + ";" +
+	   "return ret; "
+    );
+}
+
+def unaryFun (op : string, T) () {
+    mixin (	   
+	   "let ret = (a : "  + T.typeid + ") =>" + op + ";" +
+	   "return ret; "
+    );
+}
+
+def unaryFunVoid (op : string, T) () {
+    mixin (	   
+	   "let ret = (a : "  + T.typeid + ") { " + op + ";};" +
+	   "return ret; "
+    );
+}
+
+
+

@@ -7,6 +7,7 @@ struct Location {
     ulong column;
     ulong length;
     string file;
+    string mixLines;
     bool eof;
 }
 
@@ -64,7 +65,7 @@ struct Word {
     }
     
     static Word eof () {
-	return Word (Location (0, 0, 0, null, true), "");
+	return Word (Location (0, 0, 0, null, null, true), "");
     }
     
 }

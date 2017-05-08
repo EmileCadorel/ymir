@@ -1,18 +1,14 @@
 import std.stdio;
 import std.conv;
 import std.math, std.array;
-
-def binaryFun (op : string, T) () {
-    mixin (	   
-	   "let ret = (a : "  + T.typeid + ", b : " + T.typeid + ") =>" + op + ";" +
-	   "return ret; "
-    );
-}
+import std.algorithm;
 
 
 def main () {    
-    let b = 10;
-    println (binaryFun!(({ a - b * a }), int) () (10, 12));
+    let a = [[1, 2], [2], [13, 12, 11]];    
+    println (a.map!'a[0]'
+	     .reduce!'a + b'
+    );    
 }
 
 

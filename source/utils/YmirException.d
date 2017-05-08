@@ -88,7 +88,7 @@ class YmirException : Exception {
 	    return cline;
 	} else {
 	    import std.stdio;
-	    auto lines = locus.file.splitLines ();
+	    auto lines = locus.mixLines.splitLines ();
 	    return lines [locus.line - 1];
 	}
     }
