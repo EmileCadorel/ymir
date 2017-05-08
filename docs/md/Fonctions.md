@@ -82,6 +82,39 @@ Les fonctions externes ne sont pas importées par défaut. Pour les importer, il
     ```D    
     public extern (C) putchar (c : char);
      ```
+	 
+<br>
+## Décorateur de paramètre
+<hr>
+
+Il existe des decorateurs de paramètres par exemple:
+```D
+    def foo (ref a, const b : int) : ref int {}
+```
+<br>
+Le mot clé `ref` force le passage d'un référence à la fonction.
+Le mot clé `const` garantie qu'il ne sera fait aucune modification au paramètre.
+<br>
+
+```D
+
+def foo (ref a) {
+	a = 1;
+}
+
+def foo2 (const a) {
+	a = 10; // Erreur a est constant
+}
+
+let a = 10;
+foo (10); // Erreur, impossible de créé un ref à partir d'un élément constant
+foo (a); // Ok
+println (a); // '1'
+
+```
+
+
+
 
 <br>
 ## Cas particuliers
@@ -214,8 +247,7 @@ def square (a : int) : int {
 }
 
 // ...
-foo (function (int) : int (square));
-
+foo (&square); // il n'existe qu'un seule surcharge typé de square, l'operateur & fonctionne
 ```
 
 <br>
@@ -229,10 +261,11 @@ def foo (ptr : function (string) : string) {
 }
 
 // ...
-foo (function (str : string) : string {
+foo ((str : string) {
 	return str.substr (0u, 6u) + "Bob";
 }); // Ok, 'Hello Bob'
 
+foo ((str : string) => str.substr (0u, 6u) + "Bob"); // Ou en une ligne
 ```
 
 <br>

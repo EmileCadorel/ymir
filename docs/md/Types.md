@@ -15,6 +15,39 @@ c = b; // Erreur, pas d'operateur '=' entre (int) et (string).
 ```
 
 <br>
+## Décorateur de variable
+<hr>
+
+il existe des décorateur de variable, par exemple:
+```D
+let static a = 1, immutable b = 12, const c = 'salut';
+```
+
+Ces décorateurs permettent : 
+- pour `static`, de n'intialiser la variable qu'une seule fois en début de programme
+- pour `immutable`, de garantir que la variable n'est utilisé que pour le compilation
+- pour `const`, que la variable ne sera jamais modifié
+
+```D
+let immutable a; // Erreur, création d'un variable immutable sans valeur
+let immutable b = Test (1); // Erreur, la valeur de Test(1) ne peut être connu à la compilation
+
+let const c = 10; // Ok
+c = 1; //Erreur, c est constant
+
+def foo () {
+	let static a = 0;
+	println (a += 1);
+}
+
+
+foo (); // 1
+foo (); // 2
+
+```
+
+
+<br>
 ## Type primitif
 -----------------
 
@@ -36,7 +69,7 @@ Ymir interdit la perte de précision implicite, on ne peut affecter (sans cast) 
 
 ```D
 let a = 10; // a est de type int.
-let b = 1l; // b est de type long.
+let b = 1L; // b est de type long.
 
 a = b; // Erreur 
 b = a; // Ok
@@ -47,7 +80,7 @@ b = a; // Ok
 Il est aussi impossible de transformer un signé vers un non signé et inversement.
 
 ```D
-let a = 1u; // a est de type uint
+let a = 1U; // a est de type uint
 let b = 1; // b est de type int
 
 a = b; // Erreur
@@ -70,13 +103,11 @@ Les propriétés des types décimaux sont les suivantes :
 ### Types à virgule flottante
 ---------------
 
-Les floats et les doubles sont les deux types à virgule flottante.
-Comme pour les entiers, on ne peut passer d'un double à un float sans cast.
-(Les floats ne sont pas encore gérés).    
+Les `float` sont des types à virgule flottante.
+(Les `float32` ne sont pas encore gérés).    
 
 ```D
-let a = 8., b = .78, c = 8.7f; 
-c = a; // Erreur, c:float, a:double
+let a = 8., b = .78, c = 8.7f; //c est de type float32 
 c = cast:float (a); // Ok
 a = c; // Ok
 
@@ -104,7 +135,7 @@ Les propriétés des types flottants sont les suivantes :
  ### Range
 -----------
 
-Le type range est un type particulier, il prend un type en templates (un type décimal, flottant ou _char_).
+Le type range est un type particulier, il prend un type en templates (un type décimal, flottant ou `char`).
 Il s'obtient avec la syntaxe 
 
 ```D
@@ -138,7 +169,7 @@ let a = (1, 2, 'salut'); // a est de type 'tuple!(int, int, string).
 Contrairement à d'autres langages (comme python), il est impossible de déclarer un tuple ne possédant aucune ou une seule valeur.
 ```D
 let a = (1); // a est de type int;
-let b = (); //Erreur
+let b = (); // Erreur
 ```
 
 <br>

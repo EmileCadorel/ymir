@@ -13,17 +13,17 @@
 <hr>
 
 <p>Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.</p>
-<p>Il existe deux syntaxes pour définir les structures :</p>
-<pre class="hljs"><code><span class="hljs-keyword">struct</span> (i : <span class="hljs-keyword">int</span>) A;
-<span class="hljs-keyword">struct</span> (f : <span class="hljs-built_in">float</span>, tab : [<span class="hljs-keyword">int</span>]) B;</code></pre><p><br>
-Ou :</p>
+<p><br></p>
 <pre class="hljs"><code><span class="hljs-keyword">struct</span> 
 | f : <span class="hljs-built_in">float</span>
 | tab : [<span class="hljs-keyword">int</span>]
 -&gt; B;</code></pre><p><br>
 Et on les instancie :</p>
 <pre class="hljs"><code>let a = A (<span class="hljs-number">10</span>), b = B (.<span class="hljs-number">1</span>, []);
-let b2 = b; <span class="hljs-comment">// b2 est une reference vers b, aucune recopie n'est faite.</span></code></pre><p>L&#39;accès au paramètre se fait avec l&#39;opérateur &#39;<em>.</em>&#39;</p>
+let b2 = b; <span class="hljs-comment">// b2 est une reference vers b, aucune recopie n'est faite.</span></code></pre><p><br>
+Les construction doivent se faire avec tout les paramètres ou aucun.</p>
+<p><br>
+L&#39;accès au paramètre se fait avec l&#39;opérateur <code>.</code></p>
 <pre class="hljs"><code>print (a.i);
 print (b.f);
 print (b.s); <span class="hljs-comment">// Erreur, la structure B(float) n'a pas d'attribut 's'</span>
@@ -49,11 +49,38 @@ println (a.attr); <span class="hljs-comment">// 123</span></code></pre><p><br></
 <pre class="hljs"><code> def test () {}
  def foo () {
      {
-        <span class="hljs-keyword">struct</span> (a : <span class="hljs-keyword">int</span>) C;
-        <span class="hljs-keyword">struct</span> (a : <span class="hljs-keyword">int</span>, f : <span class="hljs-built_in">float</span>) test; <span class="hljs-comment">// Erreur, 'test' existe déjà, c'est une fonction</span>
+        <span class="hljs-keyword">struct</span> 
+        | a : <span class="hljs-keyword">int</span> 
+        -&gt; C;
+
+        <span class="hljs-keyword">struct</span> 
+        | a : <span class="hljs-keyword">int</span> 
+        | f : <span class="hljs-built_in">float</span> 
+        -&gt; test; <span class="hljs-comment">// Erreur, 'test' existe déjà, c'est une fonction</span>
+
         let a = C (<span class="hljs-number">123</span>); <span class="hljs-comment">// Ok, a est de type 'C'</span>
      }
      let c = C (<span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, 'C' n'existe pas</span>
- }</code></pre>    </article>
+ }</code></pre><p><br></p>
+<h2 id="structure-templates"><a class="header-link" href="#structure-templates"></a>Structure templates</h2>
+<hr>
+
+<p>On peut déclarer et instancié des structures ayant des paramètre templates.</p>
+<pre class="hljs"><code>
+<span class="hljs-keyword">struct</span> (K, V)
+| key : K
+| value : V
+| left : Entry !(K, V)
+| right : Entry !(K, V)
+-&gt; Entry;
+
+<span class="hljs-comment">// ...</span>
+
+let a = Entry (<span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur</span>
+let b = Entry !(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">string</span>) (<span class="hljs-number">1</span>, <span class="hljs-string">"salut"</span>, <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>); <span class="hljs-comment">// Ok</span>
+let c = Entry !(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">string</span>) (); <span class="hljs-comment">// Ok</span>
+let d = Entry !(<span class="hljs-string">"salut"</span>, <span class="hljs-built_in">string</span>) (); <span class="hljs-comment">// Erreur</span></code></pre><p><br></p>
+<p>Contrairement au fonction, on ne peut pas spécialiser les templates des structures avec des constantes.</p>
+    </article>
   </body>
 </html>

@@ -3,14 +3,7 @@
 
 Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.
 
-Il existe deux syntaxes pour définir les structures :
-```D
-struct (i : int) A;
-struct (f : float, tab : [int]) B;
-
-```
 <br>
-Ou :
 ```D
 struct 
 | f : float
@@ -26,7 +19,11 @@ let a = A (10), b = B (.1, []);
 let b2 = b; // b2 est une reference vers b, aucune recopie n'est faite.
 
 ```
-L'accès au paramètre se fait avec l'opérateur '_._'
+<br>
+Les construction doivent se faire avec tout les paramètres ou aucun.
+
+<br>
+L'accès au paramètre se fait avec l'opérateur `.`
 
 ```D
 print (a.i);
@@ -65,13 +62,46 @@ println (a.attr); // 123
  def test () {}
  def foo () {
      {
-        struct (a : int) C;
-        struct (a : int, f : float) test; // Erreur, 'test' existe déjà, c'est une fonction
+        struct 
+		| a : int 
+		-> C;
+		
+        struct 
+		| a : int 
+		| f : float 
+		-> test; // Erreur, 'test' existe déjà, c'est une fonction
+		
         let a = C (123); // Ok, a est de type 'C'
      }
      let c = C (10); // Erreur, 'C' n'existe pas
  }
  ```
+
+<br>
+## Structure templates
+<hr>
+
+On peut déclarer et instancié des structures ayant des paramètre templates.
+```D
+
+struct (K, V)
+| key : K
+| value : V
+| left : Entry !(K, V)
+| right : Entry !(K, V)
+-> Entry;
+
+// ...
+
+let a = Entry (10); // Erreur
+let b = Entry !(int, string) (1, "salut", null, null); // Ok
+let c = Entry !(int, string) (); // Ok
+let d = Entry !("salut", string) (); // Erreur
+```
+<br>
+
+Contrairement au fonction, on ne peut pas spécialiser les templates des structures avec des constantes.
+
 
 
 

@@ -73,6 +73,27 @@ Ces fonctions doivent être déclarées avec leurs types, ainsi que leur type de
 <pre class="hljs"><code>```D    
 public extern (C) putchar (c : char);
  ```</code></pre><p><br></p>
+<h2 id="décorateur-de-paramètre"><a class="header-link" href="#décorateur-de-paramètre"></a>Décorateur de paramètre</h2>
+<hr>
+
+<p>Il existe des decorateurs de paramètres par exemple:</p>
+<pre class="hljs"><code>    def foo (<span class="hljs-keyword">ref</span> a, <span class="hljs-keyword">const</span> b : <span class="hljs-keyword">int</span>) : <span class="hljs-keyword">ref</span> <span class="hljs-keyword">int</span> {}</code></pre><p><br>
+Le mot clé <code>ref</code> force le passage d&#39;un référence à la fonction.
+Le mot clé <code>const</code> garantie qu&#39;il ne sera fait aucune modification au paramètre.
+<br></p>
+<pre class="hljs"><code>
+def foo (<span class="hljs-keyword">ref</span> a) {
+    a = <span class="hljs-number">1</span>;
+}
+
+def foo2 (<span class="hljs-keyword">const</span> a) {
+    a = <span class="hljs-number">10</span>; <span class="hljs-comment">// Erreur a est constant</span>
+}
+
+let a = <span class="hljs-number">10</span>;
+foo (<span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, impossible de créé un ref à partir d'un élément constant</span>
+foo (a); <span class="hljs-comment">// Ok</span>
+println (a); <span class="hljs-comment">// '1'</span></code></pre><p><br></p>
 <h2 id="cas-particuliers"><a class="header-link" href="#cas-particuliers"></a>Cas particuliers</h2>
 <hr>
 <ul class="list">
@@ -173,7 +194,7 @@ def square (a : <span class="hljs-keyword">int</span>) : <span class="hljs-keywo
 }
 
 <span class="hljs-comment">// ...</span>
-foo (<span class="hljs-built_in">function</span> (<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span> (square));</code></pre><p><br>
+foo (&amp;square); <span class="hljs-comment">// il n'existe qu'un seule surcharge typé de square, l'operateur &amp; fonctionne</span></code></pre><p><br>
 On peut également créer des fonctions anonymes (lambda).</p>
 <pre class="hljs"><code><span class="hljs-keyword">import</span> std.<span class="hljs-built_in">string</span>;
 
@@ -182,9 +203,11 @@ def foo (ptr : <span class="hljs-built_in">function</span> (<span class="hljs-bu
 }
 
 <span class="hljs-comment">// ...</span>
-foo (<span class="hljs-built_in">function</span> (str : <span class="hljs-built_in">string</span>) : <span class="hljs-built_in">string</span> {
+foo ((str : <span class="hljs-built_in">string</span>) {
     <span class="hljs-keyword">return</span> str.substr (<span class="hljs-number">0u</span>, <span class="hljs-number">6u</span>) + <span class="hljs-string">"Bob"</span>;
-}); <span class="hljs-comment">// Ok, 'Hello Bob'</span></code></pre><p><br></p>
+}); <span class="hljs-comment">// Ok, 'Hello Bob'</span>
+
+foo ((str : <span class="hljs-built_in">string</span>) =&gt; str.substr (<span class="hljs-number">0u</span>, <span class="hljs-number">6u</span>) + <span class="hljs-string">"Bob"</span>); <span class="hljs-comment">// Ou en une ligne</span></code></pre><p><br></p>
 <h2 id="appel-par-l'opérateur-'.'"><a class="header-link" href="#appel-par-l'opérateur-'.'"></a>Appel par l&#39;opérateur &#39;.&#39;</h2>
 <hr>
 <p>Les types non-primitifs peuvent être utilisés comme premier paramètre en utilisant l&#39;operateur &#39;.&#39;.</p>
