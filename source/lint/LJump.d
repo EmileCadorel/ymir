@@ -26,7 +26,7 @@ class LJump : LInst {
 
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("Je %s %s\n", this._test.toString(),
+	buf.writef ("Je %s %s", this._test.toString(),
 		    this._lbl1.toSimpleString ());
 	return buf.toString ();
     }

@@ -75,7 +75,6 @@ class LLabel : LInst {
 	buf.writef ("lbl%s%s:", this._id, this._name ? this._name : "");
 	if (this._insts !is null)
 	    buf.write (this._insts.toString ());
-	else buf.writefln ("");
 	return buf.toString ();
     }
     

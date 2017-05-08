@@ -6,6 +6,7 @@ import std.container;
 import semantic.pack.Table, semantic.pack.FrameTable;
 import utils.exception;
 import ast.Block;
+import semantic.types.ClassInfo, semantic.pack.Symbol;
 
 class ClassDecl : Declaration {
     
@@ -72,10 +73,10 @@ class Class : Declaration {
 	} else {
 	    if (this._dst.length > 1)
 		throw new MultipleDestructor (this._ident, this._dst);
-	    /*auto str = new ClassCstInfo (this._ident.str, this._tmps, this._cst, this._dst);	    	   
-	      FrameTable.instance.insert (str);
-	      auto sym = new Symbol (this._ident, str);
-	    */
+	    auto clss = new ClassCstInfo (this._ident.str, this);
+	    FrameTable.instance.insert (clss);
+	    auto sym = new Symbol (this._ident, clss);
+	    Table.instance.insert (sym);	    
 	}
     }
     
@@ -98,6 +99,14 @@ class Constructor : ClassDecl {
 	this._block = block;
     }
 
+    Array!Var params () {
+	return this._params;
+    }
+
+    Word token () {
+	return this._ident;
+    }
+    
     override void declare () {}
 }
 

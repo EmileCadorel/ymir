@@ -10,7 +10,6 @@ import semantic.pack.Frame;
 import semantic.pack.FrameProto;
 import semantic.pack.FinalFrame;
 
-
 class PureFrame : Frame {
 
     /** le nom de la frame */
@@ -35,7 +34,6 @@ class PureFrame : Frame {
 	if (func)
 	    this._name = func.ident.str;
     }
-
        
     /**
      Analyse sémantique de la frame.

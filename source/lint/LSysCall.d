@@ -42,7 +42,7 @@ class LSysCall : LExp {
 		buf.writef ("%s, ", it);
 	    else  buf.writef ("%s", it);
 	}
-	buf.writef("]) -> %s\n", this._ret);
+	buf.writef("]) -> %s", this._ret);
 	return buf.toString ();
     }
     

@@ -6,6 +6,7 @@ import semantic.types.StructInfo;
 import semantic.pack.PureFrame;
 import semantic.pack.FinalFrame;
 import semantic.pack.FrameProto;
+import semantic.types.ClassInfo;
 
 /**
  Cette classe est un singleton qui contient toutes les instances de frames.
@@ -27,7 +28,9 @@ class FrameTable {
 
     /** La liste des structures declaré */
     private Array!StructCstInfo _structs;
-    
+
+    /** La liste des classes déclaré */
+    private Array!ClassCstInfo _classes;    
 
     /**
      Insertion d'une nouvelle frame pure
@@ -56,6 +59,10 @@ class FrameTable {
 	this._structs.insertBack (str);
     }    
     
+    void insert (ClassCstInfo clss) {
+	this._classes.insertBack (clss);
+    }
+
     /**
      Insertion d'une frame analysée sémantiquement résultat d'un template.
      Params:

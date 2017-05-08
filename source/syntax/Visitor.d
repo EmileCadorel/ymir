@@ -24,12 +24,15 @@ class Visitor {
     private bool _lambdaPossible;
     
     this (string file) {
+	this ();
 	this._lex = new Lexer (file,
 			       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
 			       [[Tokens.LCOMM1, Tokens.RCOMM1],
 				[Tokens.LCOMM2, Tokens.RETOUR],
 			        [Tokens.LCOMM3, Tokens.RCOMM3]]);
-	
+    }
+    
+    this () {	
 	this._ultimeOp = [Tokens.DIV_AFF, Tokens.AND_AFF, Tokens.PIPE_EQUAL,
 			  Tokens.MINUS_AFF, Tokens.PLUS_AFF, Tokens.LEFTD_AFF,
 			  Tokens.RIGHTD_AFF, Tokens.EQUAL, Tokens.STAR_EQUAL,
@@ -67,6 +70,10 @@ class Visitor {
 	this._lambdaPossible = true;
     }
 
+    ref Lexer lexer () {
+	return this._lex;
+    }
+    
     /**
      program := function | import | struct | class;
      */
@@ -645,7 +652,10 @@ class Visitor {
      Identifiant := ('_')* ([a-z]|[A-Z]) ([a-z]|[A-Z]|'_')|[0-9])*
      */
     private Word visitIdentifiant () {
-	auto ident = _lex.next ();	
+	auto ident = _lex.next ();
+	if (ident.isEof () && this._lex.isMixinContext)
+	    return Word.eof ();
+	
 	if (ident.isToken ())
 	    throw new SyntaxError (ident, ["'Identifiant'"]);
 	
@@ -705,6 +715,10 @@ class Visitor {
 	return true;
     }
     
+    Block visitBlockOutSide () {
+	return visitBlock ();
+    }
+
     /**
      block := '{' instruction* '}'
              | instruction
@@ -820,6 +834,10 @@ class Visitor {
 	return new VarDecl (tok, decos, decls, insts);
     }
 
+    public Expression visitExpressionOutSide () {
+	return this.visitExpressionUlt ();
+    }
+    
     /**
      expressionult := expression (_ultimeop expression)*
      */
@@ -841,7 +859,7 @@ class Visitor {
 	} else _lex.rewind ();
 	return left;
     }
-
+    
     private Expression visitExpression () {
 	auto left = visitUlow ();
 	auto tok = _lex.next ();
@@ -986,9 +1004,9 @@ class Visitor {
 	return exp;
     }
 
-    private Expression visitConstante () {
-	auto tok = _lex.next ();
-	if (tok.isEof ()) throw new SyntaxError (tok);
+    private Expression visitConstante () {       
+	auto tok = this._lex.next ();
+	if (tok.isEof ()) return null;
 	if (tok.str [0] >= '0'&& tok.str [0] <= '9')
 	    return visitNumeric (tok);
 	else if (tok == Tokens.DOT)
@@ -1093,7 +1111,7 @@ class Visitor {
 	}
 	return new Float (next);
     }
-
+    
 
 
     private short fromHexa (string elem) {
@@ -1186,7 +1204,7 @@ class Visitor {
 
 
     private Expression visitPthWPar (Word tok) {
-	_lex.rewind ();
+	this._lex.rewind ();
 	auto constante = visitConstante ();
 	if (constante !is null) {
 	    tok = this._lex.next ();
@@ -1211,6 +1229,8 @@ class Visitor {
 	    return visitConstArray ();
 	} else if (word == Keys.FUNCTION) {
 	    return visitFuncPtr ();
+	} else if (word == Keys.MIXIN) {
+	    return visitMixin ();
 	} else this._lex.rewind ();
 	auto var = visitVar ();
 	auto next = _lex.next ();
@@ -1430,6 +1450,17 @@ class Visitor {
 	return retour;
     }
 
+    /**
+       mixin := 'mixin' expression 
+     */
+    private Expression visitMixin () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto expr = visitPth ();
+	return new Mixin (begin, expr);
+    }
+    
+    
     private Expression visitAfter (Word word, Expression left) {
 	return new AfUnary (word, left);
     }

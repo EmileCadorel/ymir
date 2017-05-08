@@ -1,5 +1,5 @@
 module lint.LInstList;
-import lint.LInst, lint.LExp, lint.LLabel;
+import lint.LInst, lint.LExp, lint.LLabel, lint.LLocus;
 import std.container, std.outbuffer;
 
 class LInstList {
@@ -88,13 +88,14 @@ class LInstList {
     }
 
     override string toString () {
+	import std.string;
 	OutBuffer buf = new OutBuffer ();
 	if (!this._inst.empty) buf.write ("\n");
 	foreach (it ; this._inst) {
-	    if (cast (LLabel) it is null)
-		buf.writef ("\t%s", it.toString());
-	    else
-		buf.writef ("%s", it.toString());
+	    if (cast (LLabel) it is null && cast (LLocus) it is null)
+		buf.writefln ("\t%s", it.toString());
+	    else if (cast (LLabel) it)
+		buf.writefln ("%s", it.toString());
 	}
 	return buf.toString ();
     }

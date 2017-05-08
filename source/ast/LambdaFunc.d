@@ -80,7 +80,7 @@ class LambdaFunc : Expression {
     
     override Expression expression () {
 	if (this._expr) return expressionWithExpr ();	
-	string name = "_YP" ~ Table.instance.namespace () ~ "lambda";
+	string name = "_YP" ~ Frame.mangle (Table.instance.namespace ()) ~ "lambda";
 		
 	Table.instance.enterFrame (name, this._params.length, true);
 	Table.instance.enterBlock ();

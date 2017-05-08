@@ -74,7 +74,8 @@ class LCall : LExp {
 		buf.writef ("%s,\n\t\t\t", it);
 	    else  buf.writef ("%s", it);
 	}
-	buf.writef("], %s)\n", to!string (this._size));
+	buf.writef("], %s)", to!string (this._size));
+	
 	return buf.toString ();
     }
     

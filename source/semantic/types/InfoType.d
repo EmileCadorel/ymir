@@ -238,8 +238,12 @@ class InfoType {
 	return this._isStatic;
     }
 
-    ref bool isType () {
+    bool isType () {
 	return this._isType;
+    }
+
+    void isType (bool isType) {
+	this._isType = isType;
     }
     
     /**

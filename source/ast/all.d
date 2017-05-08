@@ -41,3 +41,4 @@ public import ast.Assert;
 public import ast.Is;
 public import ast.TypeOf;
 public import ast.Class;
+public import ast.Mixin;

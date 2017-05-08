@@ -79,11 +79,18 @@ class YmirException : Exception {
      Returns retourne la ligne x d'un fichier
      */
     private string getLine (Location locus) {
-	auto file = File (locus.file, "r");
-	string cline = null;
-	foreach (it ; 0 .. locus.line)
-	    cline = file.readln ();
-	return cline;
+	import std.path, std.string;
+	if (locus.file.extension == ".yr") {
+	    auto file = File (locus.file, "r");
+	    string cline = null;
+	    foreach (it ; 0 .. locus.line)
+		cline = file.readln ();
+	    return cline;
+	} else {
+	    import std.stdio;
+	    auto lines = locus.file.splitLines ();
+	    return lines [locus.line - 1];
+	}
     }
 
     /**

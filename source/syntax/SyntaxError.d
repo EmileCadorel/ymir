@@ -8,6 +8,8 @@ import std.stdio;
 
 class SyntaxError : YmirException {
     
+    private Word _sym;
+    
     this (Word word) {
 	OutBuffer buf = new OutBuffer();
 	buf.write (Colors.RED.value);
@@ -17,10 +19,11 @@ class SyntaxError : YmirException {
 	buf.write ("'" ~ word.str ~ "'\n");
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
-	} else {
+	} else if (word.locus.file != "") {
 	    super.addLine (buf, word.locus);
 	}
 	msg = buf.toString();
+	this._sym = word;
     }
 
     this (Word word, string [] expected) {
@@ -39,10 +42,16 @@ class SyntaxError : YmirException {
 	buf.write ("} sont attendus \n");
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
-	} else {
+	} else if (word.locus.file != "") {
 	    super.addLine (buf, word.locus);
 	}
 	msg = buf.toString();
+	this._sym = word;
     }
-       
+
+    this (string ancMsg, string mixinExp) {
+	OutBuffer buf = new OutBuffer();
+	buf.writefln ("%s\nDans l'expression mixin : %s", ancMsg, mixinExp);
+	msg = buf.toString();
+    }    
 }

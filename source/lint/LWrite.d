@@ -32,7 +32,7 @@ class LWrite : LInst {
     
     override string toString () {
 	auto buf = new OutBuffer;
-	buf.writefln ("%s := %s",
+	buf.writef ("%s := %s",
 		      this._left.toString (),
 		      this._right.toString ());
 	

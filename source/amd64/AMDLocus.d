@@ -1,6 +1,6 @@
 module amd64.AMDLocus;
 import target.TInst, syntax.Word;
-import std.outbuffer;
+import std.outbuffer, std.path;
 import utils.Options;
 
 class AMDFile : TInst {
@@ -42,7 +42,7 @@ class AMDLocus : TInst {
 
     this (Location locus) {
 	this._loc = locus;
-	if (this._loc.file != "") 
+	if (this._loc.file != "" && this._loc.file.extension == ".yr") 
 	    this._id = AMDFile.__locusFiles__ [locus.file];
     }
 

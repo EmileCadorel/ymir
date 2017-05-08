@@ -30,7 +30,7 @@ class Expression : Instruction {
     /**
      Applique l'analyse sémantique de l'instruction
      */
-    override final Instruction instruction () {
+    override Instruction instruction () {
 	return this.expression ();
     }
 

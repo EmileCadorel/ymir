@@ -9,6 +9,7 @@ import semantic.types.TupleInfo;
 import ast.Dot;
 import semantic.types.RefInfo;
 import semantic.pack.Table;
+import semantic.types.ClassInfo, semantic.types.StructInfo;
 
 /**
  Généré à la syntaxe pour l'operateur multiple.
@@ -63,7 +64,10 @@ class Par : Expression {
 		
 		if (cast (Type) aux._left !is null) throw new UseAsVar (aux._left.token, aux._left.info);
 		else if (cast(UndefInfo) aux._left.info !is null) throw new UninitVar (aux._left.token);
-		else if (aux._left.info !is null && aux._left.info.isType) throw new UseAsVar (aux._left.token, aux._left.info);
+		else if (aux._left.info !is null && aux._left.info.isType) {
+		    if (!cast (ClassCstInfo) aux._left.info.type && !cast (StructCstInfo) aux._left.info.type)
+			throw new UseAsVar (aux._left.token, aux._left.info);
+		}
 		
 		bool dotCall = false;
 		if (auto dcall = cast (DotCall) aux._left) {
