@@ -19,7 +19,8 @@ class LLocus : LInst {
     }
     
     override string toString () {
-	return to!string (this._locus) ~ "\n";
+	//return to!string (this._locus) ~ "\n";
+	return "";
     }
     
 }

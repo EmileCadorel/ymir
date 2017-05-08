@@ -1,26 +1,26 @@
 import std.stdio;
 import std.conv;
-import std.math;
+import std.math, std.array;
 
-class A (T, U) {
-    | a : T
-    | b : U
-    -> this;
-    | b : s
-    -> static;
+struct (T)
+| a : T
+-> Test;
 
-    def test () {
-	let a = (this.a + static.b) / this.b;
-    }
+def print (a : Test!int) {
+    if (a !is null)
+	print (a.a);
 }
-
-class B(T, U) : A!(U, T) {    
-}
-
 
 def main () {
-    
+    let a = [Test!int ; 10UL];
+    println (a);
+    for (it in a) {
+	it = Test!int (1);
+    }
+    println (a);
 }
+
+
 
 
 		 

@@ -33,6 +33,7 @@ def main (args) {
     if (nb % 2UL != 0UL) {
 	assert (false, "On a besoin d'un nombre pair de process pas " + args [1]);
     }
+    
     let a = spawn (nb, &slave);
-    joinAll (a);
+    joinAll (a);    
 }

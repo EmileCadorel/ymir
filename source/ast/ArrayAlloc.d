@@ -36,7 +36,8 @@ class ArrayAlloc : Expression {
 	this._type = type;
 	this._size = size;
 	this._size.inside = this;
-	this._type.inside = this;
+	if (this._type)
+	    this._type.inside = this;
     }
 
 
@@ -46,15 +47,22 @@ class ArrayAlloc : Expression {
      Throws: UseAsType, IncompatibleTypes
      */
     override Expression expression () {
-	import semantic.types.StructInfo;
-	auto aux = new ArrayAlloc (this._token, this._type.expression, this._size.expression);
+	import semantic.types.StructInfo, ast.ParamList, semantic.pack.Table;
+	auto aux = new ArrayAlloc (this._token, null, this._size.expression);
+	
+	aux._type = this._type.expression;
 	if (!cast (Type) aux._type && !(cast (StructCstInfo) aux._type.info.type)) throw new UseAsType (aux._type.token);
-
+	if (auto type = cast (StructCstInfo) aux._type.info.type) {
+	    aux._type.info.type = type.CallOp (aux._type.token, new ParamList (this._token, make!(Array!Expression))).ret;
+	    Table.instance.removeGarbage (aux._type.info);
+	}
+	
+	
 	auto ul = new Symbol (false, this._token, new DecimalInfo (DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);
 	if (cmp is null) throw new IncompatibleTypes (ul, aux._size.info);
-	if ((cast(Type) aux._type) is null) throw new UseAsType (aux._type.token);	
 	aux._cster = cmp;
+	
 	aux.info = new Symbol (this._token, new ArrayInfo (aux._type.info.type.clone));
 	
 	return aux;	

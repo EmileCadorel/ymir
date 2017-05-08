@@ -113,7 +113,7 @@ class StructCstInfo : InfoType {
 	return ret;
     }
 
-    private InfoType create (Word name) {
+    InfoType create (Word name) {
 	if (this._types.empty) {	    	    
 	    foreach (it ; this._params) {
 		auto printed = false;

@@ -518,6 +518,11 @@ class LVisitor {
     
     private LInstList visitAlloc (ArrayAlloc alloc) {
 	auto type = cast (ArrayInfo) alloc.info.type;
+	if (alloc.type.info.type.leftTreatment) {
+	    // On créer les constructeurs et les dests, si le type est un struct templates
+	    alloc.type.info.type.leftTreatment (alloc.type.info.type, null, null); 
+	}
+	
 	Array!LExp params;
 	auto expInst = visitExpression (alloc.size);
 	if (alloc.cster) {
