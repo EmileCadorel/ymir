@@ -54,5 +54,6 @@ enum Keys : Token {
     CONST = Token ("const", 49),
     IMMUTABLE = Token ("immutable", 50),
     REF = Token ("ref", 51),
-    THIS = Token ("this", 52)
+    THIS = Token ("this", 52),
+    PROTECTED = Token ("protected", 53)
 }

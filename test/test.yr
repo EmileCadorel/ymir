@@ -2,22 +2,24 @@ import std.stdio;
 import std.conv;
 import std.math, std.array;
 
-struct (T)
-| a : T
--> Test;
 
-def print (a : Test!int) {
-    if (a !is null)
-	print (a.a);
+class A {
+    | a : int
+    -> this;
+   
+    private new (a : int) {
+	this.a = a;
+    }
+    
+    delete () {
+	if (this.a == 10)
+	    assert (false);
+    }    
 }
 
+
 def main () {
-    let a = [Test!int ; 10UL];
-    println (a);
-    for (it in a) {
-	it = Test!int (1);
-    }
-    println (a);
+    let a = A ();
 }
 
 

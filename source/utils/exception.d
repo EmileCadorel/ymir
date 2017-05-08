@@ -953,3 +953,25 @@ class RecursiveExpansion : YmirException {
     }
 
 }
+
+class MultipleDestructor : YmirException {
+    import std.container, ast.Class;
+    
+    this (Word sym, Array!Destructor dest) {
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Plusieurs destructeurs pour la même classe ",
+		      sym.locus.file,
+		      sym.locus.line,
+		      sym.locus.column,
+		      Colors.RED.value, Colors.RESET.value);
+	super.addLine (buf, sym.locus);
+	foreach (it ; dest) {
+	    buf.writef ("%s:(%d, %d): ", it.token.locus.file, it.token.locus.line, it.token.locus.column);
+	    buf.writefln ("%sNote%s : ", Colors.BLUE.value, Colors.RESET.value);
+	    super.addLine (buf, it.token.locus);
+	}
+	
+	msg = buf.toString ();	
+    }
+
+}

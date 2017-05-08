@@ -413,16 +413,21 @@ class Visitor {
 	    }
 	}
 
-	Array!Declaration decls, cst, dest;
+	Array!ClassDecl decls;
+	Array!Constructor cst;
+	Array!Destructor dest;
 	while (true) {
 	    next = this._lex.next ();
-	    //if (next == Keys.NEW) cst.insertBack (visitConstruct ());
-	    //if (next == Keys.DELETE) dst.insertBack (visitDestruct ());
-	    if (next == Keys.DEF) decls.insertBack (visitFunction ());
-	    else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
-	    else if (next == Keys.STRUCT) decls.insertBack (visitStruct ());
-	    else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
-	    else if (next == Tokens.RACC) break;
+	    if (next == Keys.NEW) cst.insertBack (visitConstruct ());
+	    else if (next == Keys.DELETE) dest.insertBack (visitDestruct ());
+	    //else if (next == Keys.DEF) decls.insertBack (visitFunction ());
+	    //else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+	    //else if (next == Keys.STRUCT) decls.insertBack (visitStruct ());
+	    //else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
+	    else if (next == Keys.PRIVATE) visitClassBlock (decls, cst, dest, next);
+	    else if (next == Keys.PUBLIC) visitClassBlock (decls, cst, dest, next);
+	    else if (next == Keys.PROTECTED) visitClassBlock (decls, cst, dest, next); 
+	    else if (next == Tokens.RACC) break;	    
 	    else throw new SyntaxError (next, [Keys.NEW.descr,
 					       Keys.DELETE.descr,
 					       Keys.DEF.descr,
@@ -433,6 +438,77 @@ class Visitor {
 	}	
 	return new Class (ident, parent, temps, thisVars, staticVars, cst, dest, decls);
     }    
+    
+
+    Constructor visitConstruct () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next (Tokens.LPAR);
+	Array!Var params;
+	next = this._lex.next ();
+	if (next != Tokens.RPAR) {
+	    this._lex.rewind ();
+	    while (true) {		
+		params.insertBack (visitVarDeclaration ());
+		next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+		if (next == Tokens.RPAR) break;
+	    }
+	}
+	return new Constructor (begin, params, visitBlock ());	
+    }
+
+    Destructor visitDestruct () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto next = this._lex.next (Tokens.LPAR);
+	next = this._lex.next (Tokens.RPAR);
+	return new Destructor (begin, visitBlock ());
+    }    
+
+    T SetClassType (T : ClassDecl) (T elem, Word type) {
+	if (type == Keys.PRIVATE) elem.isPrivate = true;
+	else if (type == Keys.PROTECTED) elem.isProtected = true;
+	else elem.isPublic = true;
+	return elem;
+    }
+    
+    void visitClassBlock (ref Array!ClassDecl decls, ref Array!Constructor cst, ref Array!Destructor dest, Word type) {
+	auto next = this._lex.next ();
+	if (next == Tokens.LACC) {
+	    while (true) {
+		next = this._lex.next ();
+		if (next == Keys.NEW) cst.insertBack (SetClassType (visitConstruct (), type));
+		else if (next == Keys.DELETE) dest.insertBack (SetClassType (visitDestruct (), type));
+		//else if (next == Keys.DEF) decls.insertBack (visitFunction ());
+		//else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+		//else if (next == Keys.STRUCT) decls.insertBack (visitStruct ());
+		//else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
+		else if (next == Tokens.RACC) break;	    
+		else throw new SyntaxError (next, [Keys.NEW.descr,
+						   Keys.DELETE.descr,
+						   Keys.DEF.descr,
+						   Keys.IMPORT.descr,
+						   Keys.STRUCT.descr,
+						   Keys.STRUCT.descr,
+						   Keys.EXTERN.descr, Tokens.RACC.descr]);
+	    }
+	} else {	   
+	    if (next == Keys.NEW) cst.insertBack (SetClassType (visitConstruct (), type));
+	    else if (next == Keys.DELETE) dest.insertBack (SetClassType (visitDestruct (), type));
+	    //else if (next == Keys.DEF) decls.insertBack (visitFunction ());
+	    //else if (next == Keys.IMPORT) decls.insertBack (visitImport ());
+	    //else if (next == Keys.STRUCT) decls.insertBack (visitStruct ());
+	    //else if (next == Keys.EXTERN) decls.insertBack (visitExtern ());
+	    else throw new SyntaxError (next, [Keys.NEW.descr,
+					       Keys.DELETE.descr,
+					       Keys.DEF.descr,
+					       Keys.IMPORT.descr,
+					       Keys.STRUCT.descr,
+					       Keys.STRUCT.descr,
+					       Keys.EXTERN.descr, Tokens.RACC.descr]);
+	}	
+    }
+
     
     /**
      var := type; 
