@@ -45,7 +45,8 @@ class Mixin : Expression {
 	    auto bl = visit.visitBlockOutSide ();
 	    return bl.block ();
 	} catch (SyntaxError err) {
-	    throw new SyntaxError (err.msg, (cast(StringValue) msg.info.value).value);
+	    err.print ();
+	    throw new MixinCreation (this._token);
 	} catch (YmirException exp) {
 	    exp.print ();
 	    throw new MixinCreation (this._token);
@@ -78,7 +79,8 @@ class Mixin : Expression {
 	    auto expr = visit.visitExpressionOutSide ();
 	    return expr.expression ();
 	} catch (SyntaxError err) {
-	    throw new SyntaxError (err.msg, (cast(StringValue) msg.info.value).value);
+	    err.print ();
+	    throw new MixinCreation (this._token);
 	} catch (YmirException exp) {
 	    exp.print ();
 	    throw new MixinCreation (this._token);

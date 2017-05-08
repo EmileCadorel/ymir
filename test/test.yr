@@ -6,8 +6,8 @@ import std.algorithm;
 
 def main () {    
     let a = [[1, 2], [2], [13, 12, 11]];    
-    println (a.map!'a[0]'
-	     .reduce!'a + c'
+    println (a.map!'a[0] / *'
+	     .reduce!'a + b'
     );    
 }
 
