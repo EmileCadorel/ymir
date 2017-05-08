@@ -104,7 +104,7 @@ class VarDecl : Instruction {
 		error ++;
 		debug { throw exp; }
 	    } catch (ErrorOccurs err) {
-		error += err.nbError;
+		error += err.nbError;		
 	    }
 	}
 

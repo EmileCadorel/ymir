@@ -424,7 +424,8 @@ class FrameScope {
      Insert un nouveau symbole dans le dernier scope (ou le met à jour)
      */
     void insert (string name, Symbol info) {
-	this._local.front [name] = info;
+	if (!this._local.empty)
+	    this._local.front [name] = info;
     }
 
     /** 

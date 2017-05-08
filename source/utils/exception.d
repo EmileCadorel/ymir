@@ -709,6 +709,28 @@ class TemplateCreation : YmirException {
 }
 
 /**
+ C'est une note.
+ Les erreurs précédentes sont arrivées lors de la création du block mixin x.
+ */
+class MixinCreation : YmirException {
+
+    /**
+     Params:
+     token = l'emplacement du mixin
+     */
+    this (Word token) {
+	OutBuffer buf = new OutBuffer ();
+	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
+	buf.writefln ("%sNote%s : Création de mixin : ", Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+
+}
+
+
+/**
  La fonction utilise un type de retour qu'elle définis elle même.
  Example:
  ---

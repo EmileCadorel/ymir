@@ -36,7 +36,7 @@ class Mixin : Expression {
 	
 	Table.instance.removeGarbage (msg.info);	
 	auto visit = new Visitor ();
-	visit.lexer = new StringLexer ("{" ~ (cast(StringValue) msg.info.value).value ~ "}",
+	visit.lexer = new StringLexer ("{\n\t" ~ (cast(StringValue) msg.info.value).value ~ "\n}",
 				       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
 				       [[Tokens.LCOMM1, Tokens.RCOMM1],
 					[Tokens.LCOMM2, Tokens.RETOUR],
@@ -46,6 +46,11 @@ class Mixin : Expression {
 	    return bl.block ();
 	} catch (SyntaxError err) {
 	    throw new SyntaxError (err.msg, (cast(StringValue) msg.info.value).value);
+	} catch (YmirException exp) {
+	    exp.print ();
+	    throw new MixinCreation (this._token);
+	} catch (ErrorOccurs err) {
+	    throw new MixinCreation (this._token);
 	}
     }
 
@@ -74,6 +79,9 @@ class Mixin : Expression {
 	    return expr.expression ();
 	} catch (SyntaxError err) {
 	    throw new SyntaxError (err.msg, (cast(StringValue) msg.info.value).value);
+	} catch (YmirException exp) {
+	    exp.print ();
+	    throw new MixinCreation (this._token);
 	}
     }    
 
