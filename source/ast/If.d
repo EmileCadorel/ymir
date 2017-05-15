@@ -114,11 +114,11 @@ class If : Instruction {
 	return _if;
     }
 
-    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
-	auto test = this._test.templateExpReplace (names, values);
-	auto block = this._block.templateReplace (names, values);
+    override Instruction templateReplace (Expression [string] values) {
+	auto test = this._test.templateExpReplace (values);
+	auto block = this._block.templateReplace (values);
 	if (this._else) {
-	    auto else_ = cast (Else) this._else.templateReplace (names, values);
+	    auto else_ = cast (Else) this._else.templateReplace (values);
 	    return new If (this._token, test, block, else_, this._isStatic);
 	}
 	return new If (this._token, test, block, this._isStatic);
@@ -215,8 +215,8 @@ class Else : Instruction {
 	return aux;
     }
 
-    override Else templateReplace (Array!Expression names, Array!Expression values) {
-	return new Else (this._token, this._block.templateReplace (names, values));
+    override Else templateReplace (Expression [string] values) {
+	return new Else (this._token, this._block.templateReplace (values));
     }
     
     /**
@@ -336,11 +336,11 @@ class ElseIf : Else {
 	return _if;
     }
     
-    override Else templateReplace (Array!Expression names, Array!Expression values) {
-	auto test = this._test.templateExpReplace (names, values);
-	auto block = this._block.templateReplace (names, values);
+    override Else templateReplace (Expression [string] values) {
+	auto test = this._test.templateExpReplace (values);
+	auto block = this._block.templateReplace (values);
 	if (this._else) {
-	    auto else_ = this._else.templateReplace (names, values);
+	    auto else_ = this._else.templateReplace (values);
 	    return new ElseIf (this._token, test, block, else_, this._isStatic);
 	}
 	return new ElseIf (this._token, test, block, this._isStatic);

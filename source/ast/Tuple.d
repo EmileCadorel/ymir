@@ -70,10 +70,10 @@ class ConstTuple : Expression {
 	    it.garbage ();
     }
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
+    override Expression templateExpReplace (Expression [string] values) {
 	Array!Expression exprs;
 	foreach (it ; this._params)
-	    exprs.insertBack (it.templateExpReplace (names, values));
+	    exprs.insertBack (it.templateExpReplace (values));
 	
 	return new ConstTuple (this._token, this._end, exprs);
     }

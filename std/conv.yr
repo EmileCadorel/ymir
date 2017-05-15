@@ -96,7 +96,7 @@ def to if (isDecimal!(T)() && isDecimal!(T2) ())
 	else return cast:T (elem);
     }
 
-def to if (is (T : string))
+def to if (is (T : string) && !is (T2 : char))
     (T, T2) (elem : [T2]) {
 	if (elem is null) return 'null';
 	else {

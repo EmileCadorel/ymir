@@ -45,8 +45,8 @@ class TypeOf : Expression {
 	return res;
     }
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto left = this._expr.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto left = this._expr.templateExpReplace (values);
 	return new TypeOf (this._token, left);
     }
 

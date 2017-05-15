@@ -2,7 +2,10 @@ module lint.LSize;
 import std.typecons, std.algorithm, std.traits;
 import ast.Constante;
 
-alias LSizeTuple = Tuple!(string, "value", int, "id");
+struct LSizeTuple {
+    string value;
+    int id;
+}
 
 enum LSize : LSizeTuple {
     BYTE = LSizeTuple ("byte", 1),

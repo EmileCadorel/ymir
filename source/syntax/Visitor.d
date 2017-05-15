@@ -280,7 +280,7 @@ class Visitor {
 	    while (1) {
 		auto constante = visitConstante ();
 		if (constante is null) 
-		    temps.insertBack (visitVarDeclaration ());
+		    temps.insertBack (visitOf ());
 		else {
 		    templates = true;
 		    temps.insertBack (constante);
@@ -524,6 +524,32 @@ class Visitor {
 	return visitType ();
     }
 
+    private Expression visitOf () {
+	auto deco = this._lex.next ();
+	if (deco != Keys.CONST && deco != Keys.REF) {
+	    this._lex.rewind ();
+	    deco = Word.eof;
+	}
+	
+	auto ident = visitIdentifiant ();
+	Word next = this._lex.next ();
+	if (next == Tokens.COLON) {
+	    next = this._lex.next ();
+	    if (next == Keys.FUNCTION) {
+		auto type = visitFuncPtrSimple ();
+		return new TypedVar (ident, type, deco);
+	    } else {
+		this._lex.rewind ();
+		auto type = visitType ();
+		return new TypedVar (ident, type, deco);
+	    }
+	} else if (next == Keys.OF && deco.isEof) {
+	    auto type = visitType ();
+	    return new OfVar (ident, type);	    
+	} else this._lex.rewind ();
+	return new Var (ident, deco);
+    }
+    
     /**
      vardecl := var (':' type)?
      */

@@ -136,9 +136,9 @@ class ConstRange : Expression {
     }
 
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto left = this._left.templateExpReplace (names, values);
-	auto right = this._right.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto left = this._left.templateExpReplace (values);
+	auto right = this._right.templateExpReplace (values);
 	return new ConstRange (this._token, left, right);
     }
 

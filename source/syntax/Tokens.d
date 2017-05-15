@@ -1,7 +1,10 @@
 module syntax.Tokens;
 import std.typecons;
 
-alias Token = Tuple!(string, "descr", ulong, "id");
+struct Token {
+    string  descr;
+    ulong id;
+}
 
 enum Tokens : Token {
     DIV = Token ("/", 0), 

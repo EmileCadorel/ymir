@@ -139,31 +139,32 @@ class StructCstInfo : InfoType {
     }    
 
     override StructCstInfo TempOp (Array!Expression templates) {
-	import semantic.pack.FrameTable;
-	Array!Expression names, values;
+	import semantic.pack.FrameTable, semantic.pack.TemplateSolver;
 	Array!InfoType types;
+
+	auto res = TemplateSolver.solve (this._tmps, templates);
+	if (!res.valid) return null;
+	
 	string name = this._name;
 	name ~= "!(";
-	foreach (it ; 0 .. this._tmps.length) {
-	    auto type = cast (Type) templates [it];
-	    if (type is null) throw new UseAsType (templates [it].token);
-	    else {
-		names.insertBack (this._tmps [it]);
-		values.insertBack (type);
-		types.insertBack (type.info.type);
-		name ~= type.info.type.typeString;
-		if (it != this._tmps.length - 1)
-		    name ~= ", ";
-	    }
+	uint it = 0;
+	foreach (key, value ; res.elements) {
+	    auto type = cast (Type) value;
+	    types.insertBack (type.info.type);
+	    name ~= type.info.type.typeString;
+	    if (it != res.elements.length - 1)
+		name ~= ", ";
+	    it ++;
 	}
+	
 	name ~= ")";
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
 	auto ret = new StructCstInfo (name, make!(Array!Var));
 	ret._oldTmps = types;
-	foreach (it ; this._params) {
-	    ret.addAttrib (cast (TypedVar) it.templateExpReplace (names, values));
+	foreach (it_ ; this._params) {
+	    ret.addAttrib (cast (TypedVar) it_.templateExpReplace (res.elements));
 	}
 	return ret;
     }

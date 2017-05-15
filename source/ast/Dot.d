@@ -95,8 +95,8 @@ class Dot : Expression {
 	return this._right;
     }
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	return new Dot (this._token, this._left.templateExpReplace (names, values), cast (Var) this._right.templateExpReplace (names, values));
+    override Expression templateExpReplace (Expression [string] values) {
+	return new Dot (this._token, this._left.templateExpReplace (values), cast (Var) this._right.templateExpReplace (values));
     }
     
     /**
@@ -143,7 +143,7 @@ class DotCall : Expression {
 	return this._call;
     }
 
-    override Expression templateExpReplace (Array!Expression, Array!Expression) {
+    override Expression templateExpReplace (Expression [string]) {
 	return this;
     }	
     

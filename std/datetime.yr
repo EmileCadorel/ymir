@@ -160,7 +160,7 @@ def currTime () : Time {
 }
 
 def date () : Date {
-    return currTime ().to!Date;
+    return currTime ().toDate;
 }
 
 def to if (is (T : string))
@@ -181,19 +181,18 @@ def to if (is (T : string))
     }
 
 
-def to if (is (T : Date)) 
-    (T) (elem : Time) {	
-	let date = Date (0S, 0S, 0S, 0B, 0S, 0S, 0S);
-	let nbDays = cast:long (getDays (elem.years));
-	date.days = (elem.weeks * 7S + elem.days);
-	date.dname = cast:byte ((nbDays + 2) % 7); // 01/01/1970 -> Jeudi
-	date.years = elem.years;
-	date.months = elem.months;
-	date.hours = elem.hours;
-	date.minutes = elem.minutes;
-	date.seconds = elem.seconds;
-	return date;
-    }
+def toDate (elem : Time) {	
+    let date = Date (0S, 0S, 0S, 0B, 0S, 0S, 0S);
+    let nbDays = cast:long (getDays (elem.years));
+    date.days = (elem.weeks * 7S + elem.days);
+    date.dname = cast:byte ((nbDays + 2) % 7); // 01/01/1970 -> Jeudi
+    date.years = elem.years;
+    date.months = elem.months;
+    date.hours = elem.hours;
+    date.minutes = elem.minutes;
+    date.seconds = elem.seconds;
+    return date;
+}
 
 def to if (is (T : string))
     (T) (elem : Date) {

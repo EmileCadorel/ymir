@@ -113,14 +113,14 @@ class FuncPtr : Expression {
 
     
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
+    override Expression templateExpReplace (Expression [string] values) {
 	Array!Var params;
 	foreach (it ; this._params)
-	    params.insertBack (cast (Var) it.templateExpReplace (names, values));
+	    params.insertBack (cast (Var) it.templateExpReplace (values));
 	
-	auto ret = this._ret.templateExpReplace (names, values);
+	auto ret = this._ret.templateExpReplace (values);
 	if (this._expr) {
-	    auto expr = this._expr.templateExpReplace (names, values);
+	    auto expr = this._expr.templateExpReplace (values);
 	    return new FuncPtr (this._token, params, cast (Var) ret, expr);
 	}	
 	return new FuncPtr (this._token, params, cast (Var) ret);

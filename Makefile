@@ -1,8 +1,8 @@
 dmd: 
-	dub build --parallel
+	dub build
 
 all:
-	dub build --parallel
+	dub build
 
 std: all
 	cp ymir ${HOME}/libs/ymir
@@ -28,6 +28,7 @@ uninstall:
 	rm -rf ${HOME}/libs/ymir_std/*
 
 docs: FORCE
+	dub build --build=ddox
 	./docs/install.sh
 
 FORCE:

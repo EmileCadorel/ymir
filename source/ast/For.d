@@ -116,13 +116,13 @@ class For : Instruction {
     }
 
 
-    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
+    override Instruction templateReplace (Expression [string] values) {
 	Array!Var var;
 	foreach (it ; this._var)
-	    var.insertBack (cast (Var) it.templateExpReplace (names, values));
+	    var.insertBack (cast (Var) it.templateExpReplace (values));
 
-	auto iter = this._iter.templateExpReplace (names, values);
-	auto block = this._block.templateReplace (names, values);
+	auto iter = this._iter.templateExpReplace (values);
+	auto block = this._block.templateReplace (values);
 	return new For (this._token, this._id, var, iter, block);	
     }
 

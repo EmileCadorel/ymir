@@ -22,7 +22,7 @@ def opIndex if (isPrimitive!(V)())
 	    else if (key < mp.key) return find (mp.left, key);
 	    else return find (mp.right, key);
 	}
-
+	
 	if (mp is null) {
 	    mp = MapEntry!(K, V) (key, V.init, null, null);
 	    return mp.value;
@@ -42,7 +42,7 @@ def opIndex if (!isPrimitive!(V)())
 	    else if (key < mp.key) return find (mp.left, key);
 	    else return find (mp.right, key);
 	}
-
+	
 	if (mp is null) {
 	    mp = MapEntry!(K, V) (key, null, null, null);
 	    return mp.value;

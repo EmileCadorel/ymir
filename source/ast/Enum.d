@@ -81,11 +81,11 @@ class Enum : Declaration {
 	}
     }
 
-    override Declaration templateReplace (Array!Expression names, Array!Expression values) {
-	auto type = cast (Var) this._type.templateExpReplace (names, values);
+    override Declaration templateReplace (Expression [string] values) {
+	auto type = cast (Var) this._type.templateExpReplace (values);
 	Array!Expression values_;
 	foreach (it ; this._values) {
-	    values_.insertBack (it.templateExpReplace (names, values));
+	    values_.insertBack (it.templateExpReplace (values));
 	}
 	
 	return new Enum (this._ident, type, this._names, values_);

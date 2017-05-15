@@ -173,13 +173,19 @@ class FunctionInfo : InfoType {
 	} catch (RecursiveExpansion exp) {
 	    throw exp;
 	} catch (YmirException exp) {
-	    if (cast(RecursiveExpansion) exp) throw exp;
-	    exp.print ();
-	    throw new TemplateCreation (func_token);
+	    debug { throw exp; }
+	    else {
+		if (cast(RecursiveExpansion) exp) throw exp;
+		exp.print ();
+		throw new TemplateCreation (func_token);
+	    }
 	} catch (ErrorOccurs err) {
-	    auto a = new TemplateCreation (func_token);
-	    a.print ();
-	    throw err;
+	    debug { throw err;}
+	    else {
+		auto a = new TemplateCreation (func_token);
+		a.print ();
+		throw err;
+	    }
 	}	
     }
 

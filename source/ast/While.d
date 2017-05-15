@@ -75,9 +75,9 @@ class While : Instruction {
 	return _while;
     }
 
-    override While templateReplace (Array!Expression names, Array!Expression values) {
-	auto test = this._test.templateExpReplace (names, values);
-	auto block = this._block.templateReplace (names, values);
+    override While templateReplace (Expression [string] values) {
+	auto test = this._test.templateExpReplace (values);
+	auto block = this._block.templateReplace (values);
 	return new While (this._token, test, block);
     }
     

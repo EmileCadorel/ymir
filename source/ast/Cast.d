@@ -80,9 +80,9 @@ class Cast : Expression {
     }
 
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto type = cast (Var) this._type.templateExpReplace (names, values);
-	auto expr = this._expr.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto type = cast (Var) this._type.templateExpReplace (values);
+	auto expr = this._expr.templateExpReplace (values);
 	
 	return new Cast (this._token, type, expr);
     }

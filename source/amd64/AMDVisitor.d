@@ -643,7 +643,7 @@ class AMDVisitor : TVisitor {
 	auto exp = visitExpression (addr.exp, aux);	
 	auto reg = cast (AMDReg) exp.where;
 	auto rbp = new AMDReg (REG.getReg ("rbp"));
-	if ((reg is null || !reg.isOff) && !cast (AMDStaticReg) exp.where) assert (false, "Rhaaa, addresse sur un element constant");
+	if ((reg is null || !reg.isOff) && !cast (AMDStaticReg) exp.where) assert (false, "Rhaaa, addresse sur un element constant " ~ addr.toString);
 	inst += exp.what;
 	auto ret = new AMDReg (REG.getReg ("rax"));
 	inst += new AMDLeaq (reg, ret);

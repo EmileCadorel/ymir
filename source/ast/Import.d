@@ -65,7 +65,7 @@ class Import : Declaration {
 	}
     }
 
-    override Declaration templateReplace (Array!Expression, Array!Expression) {
+    override Declaration templateReplace (Expression [string]) {
 	return this;
     }    
     

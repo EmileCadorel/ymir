@@ -25,7 +25,6 @@ def opTest ('<') (a : string, b : string) : bool {
     return false;
 }    
 
-
 def opTest ('>') (a : string, b : string) : bool {
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] < b [it]) return false;

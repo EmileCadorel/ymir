@@ -85,9 +85,9 @@ class Access : Expression {
     
 
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto params = this._params.templateExpReplace (names, values);
-	auto left = this._left.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto params = this._params.templateExpReplace (values);
+	auto left = this._left.templateExpReplace (values);
 	return new Access (this._token, this._end, left, params);
     }
 

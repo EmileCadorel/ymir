@@ -70,10 +70,10 @@ class ParamList : Expression {
 	    it.garbage ();
     }
     
-    override ParamList templateExpReplace (Array!Expression names, Array!Expression values) {
+    override ParamList templateExpReplace (Expression [string] values) {
 	Array!Expression params;
 	foreach (it ; this._params)
-	    params.insertBack(it.templateExpReplace (names, values));
+	    params.insertBack(it.templateExpReplace (values));
 	
 	return new ParamList (this._token, params);
     }

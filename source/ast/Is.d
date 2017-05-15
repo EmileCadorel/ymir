@@ -94,10 +94,10 @@ class Is : Expression {
     /**
      Remplace les templates par les expressions associés
      */
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto left = this._left.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto left = this._left.templateExpReplace (values);
 	if (this._type) {
-	    auto right = this._type.templateExpReplace (names, values);
+	    auto right = this._type.templateExpReplace (values);
 	    return new Is (this._token, left, right);
 	} else {
 	    return new Is (this._token, left, this._expType);

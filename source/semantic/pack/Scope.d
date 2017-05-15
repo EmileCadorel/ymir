@@ -101,7 +101,8 @@ class Scope {
      Efface toutes les informations du scope
      */
     void clear () {
-	this._local.clear ();
+	Symbol [string] aux;
+	this._local = aux;
 	this._garbage.clear ();
     }    
 

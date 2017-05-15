@@ -110,10 +110,10 @@ class ConstArray : Expression  {
 	}
     }
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
+    override Expression templateExpReplace (Expression [string] values) {
 	Array!Expression params;
 	foreach (it ; this._params) 
-	    params.insertBack (it.templateExpReplace (names, values));
+	    params.insertBack (it.templateExpReplace (values));
 	return new ConstArray (this._token, params);
     }
 

@@ -257,7 +257,8 @@ class AMDRegTable {
     }
 
     static void freeAll () {
-	__free__.clear ();
+	bool [string] aux;
+	__free__ = aux;
     }
     
     mixin Singleton!AMDRegTable;
@@ -390,7 +391,8 @@ class AMDReg : AMDObj {
     }
 
     static void resetOff () {
-	__offsets__.clear ();
+	long[ulong] aux;
+	__offsets__ = aux;
 	__globalOffset__ = 0;
     }
     

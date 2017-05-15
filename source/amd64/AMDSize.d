@@ -2,7 +2,11 @@ module amd64.AMDSize;
 import std.typecons, std.algorithm, std.traits;
 import lint.LSize, std.conv;
 
-alias SizeTuple = Tuple!(string, "id", int, "size", int, "value");
+struct SizeTuple {
+    string id;
+    int size;
+    int value;
+}
 
 enum AMDSize : SizeTuple {
     BYTE = SizeTuple ("b", 1, 1),

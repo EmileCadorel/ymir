@@ -18,9 +18,12 @@ import semantic.types.RefInfo;
 import semantic.pack.UnPureFrame;
 import semantic.pack.PureFrame;
 import semantic.pack.ExternFrame;
+import semantic.pack.TemplateSolver;
 import ast.Constante;
 import ast.Binary;
 import utils.exception;
+import ast.OfVar;
+
 
 /**
  Cette classe est une instance de frame template
@@ -62,157 +65,6 @@ class TemplateFrame : Frame {
 	return this._isExtern;
     }
     
-    private Var typeIt (ArrayVar name, InfoType type, Array!Expression args, InfoType [] tmps) {
-	ArrayVar ret = new ArrayVar (name.token, null);
-	auto typed = typeIt (name.content, type.getTemplate (0), args, tmps);
-	if (!typed)
-	    return null;
-	
-	ret.content = typed;	
-	foreach (it ; 0 .. args.length) {
-	    if (name.token.str == args [it].token.str) {
-		if (tmps [it] is null) {
-		    tmps [it] = (type);
-		    this._changed = true;
-		}
-		this._currentScore += CHANGE;
-		return new Type (name.token, type.clone ());
-	    }	    
-	}
-	
-	this._currentScore += CHANGE;
-	return ret;
-    }    
-    
-    private Var typeIt (ArrayVar name, Expression expr, Array!Expression args, InfoType [] tmps) {
-	auto type = cast (Type) expr;
-	if (type is null) return null;
-	else return typeIt (name, type.info.type, args, tmps);
-    }
-
-    private Expression typeIt (ConstArray name, InfoType type, Array!Expression args, InfoType [] tmps) {
-	if (name.params.length == 1) {
-	    if (auto var = cast (Var) name.params [0]) {
-		auto typed = typeIt (var, type.getTemplate (0), args, tmps);
-		if (typed !is null)
-		    return new ConstArray (name.token, make!(Array!Expression) (typed));
-		else return null;
-	    }	    
-	}
-	this._currentScore += CHANGE;
-	return name;
-    }
-
-    private Expression typeIt (ConstArray name, Expression expr, Array!Expression args, InfoType [] tmps) {
-	auto type = cast (Type) expr;
-	if (type is null) return null;
-	else return typeIt (name, type.info.type, args, tmps);
-    }
-           
-    private TypedVar typeIt (TypedVar name, Expression expr, Array!Expression args, InfoType [] tmps) {
-	auto type = name.type ().asType ();
-	if (type.info.type.isSame (expr.info.type)) {
-	    this._currentScore += CHANGE;
-	    return name;
-	}
-	return null;
-    }
-
-    
-    private Var typeIt (Var name, InfoType type, Array!Expression args, InfoType [] tmps) {
-	if (type is null) return null;
-	if (auto arr = cast (ArrayVar) name) return typeIt (arr, type, args, tmps);		
-	
-	Array!Expression params;
-	foreach (it ; 0 .. name.templates.length) {
-	    if (auto var = cast (Var) name.templates [it]) {
-		auto typed = typeIt (var, type.getTemplate (it), args, tmps);
-		if (!typed)
-		    return null;
-		params.insertBack (typed);		
-	    } else if (auto var = cast (ConstArray) name.templates [it]) {
-		auto typed = typeIt (var, type.getTemplate (it), args, tmps);
-		if (!typed)
-		    return null;
-		params.insertBack (typed);
-	    } else params.insertBack (name.templates [it]);
-	}
-	
-	foreach (it ; 0 .. args.length) {
-	    if (name.token.str == args [it].token.str) {
-		if (tmps [it] is null) {
-		    tmps [it] = (type);
-		    this._changed = true;
-		}
-		this._currentScore += CHANGE;
-		return new Type (name.token, tmps [it].clone ());
-	    }	    
-	}
-	
-	this._currentScore += CHANGE;
-	return new Var (name.token, params);
-    }
-
-    
-    private Var typeIt (Var name, Expression expr, Array!Expression args, InfoType [] tmps) {
-	if (auto tvar = cast (TypedVar) name)
-	    return typeIt (tvar, expr, args, tmps);
-	auto type = cast (Type) expr;
-	if (type is null) return null;
-	else return typeIt (name, type.info.type, args, tmps);
-    }
-
-    
-    private Expression typeIt (Expression elem, InfoType type, Array!Expression args, InfoType [] tmps) {
-	if (auto fn = cast (FuncPtr) elem)
-	    return typeIt (fn, type, args, tmps);
-	else if (auto var = cast (Var) elem)
-	    return typeIt (var, type, args, tmps);
-	else if (auto cst = cast (ConstArray) elem)
-	    return typeIt (cst, type, args, tmps);
-	return null;
-    }
-    
-    private Expression typeIt (Expression elem, Expression type, Array!Expression args, InfoType [] tmps) {
-	if (auto fn = cast (FuncPtr) elem)
-	    return typeIt (fn, type, args, tmps);
-	else if (auto var = cast (Var) elem) 
-	    return typeIt (var, type, args, tmps);
-	else if (auto cst = cast (ConstArray) elem)
-	    return typeIt (cst, type, args, tmps);
-	else if (auto val = elem.expression ()) {
-	    import semantic.value.BoolValue, syntax.Tokens;
-	    if (!val.info.isImmutable) assert (false, typeid (elem).toString);
-	    auto eq = cast (BoolValue) (val.info.value.BinaryOp (Tokens.DEQUAL, type.info.value));
-	    auto eq2 = cast (BoolValue) (type.info.value.BinaryOp (Tokens.DEQUAL, val.info.value));
-	    this._currentScore += SAME;
-	    if (eq && eq.isTrue || eq2 && eq2.isTrue) return elem;
-	}
-	return null;
-    }
-    
-    private FuncPtr typeIt (FuncPtr name, InfoType type, Array!Expression args, InfoType [] tmps) {
-	Array!Var params;
-	foreach (it ; 0 .. name.params.length) {
-	    auto typed = typeIt (name.params [it], type.getTemplate (it), args, tmps);
-	    if (!typed)
-		return null;
-	    params.insertBack (typed);	   
-	}
-
-	auto typed = typeIt (name.type, type.getTemplate (name.params.length), args, tmps);
-	if (!typed) return null;
-
-	this._currentScore += CHANGE;
-	return new FuncPtr (name.token, params, typed, null);
-    }
-
-    private FuncPtr typeIt (FuncPtr name, Expression expr, Array!Expression args, InfoType [] tmps) {
-	auto type = cast (Type) expr;
-	if (type is null) return null;
-	else return typeIt (name, type.info.type, args, tmps);
-    }    
-
     override ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
 	if (args.length > this._function.params.length) return this.isApplicableVariadics (ident, attrs, args);
 	else return this.isApplicableSimple (ident, attrs, args);
@@ -237,8 +89,7 @@ class TemplateFrame : Frame {
     
     private ApplicationScore isApplicableSimple (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
-	InfoType [] tmps;
-	tmps.length = this._function.tmps.length;
+	Expression [string] tmps;
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -248,18 +99,11 @@ class TemplateFrame : Frame {
 		auto param = attrs [it];
 		if (auto tvar = cast (TypedVar) param) {
 		    this._changed = false;
-		    if (tvar.type) {
-			auto tmp = typeIt (tvar.type, args [it], this._function.tmps, tmps);
-			if (tmp is null) return null;
-			if (tvar.deco == Keys.REF) info = new RefInfo (tmp.asType ().info.type.clone ());
-			else info = tmp.asType ().info.type.clone ();
-		    } else {
-			auto tmp = typeIt (tvar.expType, args [it], this._function.tmps, tmps);
-			if (tmp is null) return null;
-			if (tvar.deco == Keys.REF)  info = new RefInfo (tmp.expression.info.type.clone ());
-			else info = tmp.expression.info.type.clone ();
-		    }
+		    TemplateSolution res = TemplateSolver.solve (this._function.tmps, tvar, args [it]);		    
+		    if (!res.valid || !TemplateSolver.merge (tmps, res.elements)) return null;
 		    
+		    info = res.type;
+		    if (tvar.deco == Keys.REF) info = new RefInfo (info);		    
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
 			score.score += this._changed ? CHANGE : SAME;
@@ -277,28 +121,22 @@ class TemplateFrame : Frame {
 			if (type is null) return null;
 			score.treat.insertBack (type);
 		    } else
-			score.treat.insertBack (args[it].clone ());
+			score.treat.insertBack (args[it].cloneForParam ());
 		    score.score += CHANGE;
 		}
 	    }
 	    
-	    foreach (it; tmps) {
-		if (it is null) return null;
-	    }
-
+	    if (!TemplateSolver.isSolved (this._function.tmps, tmps)) return null;
+	    
 	    if (this._function.test) {
 		Table.instance.pacifyMode ();
-		Array!Expression types;	
-		foreach (it ; tmps)
-		    types.insertBack (new Type (Word.eof, it.cloneForParam ()));
-		
-		auto valid = func.test.templateExpReplace (this._function.tmps, types) .expression ();
+		auto valid = func.test.templateExpReplace (tmps) .expression ();
 		Table.instance.unpacifyMode ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
 		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
 	    }
 	    
-	    score.tmps = tmps.array ();
+	    score.tmps = tmps;
 	    return score;
 	}
 	return null;
@@ -330,13 +168,8 @@ class TemplateFrame : Frame {
 	
 	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
-	
-	Array!Expression types;	
-
-	foreach (it ; score.tmps)
-	    types.insertBack (new Type (Word.eof, it.cloneForParam ()));
-	
-	auto func = this._function.templateReplace (this._function.tmps, types);
+       
+	auto func = this._function.templateReplace (score.tmps);
 	
 	Array!Var finalParams;
 	foreach (it; 0 .. func.params.length) {
@@ -549,80 +382,64 @@ class TemplateFrame : Frame {
     }
 
     override Frame TempOp (Array!Expression params) {
-	import semantic.value.all;
-	this._currentScore = 0;
-	if (params.length > this._function.tmps.length)
+    	import semantic.value.all;
+    	this._currentScore = 0;
+    	if (params.length > this._function.tmps.length)
+    	    return null;
+
+    	InfoType [] totals;
+    	Array!Expression finals;
+    	Array!Expression vars;
+    	totals.length = this._function.tmps.length;
+
+    	Table.instance.pacifyMode ();
+	auto res = TemplateSolver.solve (this._function.tmps, params);
+    	Table.instance.unpacifyMode ();
+
+	if (!res.valid)
 	    return null;
 
-	InfoType [] totals;
-	Array!Expression finals;
-	Array!Expression vars;
-	totals.length = this._function.tmps.length;
+    	string namespace = "(";
 
-	Table.instance.pacifyMode ();
-	foreach (it ; 0 .. params.length) {
-	    Expression tmp;
-	    if (params [it].info.isImmutable ||	cast (Type) params [it]) {
-		tmp = typeIt (this._function.tmps [it], params [it], this._function.tmps, totals);	    		
-	    } else if (auto tp = cast (StructCstInfo) params [it].info.type) {
-		tmp = typeIt (this._function.tmps [it], tp, this._function.tmps, totals);
-	    } else {
-		Table.instance.unpacifyMode ();
-		throw new NotImmutable (params [it].info);
-	    }
-	    if (tmp is null) {
-		Table.instance.unpacifyMode ();
-		return null;	    
-	    }
-	    finals.insertBack (tmp.expression ());
-	    vars.insertBack (params [it]);
-	}	
-
-	Table.instance.unpacifyMode ();
-
-	for (auto it = params.length ; it < this._function.tmps.length ; it++) {
-	    if (cast (TypedVar) this._function.tmps [it])
-		return null;
-	}
-
-	string namespace = "(";
-	auto func = this._function.templateReplace (this._function.tmps, params);	
-	foreach (it ; params) {	    
-	    if (auto _val = it.info.value) {
-		namespace ~= (_val.toString);		
-	    } else
-		namespace ~= (it.info.type.simpleTypeString);
-	    if (it != params [$ - 1]) namespace ~= ",";
-	    else namespace ~= ")";
-	}
+    	foreach (it ; params) {	    
+    	    if (auto _val = it.info.value) {
+    		namespace ~= (_val.toString);		
+    	    } else
+    		namespace ~= (it.info.type.simpleTypeString);
+    	    if (it != params [$ - 1]) namespace ~= ",";
+    	    else namespace ~= ")";
+    	}
+		
+    	auto func = this._function.templateReplace (res.elements);	
 	
-	func.name = func.name ~ namespace;
+    	func.name = func.name ~ namespace;
+    	import std.algorithm : any;
 	
-	if (this._function.tmps.length == params.length) {
-	    if (func.test) {
-		Table.instance.pacifyMode ();
-		auto valid = func.test.expression ();
-		Table.instance.unpacifyMode ();
-		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
-		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
-	    }
-	    Frame ret;
+    	if (TemplateSolver.isSolved (this._function.tmps, res)) {	    
+    	    if (func.test) {
+    		Table.instance.pacifyMode ();
+    		auto valid = func.test.expression ();
+    		Table.instance.unpacifyMode ();
+    		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
+    		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
+    	    }
+    	    Frame ret;
 
-	    if (!this._isPure) ret = new UnPureFrame (this._namespace, func);
-	    else if (this._isExtern) ret = new ExternFrame (this._namespace, func);
-	    else ret = new PureFrame (this._namespace, func);
+    	    if (!this._isPure) ret = new UnPureFrame (this._namespace, func);
+    	    else if (this._isExtern) ret = new ExternFrame (this._namespace, func);
+    	    else ret = new PureFrame (this._namespace, func);
 
 	    
-	    ret.currentScore = this._currentScore;
-	    return ret;
-	} else {
-	    func.tmps = make!(Array!Expression) (this._function.tmps [params.length .. $]);
-	    auto aux = new TemplateFrame (this._namespace, func);
-	    aux._currentScore = this._currentScore;
-	    aux._isPure = this._isPure;
-	    aux._isExtern = this._isExtern;
-	    return aux;
-	}	
+    	    ret.currentScore = this._currentScore;
+    	    return ret;
+    	} else {
+    	    func.tmps = TemplateSolver.unSolved (this._function.tmps, res);
+    	    auto aux = new TemplateFrame (this._namespace, func);
+    	    aux._currentScore = this._currentScore;
+    	    aux._isPure = this._isPure;
+    	    aux._isExtern = this._isExtern;
+    	    return aux;
+    	}	
     }
     
 }

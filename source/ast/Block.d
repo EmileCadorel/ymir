@@ -85,14 +85,14 @@ class Block : Instruction {
 	return block;	
     }
 
-    override Block templateReplace (Array!Expression names, Array!Expression values) {
+    override Block templateReplace (Expression [string] values) {
 	Array!Declaration decls;
 	Array!Instruction insts;
 	foreach (it ; this._decls)
-	    decls.insertBack (it.templateReplace (names, values));
+	    decls.insertBack (it.templateReplace (values));
 
 	foreach (it ; this._insts)
-	    insts.insertBack (it.templateReplace (names, values));
+	    insts.insertBack (it.templateReplace (values));
 
 	return new Block (this._ident, decls, insts);
     }

@@ -63,7 +63,7 @@ class ApplicationScore {
     Array!InfoType treat;    
 
     /** Les templates de la fonction, si elle est template */
-    InfoType [] tmps;
+    Expression [string] tmps;
     
     /** Le prototype est variadic */
     bool isVariadic;
@@ -167,6 +167,23 @@ class InfoType {
 	throw new UndefinedType (word);
     }
 
+    /**
+     Crée une instance de type, en fonction de son nom et de ses templates
+     Params:
+     word = l'identifiant du type
+     templates = les templates du type
+     Returns: une instance de type
+     Throws: UndefinedType
+     */
+    static InfoType factory (Word word, Array!InfoType types) {
+	import std.array;
+	Array!Expression aux;
+	foreach (it ; types) {
+	    aux.insertBack (new Type (word, it));
+	}
+	return factory (word, aux.array);
+    }
+    
     /**
      Ajoute un créateur de type, à la liste des types 
      Params: 

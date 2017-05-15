@@ -100,11 +100,10 @@ class Var : Expression {
     }
 
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	foreach (it ; 0 .. values.length) {
-	    auto name = cast (Var) names [it];
-	    if (name && name.token.str == this._token.str) {
-		auto clo = values [it].clone ();
+    override Expression templateExpReplace (Expression [string] values) {	
+	foreach (key, value ; values) {
+	    if (key == this._token.str) {
+		auto clo = value.clone ();
 		/*if (!cast (Decimal) clo)
 		 clo.token = this._token;*/
 		if (auto v = cast (Var) clo) {
@@ -116,8 +115,7 @@ class Var : Expression {
 
 	Array!Expression tmps;
 	foreach (it ; this._templates)
-	    tmps.insertBack (it.templateExpReplace (names, values));
-
+	    tmps.insertBack (it.templateExpReplace (values));
 	
 	auto ret =  new Var (this._token, tmps);
 	ret.deco = this._deco;
@@ -276,9 +274,10 @@ class ArrayVar : Var {
 	return new Type (tok, new ArrayInfo (content.info.type));
     }
 
-    override Var templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto cont = this._content.templateExpReplace (names, values);
-	return new ArrayVar (this._token, cast (Var) this._content.templateExpReplace (names, values));
+    override Var templateExpReplace (Expression [string] values) {
+	auto cont = this._content.templateExpReplace (values);
+	return new ArrayVar (this._token, cast (Var)
+			     this._content.templateExpReplace (values));
     }
     
     /**
@@ -397,11 +396,11 @@ class TypedVar : Var {
 	else this._expType.removeGarbage ();
     }
     
-    override Var templateExpReplace (Array!Expression names, Array!Expression values) {
+    override Var templateExpReplace (Expression [string] values) {
 	if (this._type)
-	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (names, values), this._deco);
+	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (values), this._deco);
 	else
-	    return new TypedVar (this._token, this._expType.templateExpReplace (names, values), this._deco);	
+	    return new TypedVar (this._token, this._expType.templateExpReplace (values), this._deco);	
     }
     
     /**
@@ -475,7 +474,7 @@ class Type : Var {
 	return this.clone ();
     }
 
-    override Var templateExpReplace (Array!Expression, Array!Expression) {
+    override Var templateExpReplace (Expression [string]) {
 	return this.clone ();
     }
 

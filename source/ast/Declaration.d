@@ -9,7 +9,7 @@ class Declaration {
 
     protected bool _isPublic;
     
-    Declaration templateReplace (Array!Expression, Array!Expression) {
+    Declaration templateReplace (Expression [string]) {
 	assert (false, "TODO");
     }
 

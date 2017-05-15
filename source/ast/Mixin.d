@@ -3,7 +3,7 @@ import ast.Expression;
 import std.stdio, syntax.Tokens;
 import syntax.Word, utils.exception;
 import semantic.pack.Symbol;
-import ast.Instruction;
+import ast.Instruction, ast.Constante;
 import syntax.Visitor, syntax.Lexer;
 import semantic.types.StringInfo;
 import semantic.value.StringValue;
@@ -14,7 +14,11 @@ class Mixin : Expression {
 
     /** l'expression que l'on va mixin */
     private Expression _inside;
-    
+
+    this (string content) {
+	super (Word.eof);
+	this._inside = new String (Word.eof, content);
+    }    
     
     this (Word ident, Expression inside) {
 	super (ident);
@@ -87,8 +91,8 @@ class Mixin : Expression {
 	}
     }    
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto inside = this._inside.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto inside = this._inside.templateExpReplace (values);
 	return new Mixin (this._token, inside);
     }
     

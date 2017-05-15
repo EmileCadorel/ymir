@@ -1,0 +1,476 @@
+_YN21std.parallelism4piper.5a.5 => _YN21std46parallelism4piper95a95i: (rr: reg(10:INT), pr:[reg(1:LONG)]) {
+lbl0:
+	Je ({{reg(1:LONG)}[$(0):long]}[$(2,LONG):long]!=$(2)) lbl3
+lbl2:
+	goto lbl4
+
+
+lbl3:
+	reg(7:LONG) := Call(_YPCstArray, [($(1,INT)*$(2)),
+			$(1,INT)], LONG)
+	Call(_YPAddRefObj, [&(reg(7:LONG))], NONE)
+	Call(_YPDstObj, [&({reg(1:LONG)}[$(0):long])], NONE)
+	{reg(1:LONG)}[$(0):long] := reg(7:LONG)
+	reg(60:LONG) := {reg(1:LONG)}[$(0):long]
+	Call(_YPDstObj, [&(reg(7:LONG))], NONE)
+	goto lbl4
+
+
+lbl4:
+	reg(9:INT) := Call(pipe, [({reg(1:LONG)}[$(0):long]+$(3,LONG))], INT)
+	reg(10:INT) := reg(9:INT)
+	goto lbl1
+
+lbl1:
+}
+
+_YN21std.parallelism4readir.5 => _YN21std46parallelism4readir95s: (rr: null, pr:[reg(1:INT), reg(2:LONG)]) {
+lbl16:
+	reg(5:ULONG) := $(0)
+	Call(read, [reg(1:INT),
+			&(reg(5:ULONG)),
+			$($(1,ULONG) :->INT)], NONE)
+	reg(13:LONG) := Call(_YPCstArray, [($(1,BYTE)*reg(5:ULONG)),
+			$(1,BYTE)], LONG)
+	Call(_YPAddRefObj, [&(reg(13:LONG))], NONE)
+	reg(12:LONG) := reg(13:LONG)
+	reg(62:LONG) := reg(12:LONG)
+	Call(read, [reg(1:INT),
+			(reg(12:LONG)+$(3,LONG)),
+			$(reg(5:ULONG) :->INT)], NONE)
+	Call(_YPAddRefObj, [&(reg(12:LONG))], NONE)
+	Call(_YPDstObj, [&({reg(2:LONG)}[$(0):long])], NONE)
+	{reg(2:LONG)}[$(0):long] := reg(12:LONG)
+	reg(63:LONG) := {reg(2:LONG)}[$(0):long]
+	Call(_YPDstObj, [&(reg(12:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(13:LONG))], NONE)
+lbl17:
+}
+
+std.parallelism16slice('int',3,5) => _YN42std46parallelism16slice4039int394451445341: (rr: reg(2:LONG), pr:[]) {
+lbl18:
+	reg(1:LONG) := Call(_YPCstString, [$(0),
+			lint.LConst.LConstString], LONG)
+	Call(_YPAddRefObj, [&(reg(1:LONG))], NONE)
+	reg(2:LONG) := reg(1:LONG)
+	Call(_YPDstObj, [&(reg(1:LONG))], NONE)
+	goto lbl19
+
+lbl19:
+}
+
+std.parallelism16slice('int',2,5) => _YN42std46parallelism16slice4039int394450445341: (rr: reg(12:LONG), pr:[]) {
+lbl25:
+	reg(11:LONG) := Call(_YPCstString, [$(1),
+			lint.LConst.LConstString], LONG)
+	Call(_YPAddRefObj, [&(reg(11:LONG))], NONE)
+	reg(12:LONG) := reg(11:LONG)
+	goto lbl26
+
+lbl26:
+}
+
+std.parallelism16slice('int',1,5) => _YN42std46parallelism16slice4039int394449445341: (rr: reg(11:LONG), pr:[]) {
+lbl27:
+	reg(10:LONG) := Call(_YPCstString, [$(2),
+			lint.LConst.LConstString], LONG)
+	Call(_YPAddRefObj, [&(reg(10:LONG))], NONE)
+	reg(11:LONG) := reg(10:LONG)
+	goto lbl28
+
+lbl28:
+}
+
+std.parallelism16slice('int',0,5) => _YN42std46parallelism16slice4039int394448445341: (rr: reg(12:LONG), pr:[]) {
+lbl29:
+	reg(11:LONG) := Call(_YPCstString, [$(3),
+			lint.LConst.LConstString], LONG)
+	Call(_YPAddRefObj, [&(reg(11:LONG))], NONE)
+	reg(12:LONG) := reg(11:LONG)
+	goto lbl30
+
+lbl30:
+}
+
+std.parallelism11isArray(-1) => _YN33std46parallelism11isArray40454941: (rr: reg(9:BYTE), pr:[]) {
+lbl31:
+	reg(9:BYTE) := $(0)
+	goto lbl32
+
+lbl32:
+}
+
+std.parallelism11isTuple(-1) => _YN33std46parallelism11isTuple40454941: (rr: reg(9:BYTE), pr:[]) {
+lbl33:
+	reg(9:BYTE) := $(0)
+	goto lbl34
+
+lbl34:
+}
+
+std.parallelism5writ => _YN22std46parallelism5writeii: (rr: null, pr:[reg(1:INT), reg(2:INT)]) {
+lbl35:
+	Call(write, [reg(1:INT),
+			&($(-1)),
+			$($(1,INT) :->INT)], NONE)
+lbl36:
+}
+
+_YN24std.parallelism.joinAlla.5 => _YN24std46parallelism7joinAlla95i: (rr: null, pr:[reg(1:LONG)]) {
+lbl37:
+	Call(_YPAddRefObj, [&(reg(1:LONG))], NONE)
+	reg(7:ULONG) := Call(_YPCstRange, [$(1,ULONG)], LONG)
+	{reg(7:ULONG)}[$(2,LONG):ulong] := $(1)
+	{reg(7:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong] := {reg(1:LONG)}[$(2,LONG):long]
+	reg(32:ULONG) := {reg(7:ULONG)}[$(2,LONG):ulong]
+lbl41:
+	Je (reg(32:ULONG)!={reg(7:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong]) lbl42
+	goto lbl43
+
+lbl42:
+	reg(4:ULONG) := reg(32:ULONG)
+	reg(8:INT) := $(0)
+	Call(wait, [{($(3,LONG)+(reg(1:LONG)+($(reg(4:ULONG) :->ULONG)*$(1,INT))))}[$(0):int],
+			&(reg(8:INT)),
+			$(0)], NONE)
+	Je ({reg(7:ULONG)}[$(2,LONG):ulong]<{reg(7:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong]) lbl44
+	goto lbl45
+
+lbl44:
+	++ reg(32:ULONG)
+	goto lbl41
+
+
+lbl45:
+	-- reg(32:ULONG)
+	goto lbl41
+
+
+
+lbl43:
+	Call(_YPDstObj, [&(reg(7:ULONG))], NONE)
+	Call(_YN22std46parallelism5writeii, [{($(3,LONG)+(reg(1:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int],
+			- $(1)], NONE)
+lbl38:
+	Call(_YPDstObj, [&(reg(1:LONG))], NONE)
+
+}
+
+std.parallelism4rea => _YN21std46parallelism4readir95a95ub: (rr: null, pr:[reg(1:INT), reg(2:LONG)]) {
+lbl46:
+	reg(5:ULONG) := $(0)
+	Call(read, [reg(1:INT),
+			&(reg(5:ULONG)),
+			$($(1,ULONG) :->INT)], NONE)
+	Je (reg(5:ULONG)==$(0)) lbl49
+lbl48:
+	goto lbl50
+
+
+lbl49:
+	Call(_YPDstObj, [&({reg(2:LONG)}[$(0):long])], NONE)
+	{reg(2:LONG)}[$(0):long] := $(0)
+	reg(66:LONG) := {reg(2:LONG)}[$(0):long]
+	goto lbl50
+
+
+lbl50:
+	reg(16:LONG) := Call(_YPCstArray, [($(1,UBYTE)*reg(5:ULONG)),
+			$(1,UBYTE)], LONG)
+	Call(_YPAddRefObj, [&(reg(16:LONG))], NONE)
+	reg(15:LONG) := reg(16:LONG)
+	reg(67:LONG) := reg(15:LONG)
+	Call(read, [reg(1:INT),
+			(reg(15:LONG)+$(3,LONG)),
+			($(reg(5:ULONG) :->INT)*$($(1,UBYTE) :->INT))], NONE)
+	Call(_YPAddRefObj, [&(reg(15:LONG))], NONE)
+	Call(_YPDstObj, [&({reg(2:LONG)}[$(0):long])], NONE)
+	{reg(2:LONG)}[$(0):long] := reg(15:LONG)
+	reg(69:LONG) := {reg(2:LONG)}[$(0):long]
+	Call(_YPDstObj, [&(reg(15:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(16:LONG))], NONE)
+lbl47:
+}
+
+std.parallelism13isDecimal(ul) => _YN33std46parallelism13isDecimal40ul41: (rr: reg(8:BYTE), pr:[]) {
+lbl51:
+	reg(8:BYTE) := $(1)
+	goto lbl52
+
+lbl52:
+}
+
+std.parallelism3ab => _YN20std46parallelism3absl: (rr: reg(6:LONG), pr:[reg(1:LONG)]) {
+lbl53:
+	Je (reg(1:LONG)<$($(0) :->LONG)) lbl56
+lbl55:
+	goto lbl57
+
+
+lbl56:
+	reg(6:LONG) := - reg(1:LONG)
+	goto lbl54
+
+	goto lbl57
+
+
+lbl57:
+	reg(6:LONG) := reg(1:LONG)
+	goto lbl54
+
+lbl54:
+}
+
+std.parallelism13opUnary('++') => _YN37std46parallelism13opUnary403943433941r95ul: (rr: reg(5:LONG), pr:[reg(1:LONG)]) {
+lbl58:
+	{reg(1:LONG)}[$(0):ulong] := ({reg(1:LONG)}[$(0):ulong]+$(1))
+	reg(5:LONG) := reg(1:LONG)
+	goto lbl59
+
+lbl59:
+}
+
+std.parallelism5slic => _YN22std46parallelism5slicea95ublul: (rr: reg(58:LONG), pr:[reg(1:LONG), reg(2:LONG), reg(3:ULONG)]) {
+lbl60:
+	Call(_YPAddRefObj, [&(reg(1:LONG))], NONE)
+	reg(38:LONG) := Call(_YN20std46parallelism3absl, [($(reg(3:ULONG) :->LONG)-reg(2:LONG))], LONG)
+	reg(35:LONG) := reg(38:LONG)
+	reg(41:LONG) := Call(_YPCstArray, [($(1,UBYTE)*$(reg(35:LONG) :->ULONG)),
+			$(1,UBYTE)], LONG)
+	Call(_YPAddRefObj, [&(reg(41:LONG))], NONE)
+	reg(39:LONG) := reg(41:LONG)
+	reg(70:LONG) := reg(39:LONG)
+	reg(42:ULONG) := $(0)
+	reg(46:ULONG) := Call(_YPCstRange, [$(1,LONG)], LONG)
+	{reg(46:ULONG)}[$(2,LONG):long] := reg(2:LONG)
+	{reg(46:ULONG)}[($(2,LONG)+$(1,LONG)):long] := $(reg(3:ULONG) :->LONG)
+	reg(59:LONG) := {reg(46:ULONG)}[$(2,LONG):long]
+lbl62:
+	Je (reg(59:LONG)!={reg(46:ULONG)}[($(2,LONG)+$(1,LONG)):long]) lbl63
+	goto lbl64
+
+lbl63:
+	reg(44:LONG) := reg(59:LONG)
+	{($(3,LONG)+(reg(39:LONG)+($(reg(42:ULONG) :->ULONG)*$(1,BYTE))))}[$(0):byte] := {($(3,LONG)+(reg(1:LONG)+($(reg(44:LONG) :->ULONG)*$(1,BYTE))))}[$(0):byte]
+	reg(57:LONG) := Call(_YN37std46parallelism13opUnary403943433941r95ul, [reg(42:ULONG)], LONG)
+	Je ({reg(46:ULONG)}[$(2,LONG):long]<{reg(46:ULONG)}[($(2,LONG)+$(1,LONG)):long]) lbl65
+	goto lbl66
+
+lbl65:
+	++ reg(59:LONG)
+	goto lbl62
+
+
+lbl66:
+	-- reg(59:LONG)
+	goto lbl62
+
+
+
+lbl64:
+	Call(_YPDstObj, [&(reg(46:ULONG))], NONE)
+	Call(_YPAddRefObj, [&(reg(39:LONG))], NONE)
+	reg(58:LONG) := reg(39:LONG)
+	Call(_YPDstObj, [&(reg(39:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(41:LONG))], NONE)
+	goto lbl61
+
+lbl61:
+	Call(_YPDstObj, [&(reg(1:LONG))], NONE)
+
+}
+
+std.parallelism.opInde => _YN24std46parallelism7opIndexa95ubr95ul: (rr: reg(9:LONG), pr:[reg(1:LONG), reg(2:ULONG)]) {
+lbl67:
+	Call(_YPAddRefObj, [&(reg(1:LONG))], NONE)
+	Call(_YPAddRefObj, [&(reg(2:ULONG))], NONE)
+	reg(8:LONG) := Call(_YN22std46parallelism5slicea95ublul, [reg(1:LONG),
+			$({reg(2:ULONG)}[$(2,LONG):ulong] :->LONG),
+			{reg(2:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong]], LONG)
+	Call(_YPAddRefObj, [&(reg(8:LONG))], NONE)
+	reg(9:LONG) := reg(8:LONG)
+	Call(_YPDstObj, [&(reg(8:LONG))], NONE)
+	goto lbl68
+
+lbl68:
+	Call(_YPDstObj, [&(reg(1:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(2:ULONG))], NONE)
+
+}
+
+_YN30std.parallelism12spawnRoutineulia.5 => _YN30std46parallelism12spawnRoutineulia95i: (rr: reg(44:INT), pr:[reg(1:ULONG), reg(2:INT), reg(3:LONG)]) {
+lbl69:
+	Call(_YPAddRefObj, [&(reg(3:LONG))], NONE)
+	reg(9:LONG) := Call(_YPCstArray, [($(1,UBYTE)*$(0)),
+			$(1,UBYTE)], LONG)
+	Call(_YPAddRefObj, [&(reg(9:LONG))], NONE)
+	reg(7:LONG) := reg(9:LONG)
+	reg(71:LONG) := reg(7:LONG)
+lbl73:
+	Je $(1) lbl72
+	goto lbl71
+
+lbl72:
+	Call(_YN21std46parallelism4readir95a95ub, [reg(2:INT),
+			reg(7:LONG)], NONE)
+	Je ({((reg(7:LONG)+$(3,LONG))+$($(0) :->ULONG))}[$(0):int]==- $(1)) lbl75
+lbl74:
+	reg(19:INT) := {((reg(7:LONG)+$(3,LONG))+$($(0) :->ULONG))}[$(0):int]
+	reg(30:ULONG) := Call(_YPCstRange, [$(1,ULONG)], LONG)
+	{reg(30:ULONG)}[$(2,LONG):ulong] := $(4)
+	{reg(30:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong] := {reg(7:LONG)}[$(2,LONG):long]
+	reg(34:LONG) := Call(_YN24std46parallelism7opIndexa95ubr95ul, [reg(7:LONG),
+			reg(30:ULONG)], LONG)
+	Call(_YPAddRefObj, [&(reg(34:LONG))], NONE)
+	reg(24:LONG) := reg(34:LONG)
+	reg(72:LONG) := reg(24:LONG)
+	Call(write, [{($(3,LONG)+(reg(3:LONG)+($((reg(19:INT)-$(1)) :->ULONG)*$(1,INT))))}[$(0):int],
+			(reg(24:LONG)+$(3,LONG)),
+			$({reg(24:LONG)}[$(2,LONG):long] :->INT)], NONE)
+	Call(_YPDstObj, [&(reg(24:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(30:ULONG))], NONE)
+	Call(_YPDstObj, [&(reg(34:LONG))], NONE)
+	goto lbl76
+
+
+lbl75:
+	goto lbl71
+
+	goto lbl76
+
+
+lbl76:
+	goto lbl73
+
+
+lbl71:
+	reg(44:INT) := $(0)
+	Call(_YPDstObj, [&(reg(7:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(9:LONG))], NONE)
+	goto lbl70
+
+lbl70:
+	Call(_YPDstObj, [&(reg(3:LONG))], NONE)
+
+}
+
+_YN22std.parallelism5spawnulf.5ulula.5 => _YN22std46parallelism5spawnulf95ulula95i: (rr: reg(74:LONG), pr:[reg(1:ULONG), reg(2:LONG)]) {
+lbl77:
+	reg(10:LONG) := Call(_YPCstArray, [($(1,INT)*reg(1:ULONG)),
+			$(1,INT)], LONG)
+	Call(_YPAddRefObj, [&(reg(10:LONG))], NONE)
+	reg(9:LONG) := reg(10:LONG)
+	reg(73:LONG) := reg(9:LONG)
+	reg(12:LONG) := Call(_YPCstArray, [($(1,INT)*reg(1:ULONG)),
+			$(1,INT)], LONG)
+	Call(_YPAddRefObj, [&(reg(12:LONG))], NONE)
+	reg(11:LONG) := reg(12:LONG)
+	reg(74:LONG) := reg(11:LONG)
+	reg(16:LONG) := Call(_YPCstArray, [$(2,INT),
+			$(1,INT)], LONG)
+	{reg(16:LONG)}[($(0)+$(3,LONG)):int] := $(0)
+	{reg(16:LONG)}[($(1,INT)+$(3,LONG)):int] := $(0)
+	Call(_YPAddRefObj, [&(reg(16:LONG))], NONE)
+	reg(13:LONG) := reg(16:LONG)
+	reg(75:LONG) := reg(13:LONG)
+	reg(17:INT) := Call(_YN21std46parallelism4piper95a95i, [&(reg(13:LONG))], INT)
+	reg(22:ULONG) := Call(_YPCstRange, [$(1,ULONG)], LONG)
+	{reg(22:ULONG)}[$(2,LONG):ulong] := $(1)
+	{reg(22:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong] := (reg(1:ULONG)+$(1))
+	reg(75:ULONG) := {reg(22:ULONG)}[$(2,LONG):ulong]
+lbl79:
+	Je (reg(75:ULONG)!={reg(22:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong]) lbl80
+	goto lbl81
+
+lbl80:
+	reg(18:ULONG) := reg(75:ULONG)
+	reg(26:LONG) := Call(_YPCstArray, [$(2,INT),
+			$(1,INT)], LONG)
+	{reg(26:LONG)}[($(0)+$(3,LONG)):int] := $(0)
+	{reg(26:LONG)}[($(1,INT)+$(3,LONG)):int] := $(0)
+	Call(_YPAddRefObj, [&(reg(26:LONG))], NONE)
+	reg(23:LONG) := reg(26:LONG)
+	reg(76:LONG) := reg(23:LONG)
+	reg(27:INT) := Call(_YN21std46parallelism4piper95a95i, [&(reg(23:LONG))], INT)
+	reg(29:INT) := Call(fork, [], INT)
+	reg(28:INT) := reg(29:INT)
+	Je (reg(28:INT)==$(0)) lbl85
+lbl84:
+	{($(3,LONG)+(reg(11:LONG)+($((reg(18:ULONG)-$(1)) :->ULONG)*$(1,INT))))}[$(0):int] := reg(28:INT)
+	Call(close, [{($(3,LONG)+(reg(23:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int]], NONE)
+	{($(3,LONG)+(reg(9:LONG)+($((reg(18:ULONG)-$(1)) :->ULONG)*$(1,INT))))}[$(0):int] := {($(3,LONG)+(reg(23:LONG)+($($(1) :->ULONG)*$(1,INT))))}[$(0):int]
+	goto lbl86
+
+
+lbl85:
+	Call(close, [{($(3,LONG)+(reg(13:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int]], NONE)
+	Call(close, [{($(3,LONG)+(reg(23:LONG)+($($(1) :->ULONG)*$(1,INT))))}[$(0):int]], NONE)
+	reg(42:LONG) := Call(_YPCstArray, [$(2,INT),
+			$(1,INT)], LONG)
+	{reg(42:LONG)}[($(0)+$(3,LONG)):int] := {($(3,LONG)+(reg(23:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int]
+	{reg(42:LONG)}[($(1,INT)+$(3,LONG)):int] := {($(3,LONG)+(reg(13:LONG)+($($(1) :->ULONG)*$(1,INT))))}[$(0):int]
+	reg(43:INT) := Call(reg(2:LONG), [reg(18:ULONG),
+			reg(1:ULONG),
+			reg(42:LONG)], INT)
+	Call(exit, [reg(43:INT)], NONE)
+	Call(_YPDstObj, [&(reg(42:LONG))], NONE)
+	goto lbl86
+
+
+lbl86:
+	Call(_YPDstObj, [&(reg(23:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(26:LONG))], NONE)
+	Je ({reg(22:ULONG)}[$(2,LONG):ulong]<{reg(22:ULONG)}[($(2,LONG)+$(1,ULONG)):ulong]) lbl82
+	goto lbl83
+
+lbl82:
+	++ reg(75:ULONG)
+	goto lbl79
+
+
+lbl83:
+	-- reg(75:ULONG)
+	goto lbl79
+
+
+
+lbl81:
+	Call(_YPDstObj, [&(reg(22:ULONG))], NONE)
+	reg(57:INT) := Call(fork, [], INT)
+	reg(56:INT) := reg(57:INT)
+	Je (reg(56:INT)==$(0)) lbl88
+lbl87:
+	Call(close, [{($(3,LONG)+(reg(13:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int]], NONE)
+	goto lbl89
+
+
+lbl88:
+	Call(close, [{($(3,LONG)+(reg(13:LONG)+($($(1) :->ULONG)*$(1,INT))))}[$(0):int]], NONE)
+	reg(65:INT) := Call(_YN30std46parallelism12spawnRoutineulia95i, [reg(1:ULONG),
+			{($(3,LONG)+(reg(13:LONG)+($($(0) :->ULONG)*$(1,INT))))}[$(0):int],
+			reg(9:LONG)], INT)
+	Call(exit, [reg(65:INT)], NONE)
+	goto lbl89
+
+
+lbl89:
+	reg(72:LONG) := Call(_YPCstArray, [$(1,INT),
+			$(1,INT)], LONG)
+	{reg(72:LONG)}[($(0)+$(3,LONG)):int] := {($(3,LONG)+(reg(13:LONG)+($($(1) :->ULONG)*$(1,INT))))}[$(0):int]
+	reg(73:LONG) := Call(_YPPlusArrayint, [reg(72:LONG),
+			reg(11:LONG)], LONG)
+	Call(_YPAddRefObj, [&(reg(73:LONG))], NONE)
+	reg(74:LONG) := reg(73:LONG)
+	Call(_YPDstObj, [&(reg(9:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(10:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(11:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(12:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(13:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(16:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(72:LONG))], NONE)
+	Call(_YPDstObj, [&(reg(73:LONG))], NONE)
+	goto lbl78
+
+lbl78:
+}
+

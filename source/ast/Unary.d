@@ -88,8 +88,8 @@ class BefUnary : Expression {
     }
     
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	return new BefUnary (this._token, this._elem.templateExpReplace (names, values));
+    override Expression templateExpReplace (Expression [string] values) {
+	return new BefUnary (this._token, this._elem.templateExpReplace (values));
     }        
     
     override Expression clone () {
@@ -186,8 +186,8 @@ class AfUnary : Expression {
 	} return null;
     }
     
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	return new AfUnary (this._token, this._elem.templateExpReplace (names, values));
+    override Expression templateExpReplace (Expression [string] values) {
+	return new AfUnary (this._token, this._elem.templateExpReplace (values));
     }
 
     override Expression clone () {

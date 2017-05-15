@@ -3,7 +3,9 @@ import std.typecons, amd64.AMDReg;
 import target.TInst, amd64.AMDObj;
 import std.outbuffer;
 
-alias SET = Tuple!(string, "descr");
+struct SET {
+    string descr;
+}
 
 enum AMDSetType : SET {
     LOWER = SET ("l"),

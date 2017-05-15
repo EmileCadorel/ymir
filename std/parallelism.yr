@@ -11,10 +11,17 @@ def pipe (ref a : [int]) : int {
     return pipe (a.ptr);
 }
 
+enum
+| LOCK_SH : 1
+| LOCK_EX : 2
+| LOCK_UN : 8
+-> Locks;
+
 extern (C) close (a : int);
 extern (C) open (a : int);
 extern (C) read (a : int, msg : ptr!void, len : int);
 extern (C) write (a : int, msg : ptr!void, len : int);
+extern (C) flock (int, int);
 
 def read (desc : int, ref msg : string) {
     let len = 0UL;
@@ -149,17 +156,20 @@ def readTuple (T) (desc : int, fst : T, next) {
     }
 }
 
-def send (T) (desc : int, i : int, what : T) {
+def send (T) (desc : int, i : int, what : T) {    
+    extern (C) flock (int, int);
     extern (C) write (a : int, msg : ptr!void, len : int);
     let name = what.typeid;
     let nameLen = name.length;
     let buf = writeTuple (expand (what));	
     let len = buf.length + name.length + (int.sizeof) + (ulong.sizeof);
+    flock (desc, Locks.LOCK_EX);
     write (desc, cast:ptr!(void) (&len), cast:int (ulong.sizeof));
     write (desc, cast:ptr!(void) (&i), cast:int (int.sizeof));
     write (desc, cast:ptr!(void) (&nameLen), cast:int (ulong.sizeof));
     write (desc, cast:ptr!(void) (name.ptr), cast:int (name.length));
     write (desc, cast:ptr!(void) (buf.ptr), cast:int (buf.length));
+    flock (desc, Locks.LOCK_UN);
 }
 
 def recv if (isTuple!(T) ())
@@ -193,7 +203,7 @@ def receive (desc : int, foos) {
     }
     
     def callTuple (desc : int, name : string, foo, foos) {
-		static if (isTuple!(typeof (foo.paramTuple)) ()) {
+	static if (isTuple!(typeof (foo.paramTuple)) ()) {
 	    let t = foo.paramTuple.empty;
 	    let n = t.typeid;
 	    if (n == name) {

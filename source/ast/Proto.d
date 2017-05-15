@@ -111,13 +111,13 @@ class Proto : Declaration {
 	}
     }
     
-    override Declaration templateReplace (Array!Expression names, Array!Expression values) {
+    override Declaration templateReplace (Expression [string] values) {
 	Var type;
 	if (this._type)
-	    type = cast (Var) this._type.templateExpReplace (names, values);
+	    type = cast (Var) this._type.templateExpReplace (values);
 	Array!Var params;
 	foreach (it ; this._params)
-	    params.insertBack(cast (Var) it.templateExpReplace (names, values));
+	    params.insertBack(cast (Var) it.templateExpReplace (values));
 	auto ret = new Proto (this._ident, type, params, this._isVariadic);
 	ret.from = this._from;
 	return ret;

@@ -68,9 +68,9 @@ class ArrayAlloc : Expression {
 	return aux;	
     }
 
-    override Expression templateExpReplace (Array!Expression names, Array!Expression values) {
-	auto type = this._type.templateExpReplace (names, values);
-	auto size = this._size.templateExpReplace (names, values);
+    override Expression templateExpReplace (Expression [string] values) {
+	auto type = this._type.templateExpReplace (values);
+	auto size = this._size.templateExpReplace (values);
 	return new ArrayAlloc (this._token, type, size);
     }
 

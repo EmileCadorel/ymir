@@ -171,20 +171,21 @@ class Function : Declaration {
      Remplace les éléments template de la fonction 
      Returns: une nouvelle fonction avec les templates remplacé
      */
-    override Function templateReplace (Array!Expression tmps, Array!Expression values) {
+    override Function templateReplace (Expression [string] values) {
 	Var type;
 	if (this._type)
-	    type = cast (Var) this._type.templateExpReplace (tmps, values);
+	    type = cast (Var) this._type.templateExpReplace (values);
 	
 	Array!Var params;
 	foreach (it ; this._params) {
-	    params.insertBack (cast (Var) it.templateExpReplace (tmps, values));
+	    params.insertBack (cast (Var) it.templateExpReplace (values));
 	}
+	
 	Expression test;
 	if (this._test)
-	    test = this._test.templateExpReplace (tmps, values);
+	    test = this._test.templateExpReplace (values);
 	
-	return new Function (this._ident, type, params, make!(Array!Expression), test, block.templateReplace (tmps, values));
+	return new Function (this._ident, type, params, make!(Array!Expression), test, block.templateReplace (values));
     }    
     
     /**
@@ -213,6 +214,7 @@ class Function : Declaration {
     }
 
     bool verifyTemplates () {
+	import ast.OfVar;
 	bool isPure = true;
 	foreach (it ; this._tmps) {
 	    if (auto tvar = cast (TypedVar) it) {
@@ -224,8 +226,9 @@ class Function : Declaration {
 		    }
 		}
 		isPure = false;
-	    } else if (cast (Var) it)
+	    } else if (cast (Var) it || cast (OfVar) it)
 		isPure = false;
+	    
 	}
 	return isPure;
     }

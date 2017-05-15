@@ -1,14 +1,10 @@
 import std.stdio;
-import std.conv;
-import std.math, std.array;
-import std.algorithm;
+import std.map;
 
-
-def main () {    
-    let a = [[1, 2], [2], [13, 12, 11]];    
-    println (a.map!'a[0] / *'
-	     .reduce!'a + b'
-    );    
+def main () {
+    let a = map!(string, int) ();
+    a ["salut"] = 12;
+    println (a);
 }
 
 

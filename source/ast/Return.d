@@ -86,9 +86,9 @@ class Return : Instruction {
 	return aux;
     }
     
-    override Instruction templateReplace (Array!Expression names, Array!Expression values) {
+    override Instruction templateReplace (Expression [string] values) {
 	if (this._elem is null) return this;
-	else return new Return (this._token, this._elem.templateExpReplace (names, values));
+	else return new Return (this._token, this._elem.templateExpReplace (values));
     }
     
     
