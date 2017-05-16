@@ -143,9 +143,16 @@ class Options {
     const (string []) libs () {
 	string [] libs;
 	string name = this._ysPath;
-	if (this._ysPath.length > 0) {
-	    name = this._ysPath ~ (this._ysPath [$ - 1] == '/' ? "libs/" : "/libs/");
+	if (this.isOn (OptionEnum.DEBUG)) {
+	    if (this._ysPath.length > 0) {
+		name = this._ysPath ~ (this._ysPath [$ - 1] == '/' ? "libs.g/" : "/libs.g/");
+	    }
+	} else {
+	    if (this._ysPath.length > 0) {
+		name = this._ysPath ~ (this._ysPath [$ - 1] == '/' ? "libs/" : "/libs/");
+	    }
 	}
+	
 	foreach (it ; dirEntries (name, SpanMode.breadth)
 		 .filter!(f => f.name.endsWith (".o"))
 		 .map!(a => a.name)) {

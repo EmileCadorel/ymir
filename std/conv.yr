@@ -1,34 +1,31 @@
 public import std.traits;
 
-def to if (is (T : string)) 
-    (T)  (c : char) : string 
-	return cast:string ([c]);
+def to (T of string) (c : char) : string {
+    return cast:string ([c]);
+}
 
-def to if (is (T : string))
-    (T, c : char) () {
-	return '' + c;
-    }
+def to (T of string, c : char) () {
+    return '' + c;
+}
 
-def to if (is (T : string))
-    (T)  (a : ptr!char) : string {
-	if (a is null) return '';
-	else if (*a == 0ub) return ''; 
-	let ret = [*a];
+def to (T of string)  (a : ptr!char) : string {
+    if (a is null) return '';
+    else if (*a == 0ub) return ''; 
+    let ret = [*a];
+    a = a + 1;
+    while (*a != 0ub) {
+	ret += [*a];
 	a = a + 1;
-	while (*a != 0ub) {
-	    ret += [*a];
-	    a = a + 1;
-	}
-	return cast:string (ret);
     }
+    return cast:string (ret);
+}
 
-def to if (is (T : string))
-    (T) (elem : [char]) : string {
-	return cast:string (elem);
-    }
+def to (T of string) (elem : [char]) : string {
+    return cast:string (elem);
+}
 
-def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
-    (T, T2) (elem : T2) : string {
+def to if ((is (T2 : long) || is (T2 : int)))
+    (T of string, T2) (elem : T2) : string {
 	import std.traits;
 	if (elem < 0) return "-" + to!(T) (-elem);
 	else if (elem == 0) return "0";
@@ -42,14 +39,14 @@ def to if (is (T : string) && (is (T2 : long) || is (T2 : int)))
 	return cast:string (res);
     }
 
-def to if (is (T : string) && is (T2 : short))
-    (T, T2) (elem : T2) : string {
+def to if (is (T2 : short))
+    (T of string, T2) (elem : T2) : string {
 	import std.traits;
 	return to!(string) (cast:int(elem));
     }
 
-def to if (is (T : string) && is (T2 : byte))
-    (T, T2) (elem : T2) : string {
+def to if (is (T2 : byte))
+    (T of string, T2) (elem : T2) : string {
 	let aux = cast:int (elem);
 	let right = aux % 16;
 	let left = aux / 16;
@@ -77,8 +74,8 @@ def to if (isDecimal!(T)())
 	return res;
     }
 
-def to if (is (T : string) && isUnsigned!(T2)())
-    (T, T2) (elem : T2) : string {
+def to if (isUnsigned!(T2)())
+    (T of string, T2) (elem : T2) : string {
 	return to!(string) (toSigned (elem));
     }
 
@@ -96,8 +93,8 @@ def to if (isDecimal!(T)() && isDecimal!(T2) ())
 	else return cast:T (elem);
     }
 
-def to if (is (T : string) && !is (T2 : char))
-    (T, T2) (elem : [T2]) {
+def to if (!is (T2 : char))
+    (T of string, T2) (elem : [T2]) {
 	if (elem is null) return 'null';
 	else {
 	    let ret = "[";
@@ -111,11 +108,10 @@ def to if (is (T : string) && !is (T2 : char))
 	}
     }
 
-def to if (is (T : string))
-    (T) (elem : T) {
-	if (elem is null) return 'null';
-	else return elem;
-    }
+def to (T of string) (elem : T) {
+    if (elem is null) return 'null';
+    else return elem;
+}
 
 def addTupleComa if (!isTuple!(T)())
     (T) (left : T) : string {
@@ -133,13 +129,13 @@ def addTupleComa (T) (left : T, elem) : string {
     }
 }
 
-def to if (is (T : string) && isTuple!(T2) ())
-    (T, T2) (elem : T2) : string {	
+def to if (isTuple!(T2) ())
+    (T of string, T2) (elem : T2) : string {	
 	return 'tuple(' + addTupleComa (expand (elem)) + ')';	
     }
 
-def to if (is (T : string) && is (T2 : struct))
-    (T, T2) (elem : T2) {
+def to if (is (T2 : struct))
+    (T of string, T2) (elem : T2) {
 	if (elem is null) return T2.typename;	
 	else return T2.typename + "(" + addTupleComa (expand (elem.tupleof)) + ")";
     }
@@ -153,45 +149,43 @@ def to if (is (T : [ubyte]))
 	return res;
     }
        
-def to if (is (T : string))
-    (T) (elem : float) : string {
-	import std.traits;
-	if (elem < 0.) return "-" + to!(string) (-elem);
-	else if (elem == 0.) return "0";
-	let prec = 5UL;
-	let f = cast:int (elem * 100000.);
-	let size = 0UL, nb = f;	
-	while (nb > 0) { nb /= 10; size ++; }
-	let aux = [char; size + 1UL];
-	for (id in 0UL .. size + 1UL) {
-	    if (id == prec) {aux [aux.length - id - 1UL] = '.';}
-	    else {
-		aux [aux.length - id - 1UL] =  cast:char (f % 10) + '0';
-		f /= 10;
-	    }	    
-	}
-	return cast:string (aux);
+def to (T of string) (elem : float) : string {
+    import std.traits;
+    if (elem < 0.) return "-" + to!(string) (-elem);
+    else if (elem == 0.) return "0";
+    let prec = 5UL;
+    let f = cast:int (elem * 100000.);
+    let size = 0UL, nb = f;	
+    while (nb > 0) { nb /= 10; size ++; }
+    let aux = [char; size + 1UL];
+    for (id in 0UL .. size + 1UL) {
+	if (id == prec) {aux [aux.length - id - 1UL] = '.';}
+	else {
+	    aux [aux.length - id - 1UL] =  cast:char (f % 10) + '0';
+	    f /= 10;
+	}	    
     }
+    return cast:string (aux);
+}
        
-def to if (is (T : string))
-    (T) (elem : float, prec : ulong) : string {
-	import std.traits;
-	if (elem < 0.) return "-" + to!(string) (-elem);
-	else if (elem == 0.) return "0";
-	let f = cast:ulong (elem * cast:float(10UL ^^ cast:long(prec)));
-	let size = 0UL, nb = f;	
-	while (nb > 0UL) { nb /= 10UL; size ++; }
-	if (size < prec) assert (false, "Précision trop grande " + to!string (prec));
-	let aux = [char; size + 1UL];
-	for (id in 0UL .. size + 1UL) {
-	    if (id == prec) aux [aux.length - id - 1UL] = '.';
-	    else {
-		aux [aux.length - id - 1UL] =  cast:char (f % 10UL) + '0';
-		f /= 10UL;
+def to (T of string) (elem : float, prec : ulong) : string {
+    import std.traits;
+    if (elem < 0.) return "-" + to!(string) (-elem);
+    else if (elem == 0.) return "0";
+    let f = cast:ulong (elem * cast:float(10UL ^^ cast:long(prec)));
+    let size = 0UL, nb = f;	
+    while (nb > 0UL) { nb /= 10UL; size ++; }
+    if (size < prec) assert (false, "Précision trop grande " + to!string (prec));
+    let aux = [char; size + 1UL];
+    for (id in 0UL .. size + 1UL) {
+	if (id == prec) aux [aux.length - id - 1UL] = '.';
+	else {
+	    aux [aux.length - id - 1UL] =  cast:char (f % 10UL) + '0';
+	    f /= 10UL;
 	    }	    
-	}
-	return cast:string (aux);
     }
+    return cast:string (aux);
+}
 
 
 

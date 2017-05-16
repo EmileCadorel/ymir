@@ -32,6 +32,11 @@ class AMDFile : TInst {
 	}
 	return "";
     }
+
+    static void reset () {
+	this.__locusFiles__.clear ();
+	this.__last__ = 1;
+    }
     
 }
 

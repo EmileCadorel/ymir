@@ -11,6 +11,7 @@ class LReg : LExp {
     private string _value;
     private ulong _length;
     private bool _isStatic;
+    private bool _scoped;
     
     this (LSize size) {
 	this._id = __last__;
@@ -23,6 +24,12 @@ class LReg : LExp {
 	this._size = size;
     }
 
+    this (ulong id, LSize size, bool scoped) {
+	this._id = id;
+	this._size = size;
+	this._scoped = true;
+    }
+    
     this (ulong id, LSize size, string name, string value) {
 	this._id = id;
 	this._size = size;
@@ -66,7 +73,11 @@ class LReg : LExp {
     }
     
     override string toString () {
-	return "reg(" ~ to!string (this._id) ~ ":" ~ to!string (this._size) ~ ")";
+	import std.format;
+	if (!this._scoped) 
+	    return format("reg(%d:%s)", this._id, to!string (this._size));
+	else
+	    return format("scoped_reg(%d:%s)", this._id, to!string (this._size));
     }
     
 }

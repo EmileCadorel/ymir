@@ -1,11 +1,14 @@
 import sdl, input;
-
-extern (C) pause ();
+import signal;
+import std.map, std.conv;
+import std.array, std.stdio;
 
 def main () {
-    let win = initSDL ("Test", 800, 600);
-    while (!poll ()) {
-	win.clear ();
-	win.swapWindow ();
+    let b = 1123;
+
+    def foo (a : int) {
+	return a + b;
     }
+
+    println (foo (1));
 }

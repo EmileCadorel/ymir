@@ -13,6 +13,9 @@ class Symbol {
     /** L'identifiant numérique du symbole (pour la transformation en lint) */
     private ulong _id = 0;
 
+    /** A été déclaré dans la frame parent mais est accessible par scope */
+    private bool _scoped;
+    
     /** L'identifiant du symbole */
     private Word _sym;
 
@@ -125,6 +128,10 @@ class Symbol {
 	    return this._type.isType;
 	return false;
     }
+
+    ref bool isScoped () {
+	return this._scoped;
+    }
     
     ref Value staticValue () {
 	return this._staticValue;
@@ -230,6 +237,16 @@ class Symbol {
 	    this._id = __last__.front ();
 	    __last__.front ()++;
 	}
+    }
+
+    /**
+     Génére un clone du symbole mais de manière scopé
+     */
+    Symbol cloneScoped () {
+	auto other = new Symbol (false, this._sym, this._type.clone (), this.isConst);
+	other._scoped = true;
+	other._id = this._id;
+	return other;
     }
     
 }

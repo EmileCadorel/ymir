@@ -688,8 +688,12 @@ class LVisitor {
 	    return elem.info.value.toLint (elem.info);
 	else if (elem.info.isStatic) {
 	    return new LInstList (new LReg (elem.info.id, elem.info.type.size, elem.token.str, elem.info.staticValue.toString));
-	} else
-	    return new LInstList (new LReg (elem.info.id, elem.info.type.size));
+	} else {
+	    if (elem.info.isScoped)
+		return new LInstList (new LReg (elem.info.id, elem.info.type.size, true));
+	    else 
+		return new LInstList (new LReg (elem.info.id, elem.info.type.size));
+	}
     }
 
     private LInstList visitBool (Bool elem) {

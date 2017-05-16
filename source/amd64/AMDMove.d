@@ -25,7 +25,7 @@ class AMDMove : TInst {
 	auto cst = cast (AMDConstDecimal) this._left;
 	auto cst2 = cast (AMDConstUDecimal) this._left;
 	if (cst && isSigned (this._left.sizeAmd)) {
-	    if (cst.value > uint.max || cst.value < int.min) {
+	    if (cst.value > int.max || cst.value < int.min) {
 		this._isAbs = true;
 		if (!this._aux)
 		    this._aux = new AMDReg (REG.getSwap (r.sizeAmd));

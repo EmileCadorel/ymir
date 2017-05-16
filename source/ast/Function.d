@@ -139,7 +139,9 @@ class Function : Declaration {
 	} else {
 	    auto fun = new FunctionInfo (space, this._ident.str);
 	    fun.insert (fr);
-	    Table.instance.insert (new Symbol (this._ident, fun, true));
+	    auto sym = new Symbol (this._ident, fun, true);
+	    sym.isScoped = true;
+	    Table.instance.insert (sym);
 	}    
     }
 

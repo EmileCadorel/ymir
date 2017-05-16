@@ -55,6 +55,8 @@ Array!LFrame lintTime () {
 }
 
 Array!TFrame targetTime (Array!LFrame frames) {
+    import amd64.AMDLocus;
+    AMDFile.reset ();
     return new AMDVisitor ().target (frames);    
 }
 

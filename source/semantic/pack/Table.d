@@ -130,7 +130,7 @@ class Table {
 	    this._frameTable.front.insert (info.sym.str, info);
 	}
     }
-
+    
     /**
      Insert un symbole dans le GC du scope le plus mince.
      Params:
@@ -180,6 +180,7 @@ class Table {
 	    this._frameTable.removeFront ();
 	    ret = this._frameTable.front [name];
 	    this._frameTable.insertFront (aux);
+	    if (ret !is null && !ret.isScoped) ret = null;
 	}
 	if (ret is null) return this._globalScope [name];
 	return ret;
