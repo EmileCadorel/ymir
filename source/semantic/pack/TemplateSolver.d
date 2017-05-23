@@ -178,7 +178,13 @@ class TemplateSolverS {
 	auto content = param.content;
 	auto type_ = type.getTemplate (0);
 	if (type_ is null) return TemplateSolution (false);
-	TemplateSolution res = this.solveInside (tmps, content, type_);
+	
+	TemplateSolution res;
+	if (auto var = cast (Var) content)
+	    res = this.solveInside (tmps, var, type_);
+	else
+	    res = this.solveInside (tmps, cast (FuncPtr) content, type_);
+	    
 	if (res.valid)
 	    return TemplateSolution (true, type.cloneForParam, res.elements);
 	return TemplateSolution (false);
@@ -223,9 +229,35 @@ class TemplateSolverS {
 	soluce.type = type.cloneForParam;
 	return soluce;
     }            
+
+
+    private TemplateSolution solveInside (Array!Expression tmps, FuncPtr ptr, InfoType type) {
+	import semantic.types.PtrFuncInfo;
+	auto func = cast (PtrFuncInfo) type;
+	Array!InfoType types;
+	auto soluce = TemplateSolution (true);
+	foreach (it ; 0 .. ptr.params.length) {
+	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it));
+	    if (!res.valid || !merge (soluce.elements, res.elements))
+		return TemplateSolution (false);
+	    types.insertBack (res.type);
+	}
+
+	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
+	if (!res.valid || !merge (soluce.elements, res.elements))
+	    return TemplateSolution (false);
+	auto aux = new PtrFuncInfo ();
+	aux.params = types;
+	auto ret = res.type;
+	
+	if (!func.CompOp (aux)) return TemplateSolution (false);
+	soluce.type = type.cloneForParam;
+	return soluce;
+    }
+
     
     /**
-     Résoud un paramètre template
+     résoud un paramètre template
      Params;
      elem = le paramètre templates
      param = le paramètre passé à la fonction
@@ -277,9 +309,9 @@ class TemplateSolverS {
 	else typeVar = param;
 	
 	auto res = this.solveInside (tmps, elem.type, type);
-	if (!res.valid || !res.type.isSame (type)) return TemplateSolution (false);
+	if (!res.valid || !res.type.CompOp (type)) return TemplateSolution (false);
 	else {
-	    auto soluce = res;
+	    res.type = type;
 	    if (!merge
 		(res.elements,
 		 [elem.token.str : new Type (typeVar.token, type.cloneForParam)]
@@ -380,11 +412,11 @@ class TemplateSolverS {
 	if (!type) return TemplateSolution (false);
 
 	auto res = this.solveInside (tmps, left.type, type.info.type);
-	if (!res.valid || !res.type.isSame (type.info.type)) return TemplateSolution (false);
+	if (!res.valid || !res.type.CompOp (type.info.type)) return TemplateSolution (false);
 	else {
 	    auto clo = type.clone ();
 	    clo.info.type = clo.info.type.cloneForParam ();
-	    auto soluce = res;
+	    res.type = type.info.type.cloneForParam;
 	    if (!merge
 		(res.elements,
 		 [left.token.str : clo]

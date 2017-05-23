@@ -21,9 +21,9 @@ enum
   Retourne la valeur absolue d'un nombre
  **/
 def abs (value) {
-  if (value < 0)
-    return -value;
-  return value;
+    if (value < 0)
+	return -value;
+    return value;
 }
 
 public extern (C) cos (a : float) : float;

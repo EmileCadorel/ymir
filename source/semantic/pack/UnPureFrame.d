@@ -23,7 +23,7 @@ class UnPureFrame : Frame {
      namespace = le contexte de la frame.
      func = la fonction associé à la frame.
      */
-    this (string namespace, Function func) {
+    this (Namespace namespace, Function func) {
 	super (namespace, func);
 	this._name = func.ident.str;
     }
@@ -76,67 +76,11 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
      */
     override FrameProto validate (Array!InfoType params) {
-	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-	string un = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
-	name = "_YN" ~ to!string (name.length) ~ name;
-	
-	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
+	Table.instance.enterFrame (Table.instance.globalNamespace, this._name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
-	Array!Var finalParams;
-	foreach (it; 0 .. this._function.params.length) {
-	    if (cast(TypedVar)this._function.params [it] is null) {
-		auto var = this._function.params [it].setType (params [it]);   
-		finalParams.insertBack (var.expression);
-	    } else finalParams.insertBack (this._function.params [it].expression);
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t);
-	}
-
-	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name);
-	
-	auto proto = FrameTable.instance.existProto (name);
-	    
-	if (proto is null) {
-	    
-	    if (this._function.type is null) {
-		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-	    } else {
-		Table.instance.retInfo.info = this._function.type.asType ().info;
-	    }
-	    
-	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
-	    FrameTable.instance.insert (proto);
-
-	    Table.instance.retInfo.currentBlock = "true";	    
-	    auto block = this._function.block.block ();
-	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.info.type = new VoidInfo ();
-	    }
-
-	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name, un,
-				       finalParams, block);
-
-	    proto.type = Table.instance.retInfo.info;
-	    
-	    FrameTable.instance.insert (fr);
-	    
-	    fr.file = this._function.ident.locus.file;
-	    fr.dest = Table.instance.quitBlock ();
-	    super.verifyReturn (this._function.ident,
-				fr.type,
-				Table.instance.retInfo);
-
-	    
-	    fr.last = Table.instance.quitFrame ();
-	    
-	    return proto;
-	}
-	Table.instance.quitBlock ();
-	Table.instance.quitFrame ();
-	return proto;	
+	Array!Var finalParams = Frame.computeParams (this._function.params, params);
+	return super.validate (Table.instance.globalNamespace, finalParams);
     }
 
     /**
@@ -146,66 +90,7 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
     */
     override FrameProto validate (ParamList params) {
-	string un = Table.instance.namespace ~ to!string (this._name.length) ~ this._name;
-	string name = Table.instance.namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-	name = "_YN" ~ to!string (name.length) ~ name;
-	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
-	Table.instance.enterBlock ();
-	
-	Array!Var finalParams;
-	foreach (it; 0 .. this._function.params.length) {
-	    if (cast(TypedVar)this._function.params [it] is null) {
-		auto var = this._function.params [it].setType (params.params [it].info);   
-		finalParams.insertBack (var.expression);
-	    } else finalParams.insertBack (this._function.params [it].expression);
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t);
-	}
-	
-	Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);
-	
-	auto proto = FrameTable.instance.existProto (name);
-	    
-	if (proto is null) {
-	    
-	    if (this._function.type is null) {
-		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-	    } else {
-		Table.instance.retInfo.info = this._function.type.asType ().info;
-	    }
-	    
-	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
-	    FrameTable.instance.insert (proto);
-
-	    Table.instance.retInfo.currentBlock = "true";	    
-	    auto block = this._function.block.block ();
-	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.info.type = new VoidInfo ();
-	    }
-
-	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name, un,
-				       finalParams, block);
-
-	    proto.type = Table.instance.retInfo.info;
-	    
-	    FrameTable.instance.insertTemplate (fr);
-	    
-	    fr.file = this._function.ident.locus.file;
-	    fr.dest = Table.instance.quitBlock ();
-	    super.verifyReturn (this._function.ident,
-				fr.type,
-				Table.instance.retInfo);
-
-	    
-	    fr.last = Table.instance.quitFrame ();
-	    
-	    return proto;
-	}
-	Table.instance.quitBlock ();
-	Table.instance.quitFrame ();
-	return proto;
+	return this.validate (params.paramTypes);
     }
     
 }

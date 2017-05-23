@@ -12,6 +12,7 @@ import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.DecimalInfo;
 import ast.Constante;
+import semantic.pack.Namespace;
 
 /**
  Le constructeur de structure
@@ -38,8 +39,14 @@ class StructCstInfo : InfoType {
     
     /** La structure a été importé ?*/
     private bool _extern;
+
+    /++
+     L'emplacemence de la création de la structure.
+     +/
+    private Namespace _namespace;
     
-    this (string name, Array!Var tmps) {
+    this (Namespace space, string name, Array!Var tmps) {
+	this._namespace = space;
 	this._name = name;
 	this._tmps = tmps;
 	this._destruct = &StructUtils.InstDestruct;
@@ -70,6 +77,10 @@ class StructCstInfo : InfoType {
      */
     string name () {
 	return this._name;
+    }
+
+    Namespace namespace () {
+	return this._namespace;
     }
 
     /**
@@ -108,7 +119,7 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	auto ret = cast (StructInfo) StructInfo.create (cst._name, cst._names, cst._types, cst._oldTmps);
+	auto ret = cast (StructInfo) StructInfo.create (cst._namespace, cst._name, cst._names, cst._types, cst._oldTmps);
 	ret.isExtern = cst._extern;
 	return ret;
     }
@@ -133,7 +144,7 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	auto ret = cast (StructInfo) StructInfo.create (this._name, this._names, this._types, this._oldTmps);
+	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps);
 	ret.isExtern = this._extern;
 	return ret;
     }    
@@ -161,7 +172,7 @@ class StructCstInfo : InfoType {
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
-	auto ret = new StructCstInfo (name, make!(Array!Var));
+	auto ret = new StructCstInfo (this._namespace, name, make!(Array!Var));
 	ret._oldTmps = types;
 	foreach (it_ ; this._params) {
 	    ret.addAttrib (cast (TypedVar) it_.templateExpReplace (res.elements));
@@ -236,7 +247,7 @@ class StructCstInfo : InfoType {
 	    } else return null;
 	}
 	
-	auto ret = StructInfo.create (this._name, names, types, this._oldTmps);
+	auto ret = StructInfo.create (this._namespace, this._name, names, types, this._oldTmps);
 	ret.lintInstMult = &StructUtils.InstCall;
 	if (this._extern) 
 	    ret.leftTreatment = &StructUtils.InstCreateCst!true;
@@ -261,10 +272,8 @@ class StructCstInfo : InfoType {
      Returns: le nom pour le mangling
      */
     override string simpleTypeString () {
-	if (this._name [0] >= 'a' && this._name [0] <= 'z') {
-	    return "_" ~ this.name;
-	} else 
-	    return this._name;
+	import std.format;
+	return format ("%d%s%s", this._name, "ST", this.name);
     }    
 
     /**
@@ -307,7 +316,7 @@ class StructCstInfo : InfoType {
     /**
      Supprime le constructeur de la table des structures.
      */
-    override void quit (string) {
+    override void quit (Namespace) {
 	InfoType.removeCreator (this._name);
     }
       
@@ -318,6 +327,8 @@ class StructCstInfo : InfoType {
  */
 class StructInfo : InfoType {
 
+    private Namespace _namespace;
+    
     /** Les types des paramètres de la structure */    
     private Array!InfoType _params;
 
@@ -332,7 +343,8 @@ class StructInfo : InfoType {
     /** La structure a été importé */
     private bool _extern;
 
-    private this (string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
+    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
+	this._namespace = space;
 	this._name = name;
 	this._attribs = names;
 	this._params = params;
@@ -350,12 +362,13 @@ class StructInfo : InfoType {
     /**
      Créé une instance de la structure
      Params:
+     space = l'emplacement de la création de la structure
      name = le nom de la structure
      names = les noms des attributs
      params = les types des attributs
      */
-    static InfoType create (string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
-	return new StructInfo (name, names, params, olds);
+    static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
+	return new StructInfo (space, name, names, params, olds);
     }
 
     
@@ -368,6 +381,10 @@ class StructInfo : InfoType {
 
     ref Array!string attribs () {
 	return this._attribs;
+    }
+
+    Namespace namespace () {
+	return this._namespace;
     }
     
     /**
@@ -664,7 +681,7 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction concervées.
      */
     override InfoType clone () {
-	auto ret = create (this._name, this._attribs, this._params, this._tmps);
+	auto ret = create (this._namespace, this._name, this._attribs, this._params, this._tmps);
 	if (this._destruct is null) ret.setDestruct (null);
 	return ret;
     }
@@ -673,7 +690,7 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction remise à zero.
     */
     override InfoType cloneForParam () {
-	return create (this._name, this._attribs, this._params, this._tmps);
+	return create (this._namespace, this._name, this._attribs, this._params, this._tmps);
     }
 
     /**

@@ -6,6 +6,7 @@ import std.stdio, std.conv, std.container, std.outbuffer;
 import semantic.types.VoidInfo, ast.ParamList;
 import utils.exception;
 import semantic.types.InfoType, semantic.pack.FrameScope;
+import semantic.pack.Namespace;
 
 
 /**
@@ -19,6 +20,9 @@ class FinalFrame {
     /** le fichier de provenance de la frame */
     private string _file;
 
+    /++ L'emplacement de la frame +/
+    private Namespace _namespace;
+    
     /** le nom de la frame */
     private string _name;
 
@@ -28,22 +32,23 @@ class FinalFrame {
     /** les symboles à détruire en sortie de frame */
     private Array!Symbol _dest;
 
+    /++ Les templates utilisé pour valider la frame +/
+    private Array!Expression _tmps;
+
     /** le block de la frame */
     private Block _block;
 
     /** l'identifiant du dernier symbole */
     private ulong _last;
-
-    private string _unmangleName;
     
-    this (Symbol type, string name, string un, Array!Var vars, Block block) {
+    this (Symbol type, Namespace space, string name, Array!Var vars, Block block, Array!Expression tmps) {
 	this._type = type;
 	this._vars = vars;
 	this._block = block;
 	this._name = name;
 	this._last = last;
-	import core.demangle, std.conv;
-	this._unmangleName = un;
+	this._namespace = space;
+	this._tmps = tmps;
     }
 
     /**
@@ -53,8 +58,8 @@ class FinalFrame {
 	return this._name;
     }
 
-    string unmangle () {
-	return this._unmangleName;
+    Namespace namespace () {
+	return this._namespace;
     }
     
     /** 
@@ -90,6 +95,10 @@ class FinalFrame {
      */
     Array!Var vars () {
 	return this._vars;
+    }
+
+    Array!Expression tmps () {
+	return this._tmps;
     }
 
     /**

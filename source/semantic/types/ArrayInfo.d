@@ -461,7 +461,7 @@ class ArrayInfo : InfoType {
      Returns: le type du tableau sou forme de chaine simplifié.
      */    
     override string simpleTypeString () {
-	return "a_" ~ this._content.simpleTypeString ();
+	return "A" ~ this._content.simpleTypeString ();
     }
     
     /**

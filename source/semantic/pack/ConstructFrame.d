@@ -25,7 +25,7 @@ class ConstructFrame : Frame {
     
     private static const string thisName = Keys.NEW.descr;
     
-    this (string namespace, Constructor cst) {
+    this (Namespace namespace, Constructor cst) {
 	super (namespace, null);
 	this._cst = cst;
     }
@@ -39,30 +39,7 @@ class ConstructFrame : Frame {
     }
 
     override FrameProto validate () {
-	string name = this._namespace ~ to!string (Keys.NEW.descr.length) ~ Keys.NEW.descr;
-	Table.instance.enterFrame (name, this._cst.params.length, this._isInternal);
-	Table.instance.enterBlock ();
-
-	Array!Var finalParams;
-	foreach (it ; 0 .. this._cst.params.length) {
-	    auto info = this._function.params [it].expression;
-	    finalParams.insertBack (info);
-	    finalParams.back ().info.id = it + 1;
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    name ~= super.mangle (t);
-	}
-
-	Table.instance.setCurrentSpace (this._namespace ~ to!string (thisName.length) ~ thisName);
-	
-	auto proto = FrameTable.instance.existProto (name);
-	if (proto is null) {
-	    Table.instance.retInfo.info = new Symbol (false, this._cst.token, new VoidInfo ());
-	    this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
-	    
-	}
-	Table.instance.quitBlock ();
-	Table.instance.quitFrame ();
-	return proto;
+	assert (false);
     }
     
     

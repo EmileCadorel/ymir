@@ -323,7 +323,7 @@ class RefInfo : InfoType {
      Returns: le nom simple du type.
      */
     override string simpleTypeString () {
-	return "r_" ~ this.content.simpleTypeString ();	
+	return "R" ~ this.content.simpleTypeString ();	
     }
     
     /**

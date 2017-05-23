@@ -3,6 +3,7 @@ import semantic.pack.Scope, semantic.pack.Symbol;
 import semantic.types.InfoType, utils.exception;
 import std.container, std.outbuffer, std.string;
 import std.stdio, syntax.Word, std.algorithm;
+import semantic.pack.Namespace;
 
 /**
  Cette classe enregistre le informations sur les retour et les break executer dans une frame.
@@ -369,11 +370,11 @@ class FrameScope {
     private SList!Scope _local;
 
     /** Le contexte de la frame */
-    private string _namespace;
+    private Namespace _namespace;
 
     bool _isInternal;
     
-    this (string namespace, bool isInternal) {
+    this (Namespace namespace, bool isInternal) {
 	this._retInfo.currentBlock = "";
 	this._namespace = namespace;
 	this._isInternal = isInternal;
@@ -474,7 +475,7 @@ class FrameScope {
     /**
      Returns: le contexte de la frame
      */
-    ref string namespace () {
+    ref Namespace namespace () {
 	return this._namespace;
     }
 

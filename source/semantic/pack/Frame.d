@@ -12,6 +12,8 @@ import semantic.types.FunctionInfo;
 import semantic.types.StructInfo;
 import ast.Expression;
 import syntax.Keys;
+public import semantic.pack.Namespace;
+import semantic.pack.FinalFrame;
 
 /**
  Ancêtre de tout les types de frame:
@@ -27,7 +29,7 @@ class Frame {
     protected Function _function;
 
     /** le contexte de la frame */
-    protected string _namespace;
+    protected Namespace _namespace;
     
     static long SAME = 10;
     static long AFF = 5;
@@ -37,7 +39,13 @@ class Frame {
         
     protected bool _isInternal = false;
 
-    this (string namespace, Function func) {
+    /**
+     Les premiers paramètre templates;
+     */
+    protected Array!Expression _tempParams;
+
+    
+    this (Namespace namespace, Function func) {
 	this._function = func;
 	this._namespace = namespace;
     }
@@ -71,11 +79,148 @@ class Frame {
 	    return validate (params);
 	assert (false);
     }
+
+    static Array!Var computeParams (Array!Var attr, Array!InfoType params) {
+	Array!Var finalParams;
+	foreach (it ; 0 .. attr.length) {
+	    if (cast(TypedVar)attr [it] is null) {
+		auto var = attr [it].setType (params [it]);   
+		finalParams.insertBack (var.expression);
+	    } else {
+		finalParams.insertBack (attr [it].expression);
+	    }
+	    finalParams.back ().info.id = it + 1;
+	}
+	return finalParams;
+    }
+
+    
+    static Array!Var computeParams (Array!Var params) {
+	Array!Var finalParams;
+	foreach (it ; 0 .. params.length) {
+	    auto info = params [it].expression;
+	    finalParams.insertBack (info);
+	    finalParams.back.info.id = it + 1;
+	}
+	return finalParams;
+    }
+    
+
+    /++
+     Valide la frame
+     Params:
+     ret = le type de retour
+     les paramètre finaux de la frame.
+     +/
+    static FrameProto validate (Word name, Namespace namespace, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
+	Table.instance.setCurrentSpace (namespace, name.str);
+	if (ret is null)
+	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	else
+	    Table.instance.retInfo.info = ret;
+	
+	auto proto = new FrameProto (name.str, namespace, Table.instance.retInfo.info, finalParams, tmps);
+	if (!FrameTable.instance.existProto (proto)) {
+	    FrameTable.instance.insert (proto);
+	    Table.instance.retInfo.currentBlock = "true";
+	    block = block.block ();
+	    if (cast (UndefInfo) (Table.instance.retInfo.info.type) !is null)
+		Table.instance.retInfo.info.type = new VoidInfo ();
+	    
+	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
+					    namespace, name.str,
+					    finalParams, block, tmps);
+	    
+	    proto.type = Table.instance.retInfo.info;
+	    FrameTable.instance.insert (finFrame);
+	    
+	    finFrame.file = name.locus.file;
+	    finFrame.dest = Table.instance.quitBlock ();
+	    verifyReturn (name, proto.type, Table.instance.retInfo);
+	    finFrame.last = Table.instance.quitFrame ();
+	    return proto;
+	}
+	Table.instance.quitBlock ();
+	Table.instance.quitFrame ();
+	return proto;	
+    }
+
+    protected final FrameProto validate (Array!Var finalParams) {
+	Table.instance.setCurrentSpace (this._namespace, this._function.name);
+	if (this._function.type is null)
+	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	else 
+	    Table.instance.retInfo.info = this._function.type.asType ().info;	
+		
+	auto proto = new FrameProto (this._function.name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
+	
+	if (!FrameTable.instance.existProto (proto)) {
+	    FrameTable.instance.insert (proto);
+	    Table.instance.retInfo.currentBlock = "true";
+	    auto block = this._function.block.block ();
+	    
+	    if (cast (UndefInfo) (Table.instance.retInfo.info.type) !is null)
+		Table.instance.retInfo.info.type = new VoidInfo ();
+	    
+	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
+					    this._namespace, this._function.name,
+					    finalParams, block, this._tempParams);
+	    
+	    proto.type = Table.instance.retInfo.info;
+	    FrameTable.instance.insert (finFrame);
+	    
+	    finFrame.file = this._function.ident.locus.file;
+	    finFrame.dest = Table.instance.quitBlock ();
+	    verifyReturn (this._function.ident, proto.type, Table.instance.retInfo);
+	    finFrame.last = Table.instance.quitFrame ();
+	    return proto;
+	}
+	Table.instance.quitBlock ();
+	Table.instance.quitFrame ();
+	return proto;	
+    }
+
+    
+    protected final FrameProto validate (Namespace space, Array!Var finalParams) {
+	Table.instance.setCurrentSpace (space, this._function.name);
+	if (this._function.type is null)
+	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	else 
+	    Table.instance.retInfo.info = this._function.type.asType ().info;	
+		
+	auto proto = new FrameProto (this._function.name, space, Table.instance.retInfo.info, finalParams, this._tempParams);
+	
+	if (!FrameTable.instance.existProto (proto)) {
+	    FrameTable.instance.insert (proto);
+	    Table.instance.retInfo.currentBlock = "true";
+	    auto block = this._function.block.block ();
+	    
+	    if (cast (UndefInfo) (Table.instance.retInfo.info.type) !is null)
+		Table.instance.retInfo.info.type = new VoidInfo ();
+	    
+	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
+					    space, this._function.name,
+					    finalParams, block, this._tempParams);
+	    
+	    proto.type = Table.instance.retInfo.info;
+	    FrameTable.instance.insert (finFrame);
+	    
+	    finFrame.file = this._function.ident.locus.file;
+	    finFrame.dest = Table.instance.quitBlock ();
+	    verifyReturn (this._function.ident, proto.type, Table.instance.retInfo);
+	    finFrame.last = Table.instance.quitFrame ();
+	    return proto;
+	}
+	Table.instance.quitBlock ();
+	Table.instance.quitFrame ();
+	return proto;	
+    }
+
     
     /**
      Returns: le contexte de la frame 
     */
-    ref string namespace () {
+    ref Namespace namespace () {
 	return this._namespace;
     }
 
@@ -166,37 +311,6 @@ class Frame {
     }
 
     /**
-     Applique un mangling à un string.
-     Params:
-     name = l'élément à mutiler.
-     Returns: la chaine mutilé
-     */
-    static string mangle (string name) {
-	string s = "";
-	foreach (it ; name) {
-	    if (it == '!')
-		s ~= to!string (to!short (it));
-	    else if (it == '/')
-		s ~= to!string (to!ushort ('.'));
-	    else if ((it < 'a' || it > 'z') && (it < 'A' || it > 'Z')) 
-		s ~= to!string(to!short (it));
-	    else s ~= it;
-	}
-	return s;
-    }
-
-    static string demangle (string entry) {
-	string ret;
-	for (auto it = 0; it < entry.length - 1; it++) {
-	    if (entry [it] == '4' && entry [it + 1] == '6') { ret ~= '.'; it++; }
-	    else if (entry [it] == '7' || entry [it] == '9') ret ~= '.';
-	    else ret ~= entry [it];
-	}
-	ret ~= entry [$ - 1];
-	return ret;
-    }
-    
-    /**
      Returns: la fonction associé à la frame
      */
     Function func () {
@@ -223,7 +337,7 @@ class Frame {
      */
     string protoString () {
 	auto buf = new OutBuffer ();
-	buf.writef("def %s.%s ", this.demangle (this._namespace), this._function.name);
+	buf.writef("def %s.%s ", this._namespace, this._function.name);
 	if (!this._function.tmps.empty) {
 	    if (this._function.test) 
 		buf.writef ("if (%s) ", this._function.test.prettyPrint);	    

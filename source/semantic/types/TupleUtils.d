@@ -9,7 +9,8 @@ import semantic.types.TupleInfo;
 import semantic.types.ClassUtils;
 import lint.LFrame, std.container;
 import lint.LWrite, lint.LExp;
-import ast.Expression;
+import semantic.pack.Namespace;
+import ast.Expression, utils.Mangler;
 import ast.Constante, lint.LVisitor;
 
 class TupleUtils {
@@ -90,7 +91,7 @@ class TupleUtils {
     static LInstList InstCreateCstEmpty (InfoType _type, Expression _tuple, Expression) {
 	import semantic.pack.Frame, semantic.types.StructUtils;
 	
-	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _type.simpleTypeString ());
+	string tupleName = Mangler.mangle!"tuple" (new Namespace (_tuple.token.locus.file), _type.simpleTypeString ());
 	auto type = cast(TupleInfo) _type;
 	auto it = (StructUtils.__CstName__ ~ tupleName) in LFrame.preCompiled;
 	if (it is null) StructUtils.createCstStruct (tupleName, type.params);

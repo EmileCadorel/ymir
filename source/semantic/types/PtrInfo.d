@@ -427,7 +427,7 @@ class PtrInfo : InfoType {
      Returns: le nom simple du type.
      */
     override string simpleTypeString () {
-	return "p_" ~ this._content.typeString ();
+	return "P" ~ this._content.simpleTypeString ();
     }
     
     /**

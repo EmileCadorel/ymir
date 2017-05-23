@@ -103,11 +103,14 @@ class FrameTable {
      Params:
      name = le nom du prototype recherché
      */
-    FrameProto existProto (string name) {
+    bool existProto (ref FrameProto proto) {
 	foreach (it ; _protos) {
-	    if (it.name == name) return it;
+	    if (it == proto) {
+		proto.type = it.type;
+		return true;
+	    }
 	}
-	return null;
+	return false;
     }
 
     StructCstInfo existStruct (string name) {

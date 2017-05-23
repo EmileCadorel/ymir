@@ -1,6 +1,7 @@
 module semantic.pack.PureFrame;
 import ast.Function, semantic.pack.Table;
 import ast.Var, semantic.types.UndefInfo, semantic.pack.Symbol;
+import syntax.Keys;
 import syntax.Word, ast.Block, semantic.pack.FrameTable;
 import std.stdio, std.conv, std.container, std.outbuffer;
 import semantic.types.VoidInfo, ast.ParamList;
@@ -29,7 +30,7 @@ class PureFrame : Frame {
      namespace = le contexte de la frame
      func = la fonction associé à la frame
      */
-    this (string namespace, Function func) {
+    this (Namespace namespace, Function func) {
 	super (namespace, func);
 	if (func)
 	    this._name = func.ident.str;
@@ -56,68 +57,12 @@ class PureFrame : Frame {
      Returns: le prototype de la frame, avec son nom définitif
      */
     override FrameProto validate () {
-	if (!valid) {
-	    if (this._name == "main" && !this._pass) return validateMain ();
-	    valid = true;
-	    string name = this._name;
-	    if (this._name != "main") {
-		name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-		name = "_YN" ~ to!string (name.length) ~ name;
-	    }
-	    
-	    Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
-	    Table.instance.enterBlock ();
-	    
-	    Array!Var finalParams;
-	    foreach (it ; 0 .. this._function.params.length) {
-		auto info = this._function.params [it].expression;
-		finalParams.insertBack (info);
-		finalParams.back ().info.id = it + 1;
-		auto t = finalParams.back ().info.type.simpleTypeString ();
-		if (name != "main")
-		    name ~= super.mangle (t);
-	    }
-
-	    Table.instance.setCurrentSpace (this._namespace ~ to!string (this._name.length) ~ this._name);	    	    
-
-	    auto proto = FrameTable.instance.existProto (name);
-	    if (proto is null) {
-		if (this._function.type is null) {
-		    Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-		} else {
-		    Table.instance.retInfo.info = this._function.type.asType ().info;
-		}
-		
-		this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
-		Table.instance.retInfo.currentBlock = "true";
-		auto block = this._function.block.block ();
-		if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		    Table.instance.retInfo.info.type = new VoidInfo ();
-		}
-		
-		auto finFrame =  new FinalFrame (Table.instance.retInfo.info,
-						 name, name,
-						 finalParams, block);
-		
-		this._fr.type = Table.instance.retInfo.info;
-		
-		FrameTable.instance.insert (finFrame);	
-		FrameTable.instance.insert (this._fr);
-
-		finFrame.file = this._function.ident.locus.file;
-		finFrame.dest = Table.instance.quitBlock ();
-		super.verifyReturn (this._function.ident,
-				    this._fr.type,
-				    Table.instance.retInfo);
-		
-		finFrame.last = Table.instance.quitFrame ();
-		return this._fr;
-	    }
-	    Table.instance.quitBlock ();
-	    Table.instance.quitFrame ();
-	    return proto;
-	}
-	return this._fr;
+	if (this._name == Keys.MAIN.descr && !this._pass) return validateMain ();
+	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
+	Table.instance.enterBlock ();
+	
+	Array!Var finalParams = super.computeParams (this._function.params);
+	return super.validate (finalParams);
     }    
 
     private FrameProto validateMain () {

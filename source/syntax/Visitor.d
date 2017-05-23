@@ -641,7 +641,15 @@ class Visitor {
     private Var visitType () {
 	auto begin = this._lex.next ();
 	if (begin == Tokens.LCRO) {
-	    auto type = visitType ();
+	    auto next = this._lex.next ();
+	    Expression type;
+	    if (next == Keys.FUNCTION) 
+		type = visitFuncPtrSimple ();
+	    else { 
+		this._lex.rewind ();
+		type = visitType ();
+	    }
+	    
 	    auto end = this._lex.next ();
 	    if (end != Tokens.RCRO) throw new SyntaxError (end, [Tokens.RCRO.descr]);
 	    return new ArrayVar (begin, type);

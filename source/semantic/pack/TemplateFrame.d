@@ -39,11 +39,6 @@ class TemplateFrame : Frame {
 
     private bool _isExtern = false;
     
-    /**
-     Les premiers paramètre templates;
-     */
-    private Array!Expression _tempParams;
-
     /** Le protocole créé à la sémantique lorsque la frame est pure et extern */
     private FrameProto _fr;
     
@@ -52,7 +47,7 @@ class TemplateFrame : Frame {
      namespace = le contexte de la frame
      func = la fonction associé à la frame
      */
-    this (string namespace, Function func) {
+    this (Namespace namespace, Function func) {
 	super (namespace, func);
 	this._name = func.ident.str;
     }
@@ -161,129 +156,50 @@ class TemplateFrame : Frame {
     override FrameProto validate (ApplicationScore score, Array!InfoType params) {
 	if (this._isExtern) return validateExtern ();
 	else if (this._isPure) return validate ();
-	string un = Table.instance.globalNamespace ~ to!string (this._name.length) ~ this._name;
-	string name = Table.instance.globalNamespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-	
-	name = "_YN" ~ to!string (name.length) ~ name;
-	
-	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
+		
+	Table.instance.enterFrame (Table.instance.globalNamespace, this._name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
        
 	auto func = this._function.templateReplace (score.tmps);
 	
-	Array!Var finalParams;
-	foreach (it; 0 .. func.params.length) {
-	    if (cast(TypedVar)func.params [it] is null) {
-		auto var = func.params [it].setType (params [it]);   
-		finalParams.insertBack (var.expression);
-	    } else {
-		finalParams.insertBack (func.params [it].expression);
-	    }
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t);
-	}
-	
-	auto spaceName = super.mangle (this._name);
-	Table.instance.setCurrentSpace (Table.instance.globalNamespace ~ to!string (spaceName.length) ~ spaceName);	
-	auto proto = FrameTable.instance.existProto (name);
-	
-	if (proto is null) {
-	    
-	    if (func.type is null) {
-		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-	    } else {
-		Table.instance.retInfo.info = func.type.asType ().info;
-	    }
-	    
-	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
-	    FrameTable.instance.insert (proto);
+	Array!Var finalParams = Frame.computeParams (func.params, params);
 
-	    Table.instance.retInfo.currentBlock = "true";	    
-	    auto block = func.block.block ();
-	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.info.type = new VoidInfo ();
-	    }
-	    
-	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name, un,
-				       finalParams, block);
-
-	    proto.type = Table.instance.retInfo.info;
-	    
-	    FrameTable.instance.insert (fr);
-	    
-	    fr.file = func.ident.locus.file;
-	    fr.dest = Table.instance.quitBlock ();
-	    super.verifyReturn (func.ident,
-				fr.type,
-				Table.instance.retInfo);
-
-	    
-	    fr.last = Table.instance.quitFrame ();
-	    
-
-	    foreach (it ; func.tmps) {
-		InfoType.removeAlias (it.token.str);
-	    }
-	    return proto;
-	}
-	
-	Table.instance.quitBlock ();
-	Table.instance.quitFrame ();
-	return proto;	
+	Symbol ret = func.type !is null ? func.type.asType ().info : null;
+	return Frame.validate (this._function.ident, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values));
     }
 
+    private string computeTempName (string name) {
+	string un = this._name;	    
+	Table.instance.pacifyMode ();
+	un ~= "(";
+	foreach (it ; func.tmps) {
+	    if (auto _val = it.expression ().info.value) un ~= _val.toString;		    
+	    else un ~= it.info.typeString;
+	    
+	    if (it !is func.tmps [$ - 1]) un ~= ",";
+	    else un ~= ")";		
+	}	
+	Table.instance.unpacifyMode ();
+	return un;
+    }
+    
     private FrameProto validateExtern () {
 	if (!this._fr) {
-	    string un = super.mangle (this._name);
-	    string name = super.mangle (this._name); 
+	    string un = computeTempName (this._name);
 	    
-	    Table.instance.pacifyMode ();
-	    name ~= super.mangle("(");
-	    un ~= "(";
-	    foreach (it ; func.tmps) {
-		if (auto _val = it.expression ().info.value) {
-		    name ~= super.mangle (_val.toString);
-		    un ~= _val.toString;		    
-		} else {
-		    name ~= super.mangle (it.info.typeString);
-		    un ~= it.info.typeString;
-		}			
-		if (it !is func.tmps [$ - 1]) {
-		    un ~= ",";
-		    name ~= super.mangle (",");
-		} else {
-		    name ~= super.mangle (")") ;
-		    un ~= ")";
-		}
-	    }
-	
-	    Table.instance.unpacifyMode ();
-
 	    auto func = this._function;
-	    auto simpleName = this._namespace ~ to!string(un.length) ~ name;
-	    un = this._namespace ~ to!string (un.length) ~ un;
-	    name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
 	
-	    Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
+	    Table.instance.enterFrame (this._namespace, un, this._function.params.length, this._isInternal);
 	    Table.instance.enterBlock ();
-	    Table.instance.setCurrentSpace (simpleName);
+	    Table.instance.setCurrentSpace (this._namespace, un);
 			
-	    Array!Var finalParams;
-	    foreach (it; 0 .. func.params.length) {
-		finalParams.insertBack (func.params [it].expression);	    
-		auto t = finalParams.back ().info.type.simpleTypeString ();
-		finalParams.back ().info.id = it + 1;
-		name ~= super.mangle (t);
-	    }
-	
+	    Array!Var finalParams = Frame.computeParams (func.params);	
 	    if (this._function.type is null) {
 		Table.instance.retInfo.info = new Symbol (Word.eof(), new VoidInfo ());	    
 	    } else {
 		Table.instance.retInfo.info = this._function.type.asType ().info;
 	    }
-	    this._fr = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
+	    this._fr = new FrameProto (un, this._namespace, Table.instance.retInfo.info, finalParams, make!(Array!Expression));
 	    Table.instance.quitFrame ();
 	}
 	return this._fr;
@@ -292,93 +208,15 @@ class TemplateFrame : Frame {
 
     override FrameProto validate () {
 	if (this._isExtern) return validateExtern ();
-	string un = super.mangle (this._name);
-	string name = super.mangle (this._name); 
-	       	       
-	Table.instance.pacifyMode ();
-	name ~= super.mangle("(");
-	un ~= "(";
-	foreach (it ; func.tmps) {
-	    if (auto _val = it.expression ().info.value) {
-		name ~= super.mangle (_val.toString);
-		un ~= _val.toString;		    
-	    } else {
-		name ~= super.mangle (it.info.typeString);
-		un ~= it.info.typeString;
-	    }			
-	    if (it !is func.tmps [$ - 1]) {
-		un ~= ",";
-		name ~= super.mangle (",");
-	    } else {
-		name ~= super.mangle (")") ;
-		un ~= ")";
-	    }
-	}
-	
-	Table.instance.unpacifyMode ();
-
-	auto func = this._function;
-	auto simpleName = this._namespace ~ to!string(un.length) ~ name;
-	un = this._namespace ~ to!string (un.length) ~ un;
-	name = "_YN" ~ to!string (simpleName.length) ~ simpleName;
-	
-	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
+	string un = computeTempName (this._name);
+	auto name = Word (this._function.ident.locus, un, false);
+	Table.instance.enterFrame (this._namespace, un, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
-	Table.instance.setCurrentSpace (simpleName);
+	Table.instance.setCurrentSpace (this._namespace, un);	
 		
-	Array!Var finalParams;
-	foreach (it; 0 .. func.params.length) {
-	    finalParams.insertBack (func.params [it].expression);	    
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    finalParams.back ().info.id = it + 1;
-	    name ~= super.mangle (t);
-	}
-	
-	auto proto = FrameTable.instance.existProto (name);
-	
-	if (proto is null) {	    
-	    if (func.type is null) {
-		Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-	    } else {
-		Table.instance.retInfo.info = func.type.asType ().info;
-	    }
-	    
-	    proto = new FrameProto (name, un, Table.instance.retInfo.info, finalParams);
-	    FrameTable.instance.insert (proto);
-
-	    Table.instance.retInfo.currentBlock = "true";	    
-	    auto block = func.block.block ();
-	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-		Table.instance.retInfo.info.type = new VoidInfo ();
-	    }
-	    
-	    auto fr =  new FinalFrame (Table.instance.retInfo.info,
-				       name, un,
-				       finalParams, block);
-
-	    proto.type = Table.instance.retInfo.info;
-	    
-	    FrameTable.instance.insert (fr);
-	    
-	    fr.file = func.ident.locus.file;
-	    fr.dest = Table.instance.quitBlock ();
-	    super.verifyReturn (func.ident,
-				fr.type,
-				Table.instance.retInfo);
-
-	    
-	    fr.last = Table.instance.quitFrame ();
-	    
-
-	    foreach (it ; func.tmps) {
-		InfoType.removeAlias (it.token.str);
-	    }
-	    return proto;
-	}
-	
-	Table.instance.quitBlock ();
-	Table.instance.quitFrame ();
-	return proto;		
+	Array!Var finalParams = Frame.computeParams (func.params);
+	auto ret = this._function.type ? this._function.type.asType ().info : null;	
+	return Frame.validate (name, this._namespace, ret, finalParams, this._function.block, make!(Array!Expression));		
     }
 
     override Frame TempOp (Array!Expression params) {
@@ -425,7 +263,7 @@ class TemplateFrame : Frame {
     	    }
     	    Frame ret;
 
-    	    if (!this._isPure) ret = new UnPureFrame (this._namespace, func);
+    	    if (!this._isPure) ret = new UnPureFrame (Table.instance.globalNamespace, func);
     	    else if (this._isExtern) ret = new ExternFrame (this._namespace, func);
     	    else ret = new PureFrame (this._namespace, func);
 

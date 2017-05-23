@@ -2,6 +2,7 @@ module semantic.pack.Table;
 import utils.Singleton, semantic.pack.Symbol;
 import semantic.pack.FrameScope, semantic.pack.Scope;
 import std.container;
+import semantic.pack.Namespace;
 import utils.exception, syntax.Word;
 
 /**
@@ -16,7 +17,7 @@ class Table {
     private Scope _globalScope;
 
     /** Le contexte courant */
-    private string _namespace;
+    private Namespace _namespace;
 
     /** La zone est garbage ? */
     private bool _pacified;
@@ -64,13 +65,27 @@ class Table {
      Params:
      space = le nom du contexte courant.
      */
-    void setCurrentSpace (string space) {
+    void setCurrentSpace (Namespace namespace, string name) {
+	auto space = new Namespace (namespace, name);
+	if (!this._frameTable.empty) 
+	    this._frameTable.front ().namespace = space;
+	else
+	    this._namespace = space;	
+    }
+    
+    /**
+     Met à jour le contexte courant.
+     Params:
+     space = le nom du contexte courant.
+     */
+    void resetCurrentSpace (Namespace space) {
 	if (!this._frameTable.empty) 
 	    this._frameTable.front ().namespace = space;	
 	else
 	    this._namespace = space;	
     }
 
+    
     void addCall (Word sym) {
 	if (this._nbFrame > __maxNbRec__) {
 	    throw new RecursiveExpansion (sym);
@@ -83,9 +98,9 @@ class Table {
      space = le contexte de la frame.
      nbParam = le nombre de paramètre de la frame.
      */
-    void enterFrame (string space, ulong nbParam, bool internal) {
+    void enterFrame (Namespace space, string name, ulong nbParam, bool internal) {
 	Symbol.insertLast (nbParam);
-	this._frameTable.insertFront (new FrameScope (space, internal));
+	this._frameTable.insertFront (new FrameScope (new Namespace (space, name), internal));
 	this._nbFrame ++;
     }
 
@@ -105,7 +120,7 @@ class Table {
     /**
      Returns: le contexte de la frame en cours d'analyse ou celui du programme si aucune frame en cours.
      */
-    string namespace() {
+    Namespace namespace() {
 	if (this._frameTable.empty) return this._namespace;
 	else return this._frameTable.front.namespace;
     }
@@ -113,7 +128,7 @@ class Table {
     /**
      Returns: Le namespace du fichier courant.
      */
-    string globalNamespace () {
+    Namespace globalNamespace () {
 	return this._namespace;
     }
 
@@ -240,7 +255,8 @@ class Table {
     /**
      On a déja importé ce module ?
      */
-    bool wasImported (string name) {
+    bool wasImported (string name) {	
+	if (this._namespace == new Namespace (name)) return true;
 	if (this._frameTable.empty) return this._globalScope.wasImported (name);
 	else if (this._frameTable.front.wasImported (name)) return true;
 	else if (this._frameTable.front.isInternal) {

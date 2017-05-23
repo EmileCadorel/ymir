@@ -19,6 +19,7 @@ import std.array, std.typecons;
 import semantic.types.StructInfo;
 import semantic.value.all;
 import lint.LUnop;
+import utils.Mangler;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -48,7 +49,7 @@ class LVisitor {
 	auto vrai = new LLabel (new LInstList), faux = new LLabel;
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
-	auto printsName = "_YN23std46stdio46print5prints";
+	auto printsName = "_Y03std5stdio5print5printPFsZv";
 	vrai.insts += new LCall (printsName, make!(Array!LExp) (loc), LSize.NONE);
 	auto test2 = new LBinop (msg, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
 	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
@@ -128,7 +129,7 @@ class LVisitor {
 	    end.insts += new LWrite (retReg, new LConstDecimal (0, LSize.LONG));
 	}
 	
-	auto fr = new LFrame (semFrame.name, semFrame.unmangle, entry, end, retReg, args);
+	auto fr = new LFrame (Mangler.mangle!"function" (semFrame), semFrame.name, entry, end, retReg, args);
 	fr.file = semFrame.file;
 	fr.lastId = LReg.lastId;
 	return fr;
@@ -474,7 +475,7 @@ class LVisitor {
 	    exps.insertBack (inst.getFirst ());	    
 	}
 
-	string tupleName = Frame.mangle (_tuple.token.locus.file ~ _tuple.info.type.simpleTypeString ());
+	string tupleName = Mangler.mangle!"tuple" (new Namespace (_tuple.token.locus.file), _tuple.info.type.simpleTypeString ());
 	
 	auto it = (StructUtils.__CstName__ ~ tupleName in LFrame.preCompiled);
 	if (it is null) {

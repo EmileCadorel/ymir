@@ -5,7 +5,7 @@ import std.outbuffer, lint.LVisitor, lint.LFrame;
 import std.container, amd64.AMDVisitor, std.path;
 import syntax.Lexer, target.TRodata, std.process;
 import std.algorithm, syntax.Word;
-import utils.Options, std.file;
+import utils.Options, std.file, utils.Mangler;
 import semantic.pack.Table;
 import semantic.pack.Frame;
 import semantic.types.ArrayUtils;
@@ -19,7 +19,6 @@ void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
     Table.instance.purge ();
-    Table.instance.setCurrentSpace (Frame.mangle (file [0 .. $ - 3]));
     prog.declare ();
     
     auto error = 0;
@@ -28,8 +27,9 @@ void semanticTime (string file) {
 	name.str = it.name;
 	if (it.needCreation) {
 	    auto type = cast (StructInfo) it.create (name, []);
-	    StructUtils.createCstStruct (Frame.mangle (type.name), type.params);
-	    StructUtils.createDstStruct (Frame.mangle (type.name), type.params);
+	    auto strName = Mangler.mangle!"struct" (it);
+	    StructUtils.createCstStruct (strName, type.params);
+	    StructUtils.createDstStruct (strName, type.params);
 	}
     }
     
@@ -171,6 +171,7 @@ void main (string [] args) {
 
 	if (Options.instance.isOn (OptionEnum.TARGET))
 	    options ~= ["-o", Options.instance.getOption (OptionEnum.TARGET)];
+	
 	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
 	    auto pid = spawnProcess (["gcc"] ~
 				     options ~

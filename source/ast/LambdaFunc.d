@@ -79,10 +79,10 @@ class LambdaFunc : Expression {
     }
     
     override Expression expression () {
-	if (this._expr) return expressionWithExpr ();	
-	string name = "_YP" ~ Frame.mangle (Table.instance.namespace ()) ~ "lambda";
-		
-	Table.instance.enterFrame (name, this._params.length, true);
+	if (this._expr) return expressionWithExpr ();
+	
+	auto space = Table.instance.namespace ();
+	Table.instance.enterFrame (space, this._token.str, this._params.length, true);
 	Table.instance.enterBlock ();
 	
 	Expression [] temp;
@@ -97,52 +97,17 @@ class LambdaFunc : Expression {
 	    else throw new NeedAllType (this._params[it].token, "lambda");
 	}
 	
-	Array!Var finalParams;
-	foreach (it ; 0 .. this._params.length) {
-	    auto info = this._params [it].expression;
-	    finalParams.insertBack (info);
-	    finalParams.back.info.id = it + 1;
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    name ~= Frame.mangle (t);
-	}
-
-	name ~= to!string (__last__++);
-		
-	Table.instance.setCurrentSpace (name);
-	if (this._ret is null) {
-	    Table.instance.retInfo.info = new Symbol (false, Word.eof (), new UndefInfo ());
-	} else {
-	    Table.instance.retInfo.info = this._ret.asType ().info;
-	}
+	Symbol retInfo = this._ret !is null ? this._ret.asType ().info : null;	
+	auto finalParams = Frame.computeParams (this._params);
+	this._proto = Frame.validate (this._token, space, retInfo, finalParams, this._block, make!(Array!Expression));
 	
-	this._proto = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
-	Table.instance.retInfo.currentBlock = "true";
-
-	auto block = this._block.block ();
-
-	if (cast (UndefInfo) (Table.instance.retInfo.info.type) !is null) {
-	    Table.instance.retInfo.info.type = new VoidInfo ();
-	}
-
-	auto finFrame = new FinalFrame (Table.instance.retInfo.info,
-					name, name,
-					finalParams, block);
-
-	this._proto.type = Table.instance.retInfo.info;
-	FrameTable.instance.insert (finFrame);
-	FrameTable.instance.insert (this._proto);
-
-	finFrame.file = this._token.locus.file;
-	finFrame.dest = Table.instance.quitBlock ();
-	Frame.verifyReturn (this._token, this._proto.type, Table.instance.retInfo);
-	finFrame.last = Table.instance.quitFrame ();
-
 	if (temp [0] is null) {
 	    temp [0] = new Type (this._token, this._proto.type.type.cloneForParam);
 	}
 
 	auto word = Word (this._token.locus, Keys.FUNCTION.descr, true);
 	auto t_info = InfoType.factory (word, temp);
+
 	auto ret = new LambdaFunc (this._token, finalParams, this._ret, block);
 	ret._info = new Symbol (this._token, t_info, true);
 	

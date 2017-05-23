@@ -9,7 +9,7 @@ import lint.LVisitor, semantic.types.InfoType;
 import ast.Expression, lint.LFrame, semantic.types.ClassUtils;
 import lint.LCall, lint.LAddr, semantic.types.StructInfo;
 import semantic.types.UndefInfo, ast.Var, semantic.pack.Symbol;
-import semantic.pack.Frame;
+import semantic.pack.Frame, utils.Mangler;
 
 class StructUtils {
     
@@ -182,7 +182,7 @@ class StructUtils {
     
     static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
 	auto type = cast (StructInfo) _type;
-	string name = Frame.mangle (type.name);
+	string name = Mangler.mangle!"struct" (type);
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
 	    if (it is null) createCstStruct (name, type.params);
@@ -196,7 +196,7 @@ class StructUtils {
 
     static LInstList InstCreateCstEmpty (bool _extern) (InfoType _type, Expression, Expression) {
 	auto type = cast (StructInfo) _type;
-	string name = Frame.mangle (type.name);
+	string name = Mangler.mangle!"struct" (type);
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
 	    if (it is null) createCstStruct (name, type.params);

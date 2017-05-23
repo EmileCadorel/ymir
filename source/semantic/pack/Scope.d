@@ -1,5 +1,6 @@
 module semantic.pack.Scope;
 import semantic.pack.Symbol;
+import semantic.pack.Namespace;
 
 import std.container, std.outbuffer, std.string;
 import std.algorithm;
@@ -112,7 +113,7 @@ class Scope {
      namespace = le contexte que l'on est en train de quitter
      Returns: La liste des symboles a détruire
      */
-    Array!Symbol quit (string namespace) {
+    Array!Symbol quit (Namespace namespace) {
 	foreach (key, value; this._local) {
 	    value.quit (namespace);
 	}

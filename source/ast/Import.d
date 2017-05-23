@@ -36,7 +36,6 @@ class Import : Declaration {
 		try {		
 		    if (exists (it.str ~ ".yr")) {
 			auto visitor = new Visitor (it.str ~ ".yr");
-			Table.instance.setCurrentSpace (Frame.mangle (it.str));
 			Table.instance.addImport (it.str);
 			auto prog = visitor.visit ();
 			prog.declareAsExtern ();
@@ -46,7 +45,6 @@ class Import : Declaration {
 			if (!exists (path ~ it.str ~ ".yr"))
 			    throw new ImportError (it);
 			auto visitor = new Visitor (path ~ it.str ~ ".yr");
-			Table.instance.setCurrentSpace (Frame.mangle (it.str));
 			Table.instance.addImport (it.str);
 			auto prog = visitor.visit ();
 			prog.declareAsExtern ();
@@ -56,7 +54,8 @@ class Import : Declaration {
 		}
 	    }
 	}
-	Table.instance.setCurrentSpace (space);
+	
+	Table.instance.resetCurrentSpace (space);
     }
            
     override void declareAsExtern () {

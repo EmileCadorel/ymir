@@ -4,9 +4,11 @@ import ast.ParamList, std.container, semantic.pack.UnPureFrame;
 import semantic.pack.Frame;
 import std.stdio, syntax.Word;
 import semantic.pack.FrameProto;
+import semantic.pack.Namespace;
 import ast.Expression;
 import semantic.types.RefInfo;
 import semantic.pack.Table;
+import utils.Mangler;
 
 /**
  Classe qui regroupe le information de type des déclarations de fonctions.
@@ -17,7 +19,7 @@ class FunctionInfo : InfoType {
     private string _name;
 
     /** Le contexte du type */
-    private string _namespace;
+    private Namespace _namespace;
 
     /** Les différentes surcharge de fonction */
     private Array!Frame _infos;
@@ -27,12 +29,12 @@ class FunctionInfo : InfoType {
      namespace = le contexte du type
      name = le nom des surcharges de fonctions
      */
-    this (string namespace, string name) {
+    this (Namespace namespace, string name) {
 	this._name = name;
 	this._namespace = namespace;
     }
 
-    this (string namespace, string name, Array!Frame infos) {
+    this (Namespace namespace, string name, Array!Frame infos) {
 	this._name = name;
 	this._namespace = namespace;
 	this._infos = infos;
@@ -106,7 +108,7 @@ class FunctionInfo : InfoType {
 
 	    Table.instance.addCall (func_token);
 	    auto info = goods[0].validate (right, right.treat);	    
-	    right.name = info.name;
+	    right.name = Mangler.mangle!"function" (info.name, info);
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)
@@ -164,7 +166,7 @@ class FunctionInfo : InfoType {
 
 	    Table.instance.addCall (func_token);
 	    auto info = goods [0].validate (right, right.treat);
-	    right.name = info.name;
+	    right.name = Mangler.mangle!"function" (info.name, info);
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)
@@ -233,7 +235,7 @@ class FunctionInfo : InfoType {
      Params:
      namespace = le contexte que l'on quitte.     
      */
-    override void quit (string namespace) {
+    override void quit (Namespace namespace) {
 	for (auto it = 0; it < this._infos.length; it ++) {
 	    if (this._infos [it].namespace == namespace) {		
 		this._infos.linearRemove (this._infos[it .. it + 1]);
@@ -245,8 +247,8 @@ class FunctionInfo : InfoType {
      Returns: le nom du type fonction
      */
     override string typeString () {
-	import semantic.pack.Frame;
-	return "function <" ~ Frame.demangle (this._namespace) ~ "." ~ Frame.demangle (this._name) ~ ">";
+	import std.format;
+	return format ("function <%s.%s>", this._namespace.toString, this._name);
     }    
 
     /**

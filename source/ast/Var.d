@@ -256,9 +256,9 @@ class Var : Expression {
 class ArrayVar : Var {
 
     /// La variable contenu entre les crochet
-    private Var _content;
+    private Expression _content;
     
-    this (Word token, Var content) {
+    this (Word token, Expression content) {
 	super (token);
 	this._content = content;
     }
@@ -268,15 +268,23 @@ class ArrayVar : Var {
      Pour être juste le contenu doit être un type
      */
     override Var expression () {
-	auto content = this._content.asType ();
-	auto tok = Word (this.token.locus, "", false);
-	tok.str = this.token.str ~ this._content.token.str ~ "]";
-	return new Type (tok, new ArrayInfo (content.info.type));
+	if (auto var = cast (Var) this._content) {
+	    auto content = var.asType ();
+	    auto tok = Word (this.token.locus, "", false);
+	    tok.str = this.token.str ~ this._content.token.str ~ "]";
+	    return new Type (tok, new ArrayInfo (content.info.type));
+	} else {
+	    auto ptr = cast (FuncPtr) this._content.expression ();
+	    if (ptr) {
+		auto aux = new Type (this._token, new ArrayInfo (ptr.info.type));
+		return aux;
+	    } else assert (false);
+	}
     }
 
     override Var templateExpReplace (Expression [string] values) {
 	auto cont = this._content.templateExpReplace (values);
-	return new ArrayVar (this._token, cast (Var)
+	return new ArrayVar (this._token, 
 			     this._content.templateExpReplace (values));
     }
     
@@ -285,18 +293,15 @@ class ArrayVar : Var {
      Pour être juste le contenu doit être un type
      */    
     override Type asType () {
-	auto content = this._content.asType ();
-	auto tok = Word (this.token.locus, "", false);
-	tok.str = this.token.str ~ this._content.token.str ~ "]";
-	return new Type (tok, new ArrayInfo (content.info.type));
+	return cast (Type) this.expression ();
     }
 
-    ref Var content () {
+    ref Expression content () {
 	return this._content;
     }
 
     override Expression clone () {
-	return new ArrayVar (this._token, cast (Var) this._content.clone ());
+	return new ArrayVar (this._token, this._content.clone ());
     }
     
     /**

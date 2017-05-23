@@ -4,6 +4,7 @@ import semantic.types.InfoType, semantic.pack.Table;
 import std.container, lint.LInstList, lint.LReg;
 import std.stdio;
 import semantic.value.Value;
+import semantic.pack.Namespace;
 
 /**
  Cette classe contient les informations de type d'un symbole.
@@ -156,7 +157,7 @@ class Symbol {
      Params:
      namespace = le contexte que l'on quitte
      */
-    void quit (string namespace) {
+    void quit (Namespace namespace) {
 	this._type.quit (namespace);
     }
 

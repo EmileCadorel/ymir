@@ -95,7 +95,7 @@ class Proto : Declaration {
 	    fun.insert (fr);
 	    Table.instance.insert (it);
 	} else {
-	    auto fun = new FunctionInfo (this._ident.str, space);
+	    auto fun = new FunctionInfo (space, this._ident.str);
 	    fun.insert (fr);
 	    Table.instance.insert (new Symbol (this._ident, fun, true));
 	}

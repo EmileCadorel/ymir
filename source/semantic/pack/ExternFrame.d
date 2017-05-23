@@ -15,9 +15,6 @@ class ExternFrame : Frame {
     /** Le nom de la frame */
     private string _name;
 
-    /** Le namespace de la frame (module et fonction parent) */
-    private string _namespace;
-
     /** Le protocole de la frame */
     private Proto _proto;
     
@@ -33,19 +30,17 @@ class ExternFrame : Frame {
      from = l'information pour le mangling
      func = le prototype
     */
-    this (string namespace, string from, Proto func) {
+    this (Namespace namespace, string from, Proto func) {
 	super (namespace, null);
 	this._name = func.ident.str;
 	this._from = from;
 	this._proto = func;
-	this._namespace = namespace;
     }
 
-    this (string namespace, Function func) {
+    this (Namespace namespace, Function func) {
 	super (namespace, func);
 	this._name = func.ident.str;
 	this._proto = null;
-	this._namespace = namespace;
     }
 
         
@@ -91,26 +86,9 @@ class ExternFrame : Frame {
      */
     override FrameProto validate () {
 	if (this._proto is null) return validateFunc ();
-	string name = this._name;
-	if (this._from is null || this._from != "C") {
-	    name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-	    name = "_YN" ~ to!string (name.length) ~ name;
-	}
-	
-	Table.instance.enterFrame (name, this._proto.params.length, this._isInternal);
-
-	Array!Var finalParams;
-	foreach (it ; 0 .. this._proto.params.length) {
-	    auto info = this._proto.params [it].expression;
-	    finalParams.insertBack (info);
-	    finalParams.back ().info.id = it + 1;
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    if (name != "main" && (this._from is null || this._from != "C"))
-		name ~= super.mangle (t);
-	}
-	    
-	    
-	Table.instance.setCurrentSpace (name);
+	Table.instance.enterFrame (this._namespace, this._name, this._proto.params.length, this._isInternal);
+	Array!Var finalParams = Frame.computeParams (this._proto.params);	
+	Table.instance.setCurrentSpace (this._namespace, this._name);
 	
 	if (this._proto.type is null) {
 	    Table.instance.retInfo.info = new Symbol (Word.eof (), new VoidInfo ());
@@ -118,7 +96,8 @@ class ExternFrame : Frame {
 	    Table.instance.retInfo.info = this._proto.type.asType ().info;
 	}
 	    
-	this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
+	this._fr = new FrameProto (this._name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
+	if (this._from == "C") this._fr.externC = true;
 	Table.instance.quitFrame ();
 	return this._fr;
     }
@@ -128,29 +107,20 @@ class ExternFrame : Frame {
      Validation d'un frame externe à partir d'une fonction.
      Returns: le prototype de fonction, avec le nom manglé.
      */
-    FrameProto validateFunc () {
-	string name = this._namespace ~ to!string (this._name.length) ~ super.mangle (this._name);
-	name = "_YN" ~ to!string (name.length) ~ name;
+    FrameProto validateFunc () {	
+	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
+	Array!Var finalParams = Frame.computeParams (this._function.params);
 	
-	Table.instance.enterFrame (name, this._function.params.length, this._isInternal);
-	Array!Var finalParams;
-	foreach (it ; 0 .. this._function.params.length) {
-	    auto info = this._function.params [it].expression;
-	    finalParams.insertBack (info);
-	    finalParams.back ().info.id = it + 1;
-	    auto t = finalParams.back ().info.type.simpleTypeString ();
-	    if (name != "main" && (this._from is null || this._from != "C"))
-		name ~= super.mangle (t);	    
-	}
-	
-	Table.instance.setCurrentSpace (name);
+	Table.instance.setCurrentSpace (this._namespace, this._name);
 	if (this._function.type is null) {
 	    Table.instance.retInfo.info = new Symbol (Word.eof, new VoidInfo ());
 	} else {
 	    Table.instance.retInfo.info = this._function.type.asType ().info;
 	}
 	
-	this._fr = new FrameProto (name, name, Table.instance.retInfo.info, finalParams);
+	this._fr = new FrameProto (this._name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
+	
+	if (this._from == "C") this._fr.externC = true;
 	Table.instance.quitFrame ();
 	return this._fr;
     }
@@ -184,7 +154,7 @@ class ExternFrame : Frame {
 	if (this._function) return super.protoString ();
 	else {	   
 	    auto buf = new OutBuffer ();
-	    buf.writef("def %s.%s ", super.demangle (this._namespace), this._name);
+	    buf.writef("def %s.%s ", this._namespace.toString, this._name);
 	    if (this._from !is null && this._from != "") {
 		buf.writef ("(%s)", this._from);
 	    }

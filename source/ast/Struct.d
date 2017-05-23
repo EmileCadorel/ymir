@@ -57,7 +57,7 @@ class Struct : Declaration {
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
-	    auto str = new StructCstInfo (this._ident.str, this._tmps);
+	    auto str = new StructCstInfo (Table.instance.namespace, this._ident.str, this._tmps);
 	    FrameTable.instance.insert (str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
@@ -76,7 +76,7 @@ class Struct : Declaration {
 	    if (exist) {
 		throw new ShadowingVar (this._ident, exist.sym);
 	    } else {
-		auto str = new StructCstInfo (this._ident.str, this._tmps);
+		auto str = new StructCstInfo (Table.instance.namespace, this._ident.str, this._tmps);
 		str.isExtern = this._tmps.length == 0;
 		auto sym = new Symbol(this._ident, str);
 		Table.instance.insert (sym);

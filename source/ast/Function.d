@@ -97,7 +97,7 @@ class Function : Declaration {
      */
     override void declare () {
 	if (this._ident.str == MAIN) {
-	    FrameTable.instance.insert (new PureFrame ("", this));
+	    FrameTable.instance.insert (new PureFrame (null, this));
 	} else {
 	    Frame fr = verifyPure ();
 	    auto space = Table.instance.namespace ();

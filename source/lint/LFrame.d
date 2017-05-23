@@ -27,7 +27,7 @@ class LFrame {
 	this._name = name;
 	this._number = number;
 	__table__ [this._number] = this;
-	this._unmangled = this.demangle (unmangle);
+	this._unmangled = unmangle;
     }
 
     this (string name, string unmangle, LLabel entry_lbl, LLabel return_lbl, LReg return_reg, Array!LReg args) {
@@ -36,7 +36,7 @@ class LFrame {
 	this._return_reg = return_reg;
 	this._return_lbl = return_lbl;
 	this._args = args;
-	this._unmangled = this.demangle (unmangle);
+	this._unmangled = unmangle;
     }
 
     this (string name, LLabel entry_lbl, LLabel return_lbl, LReg return_reg, Array!LReg args) {
@@ -47,18 +47,6 @@ class LFrame {
 	this._args = args;
     }
     
-    private string demangle (string entry) {
-	string ret;
-	for (auto it = 0; it < entry.length - 1; it++) {
-	    if (entry [it] == '4' && entry [it + 1] == '6') { ret ~= '.'; it++; }
-	    else if (entry [it] == '7' || entry [it] == '9') ret ~= '.';
-	    else if (entry [it] == '(') { ret ~= entry [it .. $]; break; }
-	    else ret ~= entry [it];
-	}
-	return ret;
-    }
-
-
     static ref LFrame [string] preCompiled () {
 	return __preCompiled__;
     }

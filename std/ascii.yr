@@ -79,17 +79,18 @@ def toLower (a : char) : char {
     else return a;
 }
 
-def toLower (a : char)() : char {
-    static if (isUpper!(a) ()) return a + 'a' - 'A';
-    else return a;
-}
+// def toLower (a : char)() : char {
+//     static if (isUpper!(a) ()) return a + 'a' - 'A';
+//     else return a;
+// }
 
-def toUpper (a : char) : char {
-    if (isLower (a)) return a + 'A' - 'a';
-    return a;
-}
+// def toUpper (a : char) : char {
+//     if (isLower (a)) return a + 'A' - 'a';
+//     return a;
+// }
 
-def toUpper (a : char) () : char {
-    static if (isLower!(a) ()) return a + 'A' - 'a';
-    else return a;
-}
+// def toUpper (a : char) () : char {
+//     static if (isLower!(a) ()) return a + 'A' - 'a';
+//     else return a;
+// }
+
