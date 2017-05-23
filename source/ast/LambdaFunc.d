@@ -61,9 +61,7 @@ class LambdaFunc : Expression {
 	this._params = params;
 	this._block = ret;	
     }
-
-    
-    
+        
     /** 
      Returns: le contenu de la lambda expression.
     */
@@ -80,9 +78,11 @@ class LambdaFunc : Expression {
     
     override Expression expression () {
 	if (this._expr) return expressionWithExpr ();
+
+	auto token = Word (this._token.locus, "lambda_" ~ to!string (getLast ()),false);
 	
 	auto space = Table.instance.namespace ();
-	Table.instance.enterFrame (space, this._token.str, this._params.length, true);
+	Table.instance.enterFrame (space, token.str, this._params.length, true);
 	Table.instance.enterBlock ();
 	
 	Expression [] temp;
@@ -99,10 +99,10 @@ class LambdaFunc : Expression {
 	
 	Symbol retInfo = this._ret !is null ? this._ret.asType ().info : null;	
 	auto finalParams = Frame.computeParams (this._params);
-	this._proto = Frame.validate (this._token, space, retInfo, finalParams, this._block, make!(Array!Expression));
+	this._proto = Frame.validate (token, space, retInfo, finalParams, this._block, make!(Array!Expression));
 	
 	if (temp [0] is null) {
-	    temp [0] = new Type (this._token, this._proto.type.type.cloneForParam);
+	    temp [0] = new Type (token, this._proto.type.type.cloneForParam);
 	}
 
 	auto word = Word (this._token.locus, Keys.FUNCTION.descr, true);
@@ -161,6 +161,11 @@ class LambdaFunc : Expression {
 	return new LambdaFunc (this._token, var, ret, block);
     }
 
+    private ulong getLast () {
+	__last__ ++;
+	return __last__;
+    }
+    
     override string prettyPrint () {
 		import std.outbuffer;
 	auto buf = new OutBuffer ();

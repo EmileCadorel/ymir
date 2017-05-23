@@ -1,7 +1,8 @@
 import std.stdio;
 
 def main ()  {
-    let f = fopen ("test/test.yr", "r");
+    let a = (a : int) => a + 1;
+    println (a (12));
 }
 
 

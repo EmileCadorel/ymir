@@ -502,7 +502,7 @@ class LVisitor {
     
     private LInstList visitLambda (LambdaFunc _lmd) {
 	auto inst = new LInstList;
-	inst += new LConstFunc (_lmd.proto.name);
+	inst += new LConstFunc (Mangler.mangle!"function" (_lmd.proto.name, _lmd.proto));
 	return inst;
     }
     
