@@ -193,9 +193,19 @@ class Table {
      */
     Symbol get (string name) {
 	Symbol ret;
+	ulong nb;
+	Namespace last = this.namespace;
 	if (!this._frameTable.empty) {
-	    ret = this._frameTable.front [name];
-	    if (ret) return ret;	    
+	    ret = this._frameTable.front () [name];
+	    if (ret) return ret;
+	    
+	    foreach (it ; this._frameTable) {	    
+		if (it.namespace.isAbsSubOf (last)) {
+		    ret = it [name];
+		    if (ret) return ret;
+		    last = it.namespace;
+		} else if (this.namespace != last) break;
+	    }
 	}
 	
 	if (ret is null) ret = this._globalScope [name];
@@ -217,8 +227,16 @@ class Table {
      */
     Array!Symbol getAll (string name) {
 	Array!Symbol alls;
+	Namespace last = this.namespace;
 	if (!this._frameTable.empty) {
-	    alls ~= this._frameTable.front ().getAll (name);	    
+	    alls ~= this._frameTable.front ().getAll (name);
+	    
+	    foreach (it ; this._frameTable) {	    
+		if (it.namespace.isAbsSubOf (last)) {
+		    alls ~= it.getAll (name);
+		    last = it.namespace;
+		} else if (this.namespace != last) break;
+	    }
 	}
 	
 	alls ~= this._globalScope.getAll (name);
@@ -239,9 +257,18 @@ class Table {
      */
     Symbol getLocal (string name) {
 	Symbol ret;
+	Namespace last = this.namespace;
 	if (!this._frameTable.empty) {
-	    ret = this._frameTable.front [name];
-	    if (ret) return ret;	    
+	    ret = this._frameTable.front () [name];
+	    if (ret) return ret;
+	    
+	    foreach (it ; this._frameTable) {	    
+		if (it.namespace.isAbsSubOf (last)) {
+		    ret = it [name];
+		    if (ret) return ret;
+		    last = it.namespace;
+		} else if (this.namespace != last) break;
+	    }
 	}
 	
 	if (ret is null) ret = this._globalScope [name];

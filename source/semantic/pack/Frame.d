@@ -255,6 +255,10 @@ class Frame {
     protected ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
 	if (this._isPrivate && !this._namespace.isSubOf (Table.instance.namespace))
 	    return null;
+
+	auto globSpace = Table.instance.namespace;
+	Table.instance.setCurrentSpace (this._namespace, ident.str);
+	scope (exit) Table.instance.resetCurrentSpace (globSpace);
 	
 	auto score = new ApplicationScore (ident);
 	if (attrs.length == 0 && args.length == 0) {

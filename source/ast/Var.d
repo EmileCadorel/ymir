@@ -89,7 +89,7 @@ class Var : Expression {
 	    return aux;	
 	} else return asType ();
     }
-
+    
     override void removeGarbage () {
 	super.removeGarbage ();
 	foreach (it ; this._templates)

@@ -44,6 +44,18 @@ class Namespace {
 	}
 	return false;
     }
+
+    bool isAbsSubOf (Namespace other) {
+	if (this._names.length < other._names.length) {
+	    foreach (it ; 0 .. this._names.length) {
+		if (other._names [it] != this._names [it]) {
+		    return false;
+		}
+	    }
+	    return true;
+	}
+	return false;
+    }
     
     override string toString () {
 	auto buf = new OutBuffer ();

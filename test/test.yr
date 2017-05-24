@@ -1,9 +1,26 @@
-import std.algorithm.iteration;
+
 import std.stdio;
+import std.map;
 
 def main () {
-    let a = [1, 2, 4];
-    println (a.map!"a + 1".reduce!"a + b");
+    let a = (a : int) => test (a);
+
+    def test (a : int) : int {
+
+	def test3 (a : int) return a - 1;
+	
+	def test2 (a : int) : int {
+	    if (a > 0)
+		return test3 (a - 1);
+	    else return 0;
+	}
+
+	if (a > 0)
+	    return test2 (a);
+	else return 0;
+    }
+
+    println (a (12));
 }
 
 

@@ -43,12 +43,13 @@ class Import : Declaration {
 			if (!exists (name))
 			    throw new ImportError (it);
 		    }
-		    auto visitor = new Visitor (it.str ~ ".yr");
+		    auto visitor = new Visitor (name);
 		    auto mod = Table.instance.addModule (space);
 		    mod.addOpen (globSpace);
 		    auto prog = visitor.visit ();
 		    prog.declareAsExtern (mod);
-		} catch (YmirException) {
+		} catch (YmirException err) {
+		    err.print;
 		    throw new ImportError (it);
 		}
 	    } 
@@ -72,7 +73,7 @@ class Import : Declaration {
 			if (!exists (name))
 			    throw new ImportError (it);
 		    }
-		    auto visitor = new Visitor (it.str ~ ".yr");
+		    auto visitor = new Visitor (name);
 		    auto mod = Table.instance.addModule (space);
 		    mod.addOpen (globSpace);
 		    auto prog = visitor.visit ();
@@ -80,7 +81,8 @@ class Import : Declaration {
 		    if (this._isPublic) {
 			mod_.addPublicOpen (mod.space);
 		    }
-		} catch (YmirException) {
+		} catch (YmirException err) {
+		    err.print;
 		    throw new ImportError (it);
 		}
 	    } 

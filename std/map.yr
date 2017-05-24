@@ -85,10 +85,16 @@ def printAll (K, V) (mp : MapEntry!(K, V)) : void {
     }
 }
 
-def print (K, V) (mp : MapEntry!(K, V)) {    
-    print ("[");
+def print (K, V) (mp : MapEntry!(K, V)) {
+    print ('[');
     printAll (mp);
-    print ("]");
+    print (']');
+}
+
+def println (K, V) (mp : MapEntry!(K, V)) {
+    print ('[');
+    printAll (mp);
+    print (']\n');
 }
 
 def opBinary ('in', K, V) (key : K, mp : MapEntry!(K, V)) : ptr!V {    

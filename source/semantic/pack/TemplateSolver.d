@@ -72,7 +72,7 @@ class TemplateSolverS {
 	    } else if (auto arr = cast (ArrayVar) typed.type) {
 		return solve (tmps, arr, type);
 	    } else {
-		Array!InfoType types;
+		Array!Expression types;
 		auto soluce = TemplateSolution (true);
 		foreach (it ; 0 .. typed.type.templates.length) {
 		    if (auto var = cast (Var) typed.type.templates [it]) {
@@ -80,7 +80,7 @@ class TemplateSolverS {
 			auto res = this.solveInside (tmps, var, type.getTemplate (it));
 			if (!res.valid || !merge (soluce.elements, res.elements))
 			    return TemplateSolution (false);
-			types.insertBack (res.type);
+			types.insertBack (new Type (var.token, res.type));
 		    }
 		}
 		
@@ -100,8 +100,9 @@ class TemplateSolverS {
 			    }
 			}
 		    } 
-		}	    
-		soluce.type = InfoType.factory (typed.type.token, types);
+		}
+		
+		soluce.type = new Var (typed.type.token, types).asType.info.type;
 		return soluce;
 	    }
 	}
@@ -121,7 +122,7 @@ class TemplateSolverS {
 	    return solve (tmps, arr, type);
 	} else {
 	    
-	    Array!InfoType types;
+	    Array!Expression types;
 	    auto soluce = TemplateSolution (true);
 	    foreach (it ; 0 .. param.templates.length) {
 		if (auto var = cast (Var) param.templates [it]) {
@@ -129,7 +130,7 @@ class TemplateSolverS {
 		    auto res = this.solveInside (tmps, var, type.getTemplate (it));
 		    if (!res.valid || !merge (soluce.elements, res.elements))
 			return TemplateSolution (false);
-		    types.insertBack (res.type);
+		    types.insertBack (new Type (var.token, res.type));
 		}
 	    }
 	    
@@ -150,7 +151,7 @@ class TemplateSolverS {
 		    }
 		} 
 	    }	
-	    soluce.type = InfoType.factory (param.token, types);
+	    soluce.type = new Var(param.token, types).asType.info.type;
 	    return soluce;
 	}
     }

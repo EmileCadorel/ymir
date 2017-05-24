@@ -26,9 +26,9 @@ class Mangler {
 	auto buf = new OutBuffer ();
 	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
-	    buf.write (it.info.type.simpleTypeString);
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
 	}
-	buf.writef ("Z%s", frame.type.type.simpleTypeString);
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
 	return buf.toString;
     }       
 
@@ -36,7 +36,7 @@ class Mangler {
 	auto buf = new OutBuffer ();
 	buf.write ("ST");
 	auto name = str.namespace.toString;
-	buf.writef ("%s%d%s", mangle!"namespace" (name), str.name.length, str.name);
+	buf.writef ("%s%s", mangle!"namespace" (name), mangle!"type" (str.name));
 	return buf.toString;
     }
 
@@ -44,7 +44,7 @@ class Mangler {
 	auto buf = new OutBuffer ();
 	buf.write ("ST");
 	auto name = str.namespace.toString;
-	buf.writef ("%s%d%s", mangle!"namespace" (name), str.name.length, str.name);
+	buf.writef ("%s%s", mangle!"namespace" (name), mangle!"type" (str.name));
 	return buf.toString;
     }
     
@@ -55,9 +55,9 @@ class Mangler {
 	auto buf = new OutBuffer ();
 	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
-	    buf.write (it.info.type.simpleTypeString);
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
 	}
-	buf.writef ("Z%s", frame.type.type.simpleTypeString);
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
 	return buf.toString;
     }       
 
@@ -95,6 +95,25 @@ class Mangler {
 	return format ("%d%s", fin.length, fin.replace ("!", "T"));
     }
 
+    static string mangle (string type : "type") (string name) {
+	auto res = name.replace ("(", "N");
+	res = res.replace (")", "N");
+	res = res.replace (",", "U");
+	res = res.replace ("'", "G");
+	auto fin = "";
+	foreach (it ; res) {
+	    if ((it < 'a' || it > 'z') &&
+		(it < 'A' || it > 'Z') &&
+		(it < '0' ||  it > '9') &&
+		(it != '_')
+	    ) {
+		fin ~=  to!string (to!short (it));
+	    } else fin ~= to!string (it);
+	}   			    
+	return fin;
+    }
+
+    
     static string mangle (string type : "tuple") (Namespace space, string name) {
 	return format ("TU%s%s", mangle!"namespace" (space.toString), name);	
     }

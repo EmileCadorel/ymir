@@ -85,6 +85,10 @@ class TemplateFrame : Frame {
     private ApplicationScore isApplicableSimple (Word ident, Array!Var attrs, Array!InfoType args) {
 	auto score = new ApplicationScore (ident);
 	Expression [string] tmps;
+
+	auto globSpace = Table.instance.namespace;
+	Table.instance.setCurrentSpace (this._namespace, this._function.name);
+	scope (exit) Table.instance.resetCurrentSpace (globSpace);
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -124,11 +128,7 @@ class TemplateFrame : Frame {
 	    if (!TemplateSolver.isSolved (this._function.tmps, tmps)) return null;
 	    
 	    if (this._function.test) {
-		Table.instance.pacifyMode ();
-		auto globSpace = Table.instance.namespace;
-		Table.instance.setCurrentSpace (this._namespace, this._function.name);
-		scope (exit) Table.instance.resetCurrentSpace (globSpace);
-		
+		Table.instance.pacifyMode ();		
 		auto valid = func.test.templateExpReplace (tmps) .expression ();
 		Table.instance.unpacifyMode ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
@@ -229,6 +229,10 @@ class TemplateFrame : Frame {
     	if (params.length > this._function.tmps.length)
     	    return null;
 
+	auto globSpace = Table.instance.namespace;
+	Table.instance.setCurrentSpace (this._namespace, this._function.name);
+	scope (exit) Table.instance.resetCurrentSpace (globSpace);
+	
     	InfoType [] totals;
     	Array!Expression finals;
     	Array!Expression vars;
@@ -258,11 +262,7 @@ class TemplateFrame : Frame {
     	import std.algorithm : any;
 	
     	if (TemplateSolver.isSolved (this._function.tmps, res)) {	    
-    	    if (func.test) {
-		auto globSpace = Table.instance.namespace;
-		Table.instance.setCurrentSpace (this._namespace, this._function.name);
-		scope (exit) Table.instance.resetCurrentSpace (globSpace);
-		
+    	    if (func.test) {		
     		Table.instance.pacifyMode ();
     		auto valid = func.test.expression ();
     		Table.instance.unpacifyMode ();

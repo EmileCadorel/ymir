@@ -274,7 +274,7 @@ class StructCstInfo : InfoType {
      */
     override string simpleTypeString () {
 	import std.format;
-	return format ("%d%s%s", this._name, "ST", this.name);
+	return format ("%d%s%s", this._name.length, "ST", this.name);
     }    
 
     /**
@@ -672,10 +672,8 @@ class StructInfo : InfoType {
      Returns: le nom pour le mangling.
      */
     override string simpleTypeString () {
-	if (this._name [0] >= 'a' && this._name [0] <= 'z') {
-	    return "_" ~ this.name;
-	} else 
-	    return this._name;
+	import std.format;
+	return format ("%d%s%s", this._name.length, "ST", this._name);
     }    
 
     /**
