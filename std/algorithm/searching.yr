@@ -1,3 +1,5 @@
+import std.algorithm.comparaison, std.array;
+import std.conv;
 
 def all (T) (call : function (T) : bool, b : [T]) {
     for (it in b) {
@@ -52,7 +54,7 @@ def count (T) (call : function (T) : bool, b : [T]) {
 def count (T) (a : [T], b : T) {
     let nb = ulong.init;
     for (it in a) {
-	if (it == b) nb++;
+	if (it == b) nb ++;
     }
     return nb;
 }
@@ -76,7 +78,6 @@ def canFind (T) (a : [T], b : [T]) {
 
 
 def commonPrefix (T) (a : [T], b : [T]) : [T] {
-    import std.algorithm.comparaison, std.array;
     let nb = 0L;
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] != b [it]) {
@@ -87,7 +88,6 @@ def commonPrefix (T) (a : [T], b : [T]) : [T] {
 }
 
 def commonPrefix (a : string, b : string) : string {
-    import std.conv;
     return commonPrefix (a [], b []).to!string;
 }
 

@@ -2,6 +2,7 @@ module semantic.pack.TemplateSolver;
 import ast.all;
 import std.container, std.stdio;
 import semantic.types.InfoType;
+import semantic.types.RefInfo;
 import utils.exception;
 import utils.Singleton;
 import std.conv;
@@ -174,7 +175,14 @@ class TemplateSolverS {
     private TemplateSolution solve (Array!Expression tmps, ArrayVar param, InfoType type) {
 	import semantic.types.ArrayInfo;
 	
-	if (!cast (ArrayInfo) type) return TemplateSolution (false);
+	if (!cast (ArrayInfo) type) {
+	    if (auto ptr = cast (RefInfo) type) {
+		if (!cast (ArrayInfo) ptr.content)
+		    return TemplateSolution (false);
+	    } else
+		return TemplateSolution (false);
+	}
+	
 	auto content = param.content;
 	auto type_ = type.getTemplate (0);
 	if (type_ is null) return TemplateSolution (false);

@@ -94,6 +94,7 @@ class StructCstInfo : InfoType {
     static InfoType create (Word name, Expression [] templates) {
 	import std.format;
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
+	
 	if (cst is null) assert (false, "Nooooon !!!");
 	if (templates.length != cst._tmps.length)
 	    throw new UndefinedType (name, format("prend %d type en template", cst._tmps.length));
@@ -143,7 +144,7 @@ class StructCstInfo : InfoType {
 		}
 	    }
 	}
-	
+       
 	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps);
 	ret.isExtern = this._extern;
 	return ret;

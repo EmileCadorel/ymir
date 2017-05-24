@@ -1,6 +1,6 @@
 import std.stdio;
 
-def test (a : ref!string, b : string) {
+def test (ref a : string, b : string) {
     a = "salut";
     b = "comment";
 }

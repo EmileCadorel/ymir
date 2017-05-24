@@ -1,5 +1,5 @@
 import std.math;
-import std.algorithm;
+import std.algorithm.comparaison;
 import std.conv;
 
 def opTest ('>') (a : int, b : string) : bool {

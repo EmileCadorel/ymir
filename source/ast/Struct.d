@@ -53,7 +53,7 @@ class Struct : Declaration {
      Throws: ShadowingVar, NeedAllType
      */
     override void declare () {
-	auto exist = Table.instance.get (this._ident.str);
+	auto exist = Table.instance.getLocal (this._ident.str);
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
@@ -61,7 +61,6 @@ class Struct : Declaration {
 	    FrameTable.instance.insert (str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
-	    InfoType.addCreator (this._ident.str);
 	    foreach (it ; this._params) {
 		if (auto ty = cast (TypedVar) it) {
 		    str.addAttrib (ty);
@@ -70,23 +69,22 @@ class Struct : Declaration {
 	}
     }
 
-    override void declareAsExtern () {
-	if (this._isPublic) {
-	    auto exist = Table.instance.get (this._ident.str);
-	    if (exist) {
-		throw new ShadowingVar (this._ident, exist.sym);
-	    } else {
-		auto str = new StructCstInfo (Table.instance.namespace, this._ident.str, this._tmps);
-		str.isExtern = this._tmps.length == 0;
-		auto sym = new Symbol(this._ident, str);
-		Table.instance.insert (sym);
-		InfoType.addCreator (this._ident.str);
-		foreach (it ; this._params) {
-		    if (auto ty = cast (TypedVar) it) {
-			str.addAttrib (ty);
-		    } else throw new NeedAllType (this._ident, "structure");		
-		}
-	    }
+    override void declareAsExtern (Module mod) {
+	auto exist = mod.get (this._ident.str);
+	if (exist) {
+	    throw new ShadowingVar (this._ident, exist.sym);
+	} else {
+	    auto str = new StructCstInfo (mod.space, this._ident.str, this._tmps);
+	    str.isExtern = this._tmps.length == 0;
+	    auto sym = new Symbol (this._ident, str);
+	    sym.isPublic = this._isPublic;
+	    
+	    mod.insert (sym);
+	    foreach (it ; this._params) {
+		if (auto ty = cast (TypedVar) it) {
+		    str.addAttrib (ty);
+		} else throw new NeedAllType (this._ident, "structure");		
+	    }	   
 	}
     }
     

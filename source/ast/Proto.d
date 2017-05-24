@@ -89,26 +89,28 @@ class Proto : Declaration {
 	}
 		
 	auto fr = new ExternFrame (space, this._from.str, this);
-	auto it = Table.instance.get (this._ident.str);
-	if (it !is null) {
-	    auto fun = cast (FunctionInfo) it.type;
-	    fun.insert (fr);
-	    Table.instance.insert (it);
-	} else {
-	    auto fun = new FunctionInfo (space, this._ident.str);
-	    fun.insert (fr);
-	    Table.instance.insert (new Symbol (this._ident, fun, true));
-	}
-	
+	auto fun = new FunctionInfo (space, this._ident.str);
+	fun.set (fr);
+	Table.instance.insert (new Symbol (this._ident, fun, true));    	
     }
 
     /**
      Declare le prototype dans la table des symboles, si l'élément est déclaré comme publique.     
      */
-    override void declareAsExtern () {
-	if (this._isPublic) {
-	    this.declare ();
+    override void declareAsExtern (Module mod) {
+	auto space = mod.space;
+	foreach (it ; 0 .. this._params.length) {
+	    if (cast (TypedVar) this._params [it] is null) {
+		this._params [it] = new TypedVar (Word (this._params [it].token.locus, "_", false), this._params [it]);
+	    }
 	}
+		
+	auto fr = new ExternFrame (space, this._from.str, this);
+	fr.isPrivate = !this.isPublic;
+       
+	auto fun = new FunctionInfo (space, this._ident.str);
+	fun.set (fr);
+	mod.insert (new Symbol (this._ident, fun, true));		
     }
     
     override Declaration templateReplace (Expression [string] values) {

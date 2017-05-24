@@ -99,7 +99,7 @@ class LambdaFunc : Expression {
 	
 	Symbol retInfo = this._ret !is null ? this._ret.asType ().info : null;	
 	auto finalParams = Frame.computeParams (this._params);
-	this._proto = Frame.validate (token, space, retInfo, finalParams, this._block, make!(Array!Expression));
+	this._proto = Frame.validate (token, space, space, retInfo, finalParams, this._block, make!(Array!Expression));
 	
 	if (temp [0] is null) {
 	    temp [0] = new Type (token, this._proto.type.type.cloneForParam);

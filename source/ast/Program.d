@@ -4,6 +4,7 @@ import std.stdio, std.string, std.path;
 import syntax.Word;
 import ast.Import;
 import semantic.pack.Table, utils.Mangler;
+public import semantic.pack.Module;
 
 /**
  La classe qui va contenir les informations syntaxique de tout un fichier
@@ -48,13 +49,20 @@ class Program {
     /**
      Declare toutes les informations dans la table des symboles comme étant des éléments externes.
      */
-    void declareAsExtern () {
+    void declareAsExtern (Module mod) {
 	string name = this._locus.locus.file;
 	if (name.extension == ".yr")
 	    name = name [0 .. name.lastIndexOf (".")];
 	Table.instance.setCurrentSpace (null, Mangler.mangle!"file" (name));
+	foreach (it ; __declareAtBegins__) {
+	    if (this._locus.locus.file != it.str ~ ".yr") {
+		auto _imp = new Import (it, make!(Array!Word)(it));
+		_imp.declare ();
+	    }
+	}
+		
 	foreach (it ; this._decls) {
-	    it.declareAsExtern ();
+	    it.declareAsExtern (mod);
 	}
     }
     

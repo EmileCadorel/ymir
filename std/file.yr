@@ -1,5 +1,5 @@
 import std.string;
-import std.algorithm, std.array;
+import std.algorithm.searching, std.array;
 
 enum : byte
 | F_OK : 0B

@@ -98,7 +98,7 @@ class TemplateFrame : Frame {
 		    if (!res.valid || !TemplateSolver.merge (tmps, res.elements)) return null;
 		    
 		    info = res.type;
-		    if (tvar.deco == Keys.REF) info = new RefInfo (info);		    
+		    if (tvar.deco == Keys.REF && !cast (RefInfo) info) info = new RefInfo (info);		    
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
 			score.score += this._changed ? CHANGE : SAME;
@@ -111,7 +111,7 @@ class TemplateFrame : Frame {
 		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it])
 			return null;
 		    auto var = cast (Var) attrs [it];
-		    if (var.deco == Keys.REF) {
+		    if (var.deco == Keys.REF && !cast (RefInfo) args[it]) {
 			auto type = args [it].CompOp (new RefInfo (args [it].clone ()));
 			if (type is null) return null;
 			score.treat.insertBack (type);
@@ -125,6 +125,10 @@ class TemplateFrame : Frame {
 	    
 	    if (this._function.test) {
 		Table.instance.pacifyMode ();
+		auto globSpace = Table.instance.namespace;
+		Table.instance.setCurrentSpace (this._namespace, this._function.name);
+		scope (exit) Table.instance.resetCurrentSpace (globSpace);
+		
 		auto valid = func.test.templateExpReplace (tmps) .expression ();
 		Table.instance.unpacifyMode ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
@@ -157,7 +161,7 @@ class TemplateFrame : Frame {
 	if (this._isExtern) return validateExtern ();
 	else if (this._isPure) return validate ();
 		
-	Table.instance.enterFrame (Table.instance.globalNamespace, this._name, this._function.params.length, this._isInternal);
+	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
        
 	auto func = this._function.templateReplace (score.tmps);
@@ -165,7 +169,8 @@ class TemplateFrame : Frame {
 	Array!Var finalParams = Frame.computeParams (func.params, params);
 
 	Symbol ret = func.type !is null ? func.type.asType ().info : null;
-	return Frame.validate (this._function.ident, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values));
+	auto proto = Frame.validate (this._function.ident, this._namespace, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values));
+	return proto;
     }
 
     private string computeTempName (string name) {
@@ -212,11 +217,10 @@ class TemplateFrame : Frame {
 	auto name = Word (this._function.ident.locus, un, false);
 	Table.instance.enterFrame (this._namespace, un, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
-	Table.instance.setCurrentSpace (this._namespace, un);	
 		
 	Array!Var finalParams = Frame.computeParams (func.params);
 	auto ret = this._function.type ? this._function.type.asType ().info : null;	
-	return Frame.validate (name, this._namespace, ret, finalParams, this._function.block, make!(Array!Expression));		
+	return Frame.validate (name, this._namespace, this._namespace, ret, finalParams, this._function.block, make!(Array!Expression));		
     }
 
     override Frame TempOp (Array!Expression params) {
@@ -255,6 +259,10 @@ class TemplateFrame : Frame {
 	
     	if (TemplateSolver.isSolved (this._function.tmps, res)) {	    
     	    if (func.test) {
+		auto globSpace = Table.instance.namespace;
+		Table.instance.setCurrentSpace (this._namespace, this._function.name);
+		scope (exit) Table.instance.resetCurrentSpace (globSpace);
+		
     		Table.instance.pacifyMode ();
     		auto valid = func.test.expression ();
     		Table.instance.unpacifyMode ();

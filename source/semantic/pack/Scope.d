@@ -12,7 +12,7 @@ import std.algorithm;
 class Scope {
 
     /**  Les symbole déclaré localement */
-    Symbol [string] _local;
+    Array!(Symbol) [string] _local;
 
     /** Les symboles à détruire en fin de scope */
     Array!Symbol _garbage;    
@@ -28,10 +28,17 @@ class Scope {
      */
     Symbol opIndex (string name) {
 	auto it = (name in this._local);
-	if (it !is null) return *it;
+	if (it !is null) return (*it) [0];
 	else return null;
     }
 
+    Array!Symbol getAll (string name) {
+	auto it = (name in this._local);
+	if (it !is null) {
+	    return *it;
+	} else return make!(Array!Symbol);
+    }
+    
     void addImport (string name) {
 	this._imports.insertBack (name);
     }
@@ -58,7 +65,7 @@ class Scope {
 	foreach (key, value ; this._local) {
 	    auto diff = levenshteinDistance (key, name);
 	    if (diff < min) {
-		ret = value;
+		ret = value [0];
 		min = diff;
 	    }
 	}
@@ -72,7 +79,11 @@ class Scope {
      name = l'identifiant du symbole
      */
     void opIndexAssign (Symbol data, string name) {
-	this._local [name] = data;
+	auto it = name in this._local;
+	if (it) 
+	    it.insertBack (data);
+	else 
+	    this._local [name] = make!(Array!Symbol) (data);
     }
 
     /**
@@ -102,7 +113,7 @@ class Scope {
      Efface toutes les informations du scope
      */
     void clear () {
-	Symbol [string] aux;
+	Array!(Symbol) [string] aux;
 	this._local = aux;
 	this._garbage.clear ();
     }    
@@ -115,9 +126,24 @@ class Scope {
      */
     Array!Symbol quit (Namespace namespace) {
 	foreach (key, value; this._local) {
-	    value.quit (namespace);
+	    foreach (it; value)
+		it.quit (namespace);
 	}
 	return this._garbage;
     }
 
+    override string toString () {
+	import std.outbuffer;
+	auto buf = new OutBuffer () ;
+	buf.write ("{");
+	foreach (key, value ; this._local) {
+	    buf.writef ("\t%s => {", key);
+	    foreach (it ; value)
+		buf.writef ("%s,", it.type.typeString);
+	    buf.writefln ("}");
+	}
+	buf.write ("}");
+	return buf.toString;
+    }
+    
 }

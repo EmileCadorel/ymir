@@ -1,6 +1,7 @@
 module ast.Declaration;
 import std.container;
 import ast.Var, ast.Expression;
+public import semantic.pack.Module;
 
 /**
  Ancêtre de toutes les déclarations.
@@ -21,7 +22,7 @@ class Declaration {
     /**
      Fonction à surcharger pour se déclarer dans la table des symboles comme données externes.
      */
-    void declareAsExtern () {}
+    void declareAsExtern (Module mod) {}
 
     /**
      Fonction a surcharge pour se déclarer à l'interieur d'un block.

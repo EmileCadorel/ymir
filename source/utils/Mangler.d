@@ -24,7 +24,7 @@ class Mangler {
 	if (name == Keys.MAIN.descr || frame.externC) return name;
 	auto namespace = frame.namespace.toString;
 	auto buf = new OutBuffer ();
-	buf.writef ("_Y%s%sF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
 	    buf.write (it.info.type.simpleTypeString);
 	}
@@ -53,7 +53,7 @@ class Mangler {
 	if (name == Keys.MAIN.descr) return name;
 	auto namespace = frame.namespace.toString;
 	auto buf = new OutBuffer ();
-	buf.writef ("_Y%s%sF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
 	    buf.write (it.info.type.simpleTypeString);
 	}

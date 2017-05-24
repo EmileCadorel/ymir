@@ -2,6 +2,7 @@ module semantic.pack.Table;
 import utils.Singleton, semantic.pack.Symbol;
 import semantic.pack.FrameScope, semantic.pack.Scope;
 import std.container;
+import semantic.pack.Module;
 import semantic.pack.Namespace;
 import utils.exception, syntax.Word;
 
@@ -15,6 +16,9 @@ class Table {
 
     /** Le scope global du programme */
     private Scope _globalScope;
+
+    /++ Liste des modules importé dans la vie de la compilation +/
+    private Array!Module _importation;
 
     /** Le contexte courant */
     private Namespace _namespace;
@@ -188,18 +192,70 @@ class Table {
      Returns: le symbole ou null
      */
     Symbol get (string name) {
-	if (this._frameTable.empty) return this._globalScope [name];	
-	auto ret = this._frameTable.front [name];
-	if (ret is null && this._frameTable.front.isInternal) {
-	    auto aux = this._frameTable.front;
-	    this._frameTable.removeFront ();
+	Symbol ret;
+	if (!this._frameTable.empty) {
 	    ret = this._frameTable.front [name];
-	    this._frameTable.insertFront (aux);
-	    if (ret !is null && !ret.isScoped) ret = null;
+	    if (ret) return ret;	    
 	}
-	if (ret is null) return this._globalScope [name];
+	
+	if (ret is null) ret = this._globalScope [name];
+	if (ret is null) {
+	    auto mods = getAllMod (this.namespace ());
+	    foreach (it ; mods) {
+		ret = it.get (name);
+		if (ret !is null) return ret;
+	    }
+	}
 	return ret;
+    }    
+
+    /**
+     Cherche un symbole identifié par x.
+     Params:
+     name = l'identifiant du symbole.
+     Returns: la liste des symboles du même nom ou null
+     */
+    Array!Symbol getAll (string name) {
+	Array!Symbol alls;
+	if (!this._frameTable.empty) {
+	    alls ~= this._frameTable.front ().getAll (name);	    
+	}
+	
+	alls ~= this._globalScope.getAll (name);
+	auto mods = getAllMod (this.namespace ());
+	foreach (it ; mods) {
+	    if (!it.space ().isSubOf (this._namespace))
+		alls ~= it.getAll (name);
+	}
+	return alls;
     }
+
+    
+    /**
+     Cherche un symbole identifié par x.
+     Params:
+     name = l'identifiant du symbole.
+     Returns: le symbole ou null
+     */
+    Symbol getLocal (string name) {
+	Symbol ret;
+	if (!this._frameTable.empty) {
+	    ret = this._frameTable.front [name];
+	    if (ret) return ret;	    
+	}
+	
+	if (ret is null) ret = this._globalScope [name];
+	if (ret is null) {
+	    auto mods = getAllMod (this.namespace ());
+	    foreach (it ; mods) {
+		if (!it.space.isSubOf (this.namespace ())) {
+		    ret = it.get (name);
+		    if (ret !is null) return ret;
+		}
+	    }
+	}
+	return ret;
+    }    
 
     /++
      Params:
@@ -211,8 +267,7 @@ class Table {
 	auto ret = this._frameTable.front [sym.sym.str];
 	if (ret is null) return false;
 	return true;
-    }
-    
+    }    
 
     /**
      Cherche tous les symboles dont le nom est presque 'name'
@@ -221,10 +276,13 @@ class Table {
      Returns: le sosie ou null
      */
     Symbol getAlike (string name) {
-	if (this._frameTable.empty) return this._globalScope.getAlike (name);
-	auto ret = this._frameTable.front.getAlike (name);
-	if (ret is null) return this._globalScope.getAlike (name);
-	return ret;
+	foreach (it ; this._frameTable) {
+	    if (it.namespace.isSubOf (this.namespace ())) {
+		auto ret = it.getAlike (name);
+		if (ret) return ret;
+	    }
+	}
+	return this._globalScope.getAlike (name);
     }
 
     /**
@@ -238,13 +296,54 @@ class Table {
     /**
      Ajoute un fichier importe
      Params:
-     name = le nom du fichier importé
+     name = le namespace du module importé
+     Returns: un nouveau module à remplir
      */
-    void addImport (string name) {
-	if (this._frameTable.empty) this._globalScope.addImport (name);
-	else this._frameTable.front.addImport (name);
-    }
+    Module addModule (Namespace space) {
+	auto mod = new Module (space);
+	this._importation.insertBack (mod);
+	return mod;
+    }    
 
+    /++
+     Retourne la liste des modules autorisé au namespace
+     Params:
+     space = le namespace qui à des accés.
+     Returns: la liste des accès disponible pour le module.
+     +/
+    Array!Module getAllMod (Namespace space) {
+	Array!Module alls;
+	foreach (it ; this._importation) {
+	    if (it.authorized (space)) {
+		alls.insertBack (it);
+	    }	    
+	}
+	return alls;
+    }
+    
+    /++
+     Ouvre le module de namespace from pour le module de namespace to.
+     +/
+    void openModuleForSpace (Namespace from, Namespace to) {
+	Array!Namespace dones;
+
+	void openModuleForSpace (Namespace from, Namespace to, Array!Namespace dones) {    
+	    foreach (it ; this._importation) {
+		if (it.space == from) {
+		    dones.insertBack (it.space);
+		    it.addOpen (to);
+		    foreach (mt ; it.publicOpens) {
+			dones.insertBack (mt);
+			openModuleForSpace (mt, to, dones);
+		    }
+		    
+		    break;
+		}
+	    }
+	}
+	openModuleForSpace (from, to, dones);
+    }
+    
     /**
      Supprime tous imports reçu
      */
@@ -255,18 +354,11 @@ class Table {
     /**
      On a déja importé ce module ?
      */
-    bool wasImported (string name) {	
-	if (this._namespace == new Namespace (name)) return true;
-	if (this._frameTable.empty) return this._globalScope.wasImported (name);
-	else if (this._frameTable.front.wasImported (name)) return true;
-	else if (this._frameTable.front.isInternal) {
-	    auto aux = this._frameTable.front;
-	    this._frameTable.removeFront ();
-	    auto ret = this._frameTable.front.wasImported (name);
-	    this._frameTable.insertFront (aux);
-	    if (ret) return true;
+    bool moduleExists (Namespace name) {	
+	foreach (it ; this._importation) {
+	    if (it.space == name) return true;
 	}
-	return this._globalScope.wasImported (name);
+	return false;
     }
 
     /** Returns: Le nombre d'appel en cours */

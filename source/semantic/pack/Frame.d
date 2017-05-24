@@ -39,6 +39,8 @@ class Frame {
         
     protected bool _isInternal = false;
 
+    protected bool _isPrivate = false;
+    
     /**
      Les premiers paramètre templates;
      */
@@ -112,14 +114,14 @@ class Frame {
      ret = le type de retour
      les paramètre finaux de la frame.
      +/
-    static FrameProto validate (Word name, Namespace namespace, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
+    static FrameProto validate (Word name, Namespace namespace, Namespace from, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
 	Table.instance.setCurrentSpace (namespace, name.str);
 	if (ret is null)
 	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
 	else
 	    Table.instance.retInfo.info = ret;
 	
-	auto proto = new FrameProto (name.str, namespace, Table.instance.retInfo.info, finalParams, tmps);
+	auto proto = new FrameProto (name.str, from, Table.instance.retInfo.info, finalParams, tmps);
 	if (!FrameTable.instance.existProto (proto)) {
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
@@ -128,7 +130,7 @@ class Frame {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    
 	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
-					    namespace, name.str,
+					    from, name.str,
 					    finalParams, block, tmps);
 	    
 	    proto.type = Table.instance.retInfo.info;
@@ -181,14 +183,14 @@ class Frame {
     }
 
     
-    protected final FrameProto validate (Namespace space, Array!Var finalParams) {
+    protected final FrameProto validate (Namespace space, Namespace from, Array!Var finalParams) {
 	Table.instance.setCurrentSpace (space, this._function.name);
 	if (this._function.type is null)
 	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
 	else 
 	    Table.instance.retInfo.info = this._function.type.asType ().info;	
 		
-	auto proto = new FrameProto (this._function.name, space, Table.instance.retInfo.info, finalParams, this._tempParams);
+	auto proto = new FrameProto (this._function.name, from, Table.instance.retInfo.info, finalParams, this._tempParams);
 	
 	if (!FrameTable.instance.existProto (proto)) {
 	    FrameTable.instance.insert (proto);
@@ -199,7 +201,7 @@ class Frame {
 		Table.instance.retInfo.info.type = new VoidInfo ();
 	    
 	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
-					    space, this._function.name,
+					    from, this._function.name,
 					    finalParams, block, this._tempParams);
 	    
 	    proto.type = Table.instance.retInfo.info;
@@ -251,6 +253,9 @@ class Frame {
      args = les types utilisés pour l'appel
      */
     protected ApplicationScore isApplicable (Word ident, Array!Var attrs, Array!InfoType args) {
+	if (this._isPrivate && !this._namespace.isSubOf (Table.instance.namespace))
+	    return null;
+	
 	auto score = new ApplicationScore (ident);
 	if (attrs.length == 0 && args.length == 0) {
 	    score.score = AFF;
@@ -260,7 +265,7 @@ class Frame {
 	    foreach (it ; 0 .. args.length) {
 		InfoType info = null;
 		auto param = attrs [it];
-		if (cast (TypedVar) param !is null) {
+		if (auto tvar = cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar) param).getType ().clone ();
 		    auto type = args [it].CompOp (info);
 		    if (type && type.isSame (info)) {
@@ -273,7 +278,7 @@ class Frame {
 		} else {
 		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it]) return null;
 		    auto var = cast (Var) attrs [it];
-		    if (var.deco == Keys.REF) {
+		    if (var.deco == Keys.REF && !(cast(RefInfo) args [it])) {
 			auto type = args [it].CompOp (new RefInfo (args [it].clone ()));
 			if (type is null) return null;
 			score.treat.insertBack (type);
@@ -332,6 +337,13 @@ class Frame {
 	return null;
     }
 
+    /++
+     Returns: La frame est privé au module ? 
+     +/
+    ref bool isPrivate () {
+	return this._isPrivate;
+    }
+    
     /**
        Returns: Le prototype de la fonction formaté
      */

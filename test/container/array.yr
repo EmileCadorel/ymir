@@ -2,7 +2,12 @@ import std.array;
 import std.stdio;
 
 def Array (T) () {
-    struct (a : [T], capacity : ulong, length : ulong) Test;    
+    struct
+	| a : [T]
+	| capacity : ulong
+	| length : ulong
+	-> Test;
+    
     return Test ([], 0UL, 0UL);
 }
 

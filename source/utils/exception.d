@@ -188,7 +188,7 @@ class UndefinedOp : YmirException {
 	}
 
 	if (auto fun = cast(FunctionInfo) left.type) {
-	    buf.writefln ("): Candidates are");
+	    buf.writefln ("): les candidats sont");
 	    super.addLine (buf, token.locus);
 	    foreach (key, value ; fun.candidates) {
 		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);
@@ -224,7 +224,7 @@ class UndefinedOp : YmirException {
 	}
 	
 	if (auto fun = cast(FunctionInfo) left.type) {
-	    buf.writefln ("): Candidates are");
+	    buf.writefln ("): les candidats sont");
 	    super.addLine (buf, token.locus);
 	    foreach (key, value ; fun.candidates) {
 		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);

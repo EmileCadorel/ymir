@@ -1,4 +1,4 @@
-public import std.traits;
+import std.traits;
 
 def to (T of string) (c : char) : string {
     return cast:string ([c]);
@@ -98,9 +98,9 @@ def to if (!is (T2 : char))
 	if (elem is null) return 'null';
 	else {
 	    let ret = "[";
-	    for (it in 0UL .. elem.length) {
-		ret += to!(string) (elem [it]);
-		if (it != elem.length - 1UL)
+	    for (it_ in 0UL .. elem.length) {
+		ret += to!(string) (elem [it_]);
+		if (it_ != elem.length - 1UL)
 		    ret += ", ";
 	    }	
 	    ret += "]";

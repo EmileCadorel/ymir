@@ -97,24 +97,21 @@ class Function : Declaration {
      */
     override void declare () {
 	if (this._ident.str == MAIN) {
-	    FrameTable.instance.insert (new PureFrame (null, this));
+	    FrameTable.instance.insert (new PureFrame (Table.instance.namespace, this));
 	} else {
 	    Frame fr = verifyPure ();
 	    auto space = Table.instance.namespace ();
 
-	    auto it = Table.instance.get (this._ident.str);
+	    auto it = Table.instance.getLocal (this._ident.str);
 	    if (it !is null) {
 		auto fun = cast (FunctionInfo) it.type;
 		if (fun is null) {
 		    throw new ShadowingVar (this._ident, it.sym);
 		}
-		fun.insert (fr);
-		Table.instance.insert (it);
-	    } else {
-		auto fun = new FunctionInfo (space, this._ident.str);
-		fun.insert (fr);
-		Table.instance.insert (new Symbol (this._ident, fun, true));
-	    }
+	    }	   
+	    auto fun = new FunctionInfo (space, this._ident.str);
+	    fun.set (fr);
+	    Table.instance.insert (new Symbol (this._ident, fun, true));	    
 	}
     }
 
@@ -128,21 +125,18 @@ class Function : Declaration {
 	fr.isInternal = true;
 	auto space = Table.instance.namespace ();
 
-	auto it = Table.instance.get (this._ident.str);
+	auto it = Table.instance.getLocal (this._ident.str);
 	if (it !is null) {
 	    auto fun = cast (FunctionInfo) it.type;
 	    if (fun is null) {
 		throw new ShadowingVar (this._ident, it.sym);
 	    }
-	    fun.insert (fr);
-	    Table.instance.insert (it);
-	} else {
-	    auto fun = new FunctionInfo (space, this._ident.str);
-	    fun.insert (fr);
-	    auto sym = new Symbol (this._ident, fun, true);
-	    sym.isScoped = true;
-	    Table.instance.insert (sym);
-	}    
+	}
+	auto fun = new FunctionInfo (space, this._ident.str);
+	fun.set (fr);
+	auto sym = new Symbol (this._ident, fun, true);
+	sym.isScoped = true;
+	Table.instance.insert (sym);	    
     }
 
        
@@ -151,21 +145,18 @@ class Function : Declaration {
      Pour être correct la fonction doit avoir un identifiant jamais utilisé, ou alors par une autre fonction.
      Throws: ShadowingVar
      */
-    override void declareAsExtern () {
-	if (this._ident.str != MAIN && this.isPublic) {
+    override void declareAsExtern (Module mod) {
+	if (this._ident.str != MAIN) {
 	    Frame fr = verifyPureAsExtern ();
-	    auto space = Table.instance.namespace;
-	    auto it = Table.instance.get (this._ident.str);
+	    auto space = mod.space;
+	    auto it = mod.get (this._ident.str);
 	    if (it !is null) {
 		auto fun = cast (FunctionInfo) it.type;
 		if (fun is null) throw new ShadowingVar (this._ident, it.sym);
-		fun.insert (fr);
-		Table.instance.insert (it);
-	    } else {
-		auto fun = new FunctionInfo (space, this._ident.str);
-		fun.insert (fr);
-		Table.instance.insert (new Symbol (this._ident, fun, true));
 	    }
+	    auto fun = new FunctionInfo (space, this._ident.str);
+	    fun.set (fr);
+	    mod.insert (new Symbol (this._ident, fun, true));	    
 	}
     }
 

@@ -8,6 +8,7 @@ import semantic.types.ArrayInfo;
 import ast.FuncPtr;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
+import semantic.types.StructInfo;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -157,7 +158,12 @@ class Var : Expression {
      Pour être juste la variable doit être un type.
      Throws: UseAsType, si le type n'existe pas.
      */
-    Type asType () {	
+    Type asType () {
+	import std.array;
+	Array!Expression temp;
+	foreach (it ; this._templates) {
+	    temp.insertBack (it.expression);
+	}
 	if (!InfoType.exist (this._token.str)) {
 	    import semantic.types.EnumInfo;
 	    auto en = Table.instance.get (this._token.str);
@@ -169,15 +175,15 @@ class Var : Expression {
 			    return new Type (this._token, new RefInfo (type.clone ()));
 			else return new Type (this._token, type.clone ());
 		    }
-		}		    
+		} else if (auto str = cast (StructCstInfo) en.type) {
+		    auto type = str.create (this._token, temp.array ());
+		    if (this._deco == Keys.REF)
+			return new Type (this._token, new RefInfo (type));
+		    else return new Type (this._token, type);
+		}
 	    }
 	    throw new UseAsType (this._token);
 	} else {
-	    import std.array;
-	    Array!Expression temp;
-	    foreach (it ; this._templates) {
-		temp.insertBack (it.expression);
-	    }
 	    auto t_info = InfoType.factory (this._token, temp.array ());
 	    if (this._deco == Keys.REF)
 		t_info = new RefInfo (t_info);
@@ -432,12 +438,12 @@ class TypedVar : Var {
     InfoType getType () {
 	if (type) {
 	    auto type = this._type.asType ();
-	    if (this._deco == Keys.REF)
+	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type)
 		return new RefInfo (type.info.type);
 	    else return type.info.type;
 	} else {
 	    this._expType = this._expType.expression ();
-	    if (this._deco == Keys.REF)
+	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type)
 		return new RefInfo (this._expType.info.type);
 	    else return this._expType.info.type;
 	}

@@ -1,6 +1,8 @@
 import std.stdio;
 
-struct (f : float) A;
+struct
+| f : float
+-> A;
 
 def exp (x, y) {
     let i = 0;

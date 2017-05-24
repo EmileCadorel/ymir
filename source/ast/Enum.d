@@ -46,13 +46,43 @@ class Enum : Declaration {
 	return this._ident;
     }
     
-    override void declareAsExtern () {
-	if (this._isPublic) 
-	    declare ();
+    override void declareAsExtern (Module mod) {
+	auto exist = mod.get (this._ident.str);
+	if (exist) {
+	    throw new ShadowingVar (this._ident, exist.sym);
+	} else {
+	    if (this._type !is null) {
+		auto type = this._type.asType ();
+		auto en = new EnumCstInfo (this._ident.str, type.info.type);
+		auto sym = new Symbol (this._ident, en);
+		sym.isPublic = this._isPublic;		
+		mod.insert (sym);
+		
+		foreach (it; 0 .. this._names.length) {
+		    auto val = this._values [it].expression;
+		    auto comp = val.info.type.CompOp (type.info.type);
+		    if (comp !is null)
+			en.addAttrib (this._names [it].str, val, comp);
+		    else throw new IncompatibleTypes (type.info,
+						      val.info);
+		}
+	    } else {
+		auto en = new EnumCstInfo (this._ident.str);
+		auto sym = new Symbol (this._ident, en);
+		sym.isPublic = this._isPublic;
+		
+		Table.instance.insert (sym);
+		foreach (it; 0 .. this._names.length) {
+		    auto val = this._values [it].expression;
+		    en.addAttrib (this._names [it].str, val);
+		}
+	    }
+	}
+    
     }
 
     override void declare () {
-	auto exist = Table.instance.get (this._ident.str);
+	auto exist = Table.instance.getLocal (this._ident.str);
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {

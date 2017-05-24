@@ -1,5 +1,6 @@
 import std.stdio;
-public import std.conv;
+import std.conv;
+import std.traits;
 import std.array;
 
 def pipe (ref a : [int]) : int {

@@ -458,6 +458,14 @@ class FrameScope {
 	return null;
     }
 
+    Array!Symbol getAll (string name) {
+	Array!Symbol alls;
+	foreach (it ; this._local) {
+	    alls ~= it.getAll (name);
+	}
+	return alls;
+    }
+    
     /**
      Cherche un symbole dont le nom est presque celui recherche
      Params:

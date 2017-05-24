@@ -16,7 +16,10 @@ class Symbol {
 
     /** A été déclaré dans la frame parent mais est accessible par scope */
     private bool _scoped;
-    
+
+    /++ Ce symbole est public et peut sortir d'un module ? +/
+    private bool _public;
+
     /** L'identifiant du symbole */
     private Word _sym;
 
@@ -207,6 +210,13 @@ class Symbol {
 	return this._id;
     }	
 
+    /++
+     Returns: Ce symbole est public et peut sortir du module ?
+     +/
+    ref bool isPublic () {
+	return this._public;
+    }
+    
     /**
      Informe les identifiant numérique que x symboles on déjà été déclarés.
      Params:

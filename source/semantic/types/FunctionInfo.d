@@ -22,8 +22,10 @@ class FunctionInfo : InfoType {
     private Namespace _namespace;
 
     /** Les différentes surcharge de fonction */
-    private Array!Frame _infos;
-
+    private Frame _infos;
+    
+    private Array!Frame _fromTemplates;
+    
     /**
      Params:
      namespace = le contexte du type
@@ -37,7 +39,7 @@ class FunctionInfo : InfoType {
     this (Namespace namespace, string name, Array!Frame infos) {
 	this._name = name;
 	this._namespace = namespace;
-	this._infos = infos;
+	this._fromTemplates = infos;
     }
     
     /**
@@ -52,8 +54,8 @@ class FunctionInfo : InfoType {
      Params:
      fr = une surcharge de fonction du même nom que le type.
      */
-    void insert (Frame fr) {
-	this._infos.insertBack (fr);
+    void set (Frame fr) {
+	this._infos = (fr);
     }
 
     /**
@@ -70,6 +72,21 @@ class FunctionInfo : InfoType {
 	assert (false, "C'est quoi cette histoire, une fonction en parametre");
     }    
 
+    /++
+     Récupère toutes les frames du même nom.
+     +/
+    Array!Frame getFrames () {
+	if (this._fromTemplates.length != 0) return this._fromTemplates;
+	Array!Frame alls;
+	auto others = Table.instance.getAll (this._name);
+	foreach (it ; others) {
+	    if (auto fun = cast (FunctionInfo) it.type)
+		alls.insertBack (fun._infos);
+	}
+	return alls;
+    }
+
+    
     /**
      Surcharge de l'operateur d'appel de la fonction (ici utilisé pour récupéré un pointeur sur fonction).
      Params:
@@ -82,8 +99,9 @@ class FunctionInfo : InfoType {
 	ulong id = 0;
 	Array!ApplicationScore total;
 	try {
-	    foreach (it ; 0 .. this._infos.length)
-		total.insertBack (this._infos[it].isApplicable (params));
+	    Array!Frame frames = getFrames ();	    
+	    foreach (it ; 0 .. frames.length)
+		total.insertBack (frames[it].isApplicable (params));
 	    
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
@@ -91,13 +109,13 @@ class FunctionInfo : InfoType {
 		if (total [it] !is null) {
 		    if (goods.length == 0 && total [it].score != 0) {
 			right = total[it];
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 		    } else if (right.score < total [it].score) {
 			goods.clear ();
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 			right = total [it];
 		    } else if (right.score == total [it].score && total [it].score != 0) {
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 		    }
 		}
 	    }
@@ -139,8 +157,9 @@ class FunctionInfo : InfoType {
 	ulong id = 0;
 	Array!ApplicationScore total;
 	try {
-	    foreach (it ; 0 .. this._infos.length)
-		total.insertBack (this._infos[it].isApplicable (params));
+	    auto frames = getFrames ();
+	    foreach (it ; 0 .. frames.length)
+		total.insertBack (frames [it].isApplicable (params));
 
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
@@ -148,13 +167,13 @@ class FunctionInfo : InfoType {
 		if (total [it] !is null) {
 		    if (goods.length == 0 && total [it].score != 0) {
 			right = total[it];
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 		    } else if (right.score < total [it].score) {
 			goods.clear ();
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 			right = total [it];
 		    } else if (right.score == total [it].score && total [it].score != 0) {
-			goods.insertBack (this._infos [it]);
+			goods.insertBack (frames [it]);
 		    }
 		}
 	    }
@@ -198,8 +217,9 @@ class FunctionInfo : InfoType {
 
     private InfoType toPtr () {
 	import semantic.pack.PureFrame, semantic.types.PtrFuncInfo;
-	if (this._infos.length == 1) {
-	    auto fr = cast (PureFrame) this._infos [0];
+	auto frames = getFrames ();
+	if (frames.length == 1) {
+	    auto fr = cast (PureFrame) frames [0];
 	    if (!fr) return null;
 	    auto proto = fr.validate ();
 	    Array!InfoType params;
@@ -218,8 +238,9 @@ class FunctionInfo : InfoType {
     }
     
     override InfoType TempOp (Array!Expression params) {
-	Array!Frame ret;
-	foreach (it ; this._infos) {
+	auto frames = getFrames ();
+	Array!Frame ret;	
+	foreach (it ; frames) {
 	    auto aux = it.TempOp (params);
 	    if (aux) ret.insertBack (aux);
 	}
@@ -235,12 +256,7 @@ class FunctionInfo : InfoType {
      Params:
      namespace = le contexte que l'on quitte.     
      */
-    override void quit (Namespace namespace) {
-	for (auto it = 0; it < this._infos.length; it ++) {
-	    if (this._infos [it].namespace == namespace) {		
-		this._infos.linearRemove (this._infos[it .. it + 1]);
-	    }
-	}
+    override void quit (Namespace) {
     }
 
     /**
@@ -263,7 +279,8 @@ class FunctionInfo : InfoType {
      */
     string [Word] candidates () {
 	string [Word] rets;
-	foreach (it ; this._infos) {
+	auto frames = getFrames ();
+	foreach (it ; frames) {
 	    rets [it.ident] = it.protoString;
 	}
 	return rets;

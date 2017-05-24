@@ -76,11 +76,11 @@ class UnPureFrame : Frame {
      Returns: le prototype de la frame analysé.
      */
     override FrameProto validate (Array!InfoType params) {
-	Table.instance.enterFrame (Table.instance.globalNamespace, this._name, this._function.params.length, this._isInternal);
+	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
 	Array!Var finalParams = Frame.computeParams (this._function.params, params);
-	return super.validate (Table.instance.globalNamespace, finalParams);
+	return super.validate (this._namespace, Table.instance.globalNamespace, finalParams);
     }
 
     /**

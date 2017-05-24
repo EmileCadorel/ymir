@@ -75,7 +75,6 @@ def println (f : float, i) {
 }
 
 def printf (str : string, nexts) {
-    extern (C) printf (c : ptr!char, ...);
     printf (str.ptr, expand (nexts));
 }
 

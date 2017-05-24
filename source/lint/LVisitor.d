@@ -49,7 +49,7 @@ class LVisitor {
 	auto vrai = new LLabel (new LInstList), faux = new LLabel;
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
-	auto printsName = "_Y03std5stdio5print5printPFsZv";
+	auto printsName = "_Y3std5stdio5print5printPFsZv";
 	vrai.insts += new LCall (printsName, make!(Array!LExp) (loc), LSize.NONE);
 	auto test2 = new LBinop (msg, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
 	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel;

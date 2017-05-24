@@ -1,4 +1,5 @@
 import std.traits;
+import std.algorithm.searching;
 
 def min (T) (a : T, b : T) {
     if (a < b) return a;
@@ -16,7 +17,6 @@ def clamp (val, lower, upper) {
 }
 
 def isPermutation (T) (a : [T], b : [T]) : bool {
-    import std.algorithm.searching;
     if (a.length != b.length) return false;
     for (it in 0UL .. a.length) {
 	if (count (a, a [it]) != count (b, a [it])) return false;
@@ -24,9 +24,7 @@ def isPermutation (T) (a : [T], b : [T]) : bool {
     return true;
 }
 
-
 def isPermutation  (a : string, b : string) : bool {
-    import std.algorithm.searching;
     return isPermutation (a [], b []);
 }
 

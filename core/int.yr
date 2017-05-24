@@ -1,6 +1,5 @@
 import std.traits;
 
-
 def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint))
     ('++', T) (ref a : T) {
 	static if (is (T : ulong)) a = a + 1UL;

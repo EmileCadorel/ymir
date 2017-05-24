@@ -1,5 +1,6 @@
 import std.stdio;
 import std.array;
+import std.conv;
 
 def main () {
     let a = [int; 0u];
@@ -7,7 +8,7 @@ def main () {
 	a.insertBack (it);
     }
     
-    println (a);
+    println (a.to!string);
     println (a.removeBack (), " ", a.dup (), ' ', a.back ());
     println (a.slice (4, 0ul));
 }
