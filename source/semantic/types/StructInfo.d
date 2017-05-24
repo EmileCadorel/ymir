@@ -320,7 +320,11 @@ class StructCstInfo : InfoType {
     override void quit (Namespace) {
 	InfoType.removeCreator (this._name);
     }
-      
+
+    override bool isScopable () {
+	return true;
+    }
+    
 }
 
 /**

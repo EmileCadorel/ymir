@@ -106,7 +106,10 @@ class EnumCstInfo : InfoType {
     override InfoType cloneForParam () {
 	assert (false, "Pas ici");
     }
-    
+
+    override bool isScopable () {
+	return true;
+    }    
 }
 
 

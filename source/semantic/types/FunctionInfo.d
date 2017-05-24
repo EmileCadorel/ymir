@@ -286,5 +286,10 @@ class FunctionInfo : InfoType {
 	return rets;
     }
 
+    override bool isScopable () {
+	return true;
+    }
+
+    
 }
 

@@ -81,7 +81,7 @@ class LambdaFunc : Expression {
 
 	auto token = Word (this._token.locus, "lambda_" ~ to!string (getLast ()),false);
 	
-	auto space = Table.instance.namespace ();
+	auto space = Table.instance.namespace;
 	Table.instance.enterFrame (space, token.str, this._params.length, true);
 	Table.instance.enterBlock ();
 	

@@ -192,17 +192,18 @@ class Table {
      Returns: le symbole ou null
      */
     Symbol get (string name) {
+	import std.stdio;
 	Symbol ret;
-	ulong nb;
 	Namespace last = this.namespace;
 	if (!this._frameTable.empty) {
 	    ret = this._frameTable.front () [name];
-	    if (ret) return ret;
+	    if (ret) return ret;	    
 	    
-	    foreach (it ; this._frameTable) {	    
+	    foreach (it ; this._frameTable) {
 		if (it.namespace.isAbsSubOf (last)) {
 		    ret = it [name];
-		    if (ret) return ret;
+		    if (ret && ret.isScoped) return ret;
+		    else ret = null;
 		    last = it.namespace;
 		} else if (this.namespace != last) break;
 	    }
@@ -233,7 +234,9 @@ class Table {
 	    
 	    foreach (it ; this._frameTable) {	    
 		if (it.namespace.isAbsSubOf (last)) {
-		    alls ~= it.getAll (name);
+		    auto aux = it.getAll (name);
+		    foreach (at ; aux)
+			if (at.isScoped) alls.insertBack (at);
 		    last = it.namespace;
 		} else if (this.namespace != last) break;
 	    }
@@ -265,7 +268,8 @@ class Table {
 	    foreach (it ; this._frameTable) {	    
 		if (it.namespace.isAbsSubOf (last)) {
 		    ret = it [name];
-		    if (ret) return ret;
+		    if (ret && ret.isScoped) return ret;
+		    else ret = null;
 		    last = it.namespace;
 		} else if (this.namespace != last) break;
 	    }

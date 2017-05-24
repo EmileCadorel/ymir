@@ -3,22 +3,14 @@ import std.stdio;
 import std.map;
 
 def main () {
-    let a = (a : int) => test (a);
+    
+    let b = 13;
+    let a = (a : int) {
+	return test (a);
+    };
 
-    def test (a : int) : int {
+    def test (a : int) return a * 2;
 
-	def test3 (a : int) return a - 1;
-	
-	def test2 (a : int) : int {
-	    if (a > 0)
-		return test3 (a - 1);
-	    else return 0;
-	}
-
-	if (a > 0)
-	    return test2 (a);
-	else return 0;
-    }
 
     println (a (12));
 }

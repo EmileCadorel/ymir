@@ -135,7 +135,6 @@ class Function : Declaration {
 	auto fun = new FunctionInfo (space, this._ident.str);
 	fun.set (fr);
 	auto sym = new Symbol (this._ident, fun, true);
-	sym.isScoped = true;
 	Table.instance.insert (sym);	    
     }
 

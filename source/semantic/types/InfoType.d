@@ -257,6 +257,10 @@ class InfoType {
 	return this._isStatic;
     }
 
+    bool isScopable () {
+	return false;
+    }
+    
     bool isType () {
 	return this._isType;
     }

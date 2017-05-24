@@ -133,8 +133,8 @@ class Symbol {
 	return false;
     }
 
-    ref bool isScoped () {
-	return this._scoped;
+    bool isScoped () {
+	return this._type.isScopable;
     }
     
     ref Value staticValue () {
