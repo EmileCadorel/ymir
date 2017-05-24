@@ -137,10 +137,9 @@ class Scope {
 	auto buf = new OutBuffer () ;
 	buf.write ("{");
 	foreach (key, value ; this._local) {
-	    buf.writef ("\t%s => {", key);
-	    foreach (it ; value)
-		buf.writef ("%s,", it.type.typeString);
-	    buf.writefln ("}");
+	    buf.writef ("\t%s => {%d}", key, value.length);
+	    //foreach (it ; value)
+	    //	buf.writef ("%s,", it.type.typeString);
 	}
 	buf.write ("}");
 	return buf.toString;

@@ -1,15 +1,9 @@
-
-def test2 (T) (ref a: [T]) {
-}
-
-def test (T) (ref a : [T]) {
-    test2 (a);
-}
-
+import std.algorithm.iteration;
+import std.stdio;
 
 def main () {
-    let a = [12];
-    test (a);
+    let a = [1, 2, 4];
+    println (a.map!"a + 1".reduce!"a + b");
 }
 
 

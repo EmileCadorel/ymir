@@ -1,3 +1,5 @@
+import std.traits;
+
 def scan (T) (a : [T], call : function (T, T) : T) : [T] {
     let b = [T ; a.length];
     if (b.length == 0UL) return b;

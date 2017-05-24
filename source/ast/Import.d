@@ -51,9 +51,9 @@ class Import : Declaration {
 		} catch (YmirException) {
 		    throw new ImportError (it);
 		}
-	    } else {
-		Table.instance.openModuleForSpace (space, globSpace);
-	    }
+	    } 
+
+	    Table.instance.openModuleForSpace (space, globSpace);	    
 	    Table.instance.resetCurrentSpace (globSpace);
 	}	
     }
@@ -83,11 +83,10 @@ class Import : Declaration {
 		} catch (YmirException) {
 		    throw new ImportError (it);
 		}
-	    } else {
-		Table.instance.openModuleForSpace (space, globSpace);
-	    }
+	    } 
+	    Table.instance.openModuleForSpace (space, globSpace);	    
+	    Table.instance.resetCurrentSpace (globSpace);
 	}	
-	Table.instance.resetCurrentSpace (globSpace);
     }
 
     override Declaration templateReplace (Expression [string]) {

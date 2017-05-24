@@ -316,7 +316,7 @@ class Table {
 	foreach (it ; this._importation) {
 	    if (it.authorized (space)) {
 		alls.insertBack (it);
-	    }	    
+	    }
 	}
 	return alls;
     }

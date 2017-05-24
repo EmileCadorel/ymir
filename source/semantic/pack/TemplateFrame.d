@@ -271,7 +271,7 @@ class TemplateFrame : Frame {
     	    }
     	    Frame ret;
 
-    	    if (!this._isPure) ret = new UnPureFrame (Table.instance.globalNamespace, func);
+    	    if (!this._isPure) ret = new UnPureFrame (this._namespace, func);
     	    else if (this._isExtern) ret = new ExternFrame (this._namespace, func);
     	    else ret = new PureFrame (this._namespace, func);
 
