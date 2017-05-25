@@ -32,62 +32,61 @@ class Import : Declaration {
     override void declare () {
 	auto globSpace = Table.instance.namespace;
 	foreach (it ; this._params) {
-	    auto space = new Namespace (it.str);
-	    if (!Table.instance.moduleExists (space)) {
-		try {
-		    string name = it.str ~ ".yr";
-		    if (!exists (name)) {
-			string path = Options.instance.getPath ();
-			if (path[$ - 1] != '/') path ~= "/";
-			name = path ~ it.str ~ ".yr";
-			if (!exists (name))
-			    throw new ImportError (it);
-		    }
+	    try {
+		string name = it.str ~ ".yr";
+		if (!exists (name)) {
+		    string path = Options.instance.getPath ();
+		    if (path[$ - 1] != '/') path ~= "/";
+		    name = path ~ it.str ~ ".yr";
+		    if (!exists (name))
+			throw new ImportError (it);
+		}
+		auto space = new Namespace (it.str);
+		if (!Table.instance.moduleExists (space)) { 
 		    auto visitor = new Visitor (name);
 		    auto mod = Table.instance.addModule (space);
 		    mod.addOpen (globSpace);
 		    auto prog = visitor.visit ();
-		    prog.declareAsExtern (mod);
-		} catch (YmirException err) {
-		    err.print;
-		    throw new ImportError (it);
+		    prog.declareAsExtern (it.str, mod);
 		}
-	    } 
-
-	    Table.instance.openModuleForSpace (space, globSpace);	    
-	    Table.instance.resetCurrentSpace (globSpace);
+		Table.instance.openModuleForSpace (space, globSpace);	    
+		Table.instance.resetCurrentSpace (globSpace);
+	    } catch (YmirException err) {
+		err.print;
+		throw new ImportError (it);
+	    }
 	}	
     }
            
     override void declareAsExtern (Module mod_) {
 	auto globSpace = Table.instance.namespace;
 	foreach (it ; this._params) {
-	    auto space = new Namespace (it.str);
-	    if (!Table.instance.moduleExists (space)) {
-		try {
-		    string name = it.str ~ ".yr";
-		    if (!exists (name)) {
-			string path = Options.instance.getPath ();
-			if (path[$ - 1] != '/') path ~= "/";
-			name = path ~ it.str ~ ".yr";
-			if (!exists (name))
-			    throw new ImportError (it);
-		    }
+	    try {
+		string name = it.str ~ ".yr";
+		if (!exists (name)) {
+		    string path = Options.instance.getPath ();
+		    if (path[$ - 1] != '/') path ~= "/";
+		    name = path ~ it.str ~ ".yr";
+		    if (!exists (name))
+			throw new ImportError (it);
+		}
+		auto space = new Namespace (it.str);
+		if (!Table.instance.moduleExists (space)) { 
 		    auto visitor = new Visitor (name);
 		    auto mod = Table.instance.addModule (space);
 		    mod.addOpen (globSpace);
 		    auto prog = visitor.visit ();
-		    prog.declareAsExtern (mod);
+		    prog.declareAsExtern (it.str, mod);		    
 		    if (this._isPublic) {
 			mod_.addPublicOpen (mod.space);
 		    }
-		} catch (YmirException err) {
-		    err.print;
-		    throw new ImportError (it);
-		}
-	    } 
-	    Table.instance.openModuleForSpace (space, globSpace);	    
-	    Table.instance.resetCurrentSpace (globSpace);
+		}		
+		Table.instance.openModuleForSpace (space, globSpace);	    
+		Table.instance.resetCurrentSpace (globSpace);
+	    } catch (YmirException err) {
+		err.print;
+		throw new ImportError (it);
+	    }	     
 	}	
     }
 

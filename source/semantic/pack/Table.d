@@ -375,6 +375,14 @@ class Table {
 	openModuleForSpace (from, to, dones);
     }
     
+    Array!Namespace modules () {
+	Array!Namespace spaces;
+	foreach (it ; this._importation) {
+	    spaces.insertBack (it.space);
+	}
+	return spaces;
+    }    
+
     /**
      Supprime tous imports reçu
      */

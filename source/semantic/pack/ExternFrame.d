@@ -62,7 +62,7 @@ class ExternFrame : Frame {
      params = les paramètres passé à l'appel de la fonction
      Returns: le score d'application (null si non applicable)
      */
-    private ApplicationScore isApplicableVariadic (ParamList params) {
+    private ApplicationScore isApplicableVariadic (ParamList params) {	
 	auto ftypes = params.paramTypes;
 	Array!InfoType types;
 	if (ftypes.length >= this._proto.params.length)	    
@@ -109,9 +109,9 @@ class ExternFrame : Frame {
      */
     FrameProto validateFunc () {	
 	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
-	Array!Var finalParams = Frame.computeParams (this._function.params);
-	
+	Array!Var finalParams = Frame.computeParams (this._function.params);       
 	Table.instance.setCurrentSpace (this._namespace, this._name);
+	
 	if (this._function.type is null) {
 	    Table.instance.retInfo.info = new Symbol (Word.eof, new VoidInfo ());
 	} else {

@@ -1,18 +1,12 @@
-
 import std.stdio;
 import std.map;
 
 def main () {
     
-    let b = 13;
-    let a = (a : int) {
-	return test (a);
-    };
-
-    def test (a : int) return a * 2;
-
-
-    println (a (12));
+    let a = map!(string, int) ();
+    a ['salut'] = 12;
+    let it = 'salut' in a;        
+    println (*it);
 }
 
 

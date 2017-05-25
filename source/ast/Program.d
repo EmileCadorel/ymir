@@ -49,8 +49,7 @@ class Program {
     /**
      Declare toutes les informations dans la table des symboles comme étant des éléments externes.
      */
-    void declareAsExtern (Module mod) {
-	string name = this._locus.locus.file;
+    void declareAsExtern (string name, Module mod) {
 	if (name.extension == ".yr")
 	    name = name [0 .. name.lastIndexOf (".")];
 	Table.instance.setCurrentSpace (null, Mangler.mangle!"file" (name));
@@ -64,6 +63,10 @@ class Program {
 	foreach (it ; this._decls) {
 	    it.declareAsExtern (mod);
 	}
+    }
+
+    void file (string locus) {
+	this._locus.locus.file = locus;
     }
     
     /**
