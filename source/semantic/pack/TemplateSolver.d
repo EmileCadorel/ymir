@@ -11,6 +11,10 @@ import std.conv;
  Une solution de résolution template
  */
 struct TemplateSolution {
+
+    /// Score de la spécialisation de template
+    long score;
+    
     /// La solution est valide
     bool valid;
 
@@ -28,6 +32,33 @@ alias TemplateSolver = TemplateSolverS.instance;
  */
 class TemplateSolverS {
 
+    private immutable ulong __VAR__ = 1;
+    private immutable ulong __ARRAY__ = 2;
+    private immutable ulong __FUN__ = 1;
+    
+    
+    /**
+     Fusionne deux instances de solutions de templates
+     Params:
+     left = les types inféré en premier
+     right = les nouveau types a inséré
+     Returns: les solutions sont complémentaire ?
+     */
+    bool merge (ref long score, ref Expression [string] left, TemplateSolution right) {
+	foreach (key, value ; right.elements) {
+	    if (auto inside = key in left) {
+		auto ltype = cast (Type) *inside;
+		auto rtype = cast (Type) value;
+		if (!ltype || !rtype || !ltype.info.type.isSame (rtype.info.type))
+		    return false;		
+	    } else {
+		left [key] = value;
+	    }
+	}
+
+	score += right.score;	
+	return true;
+    }    
 
     /**
      Fusionne deux instances de solutions de templates
@@ -36,7 +67,7 @@ class TemplateSolverS {
      right = les nouveau types a inséré
      Returns: les solutions sont complémentaire ?
      */
-    bool merge (ref Expression [string] left, Expression [string] right) {
+    bool merge (ref long score, ref Expression [string] left, Expression [string] right) {
 	foreach (key, value ; right) {
 	    if (auto inside = key in left) {
 		auto ltype = cast (Type) *inside;
@@ -73,13 +104,13 @@ class TemplateSolverS {
 		return solve (tmps, arr, type);
 	    } else {
 		Array!Expression types;
-		auto soluce = TemplateSolution (true);
+		auto soluce = TemplateSolution (0, true);
 		foreach (it ; 0 .. typed.type.templates.length) {
 		    if (auto var = cast (Var) typed.type.templates [it]) {
-			if (!type.getTemplate (it)) return TemplateSolution (false);
+			if (!type.getTemplate (it)) return TemplateSolution (0, false);
 			auto res = this.solveInside (tmps, var, type.getTemplate (it));
-			if (!res.valid || !merge (soluce.elements, res.elements))
-			    return TemplateSolution (false);
+			if (!res.valid || !merge (soluce.score, soluce.elements, res))
+			    return TemplateSolution (0, false);
 			types.insertBack (new Type (var.token, res.type));
 		    }
 		}
@@ -92,8 +123,8 @@ class TemplateSolverS {
 				res = solve (tmps, of, typed, type);
 			    else 
 				res = solve (var, typed, type);
-			    if (!res.valid || !merge (soluce.elements, res.elements))
-				return TemplateSolution (false);
+			    if (!res.valid || !merge (soluce.score, soluce.elements, res))
+				return TemplateSolution (0, false);
 			    else {
 				soluce.type = res.type;
 				return soluce;
@@ -103,10 +134,11 @@ class TemplateSolverS {
 		}
 		
 		soluce.type = new Var (typed.type.token, types).asType.info.type;
+		soluce.score += __VAR__;
 		return soluce;
 	    }
 	}
-	return TemplateSolution (true);
+	return TemplateSolution (0, true);
     }
 
     /**
@@ -123,13 +155,13 @@ class TemplateSolverS {
 	} else {
 	    
 	    Array!Expression types;
-	    auto soluce = TemplateSolution (true);
+	    auto soluce = TemplateSolution (0, true);
 	    foreach (it ; 0 .. param.templates.length) {
 		if (auto var = cast (Var) param.templates [it]) {
-		    if (!type.getTemplate (it)) return TemplateSolution (false);
+		    if (!type.getTemplate (it)) return TemplateSolution (0, false);
 		    auto res = this.solveInside (tmps, var, type.getTemplate (it));
-		    if (!res.valid || !merge (soluce.elements, res.elements))
-			return TemplateSolution (false);
+		    if (!res.valid || !merge (soluce.score, soluce.elements, res))
+			return TemplateSolution (0, false);
 		    types.insertBack (new Type (var.token, res.type));
 		}
 	    }
@@ -142,16 +174,18 @@ class TemplateSolverS {
 			    res = solve (tmps, of, param, type);
 			else
 			    res = solve (var, param, type);
-			if (!res.valid || !merge (soluce.elements, res.elements))
-			    return TemplateSolution (false);
+			if (!res.valid || !merge (soluce.score, soluce.elements, res))
+			    return TemplateSolution (0, false);
 			else {
 			    soluce.type = res.type;
 			    return soluce;
 			}
 		    }
 		} 
-	    }	
+	    }
+	    
 	    soluce.type = new Var(param.token, types).asType.info.type;
+	    soluce.score += __VAR__;
 	    return soluce;
 	}
     }
@@ -179,14 +213,14 @@ class TemplateSolverS {
 	if (!cast (ArrayInfo) type) {
 	    if (auto ptr = cast (RefInfo) type) {
 		if (!cast (ArrayInfo) ptr.content)
-		    return TemplateSolution (false);
+		    return TemplateSolution (0, false);
 	    } else
-		return TemplateSolution (false);
+		return TemplateSolution (0, false);
 	}
 	
 	auto content = param.content;
 	auto type_ = type.getTemplate (0);
-	if (type_ is null) return TemplateSolution (false);
+	if (type_ is null) return TemplateSolution (0, false);
 	
 	TemplateSolution res;
 	if (auto var = cast (Var) content)
@@ -195,8 +229,8 @@ class TemplateSolverS {
 	    res = this.solveInside (tmps, cast (FuncPtr) content, type_);
 	    
 	if (res.valid)
-	    return TemplateSolution (true, type.cloneForParam, res.elements);
-	return TemplateSolution (false);
+	    return TemplateSolution (res.score, true, type.cloneForParam, res.elements);
+	return TemplateSolution (0, false);
     }
 
 
@@ -215,27 +249,28 @@ class TemplateSolverS {
 	
 	auto func = cast (PtrFuncInfo) type;
 	auto ptr = cast (FuncPtr) param;
-	if (!func || !ptr) return TemplateSolution (false);
+	if (!func || !ptr) return TemplateSolution (0, false);
 
 	Array!InfoType types;       
-	auto soluce = TemplateSolution (true);
+	auto soluce = TemplateSolution (0, true);
 	foreach (it ; 0 .. ptr.params.length) {
 	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it));
-	    if (!res.valid || !merge (soluce.elements, res.elements))
-		return TemplateSolution (false);
+	    if (!res.valid || !merge (soluce.score, soluce.elements, res))
+		return TemplateSolution (0, false);
 	    types.insertBack (res.type);
 	}
 	
 	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
-	if (!res.valid || !merge (soluce.elements, res.elements))
-	    return TemplateSolution (false);
+	if (!res.valid || !merge (soluce.score, soluce.elements, res))
+	    return TemplateSolution (0, false);
 
 	auto aux = new PtrFuncInfo ();
 	aux.params = types;
 	aux.ret = res.type;
 
-	if (!func.CompOp (aux)) return TemplateSolution (false);	
+	if (!func.CompOp (aux)) return TemplateSolution (0, false);	
 	soluce.type = type.cloneForParam;
+	soluce.score += __FUN__;
 	return soluce;
     }            
 
@@ -244,23 +279,24 @@ class TemplateSolverS {
 	import semantic.types.PtrFuncInfo;
 	auto func = cast (PtrFuncInfo) type;
 	Array!InfoType types;
-	auto soluce = TemplateSolution (true);
+	auto soluce = TemplateSolution (0, true);
 	foreach (it ; 0 .. ptr.params.length) {
 	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it));
-	    if (!res.valid || !merge (soluce.elements, res.elements))
-		return TemplateSolution (false);
+	    if (!res.valid || !merge (soluce.score, soluce.elements, res))
+		return TemplateSolution (0, false);
 	    types.insertBack (res.type);
 	}
 
 	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
-	if (!res.valid || !merge (soluce.elements, res.elements))
-	    return TemplateSolution (false);
+	if (!res.valid || !merge (soluce.score, soluce.elements, res))
+	    return TemplateSolution (0, false);
 	auto aux = new PtrFuncInfo ();
 	aux.params = types;
 	auto ret = res.type;
 	
-	if (!func.CompOp (aux)) return TemplateSolution (false);
+	if (!func.CompOp (aux)) return TemplateSolution (0, false);
 	soluce.type = type.cloneForParam;
+	soluce.score += __FUN__;
 	return soluce;
     }
 
@@ -274,11 +310,11 @@ class TemplateSolverS {
      Returns: le tableau associatif des nouvelles expressions
      */
     private TemplateSolution solve (Var elem, Var param, InfoType type) {
-	if (auto tv = cast (TypedVar) elem) return TemplateSolution (false);
-	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (false);
+	if (auto tv = cast (TypedVar) elem) return TemplateSolution (0, false);
+	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (0, false);
 		
 	auto type_ = type.cloneForParam;
-	return TemplateSolution (true, type_, [elem.token.str : new Type (param.token, type_)]);
+	return TemplateSolution (__VAR__, true, type_, [elem.token.str : new Type (param.token, type_)]);
     }
     
     /**
@@ -290,11 +326,11 @@ class TemplateSolverS {
      Returns: le tableau associatif des nouvelles expressions
      */
     private TemplateSolution solve (Var elem, TypedVar param, InfoType type) {
-	if (auto tv = cast (TypedVar) elem) return TemplateSolution (false);
-	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (false);
+	if (auto tv = cast (TypedVar) elem) return TemplateSolution (0, false);
+	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (0, false);
 
 	auto type_ = type.cloneForParam;
-	return TemplateSolution (true, type_, [elem.token.str : new Type (param.type.token, type_)]);
+	return TemplateSolution (__VAR__, true, type_, [elem.token.str : new Type (param.type.token, type_)]);
     }
 
 
@@ -318,15 +354,17 @@ class TemplateSolverS {
 	else typeVar = param;
 	
 	auto res = this.solveInside (tmps, elem.type, type);
-	if (!res.valid || !res.type.CompOp (type)) return TemplateSolution (false);
+	if (!res.valid || !res.type.CompOp (type)) return TemplateSolution (0, false);
 	else {
 	    res.type = type;
 	    if (!merge
-		(res.elements,
+		(res.score,
+		 res.elements,
 		 [elem.token.str : new Type (typeVar.token, type.cloneForParam)]
 		)
 	    )
-		return TemplateSolution (false);
+		return TemplateSolution (0, false);
+	    res.score += __VAR__;
 	    return res;
 	}
     }    
@@ -346,8 +384,8 @@ class TemplateSolverS {
      Returns: le tableau associatif des nouvelles expressions
      */    
     TemplateSolution solve (Array!Expression tmps, Array!Expression params) {
-	auto soluce = TemplateSolution (true);
-	if (tmps.length < params.length) return TemplateSolution (false);
+	auto soluce = TemplateSolution (0, true);
+	if (tmps.length < params.length) return TemplateSolution (0, false);
 	foreach (it ; 0 .. params.length) {
 	    TemplateSolution res;
 	    if (auto v = cast (Var) tmps [it]) {
@@ -356,8 +394,8 @@ class TemplateSolverS {
 		res = this.solveInside (tmps, tmps [it] , params [it]); 
 	    }
 	    
-	    if (!res.valid || !merge (soluce.elements, res.elements))
-		return TemplateSolution (false);	    
+	    if (!res.valid || !merge (soluce.score, soluce.elements, res))
+		return TemplateSolution (0, false);	    
 	}
 	
 	return soluce;
@@ -389,7 +427,7 @@ class TemplateSolverS {
 	    return this.solveInside (tmps, of, right);
 	} else if (auto type = cast (Type) right) {
 	    return this.solveInside (left, type);
-	} else return TemplateSolution (false);
+	} else return TemplateSolution (0, false);
     }
 
     /**
@@ -404,7 +442,7 @@ class TemplateSolverS {
 	auto type = right.info.type;
 	auto clo = right.clone ();
 	clo.info.type = clo.info.type.cloneForParam ();
-	return TemplateSolution (true, type, [left.token.str : clo]);
+	return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
     }    
 
     /**
@@ -418,20 +456,21 @@ class TemplateSolverS {
      */
     private TemplateSolution solveInside (Array!Expression tmps, OfVar left, Expression right) {
 	auto type = cast (Type) right;
-	if (!type) return TemplateSolution (false);
+	if (!type) return TemplateSolution (0, false);
 
 	auto res = this.solveInside (tmps, left.type, type.info.type);
-	if (!res.valid || !res.type.CompOp (type.info.type)) return TemplateSolution (false);
+	if (!res.valid || !res.type.CompOp (type.info.type)) return TemplateSolution (0, false);
 	else {
 	    auto clo = type.clone ();
 	    clo.info.type = clo.info.type.cloneForParam ();
 	    res.type = type.info.type.cloneForParam;
 	    if (!merge
-		(res.elements,
+		(res.score,
+		 res.elements,
 		 [left.token.str : clo]
 		)
 	    )
-		return TemplateSolution (false);
+		return TemplateSolution (0, false);
 	    return res;
 	}
     }
@@ -450,12 +489,12 @@ class TemplateSolverS {
 	if (!right.info.isImmutable) throw new NotImmutable (right.info);
 	
 	auto res = this.solveInside (tmps, left.type, type);
-	if (!res.valid) return TemplateSolution (false);
+	if (!res.valid) return TemplateSolution (0, false);
 
-	if (!type.isSame (res.type)) return TemplateSolution (false);
+	if (!type.isSame (res.type)) return TemplateSolution (0, false);
 	
-	if (!merge (res.elements, [left.token.str : right.clone ()]))
-	    return TemplateSolution (false);
+	if (!merge (res.score, res.elements, [left.token.str : right.clone ()]))
+	    return TemplateSolution (0, false);
 	return res;
     }
 
@@ -487,12 +526,12 @@ class TemplateSolverS {
 	    auto op = Word.eof;
 	    op.str = Tokens.DEQUAL.descr;			    
 	    res = elem.info.type.BinaryOp (op, right.info.type);
-	    if (!res || !res.value) return TemplateSolution (false);
+	    if (!res || !res.value) return TemplateSolution (0, false);
 	}
 	
 	auto b = cast (BoolValue) res.value;
 	if (!b || !b.isTrue) 
-	    return TemplateSolution (false);
+	    return TemplateSolution (0, false);
 
 	auto it = 0;
 	foreach (et ; tmps) {
@@ -500,7 +539,7 @@ class TemplateSolverS {
 	    else it++;
 	}
 
-	return TemplateSolution (true, elem.info.type, [it.to!string : right.clone()]);	
+	return TemplateSolution (__VAR__, true, elem.info.type, [it.to!string : right.clone()]);	
     }    
     
     /**

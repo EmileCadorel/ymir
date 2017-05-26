@@ -1,12 +1,17 @@
 import std.stdio;
 import std.map;
 
+def foo (T of [U], U) (a : T) {
+    println ('la');
+}
+
+def foo (T) (a : T) {
+    println ('ici');
+}
+
+
 def main () {
-    
-    let a = map!(string, int) ();
-    a ['salut'] = 12;
-    let it = 'salut' in a;        
-    println (*it);
+    foo ([1, 2]);
 }
 
 

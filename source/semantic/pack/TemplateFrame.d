@@ -99,7 +99,7 @@ class TemplateFrame : Frame {
 		if (auto tvar = cast (TypedVar) param) {
 		    this._changed = false;
 		    TemplateSolution res = TemplateSolver.solve (this._function.tmps, tvar, args [it]);		    
-		    if (!res.valid || !TemplateSolver.merge (tmps, res.elements)) return null;
+		    if (!res.valid || !TemplateSolver.merge (score.score, tmps, res)) return null;
 		    
 		    info = res.type;
 		    if (tvar.deco == Keys.REF && !cast (RefInfo) info) info = new RefInfo (info);		    
@@ -276,12 +276,12 @@ class TemplateFrame : Frame {
     	    else ret = new PureFrame (this._namespace, func);
 
 	    
-    	    ret.currentScore = this._currentScore;
+    	    ret.currentScore = this._currentScore + cast (int) res.score;
     	    return ret;
     	} else {
     	    func.tmps = TemplateSolver.unSolved (this._function.tmps, res);
     	    auto aux = new TemplateFrame (this._namespace, func);
-    	    aux._currentScore = this._currentScore;
+    	    aux._currentScore = this._currentScore + cast (int) res.score;
     	    aux._isPure = this._isPure;
     	    aux._isExtern = this._isExtern;
     	    return aux;
