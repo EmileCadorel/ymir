@@ -16,8 +16,9 @@ class Scope {
 
     /** Les symboles à détruire en fin de scope */
     Array!Symbol _garbage;    
-    
-    Array!string _imports;
+
+    /++ La table des modules importés +/
+    Array!Namespace _imports;
 
     this () {}
 
@@ -38,19 +39,14 @@ class Scope {
 	    return *it;
 	} else return make!(Array!Symbol);
     }
-    
-    void addImport (string name) {
-	this._imports.insertBack (name);
-    }
 
-    bool wasImported (string name) {
-	foreach (it ; this._imports)
-	    if (it == name) return true;
-	return false;
-    }
-
-    void clearImport () {
-	this._imports.clear ();
+    /++
+     Ajoute un import dans la table des import locaux.
+     Params:
+     space = le namespace du module.
+     +/
+    void addOpen (Namespace space) {
+	this._imports.insertBack (space);
     }
     
     /**
@@ -125,10 +121,18 @@ class Scope {
      Returns: La liste des symboles a détruire
      */
     Array!Symbol quit (Namespace namespace) {
+	import semantic.pack.Table;
+	import std.stdio;
+	
 	foreach (key, value; this._local) {
 	    foreach (it; value)
 		it.quit (namespace);
 	}
+
+	foreach (space ; this._imports) {		
+	    Table.instance.closeModuleForSpace (space, namespace);
+	}
+
 	return this._garbage;
     }
 

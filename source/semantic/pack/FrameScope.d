@@ -389,20 +389,13 @@ class FrameScope {
 	this._retInfo.enterBlock ();
     }
 
+    /++
+     Ajoute l'import dans la table des import du block courant.
+     +/
+    void addOpen (Namespace space) {	
+	this._local.front.addOpen (space);	
+    }    
     
-    void addImport (string name) {
-	if (!this._local.empty) {
-	    this._local.front.addImport (name);	    
-	}
-    }
-
-    bool wasImported (string name) {
-	foreach (it ; this._local) {
-	    if (it.wasImported (name)) return true;
-	}
-	return false;
-    }
-
     ref bool isInternal () {
 	return this._isInternal;
     }    

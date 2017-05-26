@@ -354,6 +354,9 @@ class Table {
     
     /++
      Ouvre le module de namespace from pour le module de namespace to.
+     Params:
+     from = le namspace qui va être ouvert
+     to = le namespace qui va obtenir l'accés
      +/
     void openModuleForSpace (Namespace from, Namespace to) {
 	Array!Namespace dones;
@@ -363,6 +366,7 @@ class Table {
 		if (it.space == from) {
 		    dones.insertBack (it.space);
 		    it.addOpen (to);
+		    if (!this._frameTable.empty) this._frameTable.front.addOpen (it.space);
 		    foreach (mt ; it.publicOpens) {
 			dones.insertBack (mt);
 			openModuleForSpace (mt, to, dones);
@@ -372,9 +376,30 @@ class Table {
 		}
 	    }
 	}
+	
 	openModuleForSpace (from, to, dones);
     }
-    
+
+
+    /++
+     Ferme le module pour le namespace
+     Params:
+     from = le namespace qui va fermer le scope
+     to = le namespace qui va perdre l'accés.     
+     +/
+    void closeModuleForSpace (Namespace from, Namespace to) {
+	foreach (it ; this._importation) {
+	    if (it.space == from) {
+		it.close (to);
+		break;
+	    }
+	}
+    }
+
+    /++ 
+     La liste des modules connu de la table des symbole.
+     Returns: les namespaces de chacun des modules.
+     +/
     Array!Namespace modules () {
 	Array!Namespace spaces;
 	foreach (it ; this._importation) {
@@ -382,13 +407,6 @@ class Table {
 	}
 	return spaces;
     }    
-
-    /**
-     Supprime tous imports reçu
-     */
-    void clearImport () {
-	this._globalScope.clearImport ();
-    }
 
     /**
      On a déja importé ce module ?

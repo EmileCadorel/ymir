@@ -52,12 +52,20 @@ class Module {
     }
 
     /++
-     Ajoute un namespace qui à le droit d'accéder au module
+     Ajoute un namespace qui a le droit d'accéder au module
      +/
     void addOpen (Namespace space) {
 	this._opens.insertBack (space);
     }
 
+    /++
+     Supprime un namespace qui a le droit d'accéder au module
+     +/
+    void close (Namespace space) {
+	import std.algorithm;
+	this._opens.linearRemove (this._opens [].find (space));
+    }
+    
     /++
      Ajoute un namespace qui à le droit d'accéder au module depuis un import public.
      +/

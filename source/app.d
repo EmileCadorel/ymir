@@ -141,7 +141,6 @@ void main (string [] args) {
 	foreach (file ; Options.instance.inputFiles) {	
 	    FrameTable.instance.pures.clear ();
 	    FrameTable.instance.finals.clear ();
-	    Table.instance.clearImport ();
 	    FrameTable.instance.structs.clear ();
 	    
 	    semanticTime (file);
