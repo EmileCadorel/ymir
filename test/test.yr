@@ -1,10 +1,11 @@
 
-def main () {    
-    {
-	import std.stdio;
-    }
-    
-    println ("ici");
+def foo (T) () {
+    return 10;
+}
+
+
+def main () {        
+    let a = foo!int;
 }
 
 

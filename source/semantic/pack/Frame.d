@@ -89,7 +89,7 @@ class Frame {
 		auto var = attr [it].setType (params [it]);   
 		finalParams.insertBack (var.expression);
 	    } else {
-		finalParams.insertBack (attr [it].expression);
+		finalParams.insertBack (attr [it].var);
 	    }
 	    finalParams.back ().info.id = it + 1;
 	}
@@ -100,7 +100,7 @@ class Frame {
     static Array!Var computeParams (Array!Var params) {
 	Array!Var finalParams;
 	foreach (it ; 0 .. params.length) {
-	    auto info = params [it].expression;
+	    auto info = params [it].var;
 	    finalParams.insertBack (info);
 	    finalParams.back.info.id = it + 1;
 	}

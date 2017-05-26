@@ -9,6 +9,7 @@ import ast.FuncPtr;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
 import semantic.types.StructInfo;
+import ast.Par, ast.ParamList;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -61,7 +62,7 @@ class Var : Expression {
      Il peut être un type, une fonction, une structure ...
      Throws: UndefinedVar, si l'identifiant n'existe pas
      */
-    override Var expression () {
+    override Expression expression () {
 	if (this._info && this._info.isImmutable)
 	    return this;
 	if (!isType) {
@@ -85,10 +86,52 @@ class Var : Expression {
 		
 		aux.templates = tmps;
 		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);
+
+		if (!cast (Par) this._inside) {
+		    auto params = new ParamList (this._token, make!(Array!Expression));
+		    auto call = new Par (this._token, this._token, aux, params);
+		    return call.expression;
+		}
+		
 	    }
 	    return aux;	
 	} else return asType ();
     }
+
+    /**
+     Vérification sémantique.
+     Pour être juste le symbole de l'identifiant doit éxister.
+     Il peut être un type, une fonction, une structure ...
+     Throws: UndefinedVar, si l'identifiant n'existe pas
+     */
+    Var var () {
+	if (this._info && this._info.isImmutable)
+	    return this;
+	if (!isType) {
+	    auto aux = new Var (this._token);	    
+	    aux.info = Table.instance.get (this._token.str);
+	    if (aux.info is null) 
+		throw new UndefinedVar (this._token, Table.instance.getAlike (this._token.str));
+	    
+	    if (this._templates.length != 0) {
+		Table.instance.pacifyMode ();
+		auto id = aux.info.id;
+		Array!Expression tmps;
+		foreach (it ; this._templates) {
+		    tmps.insertBack (it.expression ());
+		}
+		Table.instance.unpacifyMode ();
+		
+		auto type = aux.info.type.TempOp (tmps);
+		if (type is null)
+		    throw new NotATemplate (this._token, tmps);
+		
+		aux.templates = tmps;
+		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);	
+	    }
+	    return aux;	
+	} else return asType ();
+    }    
     
     override void removeGarbage () {
 	super.removeGarbage ();
@@ -288,6 +331,13 @@ class ArrayVar : Var {
 	}
     }
 
+    /++
+     alias expression ();
+     +/
+    override Var var () {
+	return this.expression ();
+    }
+    
     override Var templateExpReplace (Expression [string] values) {
 	auto cont = this._content.templateExpReplace (values);
 	return new ArrayVar (this._token, 
@@ -401,6 +451,14 @@ class TypedVar : Var {
 	}
     }
 
+    /++ 
+     alias expression ();
+     +/
+    override Var var () {
+	return this.expression ();
+    }
+
+    
     override void removeGarbage () {
 	super.removeGarbage ();
 	if (this._type) this._type.removeGarbage ();
@@ -482,6 +540,13 @@ class Type : Var {
     }
 
     override Type expression () {
+	return this.clone ();
+    }
+
+    /++
+     alias expression ();
+     +/
+    override Type var () {
 	return this.clone ();
     }
 
