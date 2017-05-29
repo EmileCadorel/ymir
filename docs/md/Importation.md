@@ -4,7 +4,7 @@
 Ymir propose un système de module. Chaque fichier correspond à un module importable.
 L'importation de module se fait avec la syntaxe.
 
-```D
+```Rust
 // Les chemins des fichiers sont relatif à l'emplacement de la compilation.  
 import path.to.file, path.to.second.file; 
 
@@ -17,56 +17,55 @@ Les imports de fichiers  ne sont pas récursifs.
 
  - test2.yr:
 
- ```D
- def test () {
-     println ("Hello World!!");
- }
- ```
+```Rust
+def test () {
+    println ("Hello World!!");
+}
+```
  - test.yr:
 
- ```D
- import test2;
- ```
+```Rust
+import test2;
+```
  - main.yr:
 
- ```D
- import test;
+```Rust
+import test;
+ 
+def main () {
+    test (); // erreur, la fonction test n'existe pas.
+}
+```
 
- def main () {
-     test (); // erreur, la fonction test n'existe pas.
- }
- ```
 
-<br>
 ## Import public
 -----------------
 
 les imports dit publics, sont des imports récursifs.
 
-
  - test2.yr:
 
- ```D
- def test () {
-     println ("Hello World!!");
- }
- ```
+```Rust
+def test () {
+    println ("Hello World!!");
+}
+```
  - test.yr:
 
- ```D
- public import test2;
- ```
+```Rust
+public import test2;
+```
  - main.yr:
 
- ```D
- import test;
+```Rust
+import test;
 
- def main () {
-     test (); // Ok, 'Hello World!!'
- }
- ```
+def main () {
+    test (); // Ok, 'Hello World!!'
+}
+```
 
-<br>
+
 ## Block privé et public
 -------------------------
 
@@ -74,29 +73,29 @@ Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accessi
 
 - module1.yr
 
-```D
- private {
+```Rust
+private {
 
-     def foo () {
-	 println ("Foo");
-     }
+	def foo () {
+		println ("Foo");
+    }
      
- }
+}
 
- def test () {
-    foo ();
- }
+def test () {
+   foo ();
+}
 ```
 
 - module2.yr
 
 
-```D
+```Rust
 import module1;
 
 foo (); // Erreur, foo n'existe pas
 test (); // Ok, 'Foo'
-    ```
+```
 
- <br>
+ 
 Les fonctions externes et les imports sont privés par défaut, contrairement aux fonctions (pures ou impures) et aux structures.

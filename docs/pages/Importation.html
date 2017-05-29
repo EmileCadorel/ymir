@@ -15,67 +15,66 @@
 <p>Ymir propose un système de module. Chaque fichier correspond à un module importable.
 L&#39;importation de module se fait avec la syntaxe.</p>
 <pre class="hljs"><code><span class="hljs-comment">// Les chemins des fichiers sont relatif à l'emplacement de la compilation.  </span>
-<span class="hljs-keyword">import</span> path.to.file, path.to.second.file; 
+import path.to.file, path.to.second.file; 
 
 <span class="hljs-comment">// importation du fichier $PWD/path/to/file.yr</span>
 <span class="hljs-comment">// et importation du fichier $PWD/path/to/second/file.yr</span></code></pre><p>Les imports de fichiers  ne sont pas récursifs.</p>
 <ul class="list">
-<li><p>test2.yr:</p>
+<li>test2.yr:</li>
+</ul>
 <pre class="hljs"><code>def test () {
-  println (<span class="hljs-string">"Hello World!!"</span>);
-}</code></pre></li>
-<li><p>test.yr:</p>
-<pre class="hljs"><code><span class="hljs-keyword">import</span> test2;</code></pre></li>
-<li><p>main.yr:</p>
-<pre class="hljs"><code><span class="hljs-keyword">import</span> test;
+    println (<span class="hljs-string">"Hello World!!"</span>);
+}</code></pre><ul class="list">
+<li>test.yr:</li>
+</ul>
+<pre class="hljs"><code>import test2;</code></pre><ul class="list">
+<li>main.yr:</li>
+</ul>
+<pre class="hljs"><code>import test;
 
 def main () {
-  test (); <span class="hljs-comment">// erreur, la fonction test n'existe pas.</span>
-}</code></pre></li>
-</ul>
-<p><br></p>
-<h2 id="import-public"><a class="header-link" href="#import-public"></a>Import public</h2>
+    test (); <span class="hljs-comment">// erreur, la fonction test n'existe pas.</span>
+}</code></pre><h2 id="import-public"><a class="header-link" href="#import-public"></a>Import public</h2>
 <hr>
 <p>les imports dit publics, sont des imports récursifs.</p>
 <ul class="list">
-<li><p>test2.yr:</p>
+<li>test2.yr:</li>
+</ul>
 <pre class="hljs"><code>def test () {
-  println (<span class="hljs-string">"Hello World!!"</span>);
-}</code></pre></li>
-<li><p>test.yr:</p>
-<pre class="hljs"><code><span class="hljs-keyword">public</span> <span class="hljs-keyword">import</span> test2;</code></pre></li>
-<li><p>main.yr:</p>
-<pre class="hljs"><code><span class="hljs-keyword">import</span> test;
+    println (<span class="hljs-string">"Hello World!!"</span>);
+}</code></pre><ul class="list">
+<li>test.yr:</li>
+</ul>
+<pre class="hljs"><code>public import test2;</code></pre><ul class="list">
+<li>main.yr:</li>
+</ul>
+<pre class="hljs"><code>import test;
 
 def main () {
-  test (); <span class="hljs-comment">// Ok, 'Hello World!!'</span>
-}</code></pre></li>
-</ul>
-<p><br></p>
-<h2 id="block-privé-et-public"><a class="header-link" href="#block-privé-et-public"></a>Block privé et public</h2>
+    test (); <span class="hljs-comment">// Ok, 'Hello World!!'</span>
+}</code></pre><h2 id="block-privé-et-public"><a class="header-link" href="#block-privé-et-public"></a>Block privé et public</h2>
 <hr>
 <p>Les modules peuvent déclarer des blocks privés, ces blocks ne sont pas accessibles depuis les modules extérieurs.</p>
 <ul class="list">
 <li>module1.yr</li>
 </ul>
-<pre class="hljs"><code> <span class="hljs-keyword">private</span> {
+<pre class="hljs"><code>private {
 
-     def foo () {
-     println (<span class="hljs-string">"Foo"</span>);
-     }
+    def foo () {
+        println (<span class="hljs-string">"Foo"</span>);
+    }
 
- }
+}
 
- def test () {
-    foo ();
- }</code></pre><ul class="list">
+def test () {
+   foo ();
+}</code></pre><ul class="list">
 <li>module2.yr</li>
 </ul>
-<pre class="hljs"><code><span class="hljs-keyword">import</span> module1;
+<pre class="hljs"><code>import module1;
 
 foo (); <span class="hljs-comment">// Erreur, foo n'existe pas</span>
-test (); <span class="hljs-comment">// Ok, 'Foo'</span></code></pre><p> <br>
-Les fonctions externes et les imports sont privés par défaut, contrairement aux fonctions (pures ou impures) et aux structures.</p>
+test (); <span class="hljs-comment">// Ok, 'Foo'</span></code></pre><p>Les fonctions externes et les imports sont privés par défaut, contrairement aux fonctions (pures ou impures) et aux structures.</p>
     </article>
   </body>
 </html>

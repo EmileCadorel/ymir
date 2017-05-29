@@ -1,9 +1,13 @@
 import std.stdio;
 
-def main () {
-    let a = match 2 {
-        1 => 23;
-        _ => 3;
+def foo (a) {
+    return match a {
+        1 => "salut";
+        _ => "Non";
     };
-    println (a);
+}
+
+def main () {
+    println (foo (1));
+    println (foo ('y'));
 }

@@ -12,77 +12,68 @@
     <article class="markdown-body"><h1 id="fonctions"><a class="header-link" href="#fonctions"></a>Fonctions</h1>
 <hr>
 
-<p>Les fonctions peuvent être déclarées sous trois formes.
-<br></p>
+<p>Les fonctions peuvent être déclarées sous trois formes.</p>
 <ul class="list">
 <li><p><strong>Les fonctions pures :</strong></p>
 <p>Les fonctions pures sont des fonctions qui vont être compilées même si elles ne sont jamais appelées.
 Les types des variables ne sont pas inférés, mais sont écris explicitement.</p>
-<pre class="hljs"><code>  def foo (a : <span class="hljs-keyword">int</span>, b : <span class="hljs-keyword">int</span>) {
-   <span class="hljs-comment">// ...</span>
-  }
-
-  def foo2 () : <span class="hljs-keyword">int</span> {
-   <span class="hljs-comment">// ...</span>
-  }</code></pre><p>Le type de retour des fonctions pures est optionnel, il sera déduit lors de la compilation.</p>
 </li>
 </ul>
-<p><br></p>
+<pre class="hljs"><code>def foo (a : <span class="hljs-keyword">int</span>, b : <span class="hljs-keyword">int</span>) {
+    <span class="hljs-comment">// ...</span>
+}
+
+def foo2 () : <span class="hljs-keyword">int</span> {
+   <span class="hljs-comment">// ...</span>
+}</code></pre><p>  Le type de retour des fonctions pures est optionnel, il sera déduit lors de la compilation.</p>
 <ul class="list">
 <li><p><strong>Les fonctions impures :</strong></p>
 <p>Les fonctions impures se différencient des fonctions pures au niveau de leurs paramètres.
 Leurs types vont être inférés au moment de leurs appels.</p>
-<pre class="hljs"><code> def foo (a, b : <span class="hljs-keyword">int</span>, c) { <span class="hljs-comment">// a et c n'ont pas de type</span>
-   <span class="hljs-comment">// ...</span>
- } 
-
- <span class="hljs-comment">// ...</span>
- foo (<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// OK, avec a : int et c : string</span>
- foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, b doit etre de type int</span></code></pre><p> Comme pour les fonctions pures, il n&#39;est pas obligatoire de mettre le type de retour qui va être déduit.</p>
-<p> Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
- Un tuple est créé pour le dernier type, s&#39;il est non typé.</p>
-<pre class="hljs"><code> def test (a : <span class="hljs-keyword">int</span>, b) {
-     println (b.<span class="hljs-keyword">typeid</span>);
- }
-
- def test (a, b : <span class="hljs-keyword">int</span>) {
-    println (a.<span class="hljs-keyword">typeid</span>);
- }
-
- <span class="hljs-comment">// ...</span>
- test (<span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// Ok, '(char, string)'.</span>
- test (<span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, pas de surcharge de test applicable.</span>
- test (<span class="hljs-string">'salut'</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Erreur, On n'utilise pas la deuxieme surcharge 'b' est typé.</span></code></pre></li>
+</li>
 </ul>
-<p><br></p>
-<ul class="list">
+<pre class="hljs"><code>def foo (a, b : <span class="hljs-keyword">int</span>, c) { <span class="hljs-comment">// a et c n'ont pas de type</span>
+   <span class="hljs-comment">// ...</span>
+} 
+
+<span class="hljs-comment">// ...</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// OK, avec a : int et c : string</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-string">"salut"</span>, <span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, b doit etre de type int</span></code></pre><p>Comme pour les fonctions pures, il n&#39;est pas obligatoire de mettre le type de retour qui va être déduit.</p>
+<p>   Les fonctions impures peuvent être utilisées pour des appels au nombre de paramètres variable (variadics).
+   Un tuple est créé pour le dernier type, s&#39;il est non typé.</p>
+<pre class="hljs"><code>def test (a : <span class="hljs-keyword">int</span>, b) {
+    println (b.typeid);
+}
+
+def test (a, b : <span class="hljs-keyword">int</span>) {
+   println (a.typeid);
+}
+
+<span class="hljs-comment">// ...</span>
+test (<span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, '(char, string)'.</span>
+test (<span class="hljs-number">1</span>); <span class="hljs-comment">// Erreur, pas de surcharge de test applicable.</span>
+test (<span class="hljs-string">"salut"</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>); <span class="hljs-comment">// Erreur, On n'utilise pas la deuxieme surcharge 'b' est typé.</span></code></pre><ul class="list">
 <li><p><strong>Les fonctions externes :</strong></p>
 <p>Les fonctions externes sont des fonctions qui n&#39;ont pas de code, leur code doit être fourni au moment de l&#39;édition des liens.
 Ces fonctions doivent être déclarées avec leurs types, ainsi que leur type de retour qui ne peut être déduit.</p>
-<pre class="hljs"><code> <span class="hljs-keyword">extern</span> foo (a : <span class="hljs-keyword">int</span>) : <span class="hljs-built_in">double</span>;
- <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-built_in">char</span>); <span class="hljs-comment">// le type de retour n'est pas donné, _void_ par défaut.</span>
-  <span class="hljs-comment">// ...</span>
- let b = foo (<span class="hljs-number">10</span>);
- putchar (<span class="hljs-string">'Y'</span>);</code></pre><p> Elles peuvent également être déclarées comme variadic.</p>
-<pre class="hljs"><code>  <span class="hljs-keyword">extern</span> (C) printf (a : ptr!<span class="hljs-built_in">char</span>, ...)
-
-  <span class="hljs-comment">// ...</span>
-  printf ((<span class="hljs-string">'salut %s, comment va tu ?'</span>).ptr, nom.ptr);</code></pre></li>
+</li>
 </ul>
-<p>Les fonctions externes ne sont pas importées par défaut. Pour les importer, il faut les déclarer comme publiques.</p>
-<pre class="hljs"><code>```D    
-public extern (C) putchar (c : char);
- ```</code></pre><p><br></p>
-<h2 id="décorateur-de-paramètre"><a class="header-link" href="#décorateur-de-paramètre"></a>Décorateur de paramètre</h2>
+<pre class="hljs"><code><span class="hljs-keyword">extern</span> foo (a : <span class="hljs-keyword">int</span>) : double;
+<span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-keyword">char</span>); <span class="hljs-comment">// le type de retour n'est pas donné, _void_ par défaut.</span>
+<span class="hljs-comment">// ...</span>
+<span class="hljs-keyword">let</span> b = foo (<span class="hljs-number">10</span>);
+putchar (<span class="hljs-string">'Y'</span>);</code></pre><p>Elles peuvent également être déclarées comme variadic.</p>
+<pre class="hljs"><code><span class="hljs-keyword">extern</span> (C) printf (a : ptr!<span class="hljs-keyword">char</span>, ...)
+
+<span class="hljs-comment">// ...</span>
+printf ((<span class="hljs-string">"salut %s, comment va tu ?"</span>).ptr, nom.ptr);</code></pre><p>Les fonctions externes ne sont pas importées par défaut. Pour les importer, il faut les déclarer comme publiques.</p>
+<pre class="hljs"><code>public <span class="hljs-keyword">extern</span> (C) putchar (c : <span class="hljs-keyword">char</span>);</code></pre><h2 id="décorateur-de-paramètre"><a class="header-link" href="#décorateur-de-paramètre"></a>Décorateur de paramètre</h2>
 <hr>
 
 <p>Il existe des decorateurs de paramètres par exemple:</p>
-<pre class="hljs"><code>    def foo (<span class="hljs-keyword">ref</span> a, <span class="hljs-keyword">const</span> b : <span class="hljs-keyword">int</span>) : <span class="hljs-keyword">ref</span> <span class="hljs-keyword">int</span> {}</code></pre><p><br>
-Le mot clé <code>ref</code> force le passage d&#39;un référence à la fonction.
-Le mot clé <code>const</code> garantie qu&#39;il ne sera fait aucune modification au paramètre.
-<br></p>
-<pre class="hljs"><code>
-def foo (<span class="hljs-keyword">ref</span> a) {
+<pre class="hljs"><code>def foo (<span class="hljs-keyword">ref</span> a, <span class="hljs-keyword">const</span> b : <span class="hljs-keyword">int</span>) : <span class="hljs-keyword">ref</span> <span class="hljs-keyword">int</span> {}</code></pre><p>Le mot clé <code>ref</code> force le passage d&#39;un référence à la fonction.
+Le mot clé <code>const</code> garantie qu&#39;il ne sera fait aucune modification au paramètre.</p>
+<pre class="hljs"><code>def foo (<span class="hljs-keyword">ref</span> a) {
     a = <span class="hljs-number">1</span>;
 }
 
@@ -90,32 +81,29 @@ def foo2 (<span class="hljs-keyword">const</span> a) {
     a = <span class="hljs-number">10</span>; <span class="hljs-comment">// Erreur a est constant</span>
 }
 
-let a = <span class="hljs-number">10</span>;
+<span class="hljs-keyword">let</span> a = <span class="hljs-number">10</span>;
 foo (<span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, impossible de créé un ref à partir d'un élément constant</span>
 foo (a); <span class="hljs-comment">// Ok</span>
-println (a); <span class="hljs-comment">// '1'</span></code></pre><p><br></p>
-<h2 id="cas-particuliers"><a class="header-link" href="#cas-particuliers"></a>Cas particuliers</h2>
+println (a); <span class="hljs-comment">// '1'</span></code></pre><h2 id="cas-particuliers"><a class="header-link" href="#cas-particuliers"></a>Cas particuliers</h2>
 <hr>
 <ul class="list">
 <li><p><strong>Récursivité</strong></p>
 <p>Pour les fonctions récursives, il est obligatoire de mettre le type de retour de la fonction, s&#39;il n&#39;est pas déduit avant son appel.</p>
+</li>
+</ul>
 <pre class="hljs"><code>def fibo (n : <span class="hljs-keyword">int</span>) {
-  <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">2</span>) <span class="hljs-keyword">return</span> n; <span class="hljs-comment">// n est de type _int_, le type de la fonction est _int_</span>
-  <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> fibo (n - <span class="hljs-number">1</span>) + fibo (n - <span class="hljs-number">2</span>); <span class="hljs-comment">// pas de problème le type de fibo a été déduit</span>
+   <span class="hljs-keyword">if</span> (n &lt; <span class="hljs-number">2</span>) <span class="hljs-keyword">return</span> n; <span class="hljs-comment">// n est de type _int_, le type de la fonction est _int_</span>
+   <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> fibo (n - <span class="hljs-number">1</span>) + fibo (n - <span class="hljs-number">2</span>); <span class="hljs-comment">// pas de problème le type de fibo a été déduit</span>
 }
 
 def facto (n : <span class="hljs-keyword">int</span>) {
- <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> facto (n - <span class="hljs-number">1</span>) * n; <span class="hljs-comment">// Erreur, on ne connaît pas le type de facto</span>
- <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
-}</code></pre></li>
-</ul>
-<p><br></p>
-<ul class="list">
+  <span class="hljs-keyword">if</span> (n &gt;= <span class="hljs-number">1</span>) <span class="hljs-keyword">return</span> facto (n - <span class="hljs-number">1</span>) * n; <span class="hljs-comment">// Erreur, on ne connaît pas le type de facto</span>
+  <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+}</code></pre><ul class="list">
 <li><p><strong>Importation</strong></p>
-<p>Les fonctions pures importées qui ne contiennent pas de type de retour, seront considérées comme des fonctions externes void.</p>
+<p>Les fonctions pures importées qui ne contiennent pas de type de retour, seront considérées comme des fonctions externes <code>void</code>.</p>
 </li>
 </ul>
-<p><br></p>
 <h2 id="surcharge"><a class="header-link" href="#surcharge"></a>Surcharge</h2>
 <hr>
 <p>Les fonctions peuvent être surchargées qu&#39;elle soit pure ou non.</p>
@@ -128,34 +116,30 @@ def foo (a, b : <span class="hljs-keyword">int</span>) {
 }
 
 <span class="hljs-comment">//...</span>
-foo (<span class="hljs-number">10</span>, <span class="hljs-string">'salut'</span>); <span class="hljs-comment">// la première fonction est appelé</span>
-foo (<span class="hljs-string">'salut'</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// la deuxième fonction est appelé</span>
-foo (<span class="hljs-number">10</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, la surcharge fonctionne autant avec les deux prototypes.</span></code></pre><p><br></p>
-<h2 id="fonctions-internes"><a class="header-link" href="#fonctions-internes"></a>Fonctions internes</h2>
+foo (<span class="hljs-number">10</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// la première fonction est appelé</span>
+foo (<span class="hljs-string">"salut"</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// la deuxième fonction est appelé</span>
+foo (<span class="hljs-number">10</span>, <span class="hljs-number">10</span>); <span class="hljs-comment">// Erreur, la surcharge fonctionne autant avec les deux prototypes.</span></code></pre><h2 id="fonctions-internes"><a class="header-link" href="#fonctions-internes"></a>Fonctions internes</h2>
 <hr>
 <p>Il est possible de déclarer une fonction dans un bloc. Celle-ci est alors privée à ce bloc.</p>
-<pre class="hljs"><code>
-def foo () {
+<pre class="hljs"><code>def foo () {
     {
        def test () {
             println (<span class="hljs-string">"Ici"</span>);
        }
 
-       test (); <span class="hljs-comment">// Ok, 'Ici'</span>
+       test (); <span class="hljs-comment">// Ok, "Ici"</span>
      }
 
      test (); <span class="hljs-comment">// Erreur, symbole inconnu test</span>
 }
 
 def main () {
-    test (); <span class="hljs-comment">// Ok, 'La' (toutes les déclarations se font avant d'entrer dans le bloc)</span>
+    test (); <span class="hljs-comment">// Ok, "La" (toutes les déclarations se font avant d'entrer dans le bloc)</span>
 
-    def test () { <span class="hljs-comment">// Ok, cette fonction n'appartient pas au même bloc, elle peut être redéfinie</span>
+    def test () { <span class="hljs-comment">// Ok, cette fonction n"appartient pas au même bloc, elle peut être redéfinie</span>
          println (<span class="hljs-string">"La"</span>);
     }
-}</code></pre><p><br>
-La surcharge fonctionne de la même manière avec les fonctions privées. Elles sont en concurrence avec les fonctions de scope plus large.
-<br></p>
+}</code></pre><p>La surcharge fonctionne de la même manière avec les fonctions privées. Elles sont en concurrence avec les fonctions de scope plus large.</p>
 <pre class="hljs"><code>def foo () {
 }
 
@@ -163,29 +147,25 @@ def main () {
     def foo () {}
 
     foo (); <span class="hljs-comment">// Erreur, impossible de déduire quelle fonction appelée.</span>
-}</code></pre><p><br></p>
-<h2 id="pointeurs-et-fonction-lambda"><a class="header-link" href="#pointeurs-et-fonction-lambda"></a>Pointeurs et fonction lambda</h2>
+}</code></pre><h2 id="pointeurs-et-fonction-lambda"><a class="header-link" href="#pointeurs-et-fonction-lambda"></a>Pointeurs et fonction lambda</h2>
 <hr>
-<p>Il est possible de récupérer l&#39;adresse d&#39;une fonction pour pouvoir l&#39;utiliser comme une variable.
+<p>Il est possible de récupérer l&quot;adresse d&quot;une fonction pour pouvoir l&quot;utiliser comme une variable.
 Pour cela, il faut déclarer un pointeur sur fonction qui va spécialiser les paramètres de la fonction.</p>
-<pre class="hljs"><code>
-def foo (a) {
+<pre class="hljs"><code>def foo (a) {
     <span class="hljs-keyword">return</span> a;
 }
 
 
 <span class="hljs-comment">// ...</span>
-let a = <span class="hljs-built_in">function</span> (<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span> (foo); <span class="hljs-comment">// On créée un instance de foo qui prend un int en argument</span>
-let b = <span class="hljs-built_in">function</span> (<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span>; <span class="hljs-comment">// on affecte un pointeur null à b</span>
-<span class="hljs-keyword">if</span> (b <span class="hljs-keyword">is</span> <span class="hljs-literal">null</span>) { 
+<span class="hljs-keyword">let</span> a = <span class="hljs-function"><span class="hljs-keyword">fn</span> </span>(<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span> (foo); <span class="hljs-comment">// On créée un instance de foo qui prend un int en argument</span>
+<span class="hljs-keyword">let</span> b = <span class="hljs-function"><span class="hljs-keyword">fn</span> </span>(<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span>; <span class="hljs-comment">// on affecte un pointeur null à b</span>
+<span class="hljs-keyword">if</span> (b is null) { 
     b = a; 
 }
 
-a = foo; <span class="hljs-comment">// Ok, on utilise l'instance de foo déjà créée</span>
-println (b (<span class="hljs-number">12</span>)); <span class="hljs-comment">// Ok, '12'</span></code></pre><p><br>
-On peut spécialiser les fonctions afin qu&#39;elles prennent un pointeur sur fonction en paramètre.</p>
-<pre class="hljs"><code>
-def foo (ptr : <span class="hljs-built_in">function</span> (<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span>) {
+a = foo; <span class="hljs-comment">// Ok, on utilise l"instance de foo déjà créée</span>
+println (b (<span class="hljs-number">12</span>)); <span class="hljs-comment">// Ok, "12"</span></code></pre><p>On peut spécialiser les fonctions afin qu&quot;elles prennent un pointeur sur fonction en paramètre.</p>
+<pre class="hljs"><code>def foo (ptr : <span class="hljs-function"><span class="hljs-keyword">fn</span> </span>(<span class="hljs-keyword">int</span>) : <span class="hljs-keyword">int</span>) {
     <span class="hljs-keyword">return</span> ptr (<span class="hljs-number">897</span>);
 }
 
@@ -194,59 +174,54 @@ def square (a : <span class="hljs-keyword">int</span>) : <span class="hljs-keywo
 }
 
 <span class="hljs-comment">// ...</span>
-foo (&amp;square); <span class="hljs-comment">// il n'existe qu'un seule surcharge typé de square, l'operateur &amp; fonctionne</span></code></pre><p><br>
-On peut également créer des fonctions anonymes (lambda).</p>
-<pre class="hljs"><code><span class="hljs-keyword">import</span> std.<span class="hljs-built_in">string</span>;
+foo (&amp;square); <span class="hljs-comment">// il n"existe qu"un seule surcharge typé de square, l"operateur &amp; fonctionne</span></code></pre><p>On peut également créer des fonctions anonymes (lambda).</p>
+<pre class="hljs"><code>import std.string;
 
-def foo (ptr : <span class="hljs-built_in">function</span> (<span class="hljs-built_in">string</span>) : <span class="hljs-built_in">string</span>) {
-    println (ptr (<span class="hljs-string">'Hello World'</span>));
+def foo (ptr : <span class="hljs-function"><span class="hljs-keyword">fn</span> </span>(string) : string) {
+    println (ptr (<span class="hljs-string">"Hello World"</span>));
 }
 
 <span class="hljs-comment">// ...</span>
-foo ((str : <span class="hljs-built_in">string</span>) {
-    <span class="hljs-keyword">return</span> str.substr (<span class="hljs-number">0u</span>, <span class="hljs-number">6u</span>) + <span class="hljs-string">"Bob"</span>;
-}); <span class="hljs-comment">// Ok, 'Hello Bob'</span>
+foo ((<span class="hljs-keyword">str</span> : string) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">str</span>.substr (<span class="hljs-number">0</span>u, <span class="hljs-number">6</span>u) + <span class="hljs-string">"Bob"</span>;
+}); <span class="hljs-comment">// Ok, "Hello Bob"</span>
 
-foo ((str : <span class="hljs-built_in">string</span>) =&gt; str.substr (<span class="hljs-number">0u</span>, <span class="hljs-number">6u</span>) + <span class="hljs-string">"Bob"</span>); <span class="hljs-comment">// Ou en une ligne</span></code></pre><p><br></p>
-<h2 id="appel-par-l'opérateur-'.'"><a class="header-link" href="#appel-par-l'opérateur-'.'"></a>Appel par l&#39;opérateur &#39;.&#39;</h2>
+foo ((<span class="hljs-keyword">str</span> : string) =&gt; <span class="hljs-keyword">str</span>.substr (<span class="hljs-number">0</span>u, <span class="hljs-number">6</span>u) + <span class="hljs-string">"Bob"</span>); <span class="hljs-comment">// Ou en une ligne</span></code></pre><h2 id="appel-par-l"opérateur-`.`"><a class="header-link" href="#appel-par-l"opérateur-`.`"></a>Appel par l&quot;opérateur <code>.</code></h2>
 <hr>
-<p>Les types non-primitifs peuvent être utilisés comme premier paramètre en utilisant l&#39;operateur &#39;.&#39;.</p>
-<pre class="hljs"><code>
-def foo (str : <span class="hljs-built_in">string</span>) {
-    println (str);
+<p>Les types non-primitifs peuvent être utilisés comme premier paramètre en utilisant l&quot;operateur <code>.</code>.</p>
+<pre class="hljs"><code>def foo (<span class="hljs-keyword">str</span> : string) {
+    println (<span class="hljs-keyword">str</span>);
 }
 
-def foo (str, fst) {
-    println (str, fst);
+def foo (<span class="hljs-keyword">str</span>, fst) {
+    println (<span class="hljs-keyword">str</span>, fst);
 }
 
 <span class="hljs-comment">//...</span>
-(<span class="hljs-string">'salut'</span>).foo (); <span class="hljs-comment">// Ok, 'salut'</span>
-(<span class="hljs-string">'salut'</span>).foo (<span class="hljs-number">12</span>); <span class="hljs-comment">// Ok, 'salut12'</span>
+(<span class="hljs-string">"salut"</span>).foo (); <span class="hljs-comment">// Ok, "salut"</span>
+(<span class="hljs-string">"salut"</span>).foo (<span class="hljs-number">12</span>); <span class="hljs-comment">// Ok, "salut12"</span>
 
-(<span class="hljs-number">2334</span>).foo (<span class="hljs-number">12</span>); <span class="hljs-comment">// Erreur 2334 est de type primitif int.</span></code></pre><p><br></p>
-<h1 id="fonction-à-nombre-de-paramètres-arbitraire"><a class="header-link" href="#fonction-à-nombre-de-paramètres-arbitraire"></a>Fonction à nombre de paramètres arbitraire</h1>
+(<span class="hljs-number">2334</span>).foo (<span class="hljs-number">12</span>); <span class="hljs-comment">// Erreur 2334 est de type primitif int.</span></code></pre><h1 id="fonction-à-nombre-de-paramètres-arbitraire"><a class="header-link" href="#fonction-à-nombre-de-paramètres-arbitraire"></a>Fonction à nombre de paramètres arbitraire</h1>
 <hr>
-<p>Ymir propose un système d&#39;appel de fonction à nombre de paramètres arbitraire. Cette solution est appelée Variadics. Cette solution est fortement liée au tuples.</p>
-<p>Pour le moment, il n&#39;existe aucune syntaxe particulière pour spécifier que la fonction est variadics. On déclare une fonction impure dont le dernier argument n&#39;a pas de type. Lors de l&#39;appel, la liste de paramètres va être généré en fonction des paramètres passés à la fonction.</p>
+<p>Ymir propose un système d&quot;appel de fonction à nombre de paramètres arbitraire. Cette solution est appelée Variadics. Cette solution est fortement liée au tuples.</p>
+<p>Pour le moment, il n&quot;existe aucune syntaxe particulière pour spécifier que la fonction est variadics. On déclare une fonction impure dont le dernier argument n&quot;a pas de type. Lors de l&quot;appel, la liste de paramètres va être généré en fonction des paramètres passés à la fonction.</p>
 <pre class="hljs"><code>def foo (a) {
  <span class="hljs-comment">// ...</span>
 }
 
 <span class="hljs-comment">//...</span>
-foo (<span class="hljs-number">1</span>, <span class="hljs-string">'i'</span>, <span class="hljs-string">"salut"</span>); (on appelle foo avec le type (tuple!(<span class="hljs-keyword">int</span>, <span class="hljs-built_in">char</span>, <span class="hljs-built_in">string</span>)).</code></pre><p><br>
-Le type &#39;tuple&#39; n&#39;est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
-Le mot-clé &#39;expand&#39; va nous permettre de passer les attributs d&#39;un tuple comme des paramètres de fonctions.</p>
+foo (<span class="hljs-number">1</span>, <span class="hljs-string">"i"</span>, <span class="hljs-string">"salut"</span>); (on appelle foo avec le <span class="hljs-class"><span class="hljs-keyword">type</span> (<span class="hljs-title">tuple</span></span>!(<span class="hljs-keyword">int</span>, <span class="hljs-keyword">char</span>, string)).</code></pre><p>Le type <code>tuple</code> n&quot;est pas un type itérable, mais on peut récupérer ses attributs de manière récursive.
+Le mot-clé <code>expand</code> va nous permettre de passer les attributs d&quot;un tuple comme des paramètres de fonctions.</p>
 <pre class="hljs"><code>def foo (count, a) {
-    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>, count, <span class="hljs-string">') '</span>);
+    print (a.typeid, <span class="hljs-string">"("</span>, a, <span class="hljs-string">":"</span>, count, <span class="hljs-string">") "</span>);
 }
 
 def foo (count : <span class="hljs-keyword">int</span>, a, b) {
-    print (a.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">':'</span>,  count, <span class="hljs-string">') '</span>);
+    print (a.typeid, <span class="hljs-string">"("</span>, a, <span class="hljs-string">":"</span>,  count, <span class="hljs-string">") "</span>);
     foo (count + <span class="hljs-number">1</span>, expand (b)); <span class="hljs-comment">// on transforme b en paramètre </span>
 }
 
 <span class="hljs-comment">//...</span>
-foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">'r'</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, 'int(1:0) char(r:1) string(salut:2)';</span></code></pre>    </article>
+foo (<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-string">"r"</span>, <span class="hljs-string">"salut"</span>); <span class="hljs-comment">// Ok, "int(1:0) char(r:1) string(salut:2)";</span></code></pre>    </article>
   </body>
 </html>

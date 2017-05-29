@@ -15,21 +15,20 @@
 <p>Le mot clé <code>mixin</code> permet de compiler un élément de type string en du code fonctionnel.
 L&#39;élément doit être <code>immutable</code>.</p>
 <pre class="hljs"><code>
-def foo (op : <span class="hljs-built_in">string</span>) (a, b) {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">mixin</span> (<span class="hljs-string">"a "</span> + op + <span class="hljs-string">" b"</span>);
+def foo (op : string) (a, b) {
+    <span class="hljs-keyword">return</span> mixin (<span class="hljs-string">"a "</span> + op + <span class="hljs-string">" b"</span>);
 }
 
 <span class="hljs-comment">// ...</span>
-let a = foo!<span class="hljs-string">"+"</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);
-<span class="hljs-keyword">assert</span> (a == <span class="hljs-number">3</span>);</code></pre><p><br>
-Il existe deux cas de <code>mixin</code>:</p>
+<span class="hljs-keyword">let</span> a = foo!<span class="hljs-string">"+"</span> (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>);
+assert (a == <span class="hljs-number">3</span>);</code></pre><p>Il existe deux cas de <code>mixin</code>:</p>
 <ul class="list">
 <li>Le mot clé est utilisé pour déclarer une instruction</li>
 <li>Il est utilisé dans une expression.</li>
 </ul>
-<pre class="hljs"><code>let a = <span class="hljs-keyword">mixin</span> <span class="hljs-string">"1 + 2"</span>; <span class="hljs-comment">// Utilisation comme expression.</span>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> a = mixin <span class="hljs-string">"1 + 2"</span>; <span class="hljs-comment">// Utilisation comme expression.</span>
 
-<span class="hljs-keyword">mixin</span> (<span class="hljs-string">"
+mixin (<span class="hljs-string">"
     import std.string;
 
     def foo (a : string) {
@@ -37,25 +36,23 @@ Il existe deux cas de <code>mixin</code>:</p>
     }
 
     return foo ('test');
-"</span>); <span class="hljs-comment">// Utilisation comme instruction</span></code></pre><p><br></p>
-<p>Tous les élément déclarer dans le <code>mixin</code> ne peuvent en sortir, l&#39;exemple précédent revient à écrire:</p>
-<pre class="hljs"><code>    let a = <span class="hljs-number">1</span> + <span class="hljs-number">2</span>; 
+"</span>); <span class="hljs-comment">// Utilisation comme instruction</span></code></pre><p>Tous les élément déclarer dans le <code>mixin</code> ne peuvent en sortir, l&#39;exemple précédent revient à écrire:</p>
+<pre class="hljs"><code>    <span class="hljs-keyword">let</span> a = <span class="hljs-number">1</span> + <span class="hljs-number">2</span>; 
 
     {
-        <span class="hljs-keyword">import</span> std.<span class="hljs-built_in">string</span>;
+        import std.string;
 
-        def foo (a : <span class="hljs-built_in">string</span>) {
+        def foo (a : string) {
             <span class="hljs-keyword">return</span> a + <span class="hljs-string">"foo"</span>;
         }
 
-        <span class="hljs-keyword">return</span> foo (<span class="hljs-string">'test'</span>);
-    }</code></pre><p><br>
-Pour garder la coloration syntaxique, il existe une jeton pour définir une <code>string</code>: <code>({</code> <code>})</code></p>
+        <span class="hljs-keyword">return</span> foo (<span class="hljs-symbol">'test</span>');
+    }</code></pre><p>Pour garder la coloration syntaxique, il existe une jeton pour définir une <code>string</code>: <code>({</code> <code>})</code></p>
 <p>Il est donc possible d&#39;écrire un mixin de la façon suivante:</p>
-<pre class="hljs"><code>let a = <span class="hljs-keyword">mixin</span> ({ a + b * <span class="hljs-number">10</span> / <span class="hljs-number">34</span> });
+<pre class="hljs"><code><span class="hljs-keyword">let</span> a = mixin ({ a + b * <span class="hljs-number">10</span> / <span class="hljs-number">34</span> });
 
-<span class="hljs-keyword">mixin</span> ({
-    let a = <span class="hljs-number">10</span>;
+mixin ({
+    <span class="hljs-keyword">let</span> a = <span class="hljs-number">10</span>;
     println (a);
     <span class="hljs-keyword">return</span> <span class="hljs-number">123</span>;
 });</code></pre>    </article>

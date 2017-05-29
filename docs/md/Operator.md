@@ -3,22 +3,22 @@
 <hr>
 
 Les operateurs sont surchargeable grâce au fonction templates, par réécriture.
-<br>
 
-```D
+
+```Rust
 let a = ..., b = ...;
 
 a + b; // si aucun operateur '+' entre a et b, alors on réécris en a.opBinary('+') (b);
 ```
-<br>
+
 ## Operateur unaire
 <hr>
 
 On peut surcharger les operateurs suivants : 
-	`++, --, -, *, !`
+	`++` `--` `-` `*` `!`
 
 
-```D
+```Rust
 
 struct 
 | a : int
@@ -34,12 +34,12 @@ def opUnary (op : string) (a : Test) { // Ou def opUnary('-') ...
 let = - Test (10);
 
 ```
-<br>
+
 ## Operateur binaire
 <hr>
 
 On peut surcharger les operateurs suivant : 
-`+,	-,	*,	/,	%,	^^,	&, |,	^,	<<,	>>,  in`
+`+`	`-`	`*`	`/`	`%`	`^^` `&` `|` `^` `<<` `>>` `in`
 
 La surcharge se fait en deux temps:
 - Un première réecriture en `a.opBinary (op) (b)`
@@ -47,7 +47,7 @@ La surcharge se fait en deux temps:
 
 
 
-```D
+```Rust
 
 def opBinary (op : string) (a, b) {
 	return mixin ('a ' + op + ' b.data);
@@ -59,7 +59,7 @@ def opBinary (op : string) (a, b) {
 <hr>
 
 
-On peut surcharge les operateurs suivants: `<, <=, >, >=`
+On peut surcharge les operateurs suivants: `<` `<=` `>` `>=`
 
 Il existe deux cas de figure, soit la surcharge retourne un `bool`, ou un `int`.
 Dans le cas ou elle retourne un int : 
@@ -67,31 +67,31 @@ Dans le cas ou elle retourne un int :
 - `<=` : a.opTest(b) <= 0
 - `>` : a.opTest(b) > 0
 - `>=` : a.opTest(b) >= 0
-<br>
 
 
-```D
+
+```Rust
 def opTest (op : string) (a, b) {
 	return mixin ('a ' + op + ' b.data');
 }
 
 ```
 
-<br>
+
 La surcharge des operateurs `==` et `!=`, se fait avec la fonction `opEquals`.
 
 
-```D
+```Rust
 
 if (a == b) ... // réecris en a.opEquals (b);
 else if (a != b) // réecris en !a.opEquals (b);
 
 ```
 
-<br>
+
 Comme pour la surcharge binaire une deuxième réecriture est faite si la première ne fonctionne pas
 
-<br>
+
 ## Surcharge d'appel
 <hr>
 
@@ -100,7 +100,7 @@ Il est possible de surcharger l'operateur d'appel `f()`, pour ça il suffit de d
 
 
 
-```D
+```Rust
 
 struct 
 | a : int
@@ -120,14 +120,14 @@ println (f.a); // 4
 
 ```
 
-<br>
+
 ## Surcharge d'index
 <hr>
 
 Il est également possible de surcharger l'operateur d'index `a[]`, avec la création de la fonction `opIndex`.
 
 
-```D
+```Rust
 
 def opIndex (ref a : string) : [char] {
 	return cast:[char](a);

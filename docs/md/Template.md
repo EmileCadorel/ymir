@@ -6,12 +6,12 @@ Les fonctions templates sont des fonctions impure dont on stocke l'inférence de
 En d'autre terme, elle sont instancié comme les fonction impures, mais on peut récupérer facilement les types des paramètres et faire une spécialisation de templates plus avancée.
 
 
-<br>
+
 ## Déclaration
 <hr>
 
 La déclaration de fonctions templates est la suivante :
-```D
+```Rust
 def foo (T) (a : T) {
 	println (T.typeid, '(', a, ')');
 }
@@ -21,12 +21,12 @@ def foo (T) (a : T) {
 foo (10); // Ok, const (int)(10)
 foo ('salut'); // Ok, const (string) ('salut');
 ```
-<br>
+
 Contrairement aux apparences, ce système apporte quelque chose au système de spécialisation de fonction que l'on utilisait avec les fonctions impures.
 En effet, il est maintenant possible de spécialiser un type interne d'un autre type (type template par exemple).
-<br>
 
-```D
+
+```Rust
 def foo (T) (a : [T]) {
 	println ('fst');
 }
@@ -40,13 +40,13 @@ foo ([1, 2, 3]); // Ok, 'fst'
 foo ([1ul, 2ul]); // Ok, 'scd'
 
 ```
-<br>
+
 ## Spécialisation
 --------------------
 
 Il est possible de passer des expressions comme paramètres templates, ces expressions doivent être évaluées à la compilation. 
 
-```D
+```Rust
 def test (i : int) (a : int) {
 	println (i + a);
 }
@@ -71,7 +71,7 @@ Je suis en train de réfléchir à une syntaxe plus clair, pour le permettre.
 
 Très certainement :
 
-```D
+```Rust
 def foo (T ...) (a : T) {
 }
 

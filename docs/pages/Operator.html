@@ -12,73 +12,66 @@
     <article class="markdown-body"><h1 id="surcharge-d'operateur"><a class="header-link" href="#surcharge-d'operateur"></a>Surcharge d&#39;operateur</h1>
 <hr>
 
-<p>Les operateurs sont surchargeable grâce au fonction templates, par réécriture.
-<br></p>
-<pre class="hljs"><code>let a = ..., b = ...;
+<p>Les operateurs sont surchargeable grâce au fonction templates, par réécriture.</p>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> a = ..., b = ...;
 
-a + b; <span class="hljs-comment">// si aucun operateur '+' entre a et b, alors on réécris en a.opBinary('+') (b);</span></code></pre><p><br></p>
-<h2 id="operateur-unaire"><a class="header-link" href="#operateur-unaire"></a>Operateur unaire</h2>
+a + b; <span class="hljs-comment">// si aucun operateur '+' entre a et b, alors on réécris en a.opBinary('+') (b);</span></code></pre><h2 id="operateur-unaire"><a class="header-link" href="#operateur-unaire"></a>Operateur unaire</h2>
 <hr>
 
 <p>On peut surcharger les operateurs suivants : 
-    <code>++, --, -, *, !</code></p>
+    <code>++</code> <code>--</code> <code>-</code> <code>*</code> <code>!</code></p>
 <pre class="hljs"><code>
-<span class="hljs-keyword">struct</span> 
-| a : <span class="hljs-keyword">int</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> 
+| <span class="hljs-title">a</span></span> : <span class="hljs-keyword">int</span>
 -&gt; Test;
 
-def opUnary (op : <span class="hljs-built_in">string</span>) (a : Test) { <span class="hljs-comment">// Ou def opUnary('-') ...</span>
+def opUnary (op : string) (a : Test) { <span class="hljs-comment">// Ou def opUnary('-') ...</span>
     <span class="hljs-keyword">static</span> <span class="hljs-keyword">if</span> (op == <span class="hljs-string">'-'</span>)
         <span class="hljs-keyword">return</span> -a.a;
-    <span class="hljs-keyword">else</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">assert</span> (<span class="hljs-literal">false</span>, op);
+    <span class="hljs-keyword">else</span> <span class="hljs-keyword">static</span> assert (<span class="hljs-literal">false</span>, op);
 }
 
 <span class="hljs-comment">// ...</span>
-let = - Test (<span class="hljs-number">10</span>);</code></pre><p><br></p>
-<h2 id="operateur-binaire"><a class="header-link" href="#operateur-binaire"></a>Operateur binaire</h2>
+<span class="hljs-keyword">let</span> = - Test (<span class="hljs-number">10</span>);</code></pre><h2 id="operateur-binaire"><a class="header-link" href="#operateur-binaire"></a>Operateur binaire</h2>
 <hr>
 
 <p>On peut surcharger les operateurs suivant : 
-<code>+,    -,    *,    /,    %,    ^^,    &amp;, |,    ^,    &lt;&lt;,    &gt;&gt;,  in</code></p>
+<code>+</code>    <code>-</code>    <code>*</code>    <code>/</code>    <code>%</code>    <code>^^</code> <code>&amp;</code> <code>|</code> <code>^</code> <code>&lt;&lt;</code> <code>&gt;&gt;</code> <code>in</code></p>
 <p>La surcharge se fait en deux temps:</p>
 <ul class="list">
 <li>Un première réecriture en <code>a.opBinary (op) (b)</code></li>
 <li>Si elle n&#39;existe pas une réecriture en <code>b.opBinaryRight (op) (a)</code></li>
 </ul>
 <pre class="hljs"><code>
-def opBinary (op : <span class="hljs-built_in">string</span>) (a, b) {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">mixin</span> (<span class="hljs-string">'a '</span> + op + <span class="hljs-string">' b.data);
-}</span></code></pre><h2 id="operateur-de-comparaison"><a class="header-link" href="#operateur-de-comparaison"></a>Operateur de comparaison</h2>
+def opBinary (op : string) (a, b) {
+    <span class="hljs-keyword">return</span> mixin (<span class="hljs-symbol">'a</span> ' + op + ' b.data);
+}</code></pre><h2 id="operateur-de-comparaison"><a class="header-link" href="#operateur-de-comparaison"></a>Operateur de comparaison</h2>
 <hr>
 
 
-<p>On peut surcharge les operateurs suivants: <code>&lt;, &lt;=, &gt;, &gt;=</code></p>
+<p>On peut surcharge les operateurs suivants: <code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code></p>
 <p>Il existe deux cas de figure, soit la surcharge retourne un <code>bool</code>, ou un <code>int</code>.
 Dans le cas ou elle retourne un int : </p>
 <ul class="list">
 <li><code>&lt;</code> : a.opTest(b) &lt; 0</li>
 <li><code>&lt;=</code> : a.opTest(b) &lt;= 0</li>
 <li><code>&gt;</code> : a.opTest(b) &gt; 0</li>
-<li><code>&gt;=</code> : a.opTest(b) &gt;= 0
-<br></li>
+<li><code>&gt;=</code> : a.opTest(b) &gt;= 0</li>
 </ul>
-<pre class="hljs"><code>def opTest (op : <span class="hljs-built_in">string</span>) (a, b) {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">mixin</span> (<span class="hljs-string">'a '</span> + op + <span class="hljs-string">' b.data'</span>);
-}</code></pre><p><br>
-La surcharge des operateurs <code>==</code> et <code>!=</code>, se fait avec la fonction <code>opEquals</code>.</p>
+<pre class="hljs"><code>def opTest (op : string) (a, b) {
+    <span class="hljs-keyword">return</span> mixin (<span class="hljs-symbol">'a</span> ' + op + ' b.data');
+}</code></pre><p>La surcharge des operateurs <code>==</code> et <code>!=</code>, se fait avec la fonction <code>opEquals</code>.</p>
 <pre class="hljs"><code>
 <span class="hljs-keyword">if</span> (a == b) ... <span class="hljs-comment">// réecris en a.opEquals (b);</span>
-<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a != b) <span class="hljs-comment">// réecris en !a.opEquals (b);</span></code></pre><p><br>
-Comme pour la surcharge binaire une deuxième réecriture est faite si la première ne fonctionne pas</p>
-<p><br></p>
+<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (a != b) <span class="hljs-comment">// réecris en !a.opEquals (b);</span></code></pre><p>Comme pour la surcharge binaire une deuxième réecriture est faite si la première ne fonctionne pas</p>
 <h2 id="surcharge-d'appel"><a class="header-link" href="#surcharge-d'appel"></a>Surcharge d&#39;appel</h2>
 <hr>
 
 
 <p>Il est possible de surcharger l&#39;operateur d&#39;appel <code>f()</code>, pour ça il suffit de déclarer un fonction nommé <code>opCall</code>.</p>
 <pre class="hljs"><code>
-<span class="hljs-keyword">struct</span> 
-| a : <span class="hljs-keyword">int</span>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> 
+| <span class="hljs-title">a</span></span> : <span class="hljs-keyword">int</span>
 -&gt; Test;
 
 
@@ -88,29 +81,28 @@ def opCall (<span class="hljs-keyword">ref</span> a : Test, b, c, d) : <span cla
 }
 
 <span class="hljs-comment">// ...</span>
-let f = Test (<span class="hljs-number">0</span>);
+<span class="hljs-keyword">let</span> f = Test (<span class="hljs-number">0</span>);
 f (<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>) += <span class="hljs-number">1</span>;
 
-println (f.a); <span class="hljs-comment">// 4</span></code></pre><p><br></p>
-<h2 id="surcharge-d'index"><a class="header-link" href="#surcharge-d'index"></a>Surcharge d&#39;index</h2>
+println (f.a); <span class="hljs-comment">// 4</span></code></pre><h2 id="surcharge-d'index"><a class="header-link" href="#surcharge-d'index"></a>Surcharge d&#39;index</h2>
 <hr>
 
 <p>Il est également possible de surcharger l&#39;operateur d&#39;index <code>a[]</code>, avec la création de la fonction <code>opIndex</code>.</p>
 <pre class="hljs"><code>
-def opIndex (<span class="hljs-keyword">ref</span> a : <span class="hljs-built_in">string</span>) : [<span class="hljs-built_in">char</span>] {
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">cast</span>:[<span class="hljs-built_in">char</span>](a);
+def opIndex (<span class="hljs-keyword">ref</span> a : string) : [<span class="hljs-keyword">char</span>] {
+    <span class="hljs-keyword">return</span> cast:[<span class="hljs-keyword">char</span>](a);
 }
 
-def opIndex (<span class="hljs-keyword">ref</span> a : <span class="hljs-built_in">string</span>, i1 : <span class="hljs-keyword">int</span>) : [<span class="hljs-built_in">char</span>] {
+def opIndex (<span class="hljs-keyword">ref</span> a : string, i1 : <span class="hljs-keyword">int</span>) : [<span class="hljs-keyword">char</span>] {
     <span class="hljs-keyword">return</span> [a [i1]];
 }
 
-def opIndex (<span class="hljs-keyword">ref</span> a : <span class="hljs-built_in">string</span>, i1 : <span class="hljs-keyword">int</span>, i2) : [<span class="hljs-built_in">char</span>] {
+def opIndex (<span class="hljs-keyword">ref</span> a : string, i1 : <span class="hljs-keyword">int</span>, i2) : [<span class="hljs-keyword">char</span>] {
     <span class="hljs-keyword">return</span> [a [i1]] +  a [expand (i2)];
 }
 
-let a = <span class="hljs-string">'salut'</span>;
-let b = a[];
-let c = a [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>]; <span class="hljs-comment">// appel avec le système variadic</span></code></pre>    </article>
+<span class="hljs-keyword">let</span> a = <span class="hljs-symbol">'salut</span>';
+<span class="hljs-keyword">let</span> b = a[];
+<span class="hljs-keyword">let</span> c = a [<span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">4</span>]; <span class="hljs-comment">// appel avec le système variadic</span></code></pre>    </article>
   </body>
 </html>

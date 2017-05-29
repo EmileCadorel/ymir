@@ -1,34 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, shrink-to-fit=no, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
     <title>Ymir</title>
 
     <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css"/>
     
-    <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
     <!-- Custom CSS -->
     <link href="css/simple-sidebar.css" rel="stylesheet">
-
+    <link href="assets/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet">    
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
+    <![endif]-->    
 </head>
 
-<body>
+<body class="rust">
 
     <div id="wrapper">
 
@@ -41,6 +32,9 @@
                 </li>
                 <li>
 		  <p><a href="#" onclick="loadContent (this)" value="Ymir.html">Vue d'ensemble</a></p>
+                </li>
+		<li>
+		  <p><a href="#" onclick="loadContent (this)" value="If.html">If</a></p>
                 </li>
                 <li>
 		  <p><a href="#" onclick="loadContent (this)" value="Boucles.html">Boucles</a></p>
@@ -79,8 +73,8 @@
         <!-- Page Content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
-                <div class="row">
-                    <div id="page" class="col-lg-12">
+                <div class="row" style="margin-right:10%;">
+                    <div id="content" class="col-lg-12">
 
                     </div>
                 </div>
@@ -107,6 +101,16 @@
     });
     </script>
 
+    <!-- Local fallback for Font Awesome -->
+    <script>
+      if ($(".fa").css("font-family") !== "FontAwesome") {
+      $('<link rel="stylesheet" type="text/css" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">').prependTo('head');
+      }
+    </script>
+
+    <!-- Livereload script (if served using the cli tool) -->
+    
+    
 </body>
 
 </html>

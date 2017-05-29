@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <title>If</title>
+    <link type="text/css" rel="stylesheet" href="assets/css/github-markdown.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="assets/css/hljs-github.min.css"/>
+  </head>
+  <body>
+    <article class="markdown-body"><h1 id="if"><a class="header-link" href="#if"></a>If</h1>
+<hr>
+
+
+<p><code>if</code> est un mot clé qui permet de générer un branchement.</p>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> x = <span class="hljs-number">5</span>;
+<span class="hljs-keyword">if</span> x == <span class="hljs-number">5</span> {
+    println (<span class="hljs-string">"X is "</span>, x);
+}</code></pre><p>La valeur de <code>x == 5</code> est comparé avec un type <code>bool</code>. Si aucun <code>cast</code> implicite n&#39;est possible une erreur est lancé.</p>
+<pre class="hljs"><code><span class="hljs-keyword">if</span> <span class="hljs-string">"salut"</span> { <span class="hljs-comment">// Erreur, type incompatible bool et string.</span>
+}
+
+<span class="hljs-keyword">if</span> <span class="hljs-number">1</span> { <span class="hljs-comment">// Ok, 1 != 0</span>
+    println (<span class="hljs-string">"ici"</span>);
+}</code></pre><p><code>else</code> permet de récuperer les cas non gérer par le <code>if</code>.</p>
+<pre class="hljs"><code><span class="hljs-keyword">if</span> <span class="hljs-number">0</span> {
+    println (<span class="hljs-string">"Le langage est cassé"</span>);
+} <span class="hljs-keyword">else</span> {
+    println (<span class="hljs-string">"Ça à l'air de fonctionner"</span>);
+}
+
+<span class="hljs-keyword">if</span> <span class="hljs-number">0</span> {
+    <span class="hljs-comment">//    ...</span>
+} <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> <span class="hljs-number">1</span> == <span class="hljs-number">1</span> {
+    println (<span class="hljs-string">"La aussi"</span>);
+}</code></pre><h2 id="match"><a class="header-link" href="#match"></a>Match</h2>
+<hr>
+
+
+
+<p>Parfois il existe de nombreuse valeurs possible à traiter dans un <code>if</code>. Pour permettre une meilleur lisibilité, il existe en Ymir, le mot clé <code>match</code>. Celui-ci vérifie plusieurs possibilité de valeur et applique celle qui correspond.</p>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> x = <span class="hljs-number">3</span>;
+<span class="hljs-keyword">match</span> x {
+    <span class="hljs-number">1</span> =&gt; println (<span class="hljs-string">"un"</span>);
+    <span class="hljs-number">2</span> =&gt; { x += <span class="hljs-number">1</span>; println (<span class="hljs-string">"deux"</span>); }
+    <span class="hljs-number">3</span> =&gt; println (<span class="hljs-string">"trois"</span>);
+    _ =&gt; assert (<span class="hljs-literal">false</span>, <span class="hljs-string">"Valeur inconnu"</span>);
+}</code></pre><h2 id="expression-match"><a class="header-link" href="#expression-match"></a>Expression Match</h2>
+<hr>
+
+
+<p>Il est possible d&#39;utiliser l&#39;instruction <code>match</code> comme un expression. </p>
+<pre class="hljs"><code>def foo (a) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">match</span> a {
+        <span class="hljs-number">1</span> =&gt; <span class="hljs-string">"salut"</span>;
+        _ =&gt; <span class="hljs-string">"Non"</span>;
+    };
+}
+
+println (foo (<span class="hljs-number">1</span>)); <span class="hljs-comment">// Ok, "salut"</span>
+println (foo (<span class="hljs-string">'y'</span>)); <span class="hljs-comment">// Ok, "Non"</span></code></pre>    </article>
+  </body>
+</html>

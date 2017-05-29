@@ -14,41 +14,37 @@
 
 <p>Les fonctions templates sont des fonctions impure dont on stocke l&#39;inférence de type dans une variable d&#39;alias.
 En d&#39;autre terme, elle sont instancié comme les fonction impures, mais on peut récupérer facilement les types des paramètres et faire une spécialisation de templates plus avancée.</p>
-<p><br></p>
 <h2 id="déclaration"><a class="header-link" href="#déclaration"></a>Déclaration</h2>
 <hr>
 
 <p>La déclaration de fonctions templates est la suivante :</p>
 <pre class="hljs"><code>def foo (T) (a : T) {
-    println (T.<span class="hljs-keyword">typeid</span>, <span class="hljs-string">'('</span>, a, <span class="hljs-string">')'</span>);
+    println (T.typeid, <span class="hljs-string">'('</span>, a, <span class="hljs-string">')'</span>);
 }
 
 <span class="hljs-comment">// ...</span>
 
 foo (<span class="hljs-number">10</span>); <span class="hljs-comment">// Ok, const (int)(10)</span>
-foo (<span class="hljs-string">'salut'</span>); <span class="hljs-comment">// Ok, const (string) ('salut');</span></code></pre><p><br>
-Contrairement aux apparences, ce système apporte quelque chose au système de spécialisation de fonction que l&#39;on utilisait avec les fonctions impures.
-En effet, il est maintenant possible de spécialiser un type interne d&#39;un autre type (type template par exemple).
-<br></p>
+foo (<span class="hljs-symbol">'salut</span>'); <span class="hljs-comment">// Ok, const (string) ('salut');</span></code></pre><p>Contrairement aux apparences, ce système apporte quelque chose au système de spécialisation de fonction que l&#39;on utilisait avec les fonctions impures.
+En effet, il est maintenant possible de spécialiser un type interne d&#39;un autre type (type template par exemple).</p>
 <pre class="hljs"><code>def foo (T) (a : [T]) {
-    println (<span class="hljs-string">'fst'</span>);
+    println (<span class="hljs-symbol">'fst</span>');
 }
 
-def foo (a : [<span class="hljs-built_in">ulong</span>]) {
-    println (<span class="hljs-string">'scd'</span>);
+def foo (a : [ulong]) {
+    println (<span class="hljs-symbol">'scd</span>');
 }
 
 <span class="hljs-comment">//...</span>
 foo ([<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>]); <span class="hljs-comment">// Ok, 'fst'</span>
-foo ([<span class="hljs-number">1u</span>l, <span class="hljs-number">2u</span>l]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><p><br></p>
-<h2 id="spécialisation"><a class="header-link" href="#spécialisation"></a>Spécialisation</h2>
+foo ([<span class="hljs-number">1</span>ul, <span class="hljs-number">2</span>ul]); <span class="hljs-comment">// Ok, 'scd'</span></code></pre><h2 id="spécialisation"><a class="header-link" href="#spécialisation"></a>Spécialisation</h2>
 <hr>
 <p>Il est possible de passer des expressions comme paramètres templates, ces expressions doivent être évaluées à la compilation. </p>
 <pre class="hljs"><code>def test (i : <span class="hljs-keyword">int</span>) (a : <span class="hljs-keyword">int</span>) {
     println (i + a);
 }
 
-def test (s : <span class="hljs-built_in">string</span>) () {
+def test (s : string) () {
     <span class="hljs-keyword">if</span> (s == <span class="hljs-string">"123"</span>)
         println (s);
 }

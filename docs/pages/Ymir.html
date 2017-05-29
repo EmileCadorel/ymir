@@ -12,9 +12,8 @@
     <article class="markdown-body"><h1 id="ymir"><a class="header-link" href="#ymir"></a>Ymir</h1>
  <hr>
 
-<p>Ymir est un langage haut niveau inspiré par D, python et OCaml.
+<p>Ymir est un langage haut niveau inspiré par D, python, Rust et OCaml.
 Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyés dans un éditeur de liens, afin de générer un exécutable natif. </p>
-<p><br></p>
 <h2 id="compilation"><a class="header-link" href="#compilation"></a>Compilation</h2>
 <hr>
 <p>La compilation est séparée en plusieurs phases.</p>
@@ -32,15 +31,14 @@ Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyés d
 <p>Le langage intermédiaire est transformé en fichier objet, puis sont envoyé à l&#39;éditeur de lien (pour le moment gcc).</p>
 </li>
 </ul>
-<p><br></p>
 <h2 id="programme"><a class="header-link" href="#programme"></a>Programme</h2>
 <hr>
-<p>Un programme Ymir doit contenir un point d&#39;entrée - la fonction <em>main</em>.</p>
-<p>La fonction <em>main</em> est une fonction pure par définition.</p>
-<pre class="hljs"><code>def main () {
+<p>Un programme Ymir doit contenir un point d&#39;entrée - la fonction <code>main</code>.</p>
+<p>La fonction <code>main</code> est une fonction pure par définition.</p>
+<pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span> {
 }</code></pre><p> ou </p>
-<pre class="hljs"><code>def main (params) { <span class="hljs-comment">// params est un array!string</span>
-}</code></pre><p>Par défaut, la fonction <em>main</em> renvoie la valeur 0.</p>
+<pre class="hljs"><code><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">main</span> <span class="hljs-params">(params)</span></span> { <span class="hljs-regexp">//</span> params est un array!string
+}</code></pre><p>Par défaut, la fonction <code>main</code> renvoie la valeur 0.</p>
     </article>
   </body>
 </html>

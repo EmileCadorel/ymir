@@ -1,10 +1,9 @@
 # Ymir
  <hr>
 
-Ymir est un langage haut niveau inspiré par D, python et OCaml.
+Ymir est un langage haut niveau inspiré par D, python, Rust et OCaml.
 Il compile un ensemble de modules en fichiers objets qui sont ensuite envoyés dans un éditeur de liens, afin de générer un exécutable natif. 
 
-<br>
 ## Compilation
 ------------
 
@@ -25,24 +24,24 @@ La compilation est séparée en plusieurs phases.
 
  Le langage intermédiaire est transformé en fichier objet, puis sont envoyé à l'éditeur de lien (pour le moment gcc).
 
-<br>
+
 ## Programme
 --------------
 
-Un programme Ymir doit contenir un point d'entrée - la fonction _main_.
+Un programme Ymir doit contenir un point d'entrée - la fonction `main`.
 
-La fonction _main_ est une fonction pure par définition.
+La fonction `main` est une fonction pure par définition.
 
 
-```D
+```
 def main () {
 }
 ```
  ou 
-```D
+```
 def main (params) { // params est un array!string
 }
 
 ```
-Par défaut, la fonction _main_ renvoie la valeur 0.
+Par défaut, la fonction `main` renvoie la valeur 0.
 

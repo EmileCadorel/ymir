@@ -10,44 +10,42 @@
   </head>
   <body>
     <article class="markdown-body"><h1 id="boucles"><a class="header-link" href="#boucles"></a>Boucles</h1>
-<p>  <hr><br> Ymir propose deux types de boucles :</p>
+<p>  <hr>
+ Ymir propose deux types de boucles :</p>
 <ul class="list">
-<li>Les boucles <em>While</em></li>
-<li>Les boucles <em>For</em>
-<br></li>
+<li>Les boucles <code>while</code></li>
+<li>Les boucles <code>for</code></li>
 </ul>
 <h2 id="while"><a class="header-link" href="#while"></a>While</h2>
 <hr>
-<p> <em>While</em> boucle jusqu&#39;à ce que la condition soit fausse.</p>
-<pre class="hljs"><code>let i = <span class="hljs-number">0</span>;
+<p> <code>while</code> boucle jusqu&#39;à ce que la condition soit fausse.</p>
+<pre class="hljs"><code><span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>;
 <span class="hljs-keyword">while</span> i &lt; <span class="hljs-number">101</span> {
   <span class="hljs-keyword">if</span> i % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>
-     println (<span class="hljs-string">'Pair'</span>);
+     println (<span class="hljs-symbol">'Pair</span>');
   <span class="hljs-keyword">else</span> 
-     println (<span class="hljs-string">'Impair'</span>);
+     println (<span class="hljs-symbol">'Impair</span>');
   i ++;
-}</code></pre><p><br></p>
-<h2 id="for"><a class="header-link" href="#for"></a>For</h2>
+}</code></pre><h2 id="for"><a class="header-link" href="#for"></a>For</h2>
 <hr>
-<p> La boucle <em>For</em> itère sur un type itérable.
+<p> La boucle <code>for</code> itère sur un type itérable.
  Les types itérables sont :</p>
 <ul class="list">
-<li>string</li>
-<li>array!T</li>
-<li>range</li>
+<li><code>string</code></li>
+<li><code>array!T</code></li>
+<li><code>range</code></li>
 </ul>
 <pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>]
   print (it);
 
-<span class="hljs-comment">//'12345'</span></code></pre><p> Les <em>Ranges</em> sont des types créés pour pouvoir itérer sur un intervalle.</p>
+<span class="hljs-comment">//'12345'</span></code></pre><p> Les <code>range</code>s sont des types créés pour pouvoir itérer sur un intervalle.</p>
 <pre class="hljs"><code><span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">0</span> .. <span class="hljs-number">6</span>
    print (it); <span class="hljs-comment">// '12345'</span>
 
 <span class="hljs-keyword">for</span> it <span class="hljs-keyword">in</span> <span class="hljs-number">6</span> .. <span class="hljs-number">0</span>
-  print (it); <span class="hljs-comment">// '654321'</span></code></pre><p><br></p>
-<h2 id="label-de-boucle"><a class="header-link" href="#label-de-boucle"></a>Label de boucle</h2>
+  print (it); <span class="hljs-comment">// '654321'</span></code></pre><h2 id="label-de-boucle"><a class="header-link" href="#label-de-boucle"></a>Label de boucle</h2>
 <hr>
-<p>Il est possible de labélliser une boucle. C&#39;est utile pour le mot clé <em>break</em>, qui va pouvoir y faire appel.</p>
+<p>Il est possible de labélliser une boucle. C&#39;est utile pour le mot clé <code>break</code>, qui va pouvoir y faire appel.</p>
 <pre class="hljs"><code><span class="hljs-keyword">while</span>:loop1 (<span class="hljs-literal">true</span>) {
     <span class="hljs-keyword">for</span>:loop2 (it <span class="hljs-keyword">in</span> [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>) {
         <span class="hljs-keyword">if</span> (it == <span class="hljs-number">2</span>) 

@@ -1,15 +1,15 @@
 # Boucles
-  <hr>  
+  <hr>
  Ymir propose deux types de boucles :
- * Les boucles _While_
- * Les boucles _For_
-<br>
+ * Les boucles `while`
+ * Les boucles `for`
+ 
 
 ## While
 ----------------
- _While_ boucle jusqu'à ce que la condition soit fausse.
+ `while` boucle jusqu'à ce que la condition soit fausse.
 
-```D
+```Rust
 let i = 0;
 while i < 101 {
   if i % 2 == 0
@@ -20,25 +20,25 @@ while i < 101 {
 }
 
 ```
-<br>
+
 ## For
 ----------------
- La boucle _For_ itère sur un type itérable.
+ La boucle `for` itère sur un type itérable.
  Les types itérables sont :
-  - string
-  - array!T
-  - range
+  - `string`
+  - `array!T`
+  - `range`
 
-```D
+```Rust
 for it in [1, 2, 3, 4, 5]
   print (it);
 
 //'12345'
 ```
 
- Les _Ranges_ sont des types créés pour pouvoir itérer sur un intervalle.
+ Les `range`s sont des types créés pour pouvoir itérer sur un intervalle.
  
-```D
+```Rust
 for it in 0 .. 6
    print (it); // '12345'
 
@@ -46,13 +46,13 @@ for it in 6 .. 0
   print (it); // '654321'
 ```
 
-<br>
+
 ## Label de boucle
 ------------------
 
-Il est possible de labélliser une boucle. C'est utile pour le mot clé _break_, qui va pouvoir y faire appel.
+Il est possible de labélliser une boucle. C'est utile pour le mot clé `break`, qui va pouvoir y faire appel.
 
-```D
+```Rust
 while:loop1 (true) {
 	for:loop2 (it in [1, 2, 3) {
 		if (it == 2) 
