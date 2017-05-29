@@ -990,7 +990,8 @@ class LVisitor {
     private LInstList visitMatch (ref LLabel end, ref LReg retReg, Match mtch) {
 	auto fin = new LLabel ();
 	LLabel currentFalse;
-	LInstList total;
+	LInstList total = visitExpression (mtch.expr);
+	
 	foreach (it ; 0 .. mtch.values.length) {
 	    auto insts = new LInstList;
 	    LLabel vrai = new LLabel ();
@@ -1017,13 +1018,13 @@ class LVisitor {
 	    insts += faux;
 	    insts += vrai;	    
 	    if (currentFalse) currentFalse.insts = insts;
-	    else total = insts;
+	    else total += insts;
 	    currentFalse = faux;
 	}
 
 	if (mtch.values.length == 0) {
 	    if (mtch.defaultBlock) 
-		total = visitBlock (end, retReg, mtch.defaultBlock);	    
+		total += visitBlock (end, retReg, mtch.defaultBlock);	    
 	}
 	
 	total += fin;	
@@ -1034,7 +1035,8 @@ class LVisitor {
 	auto fin = new LLabel ();
 	auto finalReg = new LReg (mtch.info.id, mtch.info.type.size);
 	LLabel currentFalse;
-	LInstList total;
+	LInstList total = visitExpression (mtch.expr);
+	
 	foreach (it ; 0 .. mtch.values.length) {
 	    auto insts = new LInstList;
 	    LLabel vrai = new LLabel (new LInstList);
@@ -1070,7 +1072,7 @@ class LVisitor {
 	    insts += faux;
 	    insts += vrai;	    
 	    if (currentFalse) currentFalse.insts = insts;
-	    else total = insts;
+	    else total += insts;
 	    currentFalse = faux;
 	}
 
@@ -1080,7 +1082,7 @@ class LVisitor {
 		res = mtch.cstr [$ - 1].lintInst (res);
 	    
 	    auto exp2 = res.getFirst ();		
-	    total = res;
+	    total += res;
 	    total += new LWrite (finalReg, exp2);
 	    total += finalReg;
 	    return total;

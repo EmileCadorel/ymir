@@ -36,11 +36,11 @@ class Match : Expression {
 	Array!Block blocks;
 	auto eq = Word (this._token.locus, Tokens.DEQUAL.descr, true);
 	foreach (it ; 0 .. this._values.length) {
-	    auto current = this._values [it].expression;
+	    auto current = this._values [it];
 	    try {
-		auto bin = new Binary (eq, expr.clone, current);
-		values.insertBack (bin.expression);
-		blocks.insertBack (this._blocks [it].block);
+		auto bin = new Binary (eq, expr, current);
+		values.insertBack (bin.expression);		
+		blocks.insertBack (this._blocks [it].block);		
 	    } catch (UndefinedOp) {
 	    }
 	}
@@ -61,9 +61,9 @@ class Match : Expression {
 	Symbol info;
 	auto eq = Word (this._token.locus, Tokens.DEQUAL.descr, true);
 	foreach (it ; 0 .. this._values.length) {
-	    auto current = this._values [it].expression;
+	    auto current = this._values [it];
 	    try {
-		auto bin = new Binary (eq, expr.clone, current);
+		auto bin = new Binary (eq, expr, current);
 		values.insertBack (bin.expression);
 		auto insts = this._blocks [it].insts ();
 		if (insts.length != 1 || !cast (Expression) insts[0]) {

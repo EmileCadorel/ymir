@@ -87,6 +87,7 @@ class StringValue : Value {
 	if (it is null) {
 	    StringUtils.createCstString ();
 	}
+	
 	if (sym.type.isDestructible) {
 	    auto aux = new LReg (sym.id, sym.type.size);
 	    inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));

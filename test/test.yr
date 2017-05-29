@@ -1,13 +1,5 @@
 import std.stdio;
 
-def foo (a) {
-    return match a {
-        1 => "salut";
-        _ => "Non";
-    };
-}
-
 def main () {
-    println (foo (1));
-    println (foo ('y'));
+    let b = "salut" + 'j ' + 'jk';
 }
