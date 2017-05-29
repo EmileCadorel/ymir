@@ -17,7 +17,7 @@ enum Keys : Token {
     BREAK = Token ("break", 12),
     THROW = Token ("throw", 13),
     TRY = Token ("try", 14),
-    SWITCH = Token ("switch", 15),
+    MATCH = Token ("match", 15),
     DEFAULT = Token ("default", 16),
     IN = Token ("in", 17),
     ELSE = Token ("else", 18),

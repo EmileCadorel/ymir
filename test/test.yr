@@ -1,17 +1,9 @@
-import std.stdio, std.conv;
-
-struct Test {
-    a : int,
-    b : float
-}     
-
+import std.stdio;
 
 def main () {
-    let a = (1,);
-    println (a.to!string);
+    let a = match 2 {
+        1 => 23;
+        _ => 3;
+    };
+    println (a);
 }
-
-
-
-
-		 

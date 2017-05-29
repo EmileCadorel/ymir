@@ -166,7 +166,7 @@ class LVisitor {
     
     private void visitInstruction (ref LInstList begin, ref LLabel end, ref LReg retReg, Instruction elem) {
 	auto loc = new LInstList (new LLocus (elem.token.locus));
-	if (auto exp = cast(Expression)elem) begin += loc + visitExpression (exp);
+	if (auto exp = cast(Expression)elem) begin += loc + visitExpression (end, retReg, exp);
 	else if (auto decl = cast(VarDecl)elem) begin += loc + visitVarDecl (decl);
 	else if (auto ret = cast(Return)elem) begin += loc + visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin += loc + visitIf (end, retReg, _if);
@@ -180,7 +180,7 @@ class LVisitor {
     
     private void visitInstruction (ref LLabel begin, ref LLabel end, ref LReg retReg, Instruction elem) {
 	auto loc = new LInstList (new LLocus (elem.token.locus));
-	if (auto exp = cast(Expression)elem) begin.insts += loc + visitExpression (exp);
+	if (auto exp = cast(Expression)elem) begin.insts += loc + visitExpression (end, retReg, exp);
 	else if (auto decl = cast(VarDecl)elem) begin.insts += loc + visitVarDecl (decl);
 	else if (auto ret = cast(Return)elem) begin.insts += loc + visitReturn (end, retReg, ret);
 	else if (auto _if = cast(If)elem) begin.insts += loc + visitIf (end, retReg, _if);
@@ -243,7 +243,7 @@ class LVisitor {
 	    insts += tlist;
 	    insts += new LJump (tlist.getFirst (), vrai);
 	}
-	__currentCondition__ = LPairLabel (null, null);
+	__currentCondition__ = LPairLabel (null, null);	    
 	vrai.insts = visitBlock (end, retReg, _if.block);
 	vrai.insts += new LGoto (fin);	
 	if (_if.else_ !is null) {
@@ -440,7 +440,34 @@ class LVisitor {
 	auto visitor = new LVisitor ();
 	return visitor.visitExpression (elem);
     }
-    
+        
+    private LInstList visitExpression (ref LLabel end, ref LReg retReg, Expression elem) {
+	auto loc = new LInstList (new LLocus (elem.token.locus));
+	if (auto bin = cast(Binary) elem) return loc + visitBinary (bin);
+	if (auto var = cast(Var)elem) return loc + visitVar (var);
+	if (auto _dec = cast(Decimal)elem) return loc + visitDec (_dec);
+	if (auto _float = cast(Float)elem) return loc + visitFloat (_float);
+	if (auto _char = cast(Char) elem) return loc + visitChar (_char);
+	if (auto _par = cast (Par) elem) return loc + visitPar (_par);
+	if (auto _cast = cast(Cast) elem) return loc + visitCast (_cast);
+	if (auto _str = cast(String) elem) return loc + visitStr (_str);
+	if (auto _access = cast (Access) elem) return loc + visitAccess (_access);
+	if (auto _dot = cast (Dot) elem) return loc + visitDot (_dot);
+	if (auto _bool = cast (Bool) elem) return loc + visitBool (_bool);
+	if (auto _unop = cast (BefUnary) elem) return loc + visitBefUnary (_unop);
+	if (auto _null = cast (Null) elem) return loc + visitNull (_null);
+	if (auto _carray = cast (ConstArray) elem) return loc + visitConstArray (_carray);
+	if (auto _crange = cast (ConstRange) elem) return loc + visitConstRange (_crange);
+	if (auto _fptr = cast (FuncPtr) elem) return loc + visitFuncPtr (_fptr);
+	if (auto _lambda = cast (LambdaFunc) elem) return loc + visitLambda (_lambda);
+	if (auto _tuple = cast (ConstTuple) elem) return loc + visitConstTuple (_tuple);
+	if (auto _exp = cast (Expand) elem) return loc + visitExpand (_exp);
+	if (auto _alloc = cast (ArrayAlloc) elem) return loc + visitAlloc (_alloc);
+	if (auto _is = cast (Is) elem) return loc + visitIs (_is);
+	if (auto _mtch = cast (Match) elem) return loc + visitMatch (end, retReg, _mtch);
+	assert (false, "TODO, visitExpression ! " ~ elem.toString);
+    }
+
     private LInstList visitExpression (Expression elem) {
 	auto loc = new LInstList (new LLocus (elem.token.locus));
 	if (auto bin = cast(Binary) elem) return loc + visitBinary (bin);
@@ -464,6 +491,7 @@ class LVisitor {
 	if (auto _exp = cast (Expand) elem) return loc + visitExpand (_exp);
 	if (auto _alloc = cast (ArrayAlloc) elem) return loc + visitAlloc (_alloc);
 	if (auto _is = cast (Is) elem) return loc + visitIs (_is);
+	if (auto _mtch = cast (Match) elem) return loc + visitMatch (_mtch);
 	assert (false, "TODO, visitExpression ! " ~ elem.toString);
     }
 
@@ -958,6 +986,112 @@ class LVisitor {
     private LInstList visitIs (Is _is) {
 	return _is.info.value.toLint (_is.info);
     }
+
+    private LInstList visitMatch (ref LLabel end, ref LReg retReg, Match mtch) {
+	auto fin = new LLabel ();
+	LLabel currentFalse;
+	LInstList total;
+	foreach (it ; 0 .. mtch.values.length) {
+	    auto insts = new LInstList;
+	    LLabel vrai = new LLabel ();
+	    LLabel faux = new LLabel ();
+	    LInstList left;
+	    __currentCondition__ = LPairLabel (vrai, faux);
+	    auto val = visitExpression (mtch.values [it]);
+	    auto exp = val.getFirst ();
+	    
+	    insts += val;	    
+	    insts += new LJump (exp, vrai);
+	    	    
+	    __currentCondition__ = LPairLabel (null, null);
+
+	    vrai.insts = visitBlock (end, retReg, mtch.blocks [it]);
+	    vrai.insts += new LGoto (fin);
+	    if (it == mtch.values.length - 1) {
+		if (mtch.defaultBlock) {
+		    faux.insts = visitBlock (end, retReg, mtch.defaultBlock);
+		} else faux.insts = new LInstList ();
+		faux.insts += new LGoto (fin);
+	    }	    
+
+	    insts += faux;
+	    insts += vrai;	    
+	    if (currentFalse) currentFalse.insts = insts;
+	    else total = insts;
+	    currentFalse = faux;
+	}
+
+	if (mtch.values.length == 0) {
+	    if (mtch.defaultBlock) 
+		total = visitBlock (end, retReg, mtch.defaultBlock);	    
+	}
+	
+	total += fin;	
+	return total;
+    }
+
+    private LInstList visitMatch (Match mtch) {
+	auto fin = new LLabel ();
+	auto finalReg = new LReg (mtch.info.id, mtch.info.type.size);
+	LLabel currentFalse;
+	LInstList total;
+	foreach (it ; 0 .. mtch.values.length) {
+	    auto insts = new LInstList;
+	    LLabel vrai = new LLabel (new LInstList);
+	    LLabel faux = new LLabel ();
+	    LInstList left;
+	    __currentCondition__ = LPairLabel (vrai, faux);
+	    auto val = visitExpression (mtch.values [it]);
+	    auto exp = val.getFirst ();
+	    
+	    insts += val;	    
+	    insts += new LJump (exp, vrai);
+	    	    
+	    __currentCondition__ = LPairLabel (null, null);
+	    auto res = visitExpression (mtch.results [it]);
+	    if (!mtch.cstr [it].isSame (mtch.values [it].info.type) && it != 0)
+		res = mtch.cstr [it].lintInst (res);
+	    
+	    auto exp2 = res.getFirst ();	    
+	    vrai.insts += res;
+	    vrai.insts += new LWrite (finalReg, exp2);
+	    vrai.insts += new LGoto (fin);
+	    if (it == mtch.values.length - 1) {
+		res = visitExpression (mtch.defaultResult);
+		if (!mtch.cstr [$ - 1].isSame (mtch.defaultResult.info.type))
+		    res = mtch.cstr [$ - 1].lintInst (res);
+
+		exp2 = res.getFirst ();		
+		faux.insts = res;
+		faux.insts += new LWrite (finalReg, exp2);		
+		faux.insts += new LGoto (fin);
+	    }	    
+
+	    insts += faux;
+	    insts += vrai;	    
+	    if (currentFalse) currentFalse.insts = insts;
+	    else total = insts;
+	    currentFalse = faux;
+	}
+
+	if (mtch.values.length == 0) {
+	    auto res = visitExpression (mtch.defaultResult);
+	    if (!mtch.cstr [$ - 1].isSame (mtch.defaultResult.info.type))
+		res = mtch.cstr [$ - 1].lintInst (res);
+	    
+	    auto exp2 = res.getFirst ();		
+	    total = res;
+	    total += new LWrite (finalReg, exp2);
+	    total += finalReg;
+	    return total;
+	}
+       
+	total += fin;
+	total += finalReg;
+	return total;
+    }
+
+
     
 }
 

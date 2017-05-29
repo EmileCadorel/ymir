@@ -22,6 +22,7 @@ class LAddr : LExp {
     }
     
     override string toString () {
+	if (!this._exp) return "&(ERROR)";
 	return "&(" ~ this._exp.toString ~ ")";
     }
 

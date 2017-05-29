@@ -40,6 +40,6 @@ public import ast.Enum;
 public import ast.Assert;
 public import ast.Is;
 public import ast.TypeOf;
-public import ast.Class;
 public import ast.Mixin;
 public import ast.OfVar;
+public import ast.Match;
