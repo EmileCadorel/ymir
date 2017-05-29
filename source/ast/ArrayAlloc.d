@@ -64,7 +64,6 @@ class ArrayAlloc : Expression {
 	aux._cster = cmp;
 	
 	aux.info = new Symbol (this._token, new ArrayInfo (aux._type.info.type.clone));
-	
 	return aux;	
     }
 

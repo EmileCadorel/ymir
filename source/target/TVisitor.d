@@ -9,6 +9,7 @@ public import lint.LCall, lint.LInstList;
 public import target.TInstList, target.TFrame, target.TInstPaire;
 public import target.TReg, target.TLabel, target.TExp;
 public import lint.LCast, lint.LUnop, lint.LAddr, lint.LLocus;
+public import lint.LReserve;
 import std.container;
 
 abstract class TVisitor {
@@ -44,6 +45,7 @@ abstract class TVisitor {
 	else if (auto call = cast (LCall) inst) return visitCall (call).what;
 	else if (auto _loc = cast (LLocus) inst) return visitLocus (_loc);
 	else if (auto _unop = cast (LUnop) inst) return visitUnop (_unop).what;
+	else if (auto _res = cast (LReserve) inst) return visitReserve (_res).what;
 	assert (false, "TODO, visit (" ~ inst.toString () ~ ")");	
     }
 
@@ -68,6 +70,7 @@ abstract class TVisitor {
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast);
 	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop);
 	if (auto _addr = cast (LAddr) elem) return visitAddr (_addr);
+	if (auto _res = cast (LReserve) elem) return visitReserve (_res);
 	assert (false, "TODO, visitExpression " ~ typeid (elem).toString);
     }
 
@@ -80,6 +83,7 @@ abstract class TVisitor {
 	if (auto _cast = cast(LCast) elem) return visitCast (_cast, where);
 	if (auto _unop = cast (LUnop) elem) return visitUnop (_unop, where);
 	if (auto _addr = cast (LAddr) elem) return visitAddr (_addr, where);
+	if (auto _res = cast (LReserve) elem) return visitReserve (_res, where);
 	assert (false, "TODO, visitExpression " ~ typeid (elem).toString);
     }
     
@@ -96,6 +100,8 @@ abstract class TVisitor {
     abstract protected TInstPaire visitUnop (LUnop);
 
     abstract protected TInstPaire visitAddr (LAddr);
+
+    abstract protected TInstPaire visitReserve (LReserve);
 
     protected TInstPaire visitRegRead (LRegRead, TExp) {
 	assert (false);
@@ -122,6 +128,10 @@ abstract class TVisitor {
     }
 
     protected TInstPaire visitAddr (LAddr, TExp) {
+	assert (false);
+    }
+
+    protected TInstPaire visitReserve (LReserve, TExp) {
 	assert (false);
     }
     

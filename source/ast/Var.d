@@ -9,7 +9,7 @@ import ast.FuncPtr;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
 import semantic.types.StructInfo;
-import ast.Par, ast.ParamList;
+import ast.Par, ast.ParamList, ast.Dot;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -28,7 +28,7 @@ class Var : Expression {
 
     /// L'élément de décoration de la variable (const, ref)
     protected Word _deco;
-    
+
     this (Word ident) {
 	super (ident);
     }
@@ -66,12 +66,19 @@ class Var : Expression {
 	if (this._info && this._info.isImmutable)
 	    return this;
 	if (!isType) {
-	    auto aux = new Var (this._token);	    
+	    auto aux = new Var (this._token);
 	    aux.info = Table.instance.get (this._token.str);
 	    if (aux.info is null) 
 		throw new UndefinedVar (this._token, Table.instance.getAlike (this._token.str));
 	    
-	    if (this._templates.length != 0) {
+	    if (this._templates.length != 0) {		
+		if (!cast (Par) this._inside && !cast (Dot) this._inside) {
+		    auto params = new ParamList (this._token, make!(Array!Expression));
+		    auto call = new Par (this._token, this._token, this, params);
+		    this._inside = call;
+		    return call.expression;
+		}
+		
 		Table.instance.pacifyMode ();
 		auto id = aux.info.id;
 		Array!Expression tmps;
@@ -85,14 +92,7 @@ class Var : Expression {
 		    throw new NotATemplate (this._token, tmps);
 		
 		aux.templates = tmps;
-		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);
-
-		if (!cast (Par) this._inside) {
-		    auto params = new ParamList (this._token, make!(Array!Expression));
-		    auto call = new Par (this._token, this._token, aux, params);
-		    return call.expression;
-		}
-		
+		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);		
 	    }
 	    return aux;	
 	} else return asType ();

@@ -18,7 +18,7 @@ import lint.LInst;
 import std.array, std.typecons;
 import semantic.types.StructInfo;
 import semantic.value.all;
-import lint.LUnop;
+import lint.LUnop, lint.LReserve;
 import utils.Mangler;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
@@ -516,8 +516,22 @@ class LVisitor {
 	}
 	return inst;
     }
+
+    private LInstList visitAllocStatic (ArrayAlloc alloc) {
+	auto list = new LInstList ();
+	auto arr = cast (StaticArrayInfo) alloc.info.type;
+	auto aux = new LReserve (new LConstDecimal (arr.length, LSize.LONG, arr.content.size));
+	list += aux;
+	if (arr.content.isDestructible) {
+	    foreach (it ; 0 .. arr.length) {
+		list += new LWrite (new LRegRead (aux.id, new LConstDecimal (it, LSize.LONG, arr.content.size), arr.content.size), new LConstDecimal (0, arr.content.size));
+	    }
+	}
+	return list;
+    }
     
     private LInstList visitAlloc (ArrayAlloc alloc) {
+	if (cast (StaticArrayInfo) alloc.info.type) return visitAllocStatic (alloc);
 	auto type = cast (ArrayInfo) alloc.info.type;
 	if (alloc.type.info.type.leftTreatment) {
 	    // On créer les constructeurs et les dests, si le type est un struct templates

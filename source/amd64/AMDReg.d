@@ -1,5 +1,5 @@
 module amd64.AMDReg;
-import amd64.AMDSize, std.typecons;
+import amd64.AMDSize, amd64.AMDConst, std.typecons;
 import utils.Singleton, std.container, amd64.AMDObj;
 import std.conv, std.outbuffer;
 import std.math;
@@ -251,6 +251,12 @@ class AMDRegTable {
 	    __free__ [reg.name] = true;
 	}
     }
+
+    static AMDReg reserveSpace (ulong id, AMDConstDecimal space) {
+	auto off = AMDReg.reserveLength (cast (ulong) space.value);
+	auto ret = new AMDReg (id, AMDSize.QWORD, cast (long) off);
+	return ret;
+    }
     
     static void free (string name) {
 	__free__ [name] = true;
@@ -307,17 +313,31 @@ class AMDReg : AMDObj {
 	this.toAsm ();
     }
 
-    this (AMDSize size, ulong offset) {
+    this (AMDSize size, long offset) {
 	this._isStd = true;
 	this._id = lastId ();
 	this._size = size;
 	this._offset = offset;
+	__offsets__ [this._id] = offset;
 	this._isOff = true;
 	this._pos = true;
 	auto r = REG.getReg ("rbp");
 	this._name = r.name;
     }
 
+    this (ulong id, AMDSize size, long offset) {
+	this._isStd = true;
+	this._id = id;
+	this._size = size;
+	this._offset = offset;
+	__offsets__ [this._id] = offset;
+	this._isOff = true;
+	this._pos = true;
+	auto r = REG.getReg ("rbp");
+	this._name = r.name;
+    }
+
+    
     this (string name, AMDSize size) {
 	this._isStd = true;
 	this._name = name;
@@ -367,6 +387,18 @@ class AMDReg : AMDObj {
 	auto id = __lastId__;
 	__lastId__++;
 	return id;
+    }
+    
+    static ulong reserveLength (ulong length) {
+	long o;
+	auto res = __globalOffset__ % AMDSize.QWORD.size;
+	if (res != 0) {
+	    res = (AMDSize.QWORD.size - res);
+	    __globalOffset__ += res;
+	}
+	__globalOffset__ += length;
+	o = __globalOffset__;
+	return o;
     }
     
     private void toAsm () {

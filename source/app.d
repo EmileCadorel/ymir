@@ -16,6 +16,8 @@ import semantic.types.StructUtils;
 import semantic.types.StructInfo;
 
 void semanticTime (string file) {
+    debug writeln ("COMPILING ", file);
+       
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
     Table.instance.purge ();

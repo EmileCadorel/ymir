@@ -129,6 +129,11 @@ def addTupleComa (T) (left : T, elem) : string {
     }
 }
 
+
+def addTupleComa () : string {
+    return "";
+}
+
 def to if (isTuple!(T2) ())
     (T of string, T2) (elem : T2) : string {	
 	return 'tuple(' + addTupleComa (expand (elem)) + ')';	

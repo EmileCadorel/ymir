@@ -234,7 +234,7 @@ def joinAll (a : [int]) {
     write (a [0], -1); 
 }
 
-def spawn (nb : ulong, call : function (ulong, ulong, [int]):int) : [int] { 
+def spawn (nb : ulong, call : fn (ulong, ulong, [int]):int) : [int] { 
     extern (C) fork () : int;
     extern (C) exit (int);
     extern (C) getpid () : int;

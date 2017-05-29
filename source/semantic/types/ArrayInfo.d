@@ -1,4 +1,6 @@
 module semantic.types.ArrayInfo;
+public import semantic.types.StaticArrayInfo;
+
 import semantic.types.InfoType, utils.exception;
 import syntax.Word, ast.Expression, ast.Var;
 import semantic.types.VoidInfo, syntax.Tokens;
@@ -19,7 +21,7 @@ import semantic.types.DecimalInfo, ast.Constante;
 class ArrayInfo : InfoType {
 
     /** Le type contenu dans le tableau */
-    private InfoType _content = null;
+    protected InfoType _content = null;
 
     /**
      Initialise le tableau en [void].
@@ -77,8 +79,6 @@ class ArrayInfo : InfoType {
 	    return arr;
 	}
     }
-
-
     
     /**
      Test des surcharge d'operateur du tableau.
@@ -235,7 +235,7 @@ class ArrayInfo : InfoType {
      left = l'operande gauche de l'operation.
      Returns: le type résultat ou null.
     */
-    private InfoType AffectRight (Expression left) {
+    protected InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto arr = new ArrayInfo (this._content.clone ());
 	    arr.lintInst = &ClassUtils.InstAffectRight;
@@ -314,7 +314,7 @@ class ArrayInfo : InfoType {
     /**
      Returns: Le type résultat de 'array.length'
      */
-    private InfoType Length () {
+    protected InfoType Length () {
 	if (cast (VoidInfo) this._content) return null; 
 	auto elem = new DecimalInfo (DecimalConst.ULONG);
 	elem.lintInst = &ArrayUtils.InstLength;

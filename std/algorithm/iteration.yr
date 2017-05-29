@@ -1,6 +1,6 @@
 import std.traits;
 
-def scan (T) (a : [T], call : function (T, T) : T) : [T] {
+def scan (T) (a : [T], call : fn (T, T) : T) : [T] {
     let b = [T ; a.length];
     if (b.length == 0UL) return b;
     b [0] = a [0];
@@ -23,7 +23,7 @@ def scan (op : string, T) (a : [T]) : [T] {
 }
 
 
-def each (T) (a : [T], call : function (T) : void)  {
+def each (T) (a : [T], call : fn (T) : void)  {
     for (it in a ) {
 	call (it);
     }
@@ -37,7 +37,7 @@ def each (op : string, T) (a : [T]) : void {
     }
 }
 
-def filter (T) (a : [T], call : function (T) : bool) : [T] {
+def filter (T) (a : [T], call : fn (T) : bool) : [T] {
     let b = [T ; 0UL];
     for (it in 0UL .. a.length) {
 	if (call (a [it]))
@@ -57,7 +57,7 @@ def filter (op : string, T) (a : [T]) : [T] {
     return b;
 }
 
-def reduce (T) (a : [T], call : function (T, T) : T) : T {
+def reduce (T) (a : [T], call : fn (T, T) : T) : T {
     if (a.length == 0UL) {
 	static if (isPrimitive!(T) ())
 	    return T.init;
@@ -87,7 +87,7 @@ def reduce (op : string, T) (a : [T]) : T {
     }
 }
 
-def map (T, U) (a : [T], call : function (T) : U) : [U] {
+def map (T, U) (a : [T], call : fn (T) : U) : [U] {
     let b = [U ; a.length];
     for (it in 0UL .. a.length) {
 	b [it] = call (a [it]);
@@ -106,7 +106,7 @@ def map (op : string, T) (a : [T])  {
 }
 
 
-def zip (T, T2, T3) (a : [T], b : [T2], call : function (T, T2) : T3) : [T3] {
+def zip (T, T2, T3) (a : [T], b : [T2], call : fn (T, T2) : T3) : [T3] {
     if (a.length != b.length) assert (false, "Taille différente");
     let c = [T3 ; a.length];
     for (it in 0UL .. a.length) {

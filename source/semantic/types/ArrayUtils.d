@@ -596,5 +596,15 @@ class ArrayUtils {
 	return inst;
     }
     
+
+    static LInstList InstAffectRightStatic (LInstList llist, LInstList rlist) {
+	LInstList inst = new LInstList;
+	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	inst += llist + rlist;
+	inst += new LWrite (leftExp, new LAddr (rightExp));
+	return inst;
+    }
+    
+
 }
 

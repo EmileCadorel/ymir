@@ -50,8 +50,6 @@ class TupleInfo : InfoType {
      Throws: UndefinedType
     */
     static InfoType create (Word token, Expression [] templates) {
-	if (templates.length < 2)
-	    throw new UndefinedType (token, "prend au moins deux type en template");
 	auto tuple = new TupleInfo ();
 	foreach (it ; 0 .. templates.length) {
 	    tuple._params.insertBack (templates [it].info.type);

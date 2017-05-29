@@ -48,14 +48,10 @@ class Dot : Expression {
 	if (cast (UndefInfo) (aux._left.info.type)) throw new UninitVar (aux._left.token);
 	auto type = aux._left.info.type.DotOp (aux._right);
 	if (type is null) {
-	    if (InfoType.isPrimitive (aux._left.info.type)) 
+	    auto call = aux._right.expression ();
+	    if (cast (Type) call || cast (UndefInfo) call.info.type)
 		throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
-	    else {
-		auto call = aux._right.expression ();
-		if (cast (Type) call || cast (UndefInfo) call.info.type)
-		    throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
-		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();
-	    }
+	    return new DotCall (this._inside, this._right.token, call, aux._left).expression ();	    
 	}
 	aux.info = new Symbol (aux._token, type);
 	return aux;

@@ -28,7 +28,7 @@ def isPermutation  (a : string, b : string) : bool {
     return isPermutation (a [], b []);
 }
 
-def match if (is (T2 : function))
+def match if (is (T2 : fn))
     (T, T2) (params : T, fst : T2) {
 	static if (is (fst.paramTuple : T)) {	    
 	    static if (is (fst.retType : void))
@@ -37,7 +37,7 @@ def match if (is (T2 : function))
 	}
     }
 
-def match if (is (T2 : function))
+def match if (is (T2 : fn))
     (T, T2) (params : T, fst : T2, next) {
 	static if (is (fst.paramTuple : T))
 	    static if (is (fst.retType : void))
@@ -51,7 +51,7 @@ def match if (is (T2 : function))
     }
 
 
-def finalMatch if (is (T2 : function))
+def finalMatch if (is (T2 : fn))
     (T, T2) (params : T, fst : T2) {
 	static if (is (fst.paramTuple : T)) {	    
 	    static if (is (fst.retType : void))
@@ -61,7 +61,7 @@ def finalMatch if (is (T2 : function))
 	else static assert (false);			 
     }
 
-def finalMatch if (is (T2 : function))
+def finalMatch if (is (T2 : fn))
     (T, T2) (params : T, fst : T2, next) {
 	static if (is (fst.paramTuple : T))
 	    static if (is (fst.retType : void))

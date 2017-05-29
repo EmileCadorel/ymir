@@ -145,7 +145,7 @@ class InfoType {
 		    "void" : &VoidInfo.create,
 		    "ptr" : &PtrInfo.create,
 		    "array" : &ArrayInfo.create,
-		    "function" : &PtrFuncInfo.create,
+		    "fn" : &PtrFuncInfo.create,
 		    "ref" : &RefInfo.create,
 		    "range" : &RangeInfo.create,
 		    "tuple" : &TupleInfo.create];

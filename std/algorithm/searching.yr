@@ -1,14 +1,14 @@
 import std.algorithm.comparaison, std.array;
 import std.conv;
 
-def all (T) (call : function (T) : bool, b : [T]) {
+def all (T) (call : fn (T) : bool, b : [T]) {
     for (it in b) {
 	if (!call (it)) return false;
     }
     return true;
 }
 
-def any (T) (call : function (T) : bool, b : [T]) {
+def any (T) (call : fn (T) : bool, b : [T]) {
     for (it in b)
 	if (call (it)) return true;
     return false;
@@ -35,7 +35,7 @@ def countUntil (T) (a : [T], b : [T]) {
    b = le tableau à tester
    Returns: le nombre d'élément qui valide le prédicat
  */
-def count (T) (call : function (T) : bool, b : [T]) {
+def count (T) (call : fn (T) : bool, b : [T]) {
     let nb = ulong.init;
     for (it in b) {
 	if (call (it))
@@ -111,7 +111,7 @@ def find (T) (a : [T], b : T) : long {
     return -1;    
 }
 
-def find (T) (a : [T], b : T, call : function (T, T):bool) : long {
+def find (T) (a : [T], b : T, call : fn (T, T):bool) : long {
     for (it in 0UL .. a.length) {
 	if (call (a [it], b)) return cast:long (it);
     }

@@ -203,6 +203,7 @@ class Visitor {
 	    }
 	    word = this._lex.next ();
 	}
+		
 	if (word == Tokens.PIPE) {
 	    while (true) {
 		exps.insertBack (visitStructVarDeclaration ());
@@ -214,7 +215,16 @@ class Visitor {
 	    ident = visitIdentifiant ();
 	    word = this._lex.next ();
 	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	    
-	} else throw new SyntaxError (word, [Tokens.PIPE.descr]);
+	} else {
+	    this._lex.rewind ();
+	    ident = visitIdentifiant ();
+	    auto next = this._lex.next (Tokens.LACC);
+	    while (true) {
+		exps.insertBack (visitStructVarDeclaration ());
+		word = this._lex.next (Tokens.COMA, Tokens.RACC);
+		if (word == Tokens.RACC) break;
+	    }	    
+	} 
 	return new Struct (ident, temps, exps);	
     }    
 
@@ -1015,18 +1025,28 @@ class Visitor {
 
     private Expression visitPthPar (Word token) {
 	Array!Expression params;
-	Word tok;
-	if (this._lambdaPossible && canVisitVarDeclaration ()) return visitLambda ();	
-	while (true) {
-	    params.insertBack (visitExpressionUlt ());
-	    tok = _lex.next ();
-	    if (tok == Tokens.RPAR) break;
-	    else if (tok != Tokens.COMA)
-		throw new SyntaxError (tok, [Tokens.RPAR.descr, Tokens.COMA.descr]);
-	}
-
 	Expression exp;
-	if (params.length != 1) exp = new ConstTuple (token, tok, params);
+	Word tok;
+	bool isTuple = false;
+	if (this._lambdaPossible && canVisitVarDeclaration ()) return visitLambda ();
+	tok = this._lex.next ();	
+	if (tok == Tokens.RPAR) isTuple = true;
+	else {
+	    this._lex.rewind ();
+	    while (true) {
+		params.insertBack (visitExpressionUlt ());
+		tok = _lex.next (Tokens.RPAR, Tokens.COMA);
+		if (tok == Tokens.RPAR) break;
+		else {
+		    isTuple = true;
+		    auto next = this._lex.next ();
+		    if (next == Tokens.RPAR) break;
+		    else this._lex.rewind ();
+		}
+	    }
+	}
+	
+	if (params.length != 1 || isTuple) exp = new ConstTuple (token, tok, params);
 	else exp = params[0];
 	
 	tok = _lex.next ();

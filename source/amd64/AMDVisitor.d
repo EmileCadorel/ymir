@@ -633,7 +633,19 @@ class AMDVisitor : TVisitor {
 	REG.free (aux);
 	return ret;
     }
-    
+
+    override protected TInstPaire visitReserve (LReserve res) {
+	auto size = resolve!AMDConstDecimal (res.length);
+	auto aux = REG.reserveSpace (res.id.id, size);
+	return new TInstPaire (aux, new TInstList);
+    }
+
+    override protected TInstPaire visitReserve (LReserve res, TExp) {
+	auto size = resolve!AMDConstDecimal (res.length);
+	auto aux = REG.reserveSpace (res.id.id, size);
+	return new TInstPaire (aux, new TInstList);
+    }
+        
     override protected TInstPaire visitAddr (LAddr addr, TExp where) {
 	auto inst = new TInstList;
 	if (auto read = cast (LRegRead) (addr.exp)) {

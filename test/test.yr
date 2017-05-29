@@ -1,11 +1,14 @@
+import std.stdio, std.conv;
 
-def foo (T) () {
-    return 10;
-}
+struct Test {
+    a : int,
+    b : float
+}     
 
 
-def main () {        
-    let a = foo!int;
+def main () {
+    let a = (1,);
+    println (a.to!string);
 }
 
 
