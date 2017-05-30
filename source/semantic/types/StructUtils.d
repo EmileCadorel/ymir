@@ -16,30 +16,6 @@ class StructUtils {
     static string __CstName__ = "_YPCstStruct";
     static string __CstNameEmpty__ = "_YPCstStructEmpty";
     static string __DstName__ = "_YPDstStruct";
-
-
-    static LBinop addAllSize (ulong nbLong, ulong nbUlong, ulong nbInt, ulong nbUint, ulong nbShort, ulong nbUshort, ulong nbByte, ulong nbUbyte, ulong nbFloat, ulong nbDouble) {
-	return new LBinop (new LConstDecimal (nbLong, LSize.INT, LSize.LONG),
-			   new LBinop (new LConstDecimal (nbUlong, LSize.INT, LSize.ULONG),
-				       new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
-						   new LBinop (new LConstDecimal (nbUint, LSize.INT, LSize.UINT),
-							       new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
-									   new LBinop (new LConstDecimal (nbUshort, LSize.INT, LSize.USHORT),
-										       new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
-												   new LBinop (new LConstDecimal (nbUbyte, LSize.INT, LSize.UBYTE),
-													       new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
-													       	   	   new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
-															   Tokens.PLUS),
-													       Tokens.PLUS),
-												   Tokens.PLUS),
-										       Tokens.PLUS),
-									   Tokens.PLUS),
-							       Tokens.PLUS),
-						   Tokens.PLUS),
-				       Tokens.PLUS),
-			   Tokens.PLUS);			   
-    }
-
     
     static void createCstStruct (string name, Array!InfoType params) {
 	auto last = LReg.lastId;
@@ -49,7 +25,7 @@ class StructUtils {
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	auto interne = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
@@ -79,7 +55,7 @@ class StructUtils {
 		interne += type.lintInst (llist, rlist);
 	    } else assert (false, typeid (it).toString);
 	    
-	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 						 
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
@@ -102,7 +78,7 @@ class StructUtils {
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	auto interne = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
@@ -129,7 +105,7 @@ class StructUtils {
 	    else
 		interne += new LWrite (left, new LConstDouble (0));
 	    
-	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 	
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
@@ -150,7 +126,7 @@ class StructUtils {
 	auto addr = new LReg (LSize.LONG);
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 
 	foreach (it ; params) {
 	    final switch (it.size.id) {
@@ -171,7 +147,7 @@ class StructUtils {
 					  make!(Array!LExp) ([new LBinop (addr, size, Tokens.PLUS)]), LSize.NONE);
 	    }
 	    
-	    size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	    
+	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	    
 	}
 	entry.insts += new LSysCall ("free", make!(Array!LExp) ([addr]), null);
 	auto fr = new LFrame (__DstName__ ~ name, entry, end, null, make!(Array!LReg) ([addr]));
@@ -319,7 +295,7 @@ class StructUtils {
 	    }	    
 	}
 
-	auto size = addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	
 	inst += new LRegRead (null, size, ret.size);
 	return inst;
@@ -395,7 +371,7 @@ class StructUtils {
 	    case LSize.DOUBLE.id: nbDouble ++; break;
 	    }		
 	}
-	auto size = StructUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	auto list = new LInstList (size);
 	return list;
     }

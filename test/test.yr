@@ -4,7 +4,10 @@ import std.conv;
 /**
 
  */
+
+
+
 def main () {
-    let a = ("salut", 1, 4);
-    println (a.2);
+    let a = ("salut", 1, 4, [1, 2, 3]);
+    println ((a.3) [1]);
 }

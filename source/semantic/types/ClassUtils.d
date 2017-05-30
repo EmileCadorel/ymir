@@ -19,6 +19,30 @@ class ClassUtils {
 	createAddRef ();
 	createDstObj ();
     }
+
+
+    static LBinop addAllSize (ulong nbLong, ulong nbUlong, ulong nbInt, ulong nbUint, ulong nbShort, ulong nbUshort, ulong nbByte, ulong nbUbyte, ulong nbFloat, ulong nbDouble) {
+	return new LBinop (new LConstDecimal (nbLong, LSize.INT, LSize.LONG),
+			   new LBinop (new LConstDecimal (nbUlong, LSize.INT, LSize.ULONG),
+				       new LBinop (new LConstDecimal (nbInt, LSize.INT, LSize.INT),
+						   new LBinop (new LConstDecimal (nbUint, LSize.INT, LSize.UINT),
+							       new LBinop (new LConstDecimal (nbShort, LSize.INT, LSize.SHORT),
+									   new LBinop (new LConstDecimal (nbUshort, LSize.INT, LSize.USHORT),
+										       new LBinop (new LConstDecimal (nbByte, LSize.INT, LSize.BYTE),
+												   new LBinop (new LConstDecimal (nbUbyte, LSize.INT, LSize.UBYTE),
+													       new LBinop (new LConstDecimal (nbFloat, LSize.INT, LSize.FLOAT),
+													       	   	   new LConstDecimal (nbDouble, LSize.INT, LSize.DOUBLE),
+															   Tokens.PLUS),
+													       Tokens.PLUS),
+												   Tokens.PLUS),
+										       Tokens.PLUS),
+									   Tokens.PLUS),
+							       Tokens.PLUS),
+						   Tokens.PLUS),
+				       Tokens.PLUS),
+			   Tokens.PLUS);			   
+    }
+
     
     /++
      + Fonction d'ajout d'un référence à un objet.

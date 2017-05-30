@@ -17,6 +17,7 @@ import semantic.pack.FinalFrame;
 import lint.LInst;
 import std.array, std.typecons;
 import semantic.types.StructInfo;
+import semantic.types.ClassUtils;
 import semantic.value.all;
 import lint.LUnop, lint.LReserve;
 import utils.Mangler;
@@ -806,7 +807,7 @@ class LVisitor {
 		}	    
 	    }
 	    
-	    auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
 	    return inst;
 	} else if (auto type = cast (StructInfo) expand.expr.info.type) {
@@ -825,7 +826,7 @@ class LVisitor {
 		}	    
 	    }
 	    
-	    auto size = StructUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
 	    return inst;
 	} else assert (false, typeid (expand.expr).toString);

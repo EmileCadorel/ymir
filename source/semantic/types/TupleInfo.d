@@ -107,8 +107,8 @@ class TupleInfo : InfoType {
 	    if (attr < this._params.length) {
 		auto type = this._params [attr].clone ();
 		type.toGet = attr;
-		type.lintInst = &StructUtils.Attrib;
-		type.leftTreatment = &StructUtils.GetAttrib;
+		type.lintInst = &TupleUtils.Attrib;
+		type.leftTreatment = &TupleUtils.GetAttrib;
 		type.isConst = false;
 		type.isGarbaged = false;
 		return type;
