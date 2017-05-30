@@ -1,6 +1,7 @@
 import std.stdio;
+import std.conv;
 
 def main () {
-    let (a, b, c) = (1, 2, "salut");
-    println (a, ' ', b, ' ', c);
+    let (a, b ...) = (1, 2, "salut");
+    println (a, ' ', b.to!string);
 }
