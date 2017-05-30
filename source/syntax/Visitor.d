@@ -704,6 +704,9 @@ class Visitor {
 	Array!Var decls;
 	Array!Word decos;
 	Array!Expression insts;
+	auto nextW = this._lex.next ();
+	if (nextW == Tokens.LPAR) return visitLetDestruct (tok);
+	else this._lex.rewind;
 	while (1) {
 	    auto deco = this._lex.next ();
 	    if (find (_decoKeys, deco) != [])
@@ -711,6 +714,7 @@ class Visitor {
 	    else {
 		decos.insertBack (Word.eof); this._lex.rewind ();
 	    }
+
 	    auto var = visitVar ();
 	    decls.insertBack (var);
 	    _lex.next (token).rewind ();
@@ -730,6 +734,29 @@ class Visitor {
 	}
 	return new VarDecl (tok, decos, decls, insts);
     }
+
+    /++
+     letDest := let '(' (var (',' var)*) ')' '=' right ';'
+     +/
+    private Instruction visitLetDestruct (Word begin) {
+	bool isVariadic;
+	Array!Var decls;
+	while (true) {
+	    decls.insertBack (visitVar ());
+	    auto next = this._lex.next (Tokens.COMA, Tokens.RPAR, Tokens.TDOT);
+	    if (next == Tokens.RPAR) break;
+	    else if (next == Tokens.TDOT) {
+		isVariadic = true;
+		this._lex.next (Tokens.RPAR);
+		break;
+	    }
+	}
+
+	auto next = this._lex.next (Tokens.EQUAL);
+	auto right = this.visitExpressionUlt ();
+	this._lex.next (Tokens.SEMI_COLON);
+	return new TupleDest (begin, isVariadic, decls, right);
+    }    
 
     public Expression visitExpressionOutSide () {
 	return this.visitExpressionUlt ();

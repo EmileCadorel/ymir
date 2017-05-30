@@ -176,6 +176,7 @@ class LVisitor {
 	else if (auto _block = cast(Block) elem) begin += loc + visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin += loc + visitBreak (_break);
 	else if (auto _assert = cast (Assert) elem) begin += loc + visitAssert (_assert);
+	else if (auto _tdest = cast (TupleDest) elem) begin += loc + visitTupleDest (begin, end, retReg, _tdest);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
     
@@ -190,6 +191,7 @@ class LVisitor {
 	else if (auto _block = cast(Block) elem) begin.insts += loc + visitBlock (end, retReg, _block);
 	else if (auto _break = cast (Break) elem) begin.insts += loc + visitBreak (_break);
 	else if (auto _assert = cast (Assert) elem) begin.insts += loc + visitAssert (_assert);
+	else if (auto _tdest = cast (TupleDest) elem) begin.insts += loc + visitTupleDest (begin, end, retReg, _tdest);
 	else assert (false, "TODO visitInstruction ! " ~ elem.toString);
     }
 
@@ -404,6 +406,20 @@ class LVisitor {
 	call = new LCall (LVisitor.__AssertName__, exprs, LSize.NONE);
 	list += call;
 	return list;
+    }
+
+    private LInstList visitTupleDest (ref LInstList begin, ref LLabel end, ref LReg retReg, TupleDest dst) {
+	auto inst = visitExpression (dst.expr);
+	foreach (it ; dst.insts)
+	    inst += visitExpression (it);
+	return inst;
+    }
+    
+    private LInstList visitTupleDest (ref LLabel begin, ref LLabel end, ref LReg retReg, TupleDest dst) {
+	LInstList inst = visitExpression (dst.expr);
+	foreach (it ; dst.insts)
+	    inst +=  visitExpression (it);
+	return inst;
     }    
     
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {

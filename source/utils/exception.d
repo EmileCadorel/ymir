@@ -1011,3 +1011,42 @@ class NotDefaultMatch : YmirException {
     }       
 
 }
+
+class DestOfNonTuple : YmirException {
+
+    this (Symbol sym) {
+	auto loc = sym.sym.locus;
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de destructurer un élément de type %s%s%s, on a besoin d'un %stuple%s ",
+		      loc.file,
+		      loc.line,
+		      loc.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, sym.type.typeString, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value
+	);
+
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }
+
+    this (ulong len, ulong len2, Symbol sym) {	
+	auto loc = sym.sym.locus;
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de destructurer, les tailles diffèrent %s%d%s, %s%d%s",
+		      loc.file,
+		      loc.line,
+		      loc.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, len, Colors.RESET.value,
+		      Colors.YELLOW.value, len2, Colors.RESET.value
+	);
+
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }
+
+    
+
+}
+

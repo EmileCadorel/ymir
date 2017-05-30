@@ -44,3 +44,4 @@ public import ast.Mixin;
 public import ast.OfVar;
 public import ast.Match;
 public import ast.DColon;
+public import ast.TupleDest;

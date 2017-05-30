@@ -44,6 +44,7 @@ class Expand : Expression {
      Throws: UseAsVar, si le contenu est un type
      */
     override Expression expression () {
+	if (this._expr.info) return this;
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr || expr.info.isType) throw new UseAsVar (expr.token, expr.info);
 	auto tuple = cast (TupleInfo) expr.info.type;
