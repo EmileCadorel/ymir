@@ -43,6 +43,8 @@ class UndefinedAttribute : YmirException {
 	super.addLine (buf, right.token.locus);
 	msg = buf.toString();        
     }    
+
+    
     
 }
 

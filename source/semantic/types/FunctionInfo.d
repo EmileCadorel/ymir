@@ -23,8 +23,11 @@ class FunctionInfo : InfoType {
 
     /** Les différentes surcharge de fonction */
     private Frame _infos;
-    
+
     private Array!Frame _fromTemplates;
+
+    /++ La fonction est autosuffisante ? +/
+    private bool _alone = false;
     
     /**
      Params:
@@ -76,6 +79,7 @@ class FunctionInfo : InfoType {
      Récupère toutes les frames du même nom.
      +/
     Array!Frame getFrames () {
+	if (this._alone) return make!(Array!Frame) (this._infos);	    
 	if (this._fromTemplates.length != 0) return this._fromTemplates;
 	Array!Frame alls;
 	auto others = Table.instance.getAll (this._name);
@@ -290,6 +294,14 @@ class FunctionInfo : InfoType {
 	return true;
     }
 
+    ref bool alone () {
+	return this._alone;
+    }
+
+    string name () {
+	return this._name;
+    }
     
 }
+
 

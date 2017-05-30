@@ -20,9 +20,9 @@ class Dot : Expression {
     private Expression _left;
 
     /// L'element de droite de l'expression
-    private Var _right;
+    private Expression _right;
 
-    this (Word word, Expression left, Var right) {
+    this (Word word, Expression left, Expression right) {
 	super (word);
 	this._left = left;
 	this._right = right;
@@ -46,15 +46,24 @@ class Dot : Expression {
 	aux._right.inside = aux;
 	aux._left.inside = this;
 	if (cast (UndefInfo) (aux._left.info.type)) throw new UninitVar (aux._left.token);
-	auto type = aux._left.info.type.DotOp (aux._right);
-	if (type is null) {
-	    auto call = aux._right.expression ();
-	    if (cast (Type) call || cast (UndefInfo) call.info.type)
-		throw new UndefinedAttribute (this._token, aux._left.info, aux._right);
-	    return new DotCall (this._inside, this._right.token, call, aux._left).expression ();	    
+	if (auto var = cast (Var) aux._right) {
+	    auto type = aux._left.info.type.DotOp (var);
+	    if (type is null) {
+		auto call = var.expression ();
+		if (cast (Type) call || cast (UndefInfo) call.info.type)
+		    throw new UndefinedAttribute (this._token, aux._left.info, var);
+		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();	    
+	    }
+	    aux.info = new Symbol (aux._token, type);
+	    return aux;
+	} else {
+	    aux._right = aux._right.expression ();
+	    auto type = aux._left.info.type.DotExpOp (aux._right);
+	    if (type is null)
+		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+	    aux.info = new Symbol (aux._token, type);
+	    return aux;
 	}
-	aux.info = new Symbol (aux._token, type);
-	return aux;
     }    
     
     override void removeGarbage () {

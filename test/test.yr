@@ -1,5 +1,10 @@
 import std.stdio;
+import std.conv;
 
+/**
+
+ */
 def main () {
-    let b = "salut" + 'j ' + 'jk';
+    let a = ("salut", 1, 4);
+    println (a.2);
 }

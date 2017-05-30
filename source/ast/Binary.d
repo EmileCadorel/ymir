@@ -174,9 +174,9 @@ class Binary : Expression {
 	    aux.info = this._info;
 	}
 	
-	if (aux.info.value) {
-	    aux.left.removeGarbage ();
-	    aux.right.removeGarbage ();
+	if (aux.info.value) {	    
+	    if (aux.left) aux.left.removeGarbage ();
+	    if (aux.right) aux.right.removeGarbage ();
 	} 
 	return aux;	
     }

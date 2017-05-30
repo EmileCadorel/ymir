@@ -78,7 +78,8 @@ enum Tokens : Token {
     SQRT = Token ("¬", 68),
     ARROW = Token ("->",  69),
     BSTRING = Token ("({", 70),
-    ESTRING = Token ("})", 71)
+    ESTRING = Token ("})", 71),
+    DCOLON = Token ("::", 72)
 }    
 
 

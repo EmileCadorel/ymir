@@ -53,14 +53,14 @@ class Visitor {
 	this._highOp = [Tokens.DIV, Tokens.AND, Tokens.STAR, Tokens.PERCENT,
 			Tokens.DXOR];
 	
-	this._suiteElem = [Tokens.LPAR, Tokens.LCRO, Tokens.DOT];
+	this._suiteElem = [Tokens.LPAR, Tokens.LCRO, Tokens.DOT, Tokens.DCOLON];
 	this._afUnary = [Tokens.DPLUS, Tokens.DMINUS];	
 	this._befUnary = [Tokens.MINUS, Tokens.AND, Tokens.STAR, Tokens.NOT];
-	this._forbiddenIds = [Keys.IMPORT, Keys.CLASS, Keys.STRUCT,
-			      Keys.DEF, Keys.NEW, Keys.DELETE, Keys.IF, Keys.RETURN,
-			      Keys.FOR, Keys.FOREACH, Keys.WHILE, Keys.BREAK, Keys.THROW,
-			      Keys.TRY, Keys.MATCH, Keys.DEFAULT, Keys.IN, Keys.ELSE,
-			      Keys.CATCH, Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
+	this._forbiddenIds = [Keys.IMPORT, Keys.STRUCT,
+			      Keys.DEF, Keys.IF, Keys.RETURN,
+			      Keys.FOR,  Keys.WHILE, Keys.BREAK,
+			      Keys.MATCH, Keys.IN, Keys.ELSE,
+			      Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
 			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE,
 			      Keys.CONST, Keys.REF
@@ -1281,6 +1281,7 @@ class Visitor {
 	if (token == Tokens.LPAR) return visitPar (left);
 	else if (token == Tokens.LCRO) return visitAccess (left);
 	else if (token == Tokens.DOT) return visitDot (left);
+	else if (token == Tokens.DCOLON) return visitDColon (left);
 	else
 	    throw new SyntaxError (token);
     }
@@ -1348,7 +1349,8 @@ class Visitor {
     private Expression visitDot (Expression left) {
 	_lex.rewind ();
 	auto begin = _lex.next ();
-	auto right = visitVar ();
+	Expression right = visitConstante ();
+	if (right is null) right = visitVar ();
 	auto retour = new Dot (begin, left, right);
 	auto next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
@@ -1359,6 +1361,23 @@ class Visitor {
 	return retour;
     }
 
+    /**
+       DColon := '::' identifiant
+     */
+    private Expression visitDColon (Expression left) {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto right = visitVar ();
+	auto retour = new DColon (begin, left, right);
+	auto next = this._lex.next ();
+	if (find (this._suiteElem, next) != [])
+	    return visitSuite (next, retour);
+	else if (find (this._afUnary, next) != [])
+	    return visitAfter (next, retour);
+	this._lex.rewind ();
+	return retour;
+    }
+    
     /**
        mixin := 'mixin' expression 
      */

@@ -43,3 +43,4 @@ public import ast.TypeOf;
 public import ast.Mixin;
 public import ast.OfVar;
 public import ast.Match;
+public import ast.DColon;

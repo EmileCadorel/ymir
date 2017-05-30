@@ -96,6 +96,10 @@ class DecimalValue : Value {
     BigInt value () {
 	return this._value;
     }
+
+    T get (T) () {
+	return this._value.to!T;
+    }    
     
     override LInstList toLint (Symbol sym) {
 	import lint.LConst, lint.LSize;

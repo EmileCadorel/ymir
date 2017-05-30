@@ -410,6 +410,23 @@ class InfoType {
 	return null;
     }
 
+
+    /**
+     Surcharge de l'operateur d'attribut.
+     Returns: le type résultat ou null.
+     */
+    InfoType DotExpOp (Expression) {
+	return null;
+    }
+    
+    /++
+     Surchage de l'operateur '::'
+     Returns: un type résultat ou null.
+     +/
+    InfoType DColonOp (Var) {
+	return null;
+    }
+    
     /**
      Surcharge de l'operateur d'attribut à partir d'une string.
      Returns: le type résultat ou null.

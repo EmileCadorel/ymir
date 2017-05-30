@@ -8,6 +8,7 @@ import syntax.Tokens;
 import semantic.types.StructUtils;
 import lint.LSize, semantic.types.ClassUtils;
 import semantic.types.StringInfo;
+import ast.ParamList;
 
 class TupleInfo : InfoType {
     
@@ -97,6 +98,23 @@ class TupleInfo : InfoType {
 	    return tu;
 	}
 	return null;
+    }
+    
+    override InfoType DotExpOp (Expression right) {
+	import semantic.value.DecimalValue;
+	if (auto dec = cast (DecimalValue) right.info.value) {
+	    auto attr = dec.get!(ulong);
+	    if (attr < this._params.length) {
+		auto type = this._params [attr].clone ();
+		type.toGet = attr;
+		type.lintInst = &StructUtils.Attrib;
+		type.leftTreatment = &StructUtils.GetAttrib;
+		type.isConst = false;
+		type.isGarbaged = false;
+		return type;
+	    }
+	    return null;
+	} else return null;
     }
     
     override string typeString () {

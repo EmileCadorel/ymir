@@ -139,7 +139,7 @@ class Table {
     /**
      Insert un nouveau symbole dans le scope le plus mince.
      Params:
-     info = le symbole à inséré.
+     info = le symbole à insérer.
      */
     void insert (Symbol info) {
 	if (info !is null) info.setId ();
@@ -149,9 +149,9 @@ class Table {
 	    this._frameTable.front.insert (info.sym.str, info);
 	}
     }
-    
+        
     /**
-     Insert un symbole dans le GC du scope le plus mince.
+     insert un symbole dans le GC du scope le plus mince.
      Params:
      info = le symbole a placer dans le GC.
      */
