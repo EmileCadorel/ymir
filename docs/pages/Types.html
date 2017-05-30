@@ -122,6 +122,17 @@ Il s&#39;obtient avec la syntaxe </p>
 foo (a);
 
 foo ((<span class="hljs-number">3</span>, <span class="hljs-string">'t'</span>));</code></pre><p>Comme pour tous les types de haut niveau du langage Ymir (tableau, range, structure, ...), le <code>tuple</code> n&#39;est alloué qu&#39;une seule fois et les variables possède un référence vers cette allocation.</p>
-    </article>
+<p>L&#39;accés au attribut du <code>tuple</code> se fait grâce à l&#39;operateur <code>.</code>:</p>
+<pre class="hljs"><code>
+<span class="hljs-keyword">let</span> tu = (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>);
+<span class="hljs-keyword">let</span> b = tu.<span class="hljs-number">0</span>, c = tu.<span class="hljs-number">1</span>;</code></pre><p>On peut également le déstructurer en une seule instruction :</p>
+<pre class="hljs"><code>
+<span class="hljs-keyword">let</span> a = (<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>);
+<span class="hljs-keyword">let</span> (b, c, d) = a;
+
+assert (b == <span class="hljs-number">1</span> &amp;&amp; c == <span class="hljs-number">2</span> &amp;&amp; d == <span class="hljs-string">"salut"</span>);
+
+<span class="hljs-keyword">let</span> (f, g ...) = a;
+assert (f == <span class="hljs-number">1</span> &amp;&amp; g == (<span class="hljs-number">2</span>, <span class="hljs-string">"salut"</span>));</code></pre>    </article>
   </body>
 </html>

@@ -188,3 +188,25 @@ foo ((3, 't'));
 
 Comme pour tous les types de haut niveau du langage Ymir (tableau, range, structure, ...), le `tuple` n'est alloué qu'une seule fois et les variables possède un référence vers cette allocation.
     
+	
+L'accés au attribut du `tuple` se fait grâce à l'operateur `.`:
+```Rust
+
+let tu = (1, 2, 3);
+let b = tu.0, c = tu.1;
+
+```
+
+On peut également le déstructurer en une seule instruction :
+```Rust
+
+let a = (1, 2, "salut");
+let (b, c, d) = a;
+
+assert (b == 1 && c == 2 && d == "salut");
+
+let (f, g ...) = a;
+assert (f == 1 && g == (2, "salut"));
+
+
+```
