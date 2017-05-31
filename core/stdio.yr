@@ -1,0 +1,85 @@
+extern (C) putchar (c : char);
+extern (C) printf (c : ptr!char, ...);
+
+def print (c : char) : void
+    putchar (c);
+
+def print (s : string) : void {
+    if (s is null) print ('null');
+    else for (it in s) putchar (it);
+}
+
+def print (i : long) : void {
+    printf (("%ld").ptr, i);
+}
+
+def print (i : int) : void {
+    printf (("%d").ptr, i);
+}
+
+def print (i : short) : void {
+    printf (("%hd").ptr, i);
+}
+
+def print (i : byte) : void {
+    printf (("%hhx").ptr, i);
+}
+
+def print (i : ulong) : void {
+    printf (("%lu").ptr, i);
+}
+
+def print (i : ptr!void) : void {
+    printf (("%lu").ptr, i);
+}
+
+def print (i : uint) : void {
+    printf (("%u").ptr, i);
+}
+
+def print (i : ushort) : void {
+    printf (("%hu").ptr, i);
+}
+
+def print (i : ubyte) : void {
+    printf (("%hhx").ptr, i);
+}
+
+def print (a : float, prec : long) {
+    printf (('%.*lf').ptr, prec, a);
+}
+
+def print (f : float) {
+    printf (('%lf').ptr, f);
+}
+
+def print (b : bool) {
+    if (b) print ('true');
+    else print ('false');
+}
+
+def println (i) {
+    print (expand (i));
+    print ('\n');
+}
+
+def print (i, nexts) {
+    print (i);
+    print (expand (nexts));
+}
+
+def println (f : float, i) {
+    print (f, i);
+    print ('\n');
+}
+
+def printf (str : string, nexts) {
+    printf (str.ptr, expand (nexts));
+}
+
+def printfln (str : string, nexts) {
+    extern (C) printf (c : ptr!char, ...);
+    extern (C) putchar (c : char);
+    printf (str.ptr, expand (nexts));
+    putchar ('\n');
+}
