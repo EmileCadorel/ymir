@@ -132,7 +132,7 @@ class RangeUtils {
 						       Tokens.PLUS),
 				 size);
 	auto fst = new LRegRead (rightExp, new LConstDecimal (2, LSize.INT, LSize.LONG), size);
-	inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF_EQUAL), Tokens.DAND);
+	inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF), Tokens.DAND);
 	return inst;
     }
 

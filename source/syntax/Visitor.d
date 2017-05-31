@@ -1418,6 +1418,7 @@ class Visitor {
     
     private Expression visitMatch () {
 	Array!Expression values;
+	Array!(Match.Pair) pairs;
 	Array!Block insts;
 	Block defaultInsts;
 	
@@ -1431,7 +1432,12 @@ class Visitor {
 	    if (next != Keys.UNDER) {
 		this._lex.rewind ();
 		values.insertBack (this.visitExpression);
-		next = this._lex.next (Tokens.IMPLIQUE);
+		next = this._lex.next (Tokens.IMPLIQUE, Tokens.TDOT);
+		if (next == Tokens.TDOT) {
+		    values.back () = new Match.Pair (next, values.back (), this.visitExpression);
+		    next = this._lex.next (Tokens.IMPLIQUE);
+		}
+		
 		insts.insertBack (this.visitBlock ());
 		next = this._lex.next ();
 		if (next == Tokens.RACC) break;

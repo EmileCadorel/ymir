@@ -5,9 +5,22 @@ import std.container;
 import ast.Binary, semantic.pack.Table;
 import utils.exception;
 import syntax.Word, semantic.types.InfoType;
+import syntax.Keys, ast.ConstRange;
 
 class Match : Expression {
 
+    static public class Pair : Expression {
+	Expression left;
+	Expression right;
+
+	this (Word token, Expression left, Expression right) {
+	    super (token);
+	    this.left = left;
+	    this.right = right;  
+	}
+    }
+
+    
     private Expression _expr;
     
     private Array!Expression _values;
@@ -35,13 +48,24 @@ class Match : Expression {
 	Array!Expression values;
 	Array!Block blocks;
 	auto eq = Word (this._token.locus, Tokens.DEQUAL.descr, true);
+	auto _in = Word (this._token.locus, Keys.IN.descr, true);
 	foreach (it ; 0 .. this._values.length) {
-	    auto current = this._values [it];
-	    try {
-		auto bin = new Binary (eq, expr, current);
-		values.insertBack (bin.expression);		
-		blocks.insertBack (this._blocks [it].block);		
-	    } catch (UndefinedOp) {
+	    if (auto pair = cast (Pair) this._values [it]) {
+		auto range = new ConstRange (pair.token, pair.left, pair.right);
+		try {
+		    auto bin = new Binary (_in, expr, range);
+		    values.insertBack (bin.expression);		
+		    blocks.insertBack (this._blocks [it].block);		
+		} catch (UndefinedOp) {
+		}
+	    } else {
+		auto current = this._values [it];
+		try {
+		    auto bin = new Binary (eq, expr, current);
+		    values.insertBack (bin.expression);		
+		    blocks.insertBack (this._blocks [it].block);		
+		} catch (UndefinedOp) {
+		}
 	    }
 	}
 	
@@ -59,9 +83,15 @@ class Match : Expression {
 	Array!Expression results;
 	Array!InfoType cstrs;
 	Symbol info;
-	auto eq = Word (this._token.locus, Tokens.DEQUAL.descr, true);
 	foreach (it ; 0 .. this._values.length) {
-	    auto current = this._values [it];
+	    auto eq = Word (this._token.locus, Tokens.DEQUAL.descr, true);
+	    Expression current;	    
+	    if (auto pair = cast (Pair) this._values [it]) {
+		current = new ConstRange (pair.token, pair.left, pair.right);
+		eq = Word (this._token.locus, Keys.IN.descr, true);
+	    } else 
+		current = this._values [it];
+	    
 	    try {
 		auto bin = new Binary (eq, expr, current);
 		values.insertBack (bin.expression);
