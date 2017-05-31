@@ -13,11 +13,17 @@
 <hr>
 
 <p>Les Structures permettent de créer de nouveaux types. Leurs instances sont allouées dynamiquement et récupérées par le garbage collector.</p>
-<pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> 
+<pre class="hljs"><code>
+<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">A</span></span> {
+    a : <span class="hljs-keyword">int</span>, 
+    b : <span class="hljs-keyword">float</span>
+}
+
+<span class="hljs-class"><span class="hljs-keyword">struct</span> 
 | <span class="hljs-title">f</span></span> : <span class="hljs-keyword">float</span>
 | tab : [<span class="hljs-keyword">int</span>]
 -&gt; B;</code></pre><p>Et on les instancie :</p>
-<pre class="hljs"><code><span class="hljs-keyword">let</span> a = A (<span class="hljs-number">10</span>), b = B (.<span class="hljs-number">1</span>, []);
+<pre class="hljs"><code><span class="hljs-keyword">let</span> a = A (<span class="hljs-number">10</span>, <span class="hljs-number">3</span>.), b = B (.<span class="hljs-number">1</span>, []);
 <span class="hljs-keyword">let</span> b2 = b; <span class="hljs-comment">// b2 est une reference vers b, aucune recopie n'est faite.</span></code></pre><p>Les construction doivent se faire avec tout les paramètres ou aucun.</p>
 <p>L&#39;accès au paramètre se fait avec l&#39;opérateur <code>.</code></p>
 <pre class="hljs"><code>print (a.i);
@@ -26,7 +32,9 @@ print (b.s); <span class="hljs-comment">// Erreur, la structure B(float) n'a pas
 b.tab += [<span class="hljs-number">10</span>];</code></pre><h2 id="appel"><a class="header-link" href="#appel"></a>Appel</h2>
 <hr>
 <p>Les attributs des structures sont passés par référence</p>
-<pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> (<span class="hljs-title">attr</span></span> : <span class="hljs-keyword">int</span>) A;
+<pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> 
+| <span class="hljs-title">attr</span></span> : <span class="hljs-keyword">int</span> 
+-&gt; A;
 
 def foo (a : A) {
     a.attr = <span class="hljs-number">123</span>; <span class="hljs-comment">// les attributs de a sont passé par références</span>
@@ -57,7 +65,7 @@ println (a.attr); <span class="hljs-comment">// 123</span></code></pre><h2 id="s
  }</code></pre><h2 id="structure-templates"><a class="header-link" href="#structure-templates"></a>Structure templates</h2>
 <hr>
 
-<p>On peut déclarer et instancié des structures ayant des paramètre templates.</p>
+<p>On peut déclarer et instancier des structures ayant des paramètres templates.</p>
 <pre class="hljs"><code><span class="hljs-class"><span class="hljs-keyword">struct</span> (<span class="hljs-title">K</span></span>, V)
 | key : K
 | value : V

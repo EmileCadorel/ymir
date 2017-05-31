@@ -5,6 +5,12 @@ Les Structures permettent de créer de nouveaux types. Leurs instances sont allo
 
 
 ```Rust
+
+struct A {
+	a : int, 
+	b : float
+}
+
 struct 
 | f : float
 | tab : [int]
@@ -15,7 +21,7 @@ struct
 Et on les instancie :
 
 ```Rust
-let a = A (10), b = B (.1, []);
+let a = A (10, 3.), b = B (.1, []);
 let b2 = b; // b2 est une reference vers b, aucune recopie n'est faite.
 
 ```
@@ -38,7 +44,9 @@ b.tab += [10];
 
 Les attributs des structures sont passés par référence
 ```Rust
-struct (attr : int) A;
+struct 
+| attr : int 
+-> A;
 
 def foo (a : A) {
     a.attr = 123; // les attributs de a sont passé par références
@@ -80,7 +88,7 @@ println (a.attr); // 123
 ## Structure templates
 <hr>
 
-On peut déclarer et instancié des structures ayant des paramètre templates.
+On peut déclarer et instancier des structures ayant des paramètres templates.
 ```Rust
 struct (K, V)
 | key : K
