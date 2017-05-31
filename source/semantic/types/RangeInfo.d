@@ -125,6 +125,7 @@ class RangeInfo : InfoType {
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto ret = this.clone ();
+	    ret.value = null;
 	    ret.lintInst = &RangeUtils.InstAffectRight;	    
 	    return ret;
 	}
@@ -140,10 +141,12 @@ class RangeInfo : InfoType {
     private InfoType Affect (Expression right) {
 	if (cast (NullInfo) right.info.type) {
 	    auto ret = this.clone ();
+	    ret.value = null;
 	    ret.lintInst = &ClassUtils.InstAffectNull;
 	    return ret;
 	} else if (this.isSame (right.info.type)) {
 	    auto ret = this.clone ();
+	    ret.value = null;
 	    ret.lintInst = &ClassUtils.InstAffect;
 	    return ret;
 	}
@@ -209,6 +212,8 @@ class RangeInfo : InfoType {
 	    case LSize.FLOAT.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.FLOAT)); break;
 	    case LSize.DOUBLE.id: ret.lintInst = (&RangeUtils.InstIn!(LSize.DOUBLE)); break;
 	    }
+	    if (this._value)		
+		ret.value = this._value.BinaryOpRight (Keys.IN, left.info.type.value);
 	    return ret;
 	}
 	return null;
@@ -350,6 +355,7 @@ class RangeInfo : InfoType {
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || this.isSame (other)) {
 	    auto ra = this.clone ();
+	    ra.value = null;
 	    ra.lintInst = &RangeUtils.InstAffectRight;
 	    return ra;
 	}

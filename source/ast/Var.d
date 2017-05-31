@@ -74,7 +74,7 @@ class Var : Expression {
 	    if (this._templates.length != 0) {		
 		if (!cast (Par) this._inside && !cast (Dot) this._inside) {
 		    auto params = new ParamList (this._token, make!(Array!Expression));
-		    auto call = new Par (this._token, this._token, this, params);
+		    auto call = new Par (this._token, this._token, this, params, true);
 		    this._inside = call;
 		    return call.expression;
 		}

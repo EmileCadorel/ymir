@@ -43,8 +43,8 @@ class CharValue : Value {
 
 	    if (op == Tokens.NOT_INF_EQUAL) return new BoolValue (this._value.to!int > dec.value);
 	    if (op == Tokens.DEQUAL) return new BoolValue (this._value.to!int == dec.value);
-	    if (op == Tokens.PLUS) return new DecimalValue (this._value.to!int + dec.value);
-	    if (op == Tokens.MINUS) return new DecimalValue (this._value.to!int - dec.value);
+	    if (op == Tokens.PLUS) return new CharValue ((this._value.to!int + dec.value).to!char);
+	    if (op == Tokens.MINUS) return new CharValue ((this._value.to!int - dec.value).to!char);
 	} else if (auto str = cast (StringValue) right) {
 	    if (op == Tokens.DEQUAL) return new BoolValue (str.value.length == 1 && str.value [0] == this._value);
 	}
@@ -64,8 +64,8 @@ class CharValue : Value {
 
 	    if (op == Tokens.NOT_INF_EQUAL) return new BoolValue (dec.value > this._value.to!int);
 	    if (op == Tokens.DEQUAL) return new BoolValue (dec.value == this._value.to!int);
-	    if (op == Tokens.PLUS) return new DecimalValue (dec.value + this._value.to!int);
-	    if (op == Tokens.MINUS) return new DecimalValue (dec.value - this._value.to!int);
+	    if (op == Tokens.PLUS) return new CharValue ((dec.value + this._value.to!int).to!char);
+	    if (op == Tokens.MINUS) return new CharValue ((dec.value - this._value.to!int).to!char);
 	}
 	return null;
     }
@@ -84,11 +84,17 @@ class CharValue : Value {
 
     override Value DotOp (Var attr){ return null; }
        
-    override LInstList toLint (Symbol sym) {
+    override LInstList toLint (Symbol) {
 	import lint.LConst, lint.LSize;
 	return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
     }       
 
+    override LInstList toLint (Symbol, InfoType) {
+	import lint.LConst, lint.LSize;
+	return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
+    }       
+
+    
     char value () {
 	return this._value;
     }

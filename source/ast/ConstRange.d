@@ -100,6 +100,11 @@ class ConstRange : Expression {
 	
 	aux._content = type;
 	aux._info = new Symbol (aux._token, new RangeInfo (type), true);
+	if (aux._left.info.isImmutable && aux._right.info.isImmutable) {
+	    import semantic.value.RangeValue;
+	    aux.info.value = new RangeValue (aux._left.info.value, aux._right.info.value);
+	    //Table.instance.removeGarbage (aux.info);
+	}
 	return aux;
     }
 

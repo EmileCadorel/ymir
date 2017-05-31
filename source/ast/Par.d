@@ -31,14 +31,18 @@ class Par : Expression {
 
     /// Le score recupéré à l'analyse sémantique
     private ApplicationScore _score;
+
+    /// Crée à partir d'une surcharge d'op ?
+    private bool _opCall = false;
     
-    this (Word word, Word end, Expression left, ParamList params) {
+    this (Word word, Word end, Expression left, ParamList params, bool fromOpCall = false) {
 	super (word);
 	this._end = end;
 	this._params = params;
 	this._left = left;
 	this._left.inside = this;
 	this._params.inside = this;
+	this._opCall = fromOpCall;
     }
 
     this (Word word, Word end) {
@@ -78,7 +82,7 @@ class Par : Expression {
 
 		auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
 		if (type is null) {		
-		    auto call = !dotCall ? findOpCall (aux) : null;
+		    auto call = !dotCall && !this._opCall ? findOpCall (aux) : null;
 		    if (!call) {
 			if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
 			    throw new UndefinedOp (this._token, aux._left.info, aux._params);
@@ -145,7 +149,7 @@ class Par : Expression {
 	    auto var = new Var (word);
 	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left) ~ this._params.params);
 	    
-	    auto call = new Par (this._token, this._end, var, params);
+	    auto call = new Par (this._token, this._end, var, params, true);
 	    return call.expression;
 	} catch (YmirException) {
 	    return null;

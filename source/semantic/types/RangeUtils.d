@@ -145,9 +145,10 @@ class RangeUtils {
      _right = une ParamList, qui contient les itérateurs à renseigner.
      Returns: une liste d'instruction qui contient un block temporaire que l'on va remplacer par le contenu de la boucle.
      */
-    static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
+    static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {	
 	auto inst = new LInstList;
 	auto type = cast (RangeInfo) _type;
+	if (type.value) return InstApplyPreTreatWithValue (type, _left, _right);
 	auto left = LVisitor.visitExpressionOutSide (_left);
 	for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = _left.info.type.lintInst (left, nb);
@@ -157,31 +158,29 @@ class RangeUtils {
 	inst += left + right;
 	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
 	auto faux = new LLabel;
-	auto index = new LReg (type.content.size);
 	auto fst = new LRegRead (leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), type.content.size);
-	inst += new LWrite (index, fst);
+	inst += new LWrite (rightExp, fst);
 	auto scd = new LRegRead (leftExp, new LBinop (new LConstDecimal (2, LSize.LONG, LSize.LONG),
 						      new LConstDecimal (1, LSize.LONG, type.content.size),
 						      Tokens.PLUS), type.content.size);
 	    
-	auto test = new LBinop (index,  scd, Tokens.NOT_EQUAL);
+	auto test = new LBinop (rightExp,  scd, Tokens.NOT_EQUAL);
 	inst += debut;
 	inst += new LJump (test, vrai);
 	inst += new LGoto (faux);
-	vrai.insts += new LWrite (rightExp, index);
 	vrai.insts += block;
 	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel (new LInstList);
 	vrai.insts += new LJump (new LBinop (fst, scd, Tokens.INF), vrai2);
 	vrai.insts += new LGoto (faux2);
 	if (type.content.size == LSize.FLOAT || type.content.size == LSize.DOUBLE) {
-	    vrai2.insts += new LBinop (index, new LCast (new LConstDouble (1), type.content.size), index, Tokens.PLUS);
+	    vrai2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1), type.content.size), rightExp, Tokens.PLUS);
 	    vrai2.insts += new LGoto (debut);
-	    faux2.insts += new LBinop (index, new LCast (new LConstDouble (1.), type.content.size), index, Tokens.MINUS);
+	    faux2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1.), type.content.size), rightExp, Tokens.MINUS);
 	    faux2.insts += new LGoto (debut);
 	} else {
-	    vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
+	    vrai2.insts += new LUnop (rightExp, Tokens.DPLUS, true);
 	    vrai2.insts += new LGoto (debut);
-	    faux2.insts += new LUnop (index, Tokens.DMINUS, true);
+	    faux2.insts += new LUnop (rightExp, Tokens.DMINUS, true);
 	    faux2.insts += new LGoto (debut);
 	}
 	vrai.insts += vrai2;
@@ -190,6 +189,42 @@ class RangeUtils {
 	inst += faux;
 	return inst;
     }
+
+    private static LInstList InstApplyPreTreatWithValue (RangeInfo info, Expression _left, Expression _right) {
+	auto inst = new LInstList;
+	auto val = cast (RangeValue) info.value;
+	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	auto rightExp = right.getFirst ();
+	auto fstL = val.left.toLint (_left.info, info.content), scdL = val.right.toLint (_left.info, info.content);
+	auto fst = fstL.getFirst (), scd = scdL.getFirst;
+	inst += fstL + scdL + right;
+	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
+	auto faux = new LLabel;
+	
+	inst += new LWrite (rightExp, fst);
+	auto test = new LBinop (rightExp, scd, Tokens.NOT_EQUAL);
+	inst += debut;
+	inst += new LJump (test, vrai);
+	inst += new LGoto (faux);
+	vrai.insts += block;
+	if ((cast (BoolValue) val.left.BinaryOp (Tokens.INF, val.right)).isTrue) {
+	    if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
+		vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.PLUS);
+	    else 
+		vrai.insts += new LUnop (rightExp, Tokens.DPLUS, true);
+	} else {
+	    if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
+		vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.MINUS);
+	    else 
+		vrai.insts += new LUnop (rightExp, Tokens.DMINUS, true);
+	}
+	
+	vrai.insts += new LGoto (debut);
+	inst += vrai;
+	inst += faux;
+	return inst;
+    }
+    
 
     /**
      Remplacement du block temporaire par le contenu de la boucle.

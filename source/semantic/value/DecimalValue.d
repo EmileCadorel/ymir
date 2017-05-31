@@ -10,6 +10,8 @@ import std.bigint;
 import utils.Matching;
 import std.conv;
 import lint.LInstList;
+import lint.LConst, lint.LSize;
+import ast.Constante, semantic.types.DecimalInfo;
 
 class DecimalValue : Value {
 
@@ -101,13 +103,12 @@ class DecimalValue : Value {
 	return this._value.to!T;
     }    
     
-    override LInstList toLint (Symbol sym) {
-	import lint.LConst, lint.LSize;
-	import ast.Constante, semantic.types.DecimalInfo;
+    override LInstList toLint (Symbol sym, InfoType type) {
 	import utils.exception;
-	auto type = cast (DecimalInfo) (sym.type);
+	auto info = cast (DecimalInfo) (type);
+	auto cst = info.type;
 	try {
-	    final switch (type.type.id) {
+	    final switch (cst.id) {
 	    case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (this._value.to!byte, LSize.BYTE));
 	    case DecimalConst.UBYTE.id : return new LInstList (new LConstDecimal (this._value.to!ubyte, LSize.UBYTE));
 	    case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (this._value.to!short, LSize.SHORT));
@@ -119,6 +120,14 @@ class DecimalValue : Value {
 	    }
 	} catch (ConvOverflowException exp) {
 	    throw new CapacityOverflow (sym, this._value.to!string);
+	}	
+    }
+
+    override LInstList toLint (Symbol sym) {
+	if (sym) {
+	    return toLint (sym, sym.type);
+	} else {
+	    return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
 	}
     }
 

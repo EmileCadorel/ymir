@@ -67,7 +67,7 @@ class BefUnary : Expression {
 		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));		
 		auto params = new ParamList (this._token,
 					     make!(Array!Expression) (this._elem));
-		auto call = new Par (this._token, this._token, var, params);
+		auto call = new Par (this._token, this._token, var, params, true);
 		return call.expression;
 	    } catch (YmirException tm) {
 		return null;
@@ -178,7 +178,7 @@ class AfUnary : Expression {
 		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));		
 		auto params = new ParamList (this._token,
 					     make!(Array!Expression) (this._elem));
-		auto call = new Par (this._token, this._token, var, params);
+		auto call = new Par (this._token, this._token, var, params, true);
 		return call.expression;
 	    } catch (YmirException tm) {
 		return null;

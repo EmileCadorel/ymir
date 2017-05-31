@@ -76,7 +76,7 @@ class Access : Expression {
 	    auto params = cast (ParamList) new ParamList (this._token,
 							  make!(Array!Expression) (this._left) ~ this._params.params);
 
-	    auto call = new Par (this._token, this._token, var, params);
+	    auto call = new Par (this._token, this._token, var, params, true);
 	    return call.expression;
 	} catch (YmirException tm) {
 	    return null;

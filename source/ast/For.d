@@ -100,7 +100,8 @@ class For : Instruction {
 
 	auto expr = this._iter.expression;
 	auto type = expr.info.type.ApplyOp (aux);
-	if (type is null) throw new UndefinedOp (this.token, expr.info);
+	if (type is null) throw new UndefinedOp (this.token, expr.info);	
+	else if (expr.info.isImmutable) Table.instance.removeGarbage (expr.info);
 	
 	foreach (it ; aux) Table.instance.insert (it.info);	
 	

@@ -197,7 +197,7 @@ class Binary : Expression {
 	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
 	    
 	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
-	    auto call = new Par (this._token, this._token, var, params);
+	    auto call = new Par (this._token, this._token, var, params, false);
 	    return call.expression;
 	} catch (YmirException) {
 	    try {
@@ -205,7 +205,7 @@ class Binary : Expression {
 		auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
 		
 		auto params = new ParamList (this._token, make!(Array!Expression) (this._right, this._left));
-		auto call = new Par (this._token, this._token, var, params);
+		auto call = new Par (this._token, this._token, var, params, false);
 		return call.expression;
 	    } catch (YmirException) {
 		return null;
@@ -221,7 +221,7 @@ class Binary : Expression {
 	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
 	    
 	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
-	    auto call = new Par (this._token, this._token, var, params);
+	    auto call = new Par (this._token, this._token, var, params, true);
 	    auto ret = call.expression;
 	    if (cast (BoolInfo) ret.info.type) return ret;
 	    else if (auto dec = cast (DecimalInfo) (ret.info.type)) {		
@@ -249,7 +249,7 @@ class Binary : Expression {
 	    auto var = new Var (word);
 	    
 	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
-	    auto call = new Par (this._token, this._token, var, params);
+	    auto call = new Par (this._token, this._token, var, params, true);
 	    if (this._token == Tokens.NOT_EQUAL) {
 		auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
 		return new BefUnary (word2, call).expression ();
@@ -262,7 +262,7 @@ class Binary : Expression {
 		auto var = new Var (word);
 		
 		auto params = new ParamList (this._token, make!(Array!Expression) (this._right, this._left));
-		auto call = new Par (this._token, this._token, var, params);
+		auto call = new Par (this._token, this._token, var, params, true);
 		if (this._token == Tokens.NOT_EQUAL) {
 		    auto word2 = Word (this._token.locus, Tokens.NOT.descr, true);
 		    return new BefUnary (word2, call).expression ();

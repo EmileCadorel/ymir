@@ -1,6 +1,6 @@
 module semantic.value.Value;
  
-import semantic.types.InfoType;
+public import semantic.types.InfoType;
 import ast.Var;
 import ast.ParamList;
 public import ast.Expression;
@@ -9,27 +9,34 @@ public import syntax.Tokens;
 import lint.LInstList;
 public import semantic.pack.Symbol;
 public import syntax.Word;
+public import syntax.Keys;
 
 class Value {
 
-    abstract Value BinaryOp (Tokens token, Value right);    
+    Value BinaryOp (Tokens token, Value right) { return null; }
 
-    abstract Value BinaryOpRight (Tokens token, Value left);
+    Value BinaryOpRight (Tokens token, Value left) { return null; }
 
-    abstract Value UnaryOp (Word token);
+    Value BinaryOpRight (Keys token, Value left) { return null; }
 
-    abstract Value AccessOp (ParamList params);
+    Value UnaryOp (Word token) { return null; }
+
+    Value AccessOp (ParamList params) { return null; }
     
-    abstract Value AccessOp (Expression expr);
+    Value AccessOp (Expression expr) { return null; }
 
-    abstract Value CastOp (InfoType type);
+    Value CastOp (InfoType type) { return null; }
 
-    abstract Value CompOp (InfoType type);
+    Value CompOp (InfoType type) { return null; }
 
-    abstract Value CastTo (InfoType type);
+    Value CastTo (InfoType type) { return null; }
 
-    abstract Value DotOp (Var attr);
+    Value DotOp (Var attr) { return null; }
     
-    abstract LInstList toLint (Symbol);
+    LInstList toLint (Symbol) { assert (false); }
+    
+    LInstList toLint (Symbol, InfoType) { assert (false); }
+
+    LInstList toLint (Expression) { assert (false); }
     
 }

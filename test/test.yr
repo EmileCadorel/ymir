@@ -2,10 +2,7 @@ import std.stdio;
 import std.conv;
 
 def main () {
-    println (
-        match 4 {
-            1 ... 3 => 143;
-            _ => 1;
-        }
-    );
+    for it in 'z' .. 'a' - 1UB {
+        println (it);
+    }
 }
