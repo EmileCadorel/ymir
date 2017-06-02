@@ -7,7 +7,7 @@ def print (as : [string]) {
 	print ('  ', as [it]);
 	if (it < as.length - 1ul) println (',');
     }
-    println ('\n]');
+    println ("\n]");
 }
 
 def map (as : [string], op) {
@@ -18,8 +18,13 @@ def map (as : [string], op) {
 }
 
 def main () {
+    let func = ((a : string) {
+        return strip (a);
+    });
+    
     let file = fopen ("Makefile", "r");
     let line = fread (file, 1024u);
-    println (line.splitLines ().map (function (string):string (strip)));
+    
+    println (line.splitLines ().map (func));
     file.fclose ();
 }

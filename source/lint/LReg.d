@@ -74,10 +74,7 @@ class LReg : LExp {
     
     override string toString () {
 	import std.format;
-	if (!this._scoped) 
-	    return format("reg(%d:%s)", this._id, to!string (this._size));
-	else
-	    return format("scoped_reg(%d:%s)", this._id, to!string (this._size));
+	return format("#%d", this._id);
     }
     
 }

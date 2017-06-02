@@ -1,26 +1,7 @@
 
-struct Test {
-    a : int
-}
-
-def opEquals (a : Test, b : Test) {
-    return a.a == b.a;
-}
-
-enum 
-    | TEST : Test (9)
-    | FOO : Test (12)
--> A;
-
-def test (a : A) {
-    match a {
-        A::FOO  => println ("ici");
-        _ => println ("la");
-    }
-}
-
 def main () {
-    let a = A::TEST;
-    test (A::TEST);
-    test (A::FOO);
+    let a = 1, b = 2;
+    for it in 0 .. 12 {
+        println (it);
+    }
 }

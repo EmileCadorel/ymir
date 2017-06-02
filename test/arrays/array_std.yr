@@ -9,6 +9,7 @@ def main () {
     }
     
     println (a.to!string);
-    println (a.removeBack (), " ", a.dup (), ' ', a.back ());
-    println (a.slice (4, 0ul));
+    let b = a.removeBack ();
+    println (b);
+    println (a.slice (4, 0ul).to!string);
 }

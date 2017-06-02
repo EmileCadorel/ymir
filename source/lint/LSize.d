@@ -5,6 +5,15 @@ import ast.Constante;
 struct LSizeTuple {
     string value;
     int id;
+
+
+    string simple () {
+	if (this.id <= 8) {
+	    if (this.id % 2 == 1) return "" ~ this.value [0];
+	    else return this.value [0 .. 2];
+	} else return this.value;
+    }
+
 }
 
 enum LSize : LSizeTuple {

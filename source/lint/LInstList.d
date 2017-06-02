@@ -1,6 +1,7 @@
 module lint.LInstList;
 import lint.LInst, lint.LExp, lint.LLabel, lint.LLocus;
 import std.container, std.outbuffer;
+import lint.LGoto, lint.LJump;
 
 class LInstList {
     
@@ -77,13 +78,25 @@ class LInstList {
     }
     
     LInstList clean () {
-	Array!LInst aux;
+	LInstList aux = new LInstList;
+	bool findLabel = true;
 	foreach (it ; this._inst) {
 	    auto exp = cast(LExp) it;
-	    if (exp is null || exp.isInst())
-		aux.insertBack (it);
+	    if (auto ll = cast (LLabel) it) {
+		findLabel = true;
+		auto insts = ll.clean ();
+		aux._inst.insertBack (ll);
+		if (insts)
+		    aux += insts;
+	    } else if (auto lg = cast (LGoto) it) {
+		if (findLabel) {
+		    aux += lg;
+		    findLabel = false;
+		}
+	    } else if (exp is null || exp.isInst())
+		aux += (it);
 	}
-	this._inst = aux;
+	this._inst = aux._inst;
 	return this;
     }
 

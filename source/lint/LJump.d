@@ -20,6 +20,10 @@ class LJump : LInst {
 	return this._lbl1.id;
     }
     
+    LLabel lbl () {
+	return this._lbl1;
+    }
+
     override LExp getFirst () {
 	assert (false);
     }

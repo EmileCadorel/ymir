@@ -66,6 +66,15 @@ class LLabel : LInst {
 	return this._name;
     }
     
+    LInstList clean () {
+	if (this._insts) {
+	    auto insts = this._insts.clean;
+	    this._insts = null;
+	    return insts;
+	}
+	return null;
+    }
+
     string toSimpleString () {
 	return "lbl" ~ to!string (this._id);
     }

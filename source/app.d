@@ -150,7 +150,9 @@ void main (string [] args) {
 	    
 	    debug {
 		foreach (it ; list) {
+		    import lint.tree.Flow;
 		    writeln (it.toString);
+		    writeln (new Flow (it.entryLbl.insts).toDot (it.name));	   
 		}
 	    }
 	    

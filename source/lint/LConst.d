@@ -38,10 +38,11 @@ class LConstDecimal : LConst {
     }
     
     override string toString () {
+	import std.format;
 	if (this._mult != LSize.NONE && this._value != 0) {
-	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
+	    return format ("%d!%s", this._value, this._mult.simple);
 	} else
-	    return "$(" ~ to!string (this._value) ~ ")";
+	    return to!string (this._value);
     }    
     
 }
@@ -76,9 +77,9 @@ class LConstUDecimal : LConst {
 
     override string toString () {
 	if (this._mult != LSize.NONE && this._value != 0) {
-	    return "$(" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ ")";
+	    return "" ~ to!string (this._value) ~ ',' ~ to!string (this._mult) ~ "";
 	} else
-	    return "$(" ~ to!string (this._value) ~ ")";
+	    return "" ~ to!string (this._value) ~ "";
     }    
     
 }
@@ -98,10 +99,12 @@ class LConstFloat : LConst {
     }
     
     float value () { return this._value; }
-    
+
     override string toString () {
-	return "SP[" ~ to!string (this._value) ~ "]";
+	import std.format;
+	return format ("%f", this._value);
     }
+
     
 }
 
@@ -119,7 +122,11 @@ class LConstDouble : LConst {
     double value () {
 	return this._value;
     }
-    
+
+    override string toString () {
+	import std.format;
+	return format ("%f", this._value);
+    }
 }
 
 class LConstString : LConst {
@@ -135,6 +142,11 @@ class LConstString : LConst {
     
     string value () {
 	return this._value;
+    }
+
+    override string toString () {
+	import std.format;
+	return format ("'%s'", this._value);
     }
     
 }

@@ -40,9 +40,9 @@ class LUnop : LExp {
 
     override string toString () {
 	if (this._op == Tokens.DPLUS || this._op == Tokens.DMINUS)
-	    return this._op.descr ~ " " ~ this._elem.toString ();
+	    return this._op.descr ~ "(" ~ this._elem.toString () ~ ")";
 	else
-	    return this._op.descr ~ " " ~ this._elem.toString ();
+	    return this._op.descr ~ "(" ~ this._elem.toString () ~ ")";
     }
 
     
