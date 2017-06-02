@@ -210,15 +210,13 @@ class Var : Expression {
 	    temp.insertBack (it.expression);
 	}
 	if (!InfoType.exist (this._token.str)) {
-	    import semantic.types.EnumInfo;
 	    auto en = Table.instance.get (this._token.str);
 	    if (en !is null) {
 		if (auto encst = cast (EnumCstInfo) en.type) {
-		    if (encst) {
-			if (this._deco == Keys.REF) 
-			    throw new CannotRefEnum (this._token);
-			else return new Type (this._token, encst.create ());
-		    }
+		    if (temp.length != 0) throw new UseAsType (this._token);
+		    if (this._deco == Keys.REF) 
+			throw new CannotRefEnum (this._token);
+		    else return new Type (this._token, encst.create ());	    
 		} else if (auto str = cast (StructCstInfo) en.type) {
 		    auto type = str.create (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
@@ -248,7 +246,7 @@ class Var : Expression {
     ref Array!Expression templates () {
 	return this._templates;
     }
-
+    
     ref Word deco () {
 	return this._deco;
     }

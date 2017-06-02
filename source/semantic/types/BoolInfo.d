@@ -163,6 +163,7 @@ class BoolInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "sizeof") return SizeOf ();
 	else if (var.token.str == "typeid") return StringOf ();

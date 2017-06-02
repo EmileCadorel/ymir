@@ -22,6 +22,7 @@ class UndefInfo : InfoType {
     }
 
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
 	    auto str = new StringInfo;
 	    str.value = new StringValue (this.typeString);

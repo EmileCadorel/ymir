@@ -268,6 +268,7 @@ class PtrFuncInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
 	    auto str = new StringInfo ();
 	    str.value = new StringValue (this.typeString);

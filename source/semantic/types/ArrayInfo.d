@@ -284,6 +284,7 @@ class ArrayInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "nbRef") return NbRef ();
 	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;

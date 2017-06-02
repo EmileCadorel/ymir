@@ -506,20 +506,22 @@ class StructInfo : InfoType {
      On peut aussi acceder au attributs de cette manière.
      */
     override InfoType DotOp (Var var) {
-	if (var.token.str == "init") return Init ();
-	else if (var.token.str == "typeid") return StringOf ();
-	else if (var.token.str == "typename") return TypeName ();
-	else if (var.token.str == "nbRef") return nbRef ();
-	else if (var.token.str == "tupleof") return TupleOf ();
-	else if (var.token.str == "ptr") return Ptr ();
-	else if (var.token.str == "sizeof") return SizeOf ();
-	else {
-	    foreach (it ; 0 .. this._attribs.length) {
-		if (var.token.str == this._attribs [it]) {
-		    return GetAttrib (it);
-		}
+	if (var.templates.length != 0) {
+	    if (var.token.str == "init") return Init ();
+	    else if (var.token.str == "typeid") return StringOf ();
+	    else if (var.token.str == "typename") return TypeName ();
+	    else if (var.token.str == "nbRef") return nbRef ();
+	    else if (var.token.str == "tupleof") return TupleOf ();
+	    else if (var.token.str == "ptr") return Ptr ();
+	    else if (var.token.str == "sizeof") return SizeOf ();	    
+	}
+	
+	foreach (it ; 0 .. this._attribs.length) {
+	    if (var.token.str == this._attribs [it]) {
+		return GetAttrib (it);
 	    }
 	}
+	
 	return null;
     }
 

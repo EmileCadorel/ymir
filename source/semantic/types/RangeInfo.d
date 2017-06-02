@@ -226,6 +226,7 @@ class RangeInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "fst") return Fst ();
 	if (var.token.str == "scd") return Scd ();
 	return null;

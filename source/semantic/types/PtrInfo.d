@@ -326,6 +326,7 @@ class PtrInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (cast (Type) var || var.isType) {
 	    auto type = var.asType ();
 	    auto ret = type.info.type;

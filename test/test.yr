@@ -1,18 +1,18 @@
 
 enum A {
-    TEST : 9,
-    FOO : 12
+    TEST : 9.,
+    FOO : 12.
 }
 
 def test (a : A) {
     match a {
-        A::TEST => println ("ici");
+        A::FOO  => println ("ici");
         _ => println ("la");
     }
 }
 
 def main () {
-    let a = A::TEST;
+    let a = A::TEST + A::FOO;
     test (A::TEST);
     test (A::FOO);
 }

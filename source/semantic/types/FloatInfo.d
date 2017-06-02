@@ -205,6 +205,7 @@ class FloatInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType DotOp (Var var) {
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "init") return Init ();
 	else if (var.token.str == "max") return Max ();
 	else if (var.token.str == "min") return Min ();

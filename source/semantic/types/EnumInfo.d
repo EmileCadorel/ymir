@@ -57,6 +57,7 @@ class EnumCstInfo : InfoType {
 
     override InfoType DColonOp (Var elem) {
 	ulong i = 0;
+	if (elem.templates.length != 0) return null;
 	foreach (it ; this._names) {
 	    if (it == elem.token.str) {
 		return GetAttrib (i);
@@ -72,13 +73,15 @@ class EnumCstInfo : InfoType {
     
     private InfoType GetAttrib (ulong nb) {
 	if (this._type !is null) {
-	    auto type = new EnumInfo (this._name, this._type.clone ());	    
+	    auto type = new EnumInfo (this._name, this._type.clone ());
+	    type.value = type._content.value;
 	    type.toGet = nb;
 	    type.lintInst = &EnumUtils.Attrib;
 	    type.leftTreatment = &EnumUtils.GetAttribComp;
 	    return type;
 	} else {
 	    auto type = new EnumInfo (this._name, this._values [nb].info.type.clone ());
+	    type.value = type._content.value;
 	    type.toGet = nb;
 	    type.lintInst = &EnumUtils.Attrib;
 	    type.leftTreatment = &EnumUtils.GetAttrib;

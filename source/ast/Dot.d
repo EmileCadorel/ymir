@@ -42,7 +42,7 @@ class Dot : Expression {
     override Expression expression () {
 	auto aux = new Dot (this._token);
 	aux._left = this._left.expression ();
-	aux._right = this._right;	
+	aux._right = this._right;
 	aux._right.inside = aux;
 	aux._left.inside = this;
 	if (cast (UndefInfo) (aux._left.info.type)) throw new UninitVar (aux._left.token);

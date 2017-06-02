@@ -291,6 +291,7 @@ class StringInfo : InfoType {
      */
     override InfoType DotOp (Var var) {
 	InfoType ret = null;
+	if (var.templates.length != 0) return null;
 	if (var.token.str == "nbRef") ret = NbRef ();
 	if (var.token.str == "length") ret = Length ();
 	else if (var.token.str == "dup") ret = Dup ();
