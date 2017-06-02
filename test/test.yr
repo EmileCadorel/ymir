@@ -1,8 +1,16 @@
 
-enum A {
-    TEST : 9.,
-    FOO : 12.
+struct Test {
+    a : int
 }
+
+def opEquals (a : Test, b : Test) {
+    return a.a == b.a;
+}
+
+enum 
+    | TEST : Test (9)
+    | FOO : Test (12)
+-> A;
 
 def test (a : A) {
     match a {
@@ -12,7 +20,7 @@ def test (a : A) {
 }
 
 def main () {
-    let a = A::TEST + A::FOO;
+    let a = A::TEST;
     test (A::TEST);
     test (A::FOO);
 }

@@ -11,6 +11,7 @@ import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.EnumUtils;
+import semantic.value.EnumValue;
 
 class EnumCstInfo : InfoType {
 
@@ -72,22 +73,14 @@ class EnumCstInfo : InfoType {
     }
     
     private InfoType GetAttrib (ulong nb) {
-	if (this._type !is null) {
-	    auto type = new EnumInfo (this._name, this._type.clone ());
-	    type.value = type._content.value;
-	    type.toGet = nb;
-	    type.lintInst = &EnumUtils.Attrib;
-	    type.leftTreatment = &EnumUtils.GetAttribComp;
-	    return type;
-	} else {
-	    auto type = new EnumInfo (this._name, this._values [nb].info.type.clone ());
-	    type.value = type._content.value;
-	    type.toGet = nb;
-	    type.lintInst = &EnumUtils.Attrib;
-	    type.leftTreatment = &EnumUtils.GetAttrib;
-	    return type;
+	auto type = new EnumInfo (this._name, this._type.clone ());
+	if (this._values [nb].info.value) {
+	    type._content.value = this._values [nb].info.value;
 	}
-	    
+	type.toGet = nb;
+	type.lintInst = &EnumUtils.Attrib;
+	type.leftTreatment = &EnumUtils.GetAttribComp;
+	return type;	    
     }
     
     override string simpleTypeString () {
@@ -138,7 +131,7 @@ class EnumInfo : InfoType {
     override InfoType BinaryOp (Word token, Expression right) {
 	InfoType aux;
 	if (auto type = cast (EnumInfo) right.info.type) {
-	    aux = this._content.BinaryOp (token, type._content);	    
+	    aux = this._content.BinaryOp (token, type._content);
 	} else aux = this._content.BinaryOp (token, right);
 	return aux;
     }
@@ -221,4 +214,8 @@ class EnumInfo : InfoType {
 	return this._content.size;
     }
     
+    InfoType content () {
+	return this._content;
+    }
+
 }
