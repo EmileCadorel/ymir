@@ -8,11 +8,14 @@ import ast.Expression;
 class EnumUtils {
 
     static LInstList GetAttribComp (InfoType ret, Expression left, Expression) {
+	import std.stdio;
 	auto inf = cast (EnumCstInfo) left.info.type;
 	auto list = LVisitor.visitExpressionOutSide (inf.values [ret.toGet]);
 	auto comp = inf.comps [ret.toGet];
-	for (long nb = comp.lintInstS.length - 1; nb >= 0; nb --) {
-	    list = comp.lintInst (list, nb);
+	if (comp) {
+	    for (long nb = comp.lintInstS.length - 1; nb >= 0; nb --) {
+		list = comp.lintInst (list, nb);
+	    }
 	}
 	return list;
     }

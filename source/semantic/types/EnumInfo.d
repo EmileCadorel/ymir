@@ -29,7 +29,7 @@ class EnumCstInfo : InfoType {
     /** Les valeurs de l'enum */
     private Array!Expression _values;
 
-    this (string name, InfoType type = null) {
+    this (string name, InfoType type) {
 	this._name = name;
 	this._type = type;
     }
@@ -55,24 +55,30 @@ class EnumCstInfo : InfoType {
 	this._comps.insertBack (comp);
     }
 
-    override InfoType DotOp (Var elem) {
-	foreach (it ; 0 .. this._names.length) {
-	    if (elem.token.str == this._names [it]) {
-		return GetAttrib (it);
+    override InfoType DColonOp (Var elem) {
+	ulong i = 0;
+	foreach (it ; this._names) {
+	    if (it == elem.token.str) {
+		return GetAttrib (i);
 	    }
+	    i++;
 	}
 	return null;
-    }    
+    }
 
+    InfoType create () {
+	return new EnumInfo (this._name, this._type.cloneForParam ());
+    }
+    
     private InfoType GetAttrib (ulong nb) {
-	if (this._type !is null) {	    
-	    auto type = this._type.clone ();
+	if (this._type !is null) {
+	    auto type = new EnumInfo (this._name, this._type.clone ());	    
 	    type.toGet = nb;
 	    type.lintInst = &EnumUtils.Attrib;
 	    type.leftTreatment = &EnumUtils.GetAttribComp;
 	    return type;
 	} else {
-	    auto type = this._values [nb].info.type.clone ();
+	    auto type = new EnumInfo (this._name, this._values [nb].info.type.clone ());
 	    type.toGet = nb;
 	    type.lintInst = &EnumUtils.Attrib;
 	    type.leftTreatment = &EnumUtils.GetAttrib;
@@ -81,22 +87,24 @@ class EnumCstInfo : InfoType {
 	    
     }
     
+    override string simpleTypeString () {
+	import std.format;
+	return format ("%d%s%s)", this._name.length, "E", this._name);
+    }
+
+    override string typeString () {
+	import std.format;
+	if (this._type !is null)
+	    return format ("%s(%s)", this._name, this._type.typeString ());
+	else
+	    return format ("%s(...)", this._name);
+    }
+    
     override bool isSame (InfoType other) {
 	if (auto en = cast (EnumCstInfo) other) {
 	    return en._name == this._name;
 	}
 	return false;
-    }
-
-    override string simpleTypeString () {
-	if (this._name [0] >= 'a' && this._name [0] <= 'z') {
-	    return "_" ~ this._name;
-	} else 
-	    return this._name;
-    }
-    
-    override string typeString () {
-	return "enum:" ~ this._name;
     }
     
     override InfoType clone () {
@@ -109,44 +117,105 @@ class EnumCstInfo : InfoType {
 
     override bool isScopable () {
 	return true;
-    }    
+    }
+    
 }
 
 
 class EnumInfo : InfoType {
 
-    private Expression _value;
     private string _name;
-    private InfoType _comp;
+    private InfoType _content;
 
-
-    this (string name, Expression value, InfoType comp = null) {
+    this (string name, InfoType content) {
 	this._name = name;
-	this._value = value;
-	this._comp = comp;
-    }   
+	this._content = content;
+    }
+
+    override InfoType BinaryOp (Word token, Expression right) {
+	InfoType aux;
+	if (auto type = cast (EnumInfo) right.info.type) {
+	    aux = this._content.BinaryOp (token, type._content);	    
+	} else aux = this._content.BinaryOp (token, right);
+	return aux;
+    }
+
+    override InfoType BinaryOpRight (Word token, Expression left) {
+	return this._content.BinaryOpRight (token, left);
+    }
+
+    override InfoType AccessOp (Word token, ParamList params) {
+	return this._content.AccessOp (token, params);
+    }
+
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "typeid") {
+	    auto str = new StringInfo;
+	    str.value = new StringValue (this.typeString);
+	    return str;
+	}
+	return this._content.DotOp (var);	
+    }
+
+    override InfoType DotExpOp (Expression var) {
+	return this._content.DotExpOp (var);
+    }
+    
+    override InfoType DColonOp (Var var) {
+	return this._content.DColonOp (var);
+    }       
+
+    override InfoType UnaryOp (Word op) {
+	return this._content.UnaryOp (op);
+    }
+    
+    override InfoType CastOp (InfoType other) {
+	return this._content.CastOp (other);
+    }
+    
+    override InfoType CompOp (InfoType other) {
+	if (cast (UndefInfo) other || this.isSame (other)) {
+	    auto rf = this.clone ();
+	    auto ret = this._content.CompOp (this._content);	    
+	    rf.lintInst = ret.lintInst;
+	    return rf;
+	} else {
+	    return this._content.CompOp (other);
+	}	
+    }
+
+    override InfoType ApplyOp (Array!Var vars) {
+	return this._content.ApplyOp (vars);
+    }    
 
     override string simpleTypeString () {
-	return this._value.info.type.simpleTypeString;
+	import std.format;
+	return format ("%d%s%s", this._name.length, "E", this._name);
     }
 
     override string typeString () {
-	return this._value.info.type.typeString ();
+	import std.format;
+	return format ("%s(%s)", this._name, this._content.typeString ());
     }
     
     override bool isSame (InfoType other) {
 	if (auto en = cast (EnumInfo) other) {
-	    if (en._name == this._name) return true;
+	    if (en._name == this._name
+		&& this._content.isSame (en._content)) return true;
 	}
 	return false;
     }
 
     override InfoType clone () {
-	return new EnumInfo (this._name, this._value, this._comp.clone ());
+	return new EnumInfo (this._name, this._content.clone ());
     }
 
     override InfoType cloneForParam () {
-	return new EnumInfo (this._name, this._value, this._comp.clone ());
+	return new EnumInfo (this._name, this._content.cloneForParam ());
     }
-        
+
+    override LSize size () {
+	return this._content.size;
+    }
+    
 }

@@ -8,8 +8,10 @@ import semantic.types.ArrayInfo;
 import ast.FuncPtr;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
+import semantic.types.EnumInfo;
 import semantic.types.StructInfo;
 import ast.Par, ast.ParamList, ast.Dot;
+
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -212,11 +214,10 @@ class Var : Expression {
 	    auto en = Table.instance.get (this._token.str);
 	    if (en !is null) {
 		if (auto encst = cast (EnumCstInfo) en.type) {
-		    auto type = encst.type;
-		    if (type) {
+		    if (encst) {
 			if (this._deco == Keys.REF) 
-			    return new Type (this._token, new RefInfo (type.clone ()));
-			else return new Type (this._token, type.clone ());
+			    throw new CannotRefEnum (this._token);
+			else return new Type (this._token, encst.create ());
 		    }
 		} else if (auto str = cast (StructCstInfo) en.type) {
 		    auto type = str.create (this._token, temp.array ());
@@ -496,14 +497,18 @@ class TypedVar : Var {
     InfoType getType () {
 	if (type) {
 	    auto type = this._type.asType ();
-	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type)
+	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type) {  
+		if (cast (EnumInfo) type.info.type)
+		    throw new CannotRefEnum (this._deco);
 		return new RefInfo (type.info.type);
-	    else return type.info.type;
+	    } else return type.info.type;
 	} else {
 	    this._expType = this._expType.expression ();
-	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type)
+	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type) {
+		if (cast (EnumInfo) type.info.type)
+		    throw new CannotRefEnum (this._deco);
 		return new RefInfo (this._expType.info.type);
-	    else return this._expType.info.type;
+	    } else return this._expType.info.type;
 	}
     }
 

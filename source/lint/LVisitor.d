@@ -470,6 +470,7 @@ class LVisitor {
 	if (auto _str = cast(String) elem) return loc + visitStr (_str);
 	if (auto _access = cast (Access) elem) return loc + visitAccess (_access);
 	if (auto _dot = cast (Dot) elem) return loc + visitDot (_dot);
+	if (auto _dot = cast (DColon) elem) return loc + visitDColon (_dot);
 	if (auto _bool = cast (Bool) elem) return loc + visitBool (_bool);
 	if (auto _unop = cast (BefUnary) elem) return loc + visitBefUnary (_unop);
 	if (auto _null = cast (Null) elem) return loc + visitNull (_null);
@@ -497,6 +498,7 @@ class LVisitor {
 	if (auto _str = cast(String) elem) return loc + visitStr (_str);
 	if (auto _access = cast (Access) elem) return loc + visitAccess (_access);
 	if (auto _dot = cast (Dot) elem) return loc + visitDot (_dot);
+	if (auto _dot = cast (DColon) elem) return loc + visitDColon (_dot);
 	if (auto _bool = cast (Bool) elem) return loc + visitBool (_bool);
 	if (auto _unop = cast (BefUnary) elem) return loc + visitBefUnary (_unop);
 	if (auto _null = cast (Null) elem) return loc + visitNull (_null);
@@ -929,6 +931,28 @@ class LVisitor {
 	    for (long nb = dot.info.type.lintInstS.length - 1; nb >= 0; nb --) {
 		left = dot.info.type.lintInst (left, nb);
 	    }
+	}
+
+	auto inst = dot.info.type.lintInst (exprs, left);
+	if (dot.info.isDestructible) {
+	    auto sym = new LReg (dot.info.id, dot.info.type.size);
+	    auto last = inst.getFirst ();
+	    inst += new LWrite (sym, last);
+	}
+	return inst;
+    }
+
+    private LInstList visitDColon (DColon dot) {
+	LInstList exprs;
+	if (dot.info.value) return dot.info.value.toLint (dot.info);
+	if (dot.info.type.leftTreatment) {
+	    exprs = dot.info.type.leftTreatment (dot.info.type, dot.left, null);
+	}
+
+	auto left = visitExpression (dot.left);
+	if (dot.info.type.lintInstS.length > 0) {
+	    for (long nb = dot.info.type.lintInstS.length - 1; nb >= 0; nb --)
+		left = dot.info.type.lintInst (left, nb);
 	}
 
 	auto inst = dot.info.type.lintInst (exprs, left);

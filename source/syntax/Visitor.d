@@ -231,26 +231,35 @@ class Visitor {
 	Array!Word names;
 	Array!Expression values;
 	auto word = this._lex.next ();
+	Word ident;
 	Var type;
 	if (word == Tokens.COLON) type = visitType ();
 	else this._lex.rewind ();
 	word = this._lex.next ();
-	if (word != Tokens.PIPE) throw new SyntaxError (word, [Tokens.PIPE.descr]);
-	while (true) {
-	    names.insertBack (visitIdentifiant ());
-	    auto next = this._lex.next ();
-	    if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
-	    values.insertBack (visitPth ());
-	    next = this._lex.next ();
-	    if (next == Tokens.ARROW) break;
-	    else if (next != Tokens.PIPE)
-		throw new SyntaxError (next, [Tokens.PIPE.descr, Tokens.COMA.descr]);
-	}
+	if (word != Tokens.PIPE)  {
+	    this._lex.rewind ();
+	    ident = visitIdentifiant ();
+	    auto next = this._lex.next (Tokens.COLON, Tokens.LACC);
+	    if (next == Tokens.COLON) type = visitType ();
+	    while (true) {
+		names.insertBack (visitIdentifiant);
+		next = this._lex.next (Tokens.COLON);
+		values.insertBack (visitPth ());
+		next = this._lex.next (Tokens.RACC, Tokens.COMA);
+		if (next == Tokens.RACC) break;
+	    }
+	} else {
+	    while (true) {
+		names.insertBack (visitIdentifiant ());
+		auto next = this._lex.next (Tokens.COLON);
+		values.insertBack (visitPth ());
+		next = this._lex.next (Tokens.ARROW, Tokens.PIPE);
+		if (next == Tokens.ARROW) break;
+	    }
 	
-	Word ident = visitIdentifiant ();       	    
-	word = this._lex.next ();
-	if (word != Tokens.SEMI_COLON)
-	    throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);
+	    ident = visitIdentifiant ();       	    
+	    word = this._lex.next (Tokens.SEMI_COLON);
+	}
 	return new Enum (ident, type, names, values);
     }
 

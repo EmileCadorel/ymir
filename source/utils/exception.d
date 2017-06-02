@@ -1050,3 +1050,23 @@ class DestOfNonTuple : YmirException {
 
 }
 
+class CannotRefEnum : YmirException {
+
+    this (Word token) {
+	auto loc = token.locus;
+	auto buf = new OutBuffer ();
+	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de prendre une réference vers un type %senum%s ",
+		      loc.file,
+		      loc.line,
+		      loc.column,
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value
+	);
+
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }
+    
+}
+
+

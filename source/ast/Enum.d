@@ -51,34 +51,32 @@ class Enum : Declaration {
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
+	    Symbol type; Expression fst;	    
 	    if (this._type !is null) {
-		auto type = this._type.asType ();
-		auto en = new EnumCstInfo (this._ident.str, type.info.type);
-		auto sym = new Symbol (this._ident, en);
-		sym.isPublic = this._isPublic;		
-		mod.insert (sym);
-		
-		foreach (it; 0 .. this._names.length) {
-		    auto val = this._values [it].expression;
-		    auto comp = val.info.type.CompOp (type.info.type);
-		    if (comp !is null)
-			en.addAttrib (this._names [it].str, val, comp);
-		    else throw new IncompatibleTypes (type.info,
-						      val.info);
-		}
+		type = this._type.asType ().info;	    
 	    } else {
-		auto en = new EnumCstInfo (this._ident.str);
-		auto sym = new Symbol (this._ident, en);
-		sym.isPublic = this._isPublic;
-		
-		Table.instance.insert (sym);
-		foreach (it; 0 .. this._names.length) {
+		fst = this._values [0].expression;
+		type = fst.info;
+	    }
+	    
+	    auto en = new EnumCstInfo (this._ident.str, type.type);
+	    auto sym = new Symbol (this._ident, en);
+	    sym.isPublic = this._isPublic;		
+	    mod.insert (sym);
+	    
+	    foreach (it; 0 .. this._names.length) {
+		if (it == 0 && fst)
+		    en.addAttrib (this._names [it].str, fst, null);
+		else {
 		    auto val = this._values [it].expression;
-		    en.addAttrib (this._names [it].str, val);
+		    auto comp = val.info.type.CompOp (type.type);
+		    if (comp !is null)
+		    en.addAttrib (this._names [it].str, val, comp);
+		    else throw new IncompatibleTypes (type,
+						      val.info);
 		}
 	    }
 	}
-    
     }
 
     override void declare () {
@@ -86,26 +84,29 @@ class Enum : Declaration {
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
+	    Symbol type; Expression fst;	    
 	    if (this._type !is null) {
-		auto type = this._type.asType ();
-		auto en = new EnumCstInfo (this._ident.str, type.info.type);
-		auto sym = new Symbol (this._ident, en);
-		Table.instance.insert (sym);
-		foreach (it; 0 .. this._names.length) {
-		    auto val = this._values [it].expression;
-		    auto comp = val.info.type.CompOp (type.info.type);
-		    if (comp !is null)
-			en.addAttrib (this._names [it].str, val, comp);
-		    else throw new IncompatibleTypes (type.info,
-						      val.info);
-		}
+		type = this._type.asType ().info;	    
 	    } else {
-		auto en = new EnumCstInfo (this._ident.str);
-		auto sym = new Symbol (this._ident, en);
-		Table.instance.insert (sym);
-		foreach (it; 0 .. this._names.length) {
+		fst = this._values [0].expression;
+		type = fst.info;
+	    }
+	    
+	    auto en = new EnumCstInfo (this._ident.str, type.type);
+	    auto sym = new Symbol (this._ident, en);
+	    sym.isPublic = true;		
+	    Table.instance.insert (sym);	    
+	    
+	    foreach (it; 0 .. this._names.length) {
+		if (it == 0 && fst)
+		    en.addAttrib (this._names [it].str, fst, null);
+		else {
 		    auto val = this._values [it].expression;
-		    en.addAttrib (this._names [it].str, val);
+		    auto comp = val.info.type.CompOp (type.type);
+		    if (comp !is null)
+		    en.addAttrib (this._names [it].str, val, comp);
+		    else throw new IncompatibleTypes (type,
+						      val.info);
 		}
 	    }
 	}

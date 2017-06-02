@@ -1,6 +1,18 @@
 
-def main () {
-    for it in 'z' .. 'a' - 1UB {
-        println (it);
+enum A {
+    TEST : 9,
+    FOO : 12
+}
+
+def test (a : A) {
+    match a {
+        A::TEST => println ("ici");
+        _ => println ("la");
     }
+}
+
+def main () {
+    let a = A::TEST;
+    test (A::TEST);
+    test (A::FOO);
 }

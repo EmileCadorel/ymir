@@ -50,6 +50,14 @@ class DColon : Expression {
 			   this._right.templateExpReplace (values));
     }
     
+    Expression left () {
+	return this._left;
+    }
+
+    Expression right () {
+	return this._right;
+    }
+
     override Expression clone () {
 	return new DColon (this._token, this._left.clone, this._right.clone ());
     }
