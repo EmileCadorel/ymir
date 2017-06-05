@@ -23,14 +23,12 @@ class EnumValue : Value {
 
     
     override Value BinaryOp (Tokens t, Value r) {
-	writeln ("ici");
 	if (auto v = cast (EnumValue) r) 
 	    return this._inner.BinaryOp (t, v._inner);
 	return this._inner.BinaryOp (t, r);
     }
 
     override Value BinaryOpRight (Tokens t, Value l) {
-	writeln ("ici");
 	return this._inner.BinaryOpRight (t, l);
     }
 

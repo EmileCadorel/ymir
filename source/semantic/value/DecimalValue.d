@@ -26,8 +26,6 @@ class DecimalValue : Value {
     }
     
     override Value BinaryOp (Tokens token, Value right) {
-	import std.stdio;
-	writeln ("ici", ' ', right);
 	if (auto t = match!DecimalValue (right)) {
 	    final switch (token.descr) {
 	    case Tokens.DAND.descr : return new BoolValue (this._value && t._value);

@@ -147,7 +147,7 @@ def capitalize (str : string) : string {
     return cast:string (aux);
 }
 
-
+/***/
 def append (ref str : string, c : char) : string {
     let aux = [char; str.length + 1ul];
     for (it in 0ul .. str.length) {

@@ -1,7 +1,12 @@
+import std.stdio;
+import std.algorithm;
+import std.string;
+import std.conv;
 
 def main () {
-    let a = 1, b = 2;
-    for it in 0 .. 12 {
-        println (it);
-    }
+    let a = [1, 2, 3] + [4, 5];
+    a.shuffle ();
+    println (a.to!string);
+    a.sort ();
+    println (a.to!string);
 }

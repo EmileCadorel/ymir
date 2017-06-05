@@ -529,12 +529,6 @@ class LVisitor {
 	    StructUtils.createCstStruct (tupleName,
 					 (cast (TupleInfo) _tuple.info.type).params);
 	}
-
-	it = (StructUtils.__DstName__ ~ tupleName in LFrame.preCompiled);
-	if (it is null) {
-	    StructUtils.createDstStruct (tupleName,
-					 (cast (TupleInfo) _tuple.info.type).params);
-	}
 	
 	if (_tuple.info.type.isDestructible) {
 	    auto aux = new LReg (_tuple.info.id, _tuple.info.type.size);
@@ -604,35 +598,28 @@ class LVisitor {
 	inst += expInst;
 	
 	auto aux = new LReg (alloc.info.id, type.size);
-	if (!type.content.isDestructible) {
-	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createCstArray ();
-	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));	    
-	} else {
-	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
-	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createDstArray ();
-	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
-	    	    
-	    auto it = new LReg (LSize.LONG);
-	    auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LWrite (new LRegRead (it, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG));
-	    auto faux = new LLabel;
-	    auto index = new LReg (LSize.LONG);
-	    auto test = new LBinop (index, new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
-	    inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
-	    inst += debut;
-	    inst += new LJump (test, vrai);
-	    inst += new LGoto (faux);
-	    vrai.insts += new LWrite (it, new LBinop (aux, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
-										 new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
-							    Tokens.PLUS));
-	    vrai.insts += block;
-	    vrai.insts += new LUnop (index, Tokens.DPLUS, true);
-	    vrai.insts += new LGoto (debut);
-	    inst += vrai;
-	    inst += faux;
-	}
+	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	if (exist is null) ArrayUtils.createCstArray ();
+	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));	    
+	
+	
+	auto it = new LReg (LSize.LONG);
+	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LWrite (new LRegRead (it, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG));
+	auto faux = new LLabel;
+	auto index = new LReg (LSize.LONG);
+	auto test = new LBinop (index, new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
+	inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
+	inst += debut;
+	inst += new LJump (test, vrai);
+	inst += new LGoto (faux);
+	vrai.insts += new LWrite (it, new LBinop (aux, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
+								   new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
+						  Tokens.PLUS));
+	vrai.insts += block;
+	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
+	vrai.insts += new LGoto (debut);
+	inst += vrai;
+	inst += faux;    
 	
 	inst += aux;
 	return inst;
@@ -646,18 +633,11 @@ class LVisitor {
 	
 	auto inst = new LInstList;
 	auto aux = new LReg (carray.info.id, type.size);
-	if (!(cast (ArrayInfo)carray.info.type).content.isDestructible) {	    
-	    auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createCstArray ();
-	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
-	} else {
-	    auto exist = (ArrayUtils.__CstNameObj__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createCstArray (ArrayUtils.__DstArray__);
-	    exist = (ArrayUtils.__DstArray__ in LFrame.preCompiled);
-	    if (exist is null) ArrayUtils.createDstArray ();
-	    inst += new LWrite (aux, new LCall (ArrayUtils.__CstNameObj__, params, LSize.LONG));
-	}
-	
+
+	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
+	if (exist is null) ArrayUtils.createCstArray ();
+	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+		
 	foreach (it ; 0 .. carray.params.length) {
 	    InfoType cster = carray.casters [it];
 	    LInstList ret;
@@ -696,9 +676,9 @@ class LVisitor {
 	    right = crange.caster.lintInst (right);
 	}
 	
-	auto regRead = new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), type.content.size);
+	auto regRead = new LRegRead (aux, new LConstDecimal (0, LSize.INT, LSize.LONG), type.content.size);
 	inst += crange.content.lintInst (new LInstList (regRead), left);
-	regRead = new LRegRead (aux, new LBinop (new LConstDecimal (2, LSize.INT, LSize.LONG),
+	regRead = new LRegRead (aux, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
 						 new LConstDecimal (1, LSize.INT, type.content.size), Tokens.PLUS),
 				type.content.size);
 	

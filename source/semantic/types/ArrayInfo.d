@@ -28,7 +28,7 @@ class ArrayInfo : InfoType {
      */
     this () {
 	this._content = new VoidInfo ();
-	this._destruct = &ArrayUtils.InstDestruct;
+	//this._destruct = &ArrayUtils.InstDestruct;
     }
 
     /**
@@ -37,7 +37,7 @@ class ArrayInfo : InfoType {
      */
     this (InfoType content) {
 	this._content = content;
-	this._destruct = &ArrayUtils.InstDestruct;
+	//this._destruct = &ArrayUtils.InstDestruct;
     }
 
     /**
@@ -136,22 +136,18 @@ class ArrayInfo : InfoType {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
-	    if (this._content.isDestructible) {
-		str.lintInst = &ArrayUtils.InstPlusObj;
-	    } else {
-		switch (this._content.size.id) {
-		case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
-		case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UBYTE); break;
-		case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.SHORT); break;
-		case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.USHORT); break;
-		case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
-		case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UINT); break;
-		case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
-		case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.ULONG); break;
-		case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.FLOAT); break;
-		case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.DOUBLE); break;
-		default : assert (false, "TODO");
-		}
+	    switch (this._content.size.id) {
+	    case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
+	    case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UBYTE); break;
+	    case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.SHORT); break;
+	    case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.USHORT); break;
+	    case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
+	    case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UINT); break;
+	    case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
+	    case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.ULONG); break;
+	    case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.FLOAT); break;
+	    case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.DOUBLE); break;
+	    default : assert (false, "TODO");		
 	    }
 	    return str;
 	}
@@ -168,23 +164,20 @@ class ArrayInfo : InfoType {
 	auto arr = cast (ArrayInfo) right.info.type;
 	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
 	    auto str = new ArrayInfo (this._content.clone ());
-	    if (this._content.isDestructible) {
-		str.lintInst = &ArrayUtils.InstPlusAffObj;
-	    } else {
-		switch (this._content.size.id) {
-		case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
-		case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UBYTE); break;
-		case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.SHORT); break;
-		case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.USHORT); break;
-		case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
-		case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UINT); break;
-		case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
-		case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.ULONG); break;
-		case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.FLOAT); break;
-		case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.DOUBLE); break;
-		default : assert (false, "TODO");
-		}
-	    }
+
+	    switch (this._content.size.id) {
+	    case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
+	    case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UBYTE); break;
+	    case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.SHORT); break;
+	    case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.USHORT); break;
+	    case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
+	    case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UINT); break;
+	    case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
+	    case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.ULONG); break;
+	    case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.FLOAT); break;
+	    case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.DOUBLE); break;
+	    default : assert (false, "TODO");
+	    }	    
 	    return str;
 	}
 	return null;

@@ -71,7 +71,7 @@ class LCall : LExp {
 		         : this._dynFrame.toString);
 	foreach (it ; this._params) {
 	    if (it !is this._params [$ - 1])
-		buf.writef ("%s,\n\t\t\t", it);
+		buf.writef ("%s, ", it);
 	    else  buf.writef ("%s", it);
 	}
 	buf.writef("], %s)", to!string (this._size));

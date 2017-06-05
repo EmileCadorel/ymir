@@ -31,7 +31,6 @@ void semanticTime (string file) {
 	    auto type = cast (StructInfo) it.create (name, []);
 	    auto strName = Mangler.mangle!"struct" (it);
 	    StructUtils.createCstStruct (strName, type.params);
-	    StructUtils.createDstStruct (strName, type.params);
 	}
     }
     
@@ -150,9 +149,7 @@ void main (string [] args) {
 	    
 	    debug {
 		foreach (it ; list) {
-		    import lint.tree.Flow;
 		    writeln (it.toString);
-		    writeln (new Flow (it.entryLbl.insts).toDot (it.name));	   
 		}
 	    }
 	    

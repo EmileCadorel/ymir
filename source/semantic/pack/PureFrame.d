@@ -114,6 +114,7 @@ class PureFrame : Frame {
 			     )
 		)
 	    ) ~ blk.insts;
+	    		
 	    this._function.params = finalParam;
 	} else if (this._function.params.length != 0)
 	    throw new WrongTypeForMain (this._function.ident);

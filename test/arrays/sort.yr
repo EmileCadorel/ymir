@@ -1,6 +1,7 @@
 import std.stdio;
 import std.array;
-import std.algorithm.sorting;
+import std.algorithm;
+import std.conv;
 
 struct
 | a : int
@@ -14,14 +15,20 @@ def print (a : Test) {
 
 def main () {
     let a = [Test (1, 2.2), Test (2, 3.3), Test (1, 1.1)];
-    a.sort (function (a : Test, b : Test) : bool {
-	    return a.b < b.b;
-	});
+    a.sort (
+        (a : Test, b : Test) => a.b < b.b	
+    );
+
+    print ('[');
+    for it in 0U .. a.length {
+        print (a [it]);
+        if (it != a.length - 1UL) print (", ");
+    }
     
-    println (a);
+    println (']');
 
     let b = [1, 8, 4, 2, 5];
     b.sort ();
     
-    println (b);    
+    println (b.to!string);    
 }

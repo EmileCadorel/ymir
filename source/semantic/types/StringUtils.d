@@ -18,9 +18,6 @@ class StringUtils {
     /** Le nom du constructeur d'un string */
     static immutable string __CstName__ = "_YPCstString";
 
-    /** Le nom du constructeur d'une string qui ne lui donne aucune reference */    
-    static immutable string __CstNameNoRef__ = "_YPCstStringNoRef";
-
     /** Le nom du duplicateur de string */
     static immutable string __DupString__ = "_YPDupString";
 
@@ -38,7 +35,6 @@ class StringUtils {
      */
     static void createFunctions () {
 	createCstString ();
-	createCstStringNoRef ();
 	createDupString ();
 	createPlusString ();
 	createEqualString ();
@@ -106,67 +102,6 @@ class StringUtils {
     }
 
 
-
-
-    /++ 
-     + Fonction de construction d'un string sans lui attribué de référence.
-     + Example:
-     + -----
-     + def cstStringNoRef (size : long, val : ptr!char) : string {
-     +    str = malloc (size + 9);
-     +    str.int = 0;
-     +    (str + 4).int = size;
-     +    (str + size + 8) = 0;
-     +    let i = 0;
-     +    while (*val) {
-     +        *(str + 8 + i) = *val;
-     +        i ++;
-     +        val ++;
-     +    } 
-     +    return str;
-     + }
-     + ----
-     +/
-    static void createCstStringNoRef () {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto size = new LReg (LSize.LONG);
-	auto addr = new LReg (LSize.LONG);
-	Array!LReg args = make!(Array!LReg) (size, addr);
-	auto retReg = new LReg (LSize.LONG);
-	auto entry = new LLabel (), end = new LLabel;
-	entry.insts = new LInstList;
-	entry.insts += (new LSysCall ("alloc", make!(Array!LExp) ([new LBinop (new LBinop (new LConstDecimal (1, LSize.LONG), size, Tokens.PLUS),
-									       new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS)]), retReg));
-	auto index = new LReg (LSize.LONG);
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG))); // Une reference, le symbol ""
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc ("free")));
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), size));
-	entry.insts += (new LWrite (new LRegRead (new LBinop (retReg, size, Tokens.PLUS), new LConstDecimal (3, LSize.INT, LSize.LONG), LSize.BYTE), new LConstDecimal (0, LSize.BYTE)));
-	
-	entry.insts += (new LWrite (index, new LConstDecimal (3, LSize.LONG, LSize.LONG)));
-	
-	auto test = new LBinop (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.BYTE), new LConstDecimal (0, LSize.BYTE), Tokens.NOT_EQUAL);
-	auto debut = new LLabel (), vrai = new LLabel, faux = new LLabel;
-	entry.insts += debut;
-	entry.insts += new LJump (test, vrai);
-	entry.insts += new LGoto (faux);
-
-	vrai.insts = new LInstList;
-	auto access = new LRegRead (new LBinop (retReg, index, Tokens.PLUS), new LConstDecimal (0, LSize.INT), LSize.BYTE);
-	vrai.insts += new LWrite (access, new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.BYTE));
-	vrai.insts += new LUnop (addr, Tokens.DPLUS, true);
-	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai.insts += new LGoto (debut);
-	
-	entry.insts += vrai;
-	entry.insts += faux;
-
-	
-	LReg.lastId = last;
-	auto fr = new LFrame (__CstNameNoRef__, entry, end, retReg, args);
-	LFrame.preCompiled [__CstNameNoRef__] = fr;
-    }
 
     
     /++
@@ -411,13 +346,6 @@ class StringUtils {
 	inst += llist + rlist;
 	if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
 
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
-
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -486,9 +414,7 @@ class StringUtils {
 	auto res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	auto aux = new LReg (LSize.LONG);
 	inst += new LWrite (aux, res);
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();	
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+
 	inst += new LWrite (leftExp, aux);
 	inst += new LUnop (new LRegRead (cast (LExp)leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG), Tokens.DPLUS, true);
 	
@@ -534,10 +460,7 @@ class StringUtils {
 	exps.insertBack (rightExp);
 	auto it = (__CstName__ in LFrame.preCompiled);
 	if (it is null) createCstString ();
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
 
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp)([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, new LCall (__CstName__, exps, LSize.LONG));
 	return inst;
     }
@@ -604,14 +527,9 @@ class StringUtils {
      Returns: la liste d'instruction de la déstruction d'une string.
      */
     static LInstList InstDestruct (LInstList llist) {
-	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) {
-	    ClassUtils.createDstObj ();
-	}
 	auto expr = llist.getFirst ();
 	auto inst = new LInstList;
 	inst += llist;
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
     }
 
@@ -662,10 +580,10 @@ class StringUtils {
 	auto inst = new LInstList;
 	auto rightExp = list.getFirst ();
 	if (auto cst = (cast (LConstString) rightExp)) {
-	    auto it = (__CstNameNoRef__ in LFrame.preCompiled);
-	    if (it is null) createCstStringNoRef ();
+	    auto it = (__CstName__ in LFrame.preCompiled);
+	    if (it is null) createCstString ();
 	    inst += list;
-	    inst += new LCall (__CstNameNoRef__, make!(Array!LExp) ([new LConstDecimal (cst.value.length, LSize.LONG), cst]), LSize.LONG);
+	    inst += new LCall (__CstName__, make!(Array!LExp) ([new LConstDecimal (cst.value.length, LSize.LONG), cst]), LSize.LONG);
 	    return inst;
 	} else {
 	    inst += list;

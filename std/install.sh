@@ -26,4 +26,5 @@ mv *.o libs/std/
 ymir -c core/*.yr
 mv *.o libs/core/
 
+cp ~/gc/lib/libgc.a libs/libgc.a
 

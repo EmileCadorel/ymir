@@ -27,9 +27,7 @@ class TupleUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
 
@@ -135,8 +133,6 @@ class TupleUtils {
 	auto type = cast(TupleInfo) _type;
 	auto it = (StructUtils.__CstName__ ~ tupleName) in LFrame.preCompiled;
 	if (it is null) StructUtils.createCstStruct (tupleName, type.params);
-	it = (StructUtils.__DstName__ ~ tupleName) in LFrame.preCompiled;
-	if (it is null) StructUtils.createDstStruct (tupleName, type.params);
 	
 	return new LInstList (new LConstFunc (StructUtils.__CstNameEmpty__ ~ tupleName));
     }

@@ -1,15 +1,35 @@
 import std.stdio;
 import std.array;
+//import std.string;
 import std.conv;
 
-def main () {
-    let a = [int; 0u];
-    for (it in 0 .. 10) {
-	a.insertBack (it);
+
+def append (ref str : string, c : char) : string {
+    let aux = [char; str.length + 1ul];
+    for (it in 0ul .. str.length) {
+	aux [it] = str [it];
     }
-    
-    println (a.to!string);
-    let b = a.removeBack ();
-    println (b);
-    println (a.slice (4, 0ul).to!string);
+    aux [aux.length - 1ul] = c;
+    str = cast:string (aux);
+    return cast:string (aux);
+}
+
+/**   
+   Params:
+   str = le texte a splitter
+   Returns: un tableau de chaine, chaque case correspond à une ligne
+ */
+def splitLines (str : string) : [string] {
+    let ret = [''];
+    for (it in str) {
+	if (it == '\n') ret += [''];
+	else ret [ret.length - 1ul].append (it);
+    }
+    return ret;
+}
+
+
+def main () {
+    let a = "salut" + "\n" + "jeje";
+    println (a.splitLines ().to!string);
 }

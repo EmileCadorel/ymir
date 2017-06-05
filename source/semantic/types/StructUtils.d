@@ -15,7 +15,6 @@ class StructUtils {
     
     static string __CstName__ = "_YPCstStruct";
     static string __CstNameEmpty__ = "_YPCstStructEmpty";
-    static string __DstName__ = "_YPDstStruct";
     
     static void createCstStruct (string name, Array!InfoType params) {
 	auto last = LReg.lastId;
@@ -61,7 +60,7 @@ class StructUtils {
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
 				   new LConstDecimal (1, LSize.LONG));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
+
 	entry.insts += interne;
 	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
@@ -111,49 +110,12 @@ class StructUtils {
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
 	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
 				   new LConstDecimal (1, LSize.LONG));
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG), new LConstFunc (__DstName__ ~ name));
 	entry.insts += interne;
 	
 	auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
 	LFrame.preCompiled [__CstNameEmpty__ ~ name] = fr;	
 	LReg.lastId = last;
-    }
-
-    static void createDstStruct (string name, Array!InfoType params) {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr = new LReg (LSize.LONG);
-	auto entry = new LLabel (new LInstList), end = new LLabel;
-	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-
-	foreach (it ; params) {
-	    final switch (it.size.id) {
-	    case LSize.LONG.id: nbLong ++; break;
-	    case LSize.ULONG.id: nbUlong ++; break;
-	    case LSize.INT.id: nbInt ++; break;
-	    case LSize.UINT.id: nbUint ++; break;
-	    case LSize.SHORT.id: nbShort ++; break;
-	    case LSize.USHORT.id: nbUshort ++; break;
-	    case LSize.BYTE.id: nbByte ++; break;
-	    case LSize.UBYTE.id: nbUbyte ++; break;
-	    case LSize.FLOAT.id: nbFloat ++; break;
-	    case LSize.DOUBLE.id: nbDouble ++; break;
-	    }
-
-	    if (it.isDestructible) {
-		entry.insts += new LCall (ClassUtils.__DstName__,
-					  make!(Array!LExp) ([new LBinop (addr, size, Tokens.PLUS)]), LSize.NONE);
-	    }
-	    
-	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	    
-	}
-	entry.insts += new LSysCall ("free", make!(Array!LExp) ([addr]), null);
-	auto fr = new LFrame (__DstName__ ~ name, entry, end, null, make!(Array!LReg) ([addr]));
-	fr.isStd = false;
-	LFrame.preCompiled [__DstName__ ~ name] = fr;
-	LReg.lastId = last;	     
     }
     
     static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
@@ -162,8 +124,6 @@ class StructUtils {
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
 	    if (it is null) createCstStruct (name, type.params);
-	    it = (__DstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createDstStruct (name, type.params);
 	}
 	auto inst = new LInstList ();
 	inst += new LConstFunc (__CstName__ ~ name);
@@ -176,8 +136,6 @@ class StructUtils {
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
 	    if (it is null) createCstStruct (name, type.params);
-	    it = (__DstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createDstStruct (name, type.params);
 	}
 	auto inst = new LInstList ();
 	inst += new LConstFunc (__CstNameEmpty__ ~ name);
@@ -210,12 +168,7 @@ class StructUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }    
@@ -224,9 +177,7 @@ class StructUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -235,21 +186,16 @@ class StructUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
+
 	inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
 	return inst;
     }    
 
     
     static LInstList InstDestruct (LInstList llist) {
-	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
 	auto expr = llist.getFirst ();
 	auto inst = new LInstList;
 	inst += llist;
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (expr)]), LSize.NONE);
 	return inst;
     }
        

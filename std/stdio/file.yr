@@ -29,14 +29,9 @@ def fclose (file : File) {
 }
 
 def fread (file : File, len : uint) : string {
-    let str = cast:ptr!(char) (malloc (len * char.sizeof));
-    len = fread (str, char.sizeof, len, file.content);
-    let ret = '';
-    if (len > 0u) 
-	ret = to!(string) (str);
-    
-    free (str);    
-    return ret;
+    let str = [char ; len];
+    len = fread (str.ptr, char.sizeof, len, file.content);
+    return cast:string (str);
 }
 
 def fwrite (file : File, str : string) {

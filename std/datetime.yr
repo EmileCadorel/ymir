@@ -1,208 +1,210 @@
-import std.conv, std.stdio;
+// import std.conv, std.stdio;
 
-extern (C) ftime (a : ptr!void) : int;
-extern (C) gettimeofday (a : ptr!void) : int;
+// extern (C) ftime (a : ptr!void) : int;
+// extern (C) gettimeofday (a : ptr!void) : int;
 
-enum : byte
-| jan : 1B
-| fev : 2B
-| mar : 3B
-| apr : 4B
-| may : 5B
-| jun : 6B
-| jul : 7B
-| aug : 8B
-| sep : 9B
-| oct : 10B
-| nov : 11B
-| dec : 12B
--> Month;
+// enum : byte
+// | jan : 1B
+// | fev : 2B
+// | mar : 3B
+// | apr : 4B
+// | may : 5B
+// | jun : 6B
+// | jul : 7B
+// | aug : 8B
+// | sep : 9B
+// | oct : 10B
+// | nov : 11B
+// | dec : 12B
+// -> Month;
 
-struct
-| sec : ulong
-| usec : ulong
--> timeval;
+// struct
+// | sec : ulong
+// | usec : ulong
+// -> timeval;
 
-struct
-| years : short
-| months : short
-| weeks : short
-| days : short
-| hours : short
-| minutes : short
-| seconds : short
-| msec : short
-| usec : short
--> Time;
+// struct
+// | years : short
+// | months : short
+// | weeks : short
+// | days : short
+// | hours : short
+// | minutes : short
+// | seconds : short
+// | msec : short
+// | usec : short
+// -> Time;
 
-enum : byte
-| sun : 0B
-| mon : 1B
-| tue : 2B
-| wed : 3B
-| thu : 4B
-| fri : 5B
-| sat : 6B
--> DayOfWeek;
+// enum : byte
+// | sun : 0B
+// | mon : 1B
+// | tue : 2B
+// | wed : 3B
+// | thu : 4B
+// | fri : 5B
+// | sat : 6B
+// -> DayOfWeek;
 
-struct
-| years : short
-| months : short
-| days : short
-| dname : DayOfWeek
-| hours : short
-| minutes : short
-| seconds : short
--> Date;
+// struct
+// | years : short
+// | months : short
+// | days : short
+// | dname : DayOfWeek
+// | hours : short
+// | minutes : short
+// | seconds : short
+// -> Date;
 
 
-def timeStrings () : [string] {
-    return ["hnsec", "usec", "msec", "seconds", "minutes", "hours", "days", "weeks", "months", "years"];
-}
+// def timeStrings () : [string] {
+//     return ["hnsec", "usec", "msec", "seconds", "minutes", "hours", "days", "weeks", "months", "years"];
+// }
 
-def getDayOfWeek (day : byte) : string {
-    if (day == DayOfWeek.sun) return "dimanche";
-    else if (day == DayOfWeek.mon) return "lundi";
-    else if (day == DayOfWeek.tue) return "mardi";
-    else if (day == DayOfWeek.wed) return "mercredi";
-    else if (day == DayOfWeek.thu) return "jeudi";
-    else if (day == DayOfWeek.fri) return "vendredi";
-    else if (day == DayOfWeek.sat) return "samedi";
-    else assert (false, "Pas un jour ça " + to!(string) (day));
-}
+// def getDayOfWeek (day : DayOfWeek) : string {
+//     return match day {
+//         DayOfWeek::sun => "dimanche";
+//         DayOfWeek::mon => "lundi";
+//         DayOfWeek::tue => "mardi";
+//         DayOfWeek::wed => "mercredi";
+//         DayOfWeek::thu => "jeudi";
+//         DayOfWeek::fri => "vendredi";
+//         DayOfWeek::sat => "samedi";
+//         _ => "";//assert (false, "Pas un jour ça " + to!(string) (day));
+//     };
+// }
 
-def getMonthName (mnt : short) : string {
-    if (mnt == 1) return "janvier";
-    if (mnt == 2) return "fevrier";
-    if (mnt == 3) return "mars";
-    if (mnt == 4) return "avril";
-    if (mnt == 5) return "mai";
-    if (mnt == 6) return "juin";
-    if (mnt == 7) return "juillet";
-    if (mnt == 8) return "aout";
-    if (mnt == 9) return "septembre";
-    if (mnt == 10) return "octobre";
-    if (mnt == 11) return "novembre";
-    if (mnt == 12) return "décembre";
-    assert (false, "Pas un mois " + to!(string)(mnt));
-}
+// def getMonthName (mnt : short) : string {
+//     if (mnt == 1) return "janvier";
+//     if (mnt == 2) return "fevrier";
+//     if (mnt == 3) return "mars";
+//     if (mnt == 4) return "avril";
+//     if (mnt == 5) return "mai";
+//     if (mnt == 6) return "juin";
+//     if (mnt == 7) return "juillet";
+//     if (mnt == 8) return "aout";
+//     if (mnt == 9) return "septembre";
+//     if (mnt == 10) return "octobre";
+//     if (mnt == 11) return "novembre";
+//     if (mnt == 12) return "décembre";
+//     assert (false, "Pas un mois " + to!(string)(mnt));
+// }
 
-def getMonth (ref nbDays : ulong, year : int) : ulong {
-    let days = [31U, 28U, 31U, 30U, 31U, 30U, 31U, 31U, 30U, 31U, 30U, 31U];
+// def getMonth (ref nbDays : ulong, year : int) : ulong {
+//     let days = [31U, 28U, 31U, 30U, 31U, 30U, 31U, 31U, 30U, 31U, 30U, 31U];
 
-    if (isBisextille (year)) {
-	days[1] = 29U;
-    } 
+//     if (isBisextille (year)) {
+// 	days[1] = 29U;
+//     } 
     
-    let curr = 0UL;
-    while (nbDays > 0UL && curr < days.length) {
-	if (nbDays < days [curr]) break;
-	nbDays -= days [curr];
-	curr += 1UL;
-    }
+//     let curr = 0UL;
+//     while (nbDays > 0UL && curr < days.length) {
+// 	if (nbDays < days [curr]) break;
+// 	nbDays -= days [curr];
+// 	curr += 1UL;
+//     }
     
-    nbDays += 1UL;
-    return curr + 1UL;
-}
+//     nbDays += 1UL;
+//     return curr + 1UL;
+// }
 
-def isBisextille (year : long) : bool {
-    return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-}
+// def isBisextille (year : long) : bool {
+//     return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+// }
 
-def getSeconds (year : long) : ulong {
-    let nb = 0UL;
-    for (it in 1970 .. year) {
-	if (isBisextille (it))
-	    nb += cast:ulong(60 * 60 * 24 * 366);
-	else
-	    nb += cast:ulong (60 * 60 * 24 * 365);
-    }
-    return nb;
-}
+// def getSeconds (year : long) : ulong {
+//     let nb = 0UL;
+//     for (it in 1970 .. year) {
+// 	if (isBisextille (it))
+// 	    nb += cast:ulong(60 * 60 * 24 * 366);
+// 	else
+// 	    nb += cast:ulong (60 * 60 * 24 * 365);
+//     }
+//     return nb;
+// }
 
-def getDays (year : long) : long {
-    let nb = 0;
-    for (it in 1970 .. year) {
-	if (isBisextille (it))
-	    nb += 366;
-	else
-	    nb += 365;
-    }
-    return nb;
-}
+// def getDays (year : long) : long {
+//     let nb = 0;
+//     for (it in 1970 .. year) {
+// 	if (isBisextille (it))
+// 	    nb += 366;
+// 	else
+// 	    nb += 365;
+//     }
+//     return nb;
+// }
 
-def currTime () : Time {
-    let t = timeval (0UL, 0UL);
-    gettimeofday (t.ptr);
-    let ti = Time (0S, 0S, 0S, 0S, 0S, 0S, 0S, 0S, 0S);
+// def currTime () : Time {
+//     let t = timeval (0UL, 0UL);
+//     gettimeofday (t.ptr);
+//     let ti = Time (0S, 0S, 0S, 0S, 0S, 0S, 0S, 0S, 0S);
 
-    ti.msec = cast:short (t.usec / 1000UL);
-    ti.usec = cast:short (t.usec % 1000UL);
+//     ti.msec = cast:short (t.usec / 1000UL);
+//     ti.usec = cast:short (t.usec % 1000UL);
 
-    let years = cast:short (t.sec / (60U * 60U * 24U * 7U * 52U) + 1970U);
-    t.sec = t.sec % (getSeconds (ti.years));
+//     let years = cast:short (t.sec / (60U * 60U * 24U * 7U * 52U) + 1970U);
+//     t.sec = t.sec % (getSeconds (ti.years));
     
-    let nbDays = t.sec / (60U * 60U * 24U) - cast:ulong (getDays (years));
+//     let nbDays = t.sec / (60U * 60U * 24U) - cast:ulong (getDays (years));
     
-    ti.months = cast:short (getMonth (nbDays, years));
-    ti.weeks = cast:short (nbDays / 7U);    
-    ti.years = years;
+//     ti.months = cast:short (getMonth (nbDays, years));
+//     ti.weeks = cast:short (nbDays / 7U);    
+//     ti.years = years;
 
-    ti.days = cast:short (nbDays % 7U);
-    t.sec = t.sec % (60U * 60U * 24U);
+//     ti.days = cast:short (nbDays % 7U);
+//     t.sec = t.sec % (60U * 60U * 24U);
 
-    ti.hours = cast:short (t.sec / (60U * 60U) + 2U);
-    t.sec = t.sec % (60U * 60U);
+//     ti.hours = cast:short (t.sec / (60U * 60U) + 2U);
+//     t.sec = t.sec % (60U * 60U);
 
-    ti.minutes = cast:short (t.sec / 60U);
-    ti.seconds = cast:short (t.sec % 60U);
-    return ti;
-}
+//     ti.minutes = cast:short (t.sec / 60U);
+//     ti.seconds = cast:short (t.sec % 60U);
+//     return ti;
+// }
 
-def date () : Date {
-    return currTime ().toDate;
-}
+// def date () : Date {
+//     return currTime ().toDate;
+// }
 
-def to if (is (T : string))
-    (T) (t : Time) {
-	import std.datetime;
-	let ret = '';
-	let times = timeStrings ();
-	if (t.years != 0) ret += to!(string)(t.years) + " " + times [times.length - 1U] + " ";
-	if (t.months != 0) ret += to!(string)(t.months) + " " + times [times.length - 2U] + " ";
-	if (t.weeks != 0) ret += to!(string)(t.weeks) + " " + times [times.length - 3U] + " "; 
-	if (t.days != 0) ret += to!(string)(t.days) + " " + times [times.length - 4U] + " ";
-	if (t.hours != 0) ret += to!(string)(t.hours) + " " + times [times.length - 5U] + " ";
-	if (t.minutes != 0) ret += to!(string)(t.minutes) + " " + times [times.length - 6U] + " ";
-	if (t.seconds != 0) ret += to!(string)(t.seconds) + " " + times [times.length - 6U] + " ";
-	if (t.msec != 0) ret += to!(string)(t.msec) + " " + times [times.length - 7U] +  " ";
-	ret += to!(string)(t.usec) + ' ' + times [times.length - 8U];
-	return ret;
-    }
+// def to if (is (T : string))
+//     (T) (t : Time) {
+// 	import std.datetime;
+// 	let ret = '';
+// 	let times = timeStrings ();
+// 	if (t.years != 0) ret += to!(string)(t.years) + " " + times [times.length - 1U] + " ";
+// 	if (t.months != 0) ret += to!(string)(t.months) + " " + times [times.length - 2U] + " ";
+// 	if (t.weeks != 0) ret += to!(string)(t.weeks) + " " + times [times.length - 3U] + " "; 
+// 	if (t.days != 0) ret += to!(string)(t.days) + " " + times [times.length - 4U] + " ";
+// 	if (t.hours != 0) ret += to!(string)(t.hours) + " " + times [times.length - 5U] + " ";
+// 	if (t.minutes != 0) ret += to!(string)(t.minutes) + " " + times [times.length - 6U] + " ";
+// 	if (t.seconds != 0) ret += to!(string)(t.seconds) + " " + times [times.length - 6U] + " ";
+// 	if (t.msec != 0) ret += to!(string)(t.msec) + " " + times [times.length - 7U] +  " ";
+// 	ret += to!(string)(t.usec) + ' ' + times [times.length - 8U];
+// 	return ret;
+//     }
 
 
-def toDate (elem : Time) {	
-    let date = Date (0S, 0S, 0S, 0B, 0S, 0S, 0S);
-    let nbDays = cast:long (getDays (elem.years));
-    date.days = (elem.weeks * 7S + elem.days);
-    date.dname = cast:byte ((nbDays + 2) % 7); // 01/01/1970 -> Jeudi
-    date.years = elem.years;
-    date.months = elem.months;
-    date.hours = elem.hours;
-    date.minutes = elem.minutes;
-    date.seconds = elem.seconds;
-    return date;
-}
+// def toDate (elem : Time) {	
+//     let date = Date (0S, 0S, 0S, 0B, 0S, 0S, 0S);
+//     let nbDays = cast:long (getDays (elem.years));
+//     date.days = (elem.weeks * 7S + elem.days);
+//     date.dname = cast:byte ((nbDays + 2) % 7); // 01/01/1970 -> Jeudi
+//     date.years = elem.years;
+//     date.months = elem.months;
+//     date.hours = elem.hours;
+//     date.minutes = elem.minutes;
+//     date.seconds = elem.seconds;
+//     return date;
+// }
 
-def to if (is (T : string))
-    (T) (elem : Date) {
-	import std.traits, std.conv;
-	return getDayOfWeek (elem.dname) + " " + to!(string) (elem.days)
-	    + " " + getMonthName (elem.months)
-	    + " " + to!(string) (elem.years) 
-	    + ', ' + to!(string) (elem.hours) 
-	    + ":" + to!(string) (elem.minutes)
-	    + ":" + to!(string) (elem.seconds);	    	
-    }
+// def to if (is (T : string))
+//     (T) (elem : Date) {
+// 	import std.traits, std.conv;
+// 	return getDayOfWeek (elem.dname) + " " + to!(string) (elem.days)
+// 	    + " " + getMonthName (elem.months)
+// 	    + " " + to!(string) (elem.years) 
+// 	    + ', ' + to!(string) (elem.hours) 
+// 	    + ":" + to!(string) (elem.minutes)
+// 	    + ":" + to!(string) (elem.seconds);	    	
+//     }
 
 

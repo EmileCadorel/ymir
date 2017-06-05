@@ -12,12 +12,9 @@ import std.stdio, lint.LSize, lint.LUnop;
  */
 class ClassUtils {
 
-    static immutable string __AddRef__ = "_YPAddRefObj";
     static immutable string __DstName__ = "_YPDstObj";
     
     static void createFunctions () {
-	createAddRef ();
-	createDstObj ();
     }
 
 
@@ -42,95 +39,7 @@ class ClassUtils {
 				       Tokens.PLUS),
 			   Tokens.PLUS);			   
     }
-
-    
-    /++
-     + Fonction d'ajout d'un référence à un objet.
-     + Example:
-     + ----------
-     + def AddRef (elem : object) {
-     +    if (elem !is null)
-     +        elem.nbRef++;
-     + }
-     + ----------
-     +/
-    static void createAddRef () {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr = new LReg (LSize.LONG);
-	auto entry = new LLabel, end = new LLabel;
-	entry.insts = new LInstList;
-	auto test = new LBinop (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG),
-				new LConstDecimal (0, LSize.LONG),
-				Tokens.NOT_EQUAL);
-	
-	auto vrai = new LLabel, faux = new LLabel;
-	entry.insts += new LJump (test, vrai);
-	entry.insts += new LGoto (faux);
-	vrai.insts = new LInstList;
-	vrai.insts += new LUnop (new LRegRead (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.INT), LSize.LONG), Tokens.DPLUS, true);
-
-	entry.insts += vrai;
-	entry.insts += faux;
-	auto fr = new LFrame (__AddRef__, entry, end, null, make!(Array!LReg) ([addr]));
-	LFrame.preCompiled [__AddRef__] = fr;
-	LReg.lastId = last;
-    }
-
-
-    /++
-     + Fonction de suppréssion d'une référence d'un objet, et suppréssion si plus de référence.
-     + Example:
-     + -----------
-     + def DstObj (elem : object) {
-     +    if (elem !is null) {
-     +        elem.nbRef --;
-     +        if (elem.nbRef <= 0) free (elem);
-     +     }
-     + }
-     + -----------
-     +/
-    static void createDstObj () {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr = new LReg (LSize.LONG);
-	auto entry = new LLabel, end = new LLabel;
-	entry.insts = new LInstList;
-	auto test = new LBinop (new LRegRead (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG),
-					      new LConstDecimal (0, LSize.INT), LSize.INT),
-				new LConstDecimal (0, LSize.INT),
-				Tokens.INF_EQUAL);
-
-	auto test1 = new LBinop (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG),
-				 new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
-	
-	auto vrai1 = new LLabel, vrai = new LLabel, faux = new LLabel;
-
-	entry.insts += new LJump (test1, vrai1);
-	entry.insts += new LGoto (faux);
-	
-	vrai1.insts = new LInstList;
-	vrai1.insts += new LUnop (new LRegRead (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.INT), LSize.LONG), Tokens.DMINUS, true);
-	
-	entry.insts += vrai1;
-	vrai1.insts += new LJump (test, vrai);
-	vrai1.insts += new LGoto (faux);
-	
-	vrai.insts = new LInstList;
-	vrai.insts += new LCall (new LRegRead (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG),
-				 make!(Array!LExp) ([new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG)]),
-				 LSize.NONE);
-	//vrai.insts += new LSysCall ("free", );
-	vrai.insts += new LWrite (new LRegRead (addr, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG));
-	vrai.insts += new LGoto (faux);
-	entry.insts += vrai;
-
-	entry.insts += faux;
-	auto fr = new LFrame (__DstName__, entry, end, null, make!(Array!LReg) ([addr]));
-	LFrame.preCompiled [__DstName__] = fr;
-	LReg.lastId = last;
-    }
-
+   
     
     /**
      Fonction de traitement d'un paramètre de type objet.
@@ -141,11 +50,6 @@ class ClassUtils {
      */
     static LInstList InstParam (LInstList llist) {
 	auto leftExp = llist.getFirst ();
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) {
-	    ClassUtils.createAddRef ();
-	}
-	llist += new LCall (ClassUtils.__AddRef__, make! (Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	llist += leftExp;
 	return llist;
     }
@@ -159,9 +63,6 @@ class ClassUtils {
     */
     static LInstList InstReturn (LInstList llist) {
 	auto leftExp = llist.getFirst ();
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	llist += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	llist += leftExp;
 	return llist;
     }
@@ -238,12 +139,6 @@ class ClassUtils {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	inst += llist + rlist;
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }
@@ -259,9 +154,6 @@ class ClassUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst ();
 	inst += llist;
-	auto it = (ClassUtils.__DstName__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createDstObj ();
-	inst += new LCall (ClassUtils.__DstName__, make!(Array!LExp) ([new LAddr (leftExp)]), LSize.NONE);
 	inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
 	return inst;
     }
@@ -277,10 +169,7 @@ class ClassUtils {
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
 	LInstList inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	auto it = (ClassUtils.__AddRef__ in LFrame.preCompiled);
-	if (it is null) ClassUtils.createAddRef ();
-	inst += new LCall (ClassUtils.__AddRef__, make!(Array!LExp) ([new LAddr (rightExp)]), LSize.NONE);
+	inst += llist + rlist;	
 	inst += new LWrite (leftExp, rightExp);
 	return inst;
     }

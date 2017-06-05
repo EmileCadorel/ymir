@@ -59,3 +59,14 @@ def swap (T) (ref a : T, ref b : T) {
     b = aux;
 }
 
+def shuffle (T) (ref a : [T]) {
+    import std.random;
+    for it in 0U .. a.length {
+        let i = uniform (0U, a.length);
+        let aux = a [i];
+        a [i] = a [it];
+        a [it] = aux;
+    }
+    
+}
+

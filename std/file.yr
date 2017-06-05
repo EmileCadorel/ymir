@@ -34,7 +34,7 @@ enum : byte
 extern (C) access (a : ptr!char, int) : int;
 
 def exists (name : string) : bool {
-    if (access (name.toStringz.ptr, cast:int(FilePermission.F_OK)) != -1) return true;
+    if (access (name.toStringz.ptr, cast:int(FilePermission::F_OK)) != -1) return true;
     return false;    
 }
 
@@ -119,8 +119,8 @@ def mkdir (name : string, mode : int) : bool {
 
 def mkdir (name : string) : bool {
     let ret = mkdir (name.toStringz.ptr,
-		     AccessPerm.RWXForUser | AccessPerm.RWXForGroup |
-		     AccessPerm.ReadForOthers | AccessPerm.ExecForOthers		     
+		     (AccessPerm::RWXForUser | AccessPerm::RWXForGroup) |
+		     (AccessPerm::ReadForOthers | AccessPerm::ExecForOthers)		     
     );
     return ret == 0;
 }

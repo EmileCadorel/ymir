@@ -39,7 +39,7 @@ struct
 
 
 def createWindow (name : string, width : int, height : int) : SDL_Window {
-    if (SDL_Init (SDL_Cst.SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init (SDL_Cst::SDL_INIT_VIDEO) < 0) {
 	SDL_Quit ();
 	assert (false, "Init sdl failed");
     }
@@ -47,9 +47,9 @@ def createWindow (name : string, width : int, height : int) : SDL_Window {
     return SDL_Window (
 	SDL_CreateWindow (name.toStringz.ptr,
 			  0, 0, width, height,
-			  SDL_Cst.SDL_WINDOW_SHOWN |
-			  SDL_Cst.SDL_WINDOW_RESIZABLE |
-			  SDL_Cst.SDL_WINDOW_OPENGL)
+			  SDL_Cst::SDL_WINDOW_SHOWN |
+			  (SDL_Cst::SDL_WINDOW_RESIZABLE |
+			  SDL_Cst::SDL_WINDOW_OPENGL))
     );
     
 }
@@ -78,15 +78,15 @@ def initSDL (name : string, width : int, height : int) : Window {
 	assert (false, to!(string) (glewGetErrorString (e)));
     }
 
-    glEnable (GL_Cst.GL_TEXTURE_2D);
-    glEnable (GL_Cst.GL_CULL_FACE);
-    glEnable (GL_Cst.GL_DEPTH_TEST);
+    glEnable (GL_Cst::GL_TEXTURE_2D);
+    glEnable (GL_Cst::GL_CULL_FACE);
+    glEnable (GL_Cst::GL_DEPTH_TEST);
     glClearColor (0., 0., 0., 1.);
     return Window (win, context);
 }
 
 def clear (win : Window) {
-    glClear (GL_Cst.GL_COLOR_BUFFER_BIT | GL_Cst.GL_DEPTH_BUFFER_BIT);
+    glClear (GL_Cst::GL_COLOR_BUFFER_BIT | GL_Cst::GL_DEPTH_BUFFER_BIT);
 }
 
 def swapWindow (window : Window) {

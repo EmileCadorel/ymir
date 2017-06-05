@@ -2,6 +2,7 @@ import std.stdio;
 import std.parallelism;
 import std.traits;
 import std.array;
+import std.conv;
 
 def ping (thisId : ulong, id : int, comm : int) {
     send (comm, id, ("salut", thisId));

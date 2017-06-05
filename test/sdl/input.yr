@@ -1,3 +1,4 @@
+
 import std.stdio;
 
 
@@ -12,13 +13,13 @@ enum
 def poll () : bool {
     let event = [ubyte; 56UL]; // SDL_Event fait 56 byte
     if (SDL_PollEvent (event.ptr)) {
-	if ((event.ptr).int == SDL_EventCst.SDL_KEYDOW) {
+	if ((event.ptr).int == SDL_EventCst::SDL_KEYDOW) {
 	    println ("Key_Down");
 	    return false;
-	} else if ((event.ptr).int == SDL_EventCst.SDL_KEYUP) {
+	} else if ((event.ptr).int == SDL_EventCst::SDL_KEYUP) {
 	    println ("Key_up");
 	    return false;
-	} else if ((event.ptr).int == SDL_EventCst.SDL_QUIT) {
+	} else if ((event.ptr).int == SDL_EventCst::SDL_QUIT) {
 	    return true;
 	}
     } 

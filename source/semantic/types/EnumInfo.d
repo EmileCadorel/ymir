@@ -137,7 +137,7 @@ class EnumInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word token, Expression left) {
-	return this._content.BinaryOpRight (token, left);
+	return left.info.type.BinaryOp (token, this._content);
     }
 
     override InfoType AccessOp (Word token, ParamList params) {
