@@ -121,9 +121,6 @@ class LVisitor {
 	
 	visit (entry, end, retReg, semFrame.block);
  
-	foreach (it ; semFrame.dest) {
-	    end.insts += it.destruct ();
-	}
 	
 	if (semFrame.name == Keys.MAIN.descr && retReg is null) {
 	    retReg = new LReg (LSize.LONG);
@@ -142,11 +139,7 @@ class LVisitor {
 	foreach (it ; block.insts) {
 	    visitInstruction (begin, end, retReg, it);
 	}
-	
-	foreach (it ; block.dest) {
-	    begin.insts += it.destruct ();
-	}
-	
+		
 	begin.insts.clean ();	
 	end.insts.clean ();
     }
@@ -155,9 +148,6 @@ class LVisitor {
 	auto inst = new LInstList;
 	foreach (it ; block.insts) {
 	    visitInstruction (inst, end, retReg, it);
-	}
-	foreach (it ; block.dest) {
-	    inst += it.destruct ();
 	}
 	
 	inst.clean ();	
@@ -309,10 +299,6 @@ class LVisitor {
 	this._endLabels.remove (_for.block);
 	inst = _for.ret.lintInst (left, block);
 	
-	foreach (it ; _for.dest) {
-	    inst += it.destruct ();
-	}
-
 	return inst;
     }
     
@@ -361,14 +347,11 @@ class LVisitor {
 	auto current = elem.father;
 	ulong nb = 0;
 	while (current !is null && nb < elem.nbBlock) {
-	    foreach (it ; current.dest) {
-		list += it.destruct ();
-	    }
 	    nb ++;
 	    if (nb < elem.nbBlock)
 		current = current.father;
 	}
-	elem.father.dest.clear ();
+
 	auto endLabel = this._endLabels [current];
 	list += new LGoto (endLabel);
 	return list;
@@ -442,13 +425,7 @@ class LVisitor {
 		}
 	    }
 	    list += (new LWrite (retReg,  list.getFirst ()));	    
-	}
-	
-	foreach (it ; ret.father.dest) {
-	    list += it.destruct ();
-	}
-	
-	ret.father.dest.clear ();	
+	}		
 	list += new LGoto (end);
 	return list;
     }
@@ -530,14 +507,7 @@ class LVisitor {
 					 (cast (TupleInfo) _tuple.info.type).params);
 	}
 	
-	if (_tuple.info.type.isDestructible) {
-	    auto aux = new LReg (_tuple.info.id, _tuple.info.type.size);
-	    inst += new LWrite (aux, new LCall (StructUtils.__CstName__ ~ tupleName,
-						exps, LSize.LONG));
-	    inst += aux;
-	} else {
-	    inst += new LCall (StructUtils.__CstName__ ~ tupleName, exps, LSize.LONG);
-	}
+	inst += new LCall (StructUtils.__CstName__ ~ tupleName, exps, LSize.LONG);	
 	return inst;
     }
     
@@ -563,11 +533,6 @@ class LVisitor {
 	auto arr = cast (StaticArrayInfo) alloc.info.type;
 	auto aux = new LReserve (new LConstDecimal (arr.length, LSize.LONG, arr.content.size));
 	list += aux;
-	if (arr.content.isDestructible) {
-	    foreach (it ; 0 .. arr.length) {
-		list += new LWrite (new LRegRead (aux.id, new LConstDecimal (it, LSize.LONG, arr.content.size), arr.content.size), new LConstDecimal (0, arr.content.size));
-	    }
-	}
 	return list;
     }
     
@@ -588,54 +553,27 @@ class LVisitor {
 	}
 	
 	auto exp = expInst.getFirst ();
-	params.insertBack (new LBinop (new LConstDecimal (1, LSize.LONG, type.content.size),
-				       exp,
-				       Tokens.STAR));
-	
+	params.insertBack (exp);	
 	params.insertBack (new LConstDecimal (1, LSize.LONG, type.content.size));
 
 	auto inst = new LInstList;	
 	inst += expInst;
 	
 	auto aux = new LReg (alloc.info.id, type.size);
-	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
-	if (exist is null) ArrayUtils.createCstArray ();
 	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));	    
-	
-	
-	auto it = new LReg (LSize.LONG);
-	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LWrite (new LRegRead (it, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (0, LSize.LONG));
-	auto faux = new LLabel;
-	auto index = new LReg (LSize.LONG);
-	auto test = new LBinop (index, new LRegRead (aux, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
-	inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
-	inst += debut;
-	inst += new LJump (test, vrai);
-	inst += new LGoto (faux);
-	vrai.insts += new LWrite (it, new LBinop (aux, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
-								   new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
-						  Tokens.PLUS));
-	vrai.insts += block;
-	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai.insts += new LGoto (debut);
-	inst += vrai;
-	inst += faux;    
-	
-	inst += aux;
+	       
 	return inst;
     }
 
     private LInstList visitConstArray (ConstArray carray) {
 	auto type = cast (ArrayInfo) carray.info.type;
 	Array!LExp params;
-	params.insertBack (new LConstDecimal (carray.params.length, LSize.LONG, type.content.size));
+	params.insertBack (new LConstDecimal (carray.params.length, LSize.LONG));
 	params.insertBack (new LConstDecimal (1, LSize.LONG, type.content.size));
 	
 	auto inst = new LInstList;
 	auto aux = new LReg (carray.info.id, type.size);
 
-	auto exist = (ArrayUtils.__CstName__ in LFrame.preCompiled);
-	if (exist is null) ArrayUtils.createCstArray ();
 	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
 		
 	foreach (it ; 0 .. carray.params.length) {
@@ -648,7 +586,7 @@ class LVisitor {
 		}
 	    } else ret = visitExpression (carray.params [it]);
 	    auto regRead = new LRegRead (aux,
-					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS),
+					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.PLUS),
 					 type.content.size);
 	    
 	    inst += cster.lintInst (new LInstList (regRead), ret);
@@ -710,18 +648,7 @@ class LVisitor {
 	exps.insertBack (new LConstDecimal (elem.content.length, LSize.LONG));
 	exps.insertBack (new LConstString (elem.content));
 	auto inst = new LInstList;
-	auto it = (StringUtils.__CstName__ in LFrame.preCompiled);
-	if (it is null) {
-	    StringUtils.createCstString ();
-	}
-	if (elem.info.type.isDestructible) {
-	    auto aux = new LReg (elem.info.id, elem.info.type.size);
-	    inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));
-	    inst += aux;
-	} else {
-	    inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
-	}
-
+	inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);	
 	return inst;
     }
     
@@ -839,9 +766,16 @@ class LVisitor {
 		for (long nb = treat [it].lintInstS.length - 1; nb >= 0; nb --) {
 		    elist = treat [it].lintInst (elist, nb);		    
 		}
-	    }	    
-	    exprs.insertBack (elist.getFirst ());
+	    }
+	    auto last = elist.getFirst ();
 	    list += elist;
+	    if (cast (LCall) last) {
+		auto aux = new LReg (last.size);
+		list += new LWrite (aux, last);
+		exprs.insertBack (aux);
+	    } else	
+		exprs.insertBack (last);
+
 	}	
 	return list;
     }
@@ -914,11 +848,6 @@ class LVisitor {
 	}
 
 	auto inst = dot.info.type.lintInst (exprs, left);
-	if (dot.info.isDestructible) {
-	    auto sym = new LReg (dot.info.id, dot.info.type.size);
-	    auto last = inst.getFirst ();
-	    inst += new LWrite (sym, last);
-	}
 	return inst;
     }
 
@@ -936,11 +865,6 @@ class LVisitor {
 	}
 
 	auto inst = dot.info.type.lintInst (exprs, left);
-	if (dot.info.isDestructible) {
-	    auto sym = new LReg (dot.info.id, dot.info.type.size);
-	    auto last = inst.getFirst ();
-	    inst += new LWrite (sym, last);
-	}
 	return inst;
     }
     
@@ -996,11 +920,6 @@ class LVisitor {
 
 	auto ret = bin.info.type.lintInst (left, right);
 	ret.back.locus = bin.token.locus;
-	if (bin.info.isDestructible && bin.info.id != 0) {
-	    auto last = ret.getFirst ();
-	    auto reg = new LReg (bin.info.id, bin.info.type.size);
-	    ret += new LWrite (reg, last);
-	}
 	auto inst = new LInstList ();
 	return inst + ret;
     }

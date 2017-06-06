@@ -14,9 +14,6 @@ class Scope {
     /**  Les symbole déclaré localement */
     Array!(Symbol) [string] _local;
 
-    /** Les symboles à détruire en fin de scope */
-    Array!Symbol _garbage;    
-
     /++ La table des modules importés +/
     Array!Namespace _imports;
 
@@ -83,35 +80,11 @@ class Scope {
     }
 
     /**
-     Insert un symbole dans la liste des symboles destructible
-     Params:
-     info = le symbole destructible, à détruire en fin de scope
-     */
-    void garbage (Symbol info) {
-	foreach (it ; this._garbage)
-	    if (it.id == info.id) return;
-	this._garbage.insertBack (info);
-    }
-
-    /**
-     Retire un symbole dans la liste des symboles destructible
-     Params:
-     info = le symbole destructible, à retirer de la poubelle
-     */
-    void removeGarbage (Symbol info) {
-	Array!Symbol sym;
-	foreach (it ; this._garbage)
-	    if (it.id != info.id) sym.insertBack (it);
-	this._garbage = sym;
-    }
-    
-    /**
      Efface toutes les informations du scope
      */
     void clear () {
 	Array!(Symbol) [string] aux;
 	this._local = aux;
-	this._garbage.clear ();
     }    
 
     /**
@@ -120,7 +93,7 @@ class Scope {
      namespace = le contexte que l'on est en train de quitter
      Returns: La liste des symboles a détruire
      */
-    Array!Symbol quit (Namespace namespace) {
+    void quit (Namespace namespace) {
 	import semantic.pack.Table;
 	import std.stdio;
 	
@@ -132,8 +105,6 @@ class Scope {
 	foreach (space ; this._imports) {		
 	    Table.instance.closeModuleForSpace (space, namespace);
 	}
-
-	return this._garbage;
     }
 
     override string toString () {

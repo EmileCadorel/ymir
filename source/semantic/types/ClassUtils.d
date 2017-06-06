@@ -13,9 +13,6 @@ import std.stdio, lint.LSize, lint.LUnop;
 class ClassUtils {
 
     static immutable string __DstName__ = "_YPDstObj";
-    
-    static void createFunctions () {
-    }
 
 
     static LBinop addAllSize (ulong nbLong, ulong nbUlong, ulong nbInt, ulong nbUint, ulong nbShort, ulong nbUshort, ulong nbByte, ulong nbUbyte, ulong nbFloat, ulong nbDouble) {

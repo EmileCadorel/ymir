@@ -78,7 +78,7 @@ class ConstArray : Expression  {
 		}
 	    }
 	    
-	    auto begin = new Symbol(false, this._token, new UndefInfo ());	    
+	    auto begin = new Symbol(this._token, new UndefInfo ());	    
 	    foreach (fst ; 0 .. aux._params.length) {
 		if (cast (Type) aux._params [fst]) throw new UseAsVar (aux._params [fst].token, aux._params [fst].info);
 		
@@ -94,20 +94,6 @@ class ConstArray : Expression  {
 	    aux._info = new Symbol (aux._token, new ArrayInfo (begin.type.clone ()), true);
 	}
 	return aux;
-    }
-
-    override void removeGarbage () {
-	super.removeGarbage ();
-	foreach (it ; this._params) {
-	    it.removeGarbage ();
-	}
-    }
-    
-    override void garbage () {
-	super.garbage ();
-	foreach (it ; this._params) {
-	    it.garbage ();
-	}
     }
 
     override Expression templateExpReplace (Expression [string] values) {

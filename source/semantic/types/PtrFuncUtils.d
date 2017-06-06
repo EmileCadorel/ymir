@@ -115,30 +115,5 @@ class PtrFuncUtils {
 	return inst;
     }
     
-    /**
-     Constante de nom du pointeur sur fonction.
-     Params:
-     left = l'expression dont le type est ptr!function.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList GetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    /**
-     Constante de nom du pointeur sur fonction (ne fait rien en fait).
-     Params: 
-     left = la liste d'instruction qui contient la constante.
-     Returns: left.
-     */
-    static LInstList StringOf (LInstList, LInstList left) {
-	return left;
-    }
-
 
 }

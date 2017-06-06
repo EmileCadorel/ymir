@@ -184,31 +184,6 @@ class PtrUtils {
     }
 
     /**
-     Constante du nom du pointeur.
-     Params:
-     left = l'expression dont le type est ptr
-     Returns: la liste d'instruction qui contient la création de la constante.
-     */
-    static LInstList GetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    /**
-     Constante de nom du pointeur (ne fait rien).
-     Params:
-     left = la liste d'instruction créé par GetStringOf.
-     Returns: left.
-     */
-    static LInstList StringOf (LInstList, LInstList left) {
-	return left;
-    }
-
-    /**
      L'instruction de récuperation de l'addresse d'un ptr.
      Params:
      llist = la liste d'instruction de l'operande.

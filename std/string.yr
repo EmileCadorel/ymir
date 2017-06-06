@@ -166,7 +166,7 @@ def append (ref str : string, c : char) : string {
 def splitLines (str : string) : [string] {
     let ret = [''];
     for (it in str) {
-	if (it == '\n') ret += [''];
+	if (it == '\n') ret = ret + [''];
 	else ret [ret.length - 1ul].append (it);
     }
     return ret;
@@ -180,7 +180,7 @@ def splitLines (str : string) : [string] {
 def split (str : string) : [string] {
     let ret = [''];
     for (it in str) {
-	if (it == ' ') ret += [''];
+	if (it == ' ') ret = ret + [''];
 	else ret [ret.length - 1ul].append (it);
     }
     return ret;
@@ -194,7 +194,7 @@ def split (str : string) : [string] {
 def split (str : string, br : char) : [string] {
     let ret = [''];
     for (it in str) {
-	if (it == br) ret += [''];
+	if (it == br) ret = ret + [''];
 	else ret [ret.length - 1ul].append (it);
     }
     return ret;

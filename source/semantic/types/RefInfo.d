@@ -371,27 +371,6 @@ class RefInfo : InfoType {
     }
 
     /**
-     Met à jour le destructeur du type.
-     Params:
-     s = le destructeur
-     */
-    override void setDestruct (InstCompS s) {
-	//this._content.setDestruct (s);
-    }
-
-    /**
-     Returns: le type doit être détruit ?
-     */
-    override bool isDestructible () {
-	return false;
-    }
-
-    /**
-     Returns: null.
-     */
-    override InfoType destruct () {
-	return null;
-    }
 
     /**
      Returns: la taille mémoire du type ref.

@@ -402,16 +402,13 @@ class FrameScope {
     
     /**
      On quitte le scope
-     Returns: la liste des symboles à supprimé dans ce scope
      */
-    Array!Symbol quitBlock () {
+    void quitBlock () {
 	this._retInfo.quitBlock ();
 	if (!this._local.empty) {
-	    auto ret = this._local.front ().quit (this._namespace);
+	    this._local.front ().quit (this._namespace);
 	    this._local.removeFront ();
-	    return ret;
 	}
-	return make!(Array!Symbol);
     }
 
     /**
@@ -420,22 +417,6 @@ class FrameScope {
     void insert (string name, Symbol info) {
 	if (!this._local.empty)
 	    this._local.front [name] = info;
-    }
-
-    /** 
-     Insert un nouveau symbol dans la poubelle du dernier scope 
-     */
-    void garbage (Symbol info) {
-	if (!this._local.empty)
-	    this._local.front.garbage (info);
-    }
-    
-    /**
-     Retire un nouveau symbol dans la poubelle du dernier scope
-     */
-    void removeGarbage (Symbol info) {
-	if (!this._local.empty)
-	    this._local.front.removeGarbage (info);
     }
     
     /**

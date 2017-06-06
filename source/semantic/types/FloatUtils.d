@@ -337,30 +337,5 @@ class FloatUtils {
 	return inst;
     }
 
-    /**
-     Constante de nom du type float.
-     Params:
-     left = l'expression de type float.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList FloatGetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    /**
-     Constante de nom du type float (nécessite FloatGetStringOf au préalable).
-     Params:
-     left = la liste d'instruction de l'operande.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList FloatStringOf (LInstList, LInstList left) {
-	return left;
-    }
-
     
 }

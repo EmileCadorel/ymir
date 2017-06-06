@@ -49,7 +49,6 @@ class StructCstInfo : InfoType {
 	this._namespace = space;
 	this._name = name;
 	this._tmps = tmps;
-	this._destruct = &StructUtils.InstDestruct;
     }
 
     /**
@@ -354,7 +353,6 @@ class StructInfo : InfoType {
 	this._attribs = names;
 	this._params = params;
 	this._tmps = olds;
-	this._destruct = &StructUtils.InstDestruct;
     }
 
     /**
@@ -580,7 +578,6 @@ class StructInfo : InfoType {
 	auto t = new TupleInfo ();
 	t.params = params;
 	t.lintInst = &StructUtils.InstTupleOf;
-	t.setDestruct = null;
 	return t;
     }
 
@@ -604,8 +601,6 @@ class StructInfo : InfoType {
      */
     private InfoType StringOf () {
 	auto str = new StringInfo;
-	str.lintInst = &StructUtils.StringOf;
-	str.leftTreatment = &StructUtils.GetStringOf;
 	str.value = new StringValue (this.typeString);
 	return str;
     }
@@ -641,7 +636,6 @@ class StructInfo : InfoType {
 	type.lintInst = &StructUtils.Attrib;
 	type.leftTreatment = &StructUtils.GetAttrib;
 	type.isConst = false;
-	type.isGarbaged = false;
 	return type;
     }    
 
@@ -686,9 +680,7 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction concervées.
      */
     override InfoType clone () {
-	auto ret = create (this._namespace, this._name, this._attribs, this._params, this._tmps);
-	if (this._destruct is null) ret.setDestruct (null);
-	return ret;
+	return create (this._namespace, this._name, this._attribs, this._params, this._tmps);
     }
 
     /**
@@ -696,16 +688,6 @@ class StructInfo : InfoType {
     */
     override InfoType cloneForParam () {
 	return create (this._namespace, this._name, this._attribs, this._params, this._tmps);
-    }
-
-    /**
-     Returns: les informations de destruction du type.
-     */
-    override InfoType destruct () {
-	if (this._destruct is null) return null;
-	auto ret = this.clone ();
-	ret.setDestruct (this._destruct);
-	return ret;
     }
 
     override InfoType getTemplate (ulong id) {

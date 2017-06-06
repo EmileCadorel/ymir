@@ -103,8 +103,8 @@ def dirEntries (path : string) : [string] {
     while (entry !is null) {
 	let name = to!(string) (cast:ptr!(char) (entry + 19));	
 	if ((entry + 18).byte == 4)
-	    res += [name + "/"];
-	else res += [name];
+	    res = res + [name + "/"];
+	else res = res + [name];
 	entry = readdir (dir);
     }
     return res;

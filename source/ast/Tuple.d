@@ -58,17 +58,6 @@ class ConstTuple : Expression {
 	return ret;
     }
 
-    override void removeGarbage () {
-	super.removeGarbage ();
-	foreach (it ; this._params)
-	    it.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	foreach (it ; this._params)
-	    it.garbage ();
-    }
     
     override Expression templateExpReplace (Expression [string] values) {
 	Array!Expression exprs;

@@ -69,7 +69,6 @@ class Access : Expression {
     }
 
     auto findOpAccess (Access aux) {
-	aux.removeGarbage ();
 	try {	    
 	    auto word = Word (this._token.locus, Keys.OPACCESS.descr, true);
 	    auto var = new Var (word);
@@ -107,25 +106,7 @@ class Access : Expression {
      */
     Array!Expression params () {
 	return this._params.params;
-    }
-
-    override void removeGarbage () {
-	if (this._info)
-	    Table.instance.removeGarbage (this._info);
-	if (this._params)
-	    this._params.removeGarbage ();
-	if (this._left)
-	    this._left.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	if (this._params)
-	    this._params.garbage ();
-	if (this._left)
-	    this._left.garbage ();	
-    }
-    
+    }    
     
     /**
      Affiche l'expression sous forme d'arbre

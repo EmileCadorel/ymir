@@ -307,7 +307,6 @@ class PtrInfo : InfoType {
 	else if (this._content.size == LSize.DOUBLE)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.DOUBLE));
 	else return null;
 	ret.isConst = false;
-	ret.setDestruct (null);
 	return ret;
     }
 

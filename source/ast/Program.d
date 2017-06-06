@@ -21,7 +21,8 @@ class Program {
 	__declareAtBegins__ = [
 			       Word (Location (0, 0, 0, "core/int.yr"), "core/int", false),
 			       Word (Location (0, 0, 0, "core/string.yr"), "core/string", false),
-			       Word (Location (0, 0, 0, "core/stdio.yr"), "core/stdio", false)
+			       Word (Location (0, 0, 0, "core/stdio.yr"), "core/stdio", false),
+			       Word (Location (0, 0, 0, "core/array.yr"), "core/array", false)
 	];
 	this._locus = token;
 	this._decls = decls;

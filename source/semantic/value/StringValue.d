@@ -83,19 +83,8 @@ class StringValue : Value {
 	exps.insertBack (new LConstDecimal (this._value.length, LSize.LONG));
 	exps.insertBack (new LConstString (this._value));
 	auto inst = new LInstList;
-	auto it = (StringUtils.__CstName__ in LFrame.preCompiled);
-	if (it is null) {
-	    StringUtils.createCstString ();
-	}
 	
-	if (sym.type.isDestructible) {
-	    auto aux = new LReg (sym.id, sym.type.size);
-	    inst += new LWrite (aux, new LCall (StringUtils.__CstName__, exps, LSize.LONG));
-	    inst += aux;
-	} else {
-	    inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
-	}
-
+	inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
 	return inst;
     }
 

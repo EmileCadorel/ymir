@@ -187,31 +187,6 @@ class CharUtils {
 	return inst;
     }
     
-    /**
-     La constante de nom d'un char non constant.
-     TODO supprimer ces fonctions et faire comme pour bool.
-     Returns: la liste d'instruction lint.
-    */    
-    static LInstList CharStringOf (LInstList, LInstList) {
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, "char").expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    /**
-     La constante de nom d'un char constant.
-     TODO supprimer ces fonctions et faire comme pour bool.
-     Returns: la liste d'instruction lint.
-    */    
-    static LInstList CharStringOfConst (LInstList, LInstList) {
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, "const(char)").expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
 
     static LInstList InstCast (DecimalConst size) (LInstList llist) {
 	auto inst = new LInstList;

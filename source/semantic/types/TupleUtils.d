@@ -33,32 +33,6 @@ class TupleUtils {
 
     }       
 
-    /**
-     Constante de nom du type bool.
-     Params:
-     left = l'expression de type bool.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList TupleGetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    
-    /**
-     Constante de nom du type bool (nécessite BoolGetStringOf au préalable).
-     Params:
-     left = l'expression de type bool.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList TupleStringOf (LInstList, LInstList left) {
-	return left;
-    }
-
     static LInstList GetSizeOf (InfoType, Expression left, Expression) {
 	import semantic.types.StructUtils;
 	auto type = cast (TupleInfo) left.info.type;

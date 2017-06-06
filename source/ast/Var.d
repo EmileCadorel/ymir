@@ -81,20 +81,18 @@ class Var : Expression {
 		    return call.expression;
 		}
 		
-		Table.instance.pacifyMode ();
 		auto id = aux.info.id;
 		Array!Expression tmps;
 		foreach (it ; this._templates) {
 		    tmps.insertBack (it.expression ());
 		}
-		Table.instance.unpacifyMode ();
 		
 		auto type = aux.info.type.TempOp (tmps);
 		if (type is null)
 		    throw new NotATemplate (this._token, tmps);
 		
 		aux.templates = tmps;
-		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);		
+		aux.info = new Symbol (aux.info.sym, type, true);		
 	    }
 	    return aux;	
 	} else return asType ();
@@ -116,36 +114,23 @@ class Var : Expression {
 		throw new UndefinedVar (this._token, Table.instance.getAlike (this._token.str));
 	    
 	    if (this._templates.length != 0) {
-		Table.instance.pacifyMode ();
 		auto id = aux.info.id;
 		Array!Expression tmps;
 		foreach (it ; this._templates) {
 		    tmps.insertBack (it.expression ());
 		}
-		Table.instance.unpacifyMode ();
 		
 		auto type = aux.info.type.TempOp (tmps);
 		if (type is null)
 		    throw new NotATemplate (this._token, tmps);
 		
 		aux.templates = tmps;
-		aux.info = new Symbol (aux.info.isGarbage, aux.info.sym, type, true);	
+		aux.info = new Symbol (aux.info.sym, type, true);	
 	    }
 	    return aux;	
 	} else return asType ();
     }    
-    
-    override void removeGarbage () {
-	super.removeGarbage ();
-	foreach (it ; this._templates)
-	    it.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-    }
-
-    
+        
     override Expression templateExpReplace (Expression [string] values) {	
 	foreach (key, value ; values) {
 	    if (key == this._token.str) {
@@ -456,14 +441,7 @@ class TypedVar : Var {
     override Var var () {
 	return this.expression ();
     }
-
-    
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._type) this._type.removeGarbage ();
-	else this._expType.removeGarbage ();
-    }
-    
+        
     override Var templateExpReplace (Expression [string] values) {
 	if (this._type)
 	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (values), this._deco);
@@ -539,7 +517,7 @@ class Type : Var {
     
     this (Word word, InfoType info) {
 	super (word);
-	this._info = new Symbol (false, word, info, true);
+	this._info = new Symbol (word, info, true);
     }
 
     override Type expression () {

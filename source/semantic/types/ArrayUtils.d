@@ -15,166 +15,8 @@ import std.traits;
  */
 class ArrayUtils {
 
-    static immutable string __CstName__ = "_YPCstArray";
-    static immutable string __PlusArray__ = "_YPPlusArray";
-
-    static void createFunctions () {
-	createCstArray ();
-	foreach (it ; [EnumMembers!LSize]) {
-	    if (it != LSize.NONE)
-		createPlusArray (it);
-	}
-    }
+    static immutable string __CstName__ = "_Y4core5array8cstArrayPFulubZPv";
     
-    
-    /++
-     + Fonction de construction d'un tableau en lint.
-     + Example:
-     + ---
-     + def cstArray (size : int, ofsize : int) {
-     +    let arr = malloc (size + 3 * long);
-     +    arr.long = 1;
-     +    (arr + long) = $destruct
-     +    (arr + 2 * long).long = size / ofsize;
-     +    return arr;
-     + }
-     + ---
-     + Params:
-     + dstName = le nom du destructeur du tableau.
-     +/
-    static void createCstArray (string dstName = "free") {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto size = new LReg (LSize.LONG);
-	auto ofsize = new LReg (LSize.LONG);
-	Array!LReg args = make!(Array!LReg) (size, ofsize);
-	auto retReg = new LReg (LSize.LONG);
-	auto entry = new LLabel (), end = new LLabel;
-	entry.insts = new LInstList;
-	entry.insts += (new LSysCall ("alloc", make!(Array!LExp)
-				      ([new LBinop (size, new LConstDecimal (3, LSize.INT, LSize.LONG),
-						    Tokens.PLUS)]), retReg));
-	
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
-				    new LConstDecimal (1, LSize.LONG)));
-	
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-				    new LBinop (size,
-						ofsize,
-						Tokens.DIV)));
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG),
-				    new LConstFunc (dstName)));
-
-
-	auto fr = new LFrame (__CstName__, entry, end, retReg, args);
-	LFrame.preCompiled [__CstName__] = fr;
-	
-	LReg.lastId = last;
-    }    
-    
-
-    /++
-     + Fonctions d'addition de deux tableau en lint. 
-     + Example:
-     + ---
-     + def plusArray (a1 : array!T, a2 : array!T) {
-     +    let arr = malloc (a1.size + a2.size + 3 * long);
-     +    arr.long = 1;
-     +    (arr + long).long = (a1 + long).long;
-     +    arr.size = a1.size + a2.size;
-     +    let i = 0;
-     +    while (i < a1.size) {
-     +        arr[i] = a1[i];
-     +        i++;
-     +    }
-     +    let j = 0;
-     +    while (j < a2.size) {
-     +        arr [i] = a2 [j];
-     +        j ++;
-     +        i ++;
-     +    }
-     +    return arr;
-     + }
-     + ---
-     + Params:
-     + _psize = la taille du type contenu dans le tableau.
-     +/
-    static void createPlusArray (LSize _psize) {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	auto addr1 = new LReg (LSize.LONG), addr2 = new LReg (LSize.LONG), size = new LReg (LSize.LONG);
-	auto retReg = new LReg (LSize.LONG);
-	auto entry = new LLabel (new LInstList), end = new LLabel ();
-	auto index = new LReg (LSize.LONG);
-	auto globalSize = new LBinop (new LBinop (new LBinop (new LRegRead (addr1, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-							      new LRegRead (addr2, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-							      Tokens.PLUS),
-						  new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.STAR),
-				      new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS);
-	
-	auto index2 = new LReg (LSize.LONG);
-	entry.insts += new LSysCall ("alloc",
-				     make!(Array!LExp) ([globalSize]), retReg);
-	
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG), new LConstDecimal (1, LSize.LONG));
-	entry.insts += (new LWrite (new LRegRead (retReg, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.LONG),
-				    new LConstFunc ("free")));
-	
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-				   new LBinop (new LRegRead (addr1, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-					       new LRegRead (addr2, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG),
-					       Tokens.PLUS));
-	
-	// index = 8, size = addr1.length + 8
-	entry.insts += new LWrite (index,  new LConstDecimal (0, LSize.LONG));
-	entry.insts += new LWrite (size, new LRegRead (addr1, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG)); // size = addr1 [2 * long]
-	auto test = new LBinop (index, size, Tokens.INF);
-	
-	auto debut1 = new LLabel, vrai1 = new LLabel (new LInstList), faux1 = new LLabel;
-	entry.insts += debut1;
-	entry.insts += new LJump (test, vrai1);
-	entry.insts += new LGoto (faux1);
-	
-	// array [3 * long + index * int];
-	auto access = new LRegRead (new LBinop (retReg, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, _psize), Tokens.STAR),
-								    new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
-						Tokens.PLUS), new LConstDecimal (0, LSize.INT), _psize);
-	
-	vrai1.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr1, new LBinop (index, new LConstDecimal (1, LSize.LONG, _psize), Tokens.STAR),
-										 Tokens.PLUS),
-								     new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
-							 new LConstDecimal (0, LSize.INT), _psize));
-	
-	vrai1.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai1.insts += new LGoto (debut1);
-	entry.insts += vrai1;
-	entry.insts += faux1;
-
-	// index2 = 8;
-	entry.insts += new LWrite (index2, new LConstDecimal (0, LSize.LONG));
-	entry.insts += new LWrite (size, new LRegRead (addr2, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG)); // size = addr2 [2 * long]
-	
-	test = new LBinop (index2, size, Tokens.INF);
-	auto debut2 = new LLabel, vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
-	entry.insts += debut2;
-	entry.insts += new LJump (test, vrai2);
-	entry.insts += new LGoto (faux2);
-
-	vrai2.insts += new LWrite (access, new LRegRead (new LBinop (new LBinop (addr2, new LBinop (index2, new LConstDecimal (1, LSize.LONG, _psize), Tokens.STAR),
-										 Tokens.PLUS),
-								     new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS)
-							 , new LConstDecimal (0, LSize.INT), _psize)); // addr2 [3 * long + index2 * int];
-	
-	vrai2.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai2.insts += new LUnop (index2, Tokens.DPLUS, true);
-	vrai2.insts += new LGoto (debut2);
-	entry.insts += vrai2;
-	entry.insts += faux2;
-	
-	auto fr = new LFrame (__PlusArray__ ~ _psize.value, entry, end, retReg, make!(Array!LReg) (addr1, addr2));
-	LFrame.preCompiled [__PlusArray__ ~ _psize.value] = fr;
-	LReg.lastId = last;
-    }
     /**
      Affect un tableau (qui n'a pas encore été affecté) à null, .
      Returns: les instructions du lint.
@@ -210,21 +52,7 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
 	inst += list;
-	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG);
-	return inst;
-    }
-
-    /**
-     Recherche le nombre de reference du tableau.
-     Params:
-     list = les instructions du tableau.
-     Returns: les instructions du lint.
-     */
-    static LInstList InstNbRef (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
+	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG);
 	return inst;
     }
 
@@ -235,53 +63,10 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
 	inst += list;
-	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (3, LSize.INT, LSize.LONG), Tokens.PLUS);
+	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.PLUS);
 	return inst;
     }
-
     
-
-    /**
-     Additionne deux tableau.
-     Params:
-     size = la taille du contenu du tableau.
-     llist = les instructions du tableau de gauche.
-     rlist = les instructions du tableau de droite.
-     Returns: les instructions du lint.
-     */
-    static LInstList InstPlus (LSize size) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
-	inst += llist + rlist;
-	auto it = (__PlusArray__ ~ size.value in LFrame.preCompiled);
-	if (it is null) createPlusArray (size);
-	inst += new LCall (__PlusArray__ ~ size.value, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
-	return inst;
-    }
-
-    /**
-     Additionne et affecte deux tableau (a += b);
-     Params:
-     size = la taille du contenu du tableau.
-     llist = les instructions du tableau de gauche
-     rlist = les instructions du tableau de droite.
-     Returns: la liste d'instruction lint.
-     */
-    static LInstList InstPlusAff (LSize size) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
-	inst += llist + rlist;
-	auto it = (__PlusArray__ ~ size.value in LFrame.preCompiled);
-	if (it is null) createPlusArray (size);
-	auto res = new LCall (__PlusArray__ ~ size.value, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
-	auto aux = new LReg (LSize.LONG);
-	inst += new LWrite (aux, res);
-	
-	inst += new LWrite (leftExp, aux);
-	inst += new LUnop (new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG), Tokens.DPLUS, true);
-	inst += aux;
-	return inst;
-    }
     
     /**
      Accède à une case du tableau.
@@ -295,7 +80,7 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
 	inst += llist + rlists.back ();
-	auto elem = new LBinop (new LConstDecimal (3, LSize.LONG, LSize.LONG),
+	auto elem = new LBinop (new LConstDecimal (1, LSize.LONG, LSize.LONG),
 				new LBinop (leftExp,
 					    new LBinop (new LCast (rightExp, LSize.ULONG),
 							new LConstDecimal (1, LSize.LONG, size),
@@ -327,16 +112,8 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	inst += LVisitor.visitExpressionOutSide (left);
 	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
 	inst += LVisitor.visitExpressionOutSide (str);
 	return inst;
-    }
-
-    /**
-     Returns: Retourne le string qui contient le nom du tableau (necessite ArrayGetType au préalable).     
-     */
-    static LInstList ArrayStringOf (LInstList, LInstList left) {
-	return left;
     }
     
     /**
@@ -361,13 +138,13 @@ class ArrayUtils {
 	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
 	auto faux = new LLabel;
 	auto index = new LReg (LSize.LONG);
-	auto test = new LBinop (index, new LRegRead (leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
+	auto test = new LBinop (index, new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
 	inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
 	inst += debut;
 	inst += new LJump (test, vrai);
 	inst += new LGoto (faux);
 	vrai.insts += new LWrite (rightExp, new LBinop (leftExp, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
-									     new LConstDecimal (3, LSize.LONG, LSize.LONG), Tokens.PLUS),
+									     new LConstDecimal (1, LSize.LONG, LSize.LONG), Tokens.PLUS),
 							Tokens.PLUS));
 	vrai.insts += block;
 	vrai.insts += new LUnop (index, Tokens.DPLUS, true);

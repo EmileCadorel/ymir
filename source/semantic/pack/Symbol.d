@@ -29,9 +29,6 @@ class Symbol {
     /** La liste des identifiants numérique de symbole (par frame) */
     private static SList!ulong __last__;
 
-    /** Le type va être envoyé dans le GC */
-    private bool _garbage;
-
     private Value _staticValue;
     
     /**
@@ -42,10 +39,7 @@ class Symbol {
     this (Word word, InfoType type) {
 	this._sym = word;
 	this._type = type;
-	if (this._type.isGarbaged) {
-	    Table.instance.garbage (this);
-	    this._garbage = true;
-	} else this._garbage = false;
+	setId ();
     }
 
     /** 
@@ -58,55 +52,7 @@ class Symbol {
 	this._sym = word;
 	this._type = type;
 	this._type.isConst = isConst;
-	if (this._type.isGarbaged) {
-	    Table.instance.garbage (this);
-	    this._garbage = true;
-	} else this._garbage = false;
-    }
-
-    /**
-     Params:
-     garbage = le symbole doit il aller dans le GC ?
-     word = l'identifiant du symbole
-     type = le type du symbole
-     isConst = le symbole est il constant ?
-     */
-    this (bool garbage, Word word, InfoType type, bool isConst) {
-	this._sym = word;
-	this._type = type;
-	this._type.isConst = isConst;
-	if (garbage)
-	    Table.instance.garbage (this);
-	this._garbage = garbage;
-    }
-
-    /**
-     Params:
-     garbage = le symbole doit il aller dans le GC ?
-     word = l'identifiant du symbole
-     type = le type du symbole
-     */
-    this (bool garbage, Word word, InfoType type) {
-	this._sym = word;
-	this._type = type;
-	if (garbage)
-	    Table.instance.garbage (this);
-	this._garbage = garbage;
-    }
-
-    /**
-     Returns: Le symbole est il un symbole à placer dans le GC ?
-     */
-    bool isDestructible () {
-	if (this._type !is null) return this._type.isDestructible ();
-	return false;
-    }
-
-    /**
-     Returns: le symbol est il envoyé dans le GC
-     */
-    bool isGarbage () {
-	return this._garbage;
+	setId ();
     }
     
     /**
@@ -162,19 +108,6 @@ class Symbol {
      */
     void quit (Namespace namespace) {
 	this._type.quit (namespace);
-    }
-
-    /**
-     Returns: La transformation en langage intermediaire de la destruction du symbole.     
-     */
-    LInstList destruct () {
-	auto type = this._type.destruct ();
-	if (type && type.destruct) {
-	    LInstList list = new LInstList (new LReg (this._id, this._type.size));
-	    return type.destruct (list);
-	}
-	
-	return new LInstList ();
     }
 
     /**
@@ -254,7 +187,7 @@ class Symbol {
      Génére un clone du symbole mais de manière scopé
      */
     Symbol cloneScoped () {
-	auto other = new Symbol (false, this._sym, this._type.clone (), this.isConst);
+	auto other = new Symbol (this._sym, this._type.clone (), this.isConst);
 	other._scoped = true;
 	other._id = this._id;
 	return other;

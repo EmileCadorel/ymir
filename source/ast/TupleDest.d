@@ -60,7 +60,7 @@ class TupleDest : Instruction {
 		Array!Expression last;	    
 		foreach (it_ ; this._decls.length - 1 .. tupleType.params.length) {
 		    auto exp = new Expand (right.token, right, it_);
-		    exp.info = new Symbol (false, exp.token, tupleType.params [it_].clone);
+		    exp.info = new Symbol (exp.token, tupleType.params [it_].clone);
 		    last.insertBack (exp);
 		}
 	    
@@ -68,7 +68,7 @@ class TupleDest : Instruction {
 		insts.insertBack (new Binary (aff, new Var (this._decls [$ - 1].token), ctuple).expression);
 	    } else {		
 		auto exp = new Expand (right.token, right, i);
-		exp.info = new Symbol (false, exp.token, tupleType.params [i].clone);
+		exp.info = new Symbol (exp.token, tupleType.params [i].clone);
 		    
 		insts.insertBack (new Binary (aff, new Var (it.token), exp).expression);
 		i ++;

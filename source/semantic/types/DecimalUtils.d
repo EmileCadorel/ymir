@@ -274,17 +274,5 @@ class DecimalUtils {
 	assert (false, "TODO, DXor int");
     }
     
-    static LInstList GetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-    
-    static LInstList StringOf (LInstList, LInstList left) {
-	return left;
-    }
   
 }

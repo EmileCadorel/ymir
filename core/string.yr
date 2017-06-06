@@ -33,7 +33,7 @@ def opTest ('>') (a : string, b : string) : bool {
     return false;
 }    
 
-def opTest ('<=') (a : string, b : string) : bool {
+def opTest ("<=") (a : string, b : string) : bool {
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] > b [it]) return false;
 	else if (a [it] < b [it]) return true;
@@ -41,7 +41,7 @@ def opTest ('<=') (a : string, b : string) : bool {
     return true;
 }    
 
-def opTest ('>=') (a : string, b : string) : bool {
+def opTest (">=") (a : string, b : string) : bool {
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] < b [it]) return false;
 	else if (a [it] > b [it]) return true;
@@ -53,16 +53,42 @@ def opBinary ('+') (a : string , b : char) {
     return a + cast:string ([b]);
 }
 
+def opBinary ('+') (a : string , b : string) : string {
+    let aux = [char ; a.length + b.length];
+    for it in 0U .. a.length
+        aux [it] = a [it];
+
+    for it in 0U .. b.length
+        aux [it + a.length] = b [it];
+    return cast:string (aux);
+}
+
 private def creator () {
     let useless = "a" + 'b';
     let b = "a" < "b";
 }
 
-def getArgs (argc : int, argv : ptr!(ptr!char)) : [string] {
+def getArgs (argc : int, argv : ptr!(ptr!char)) : [string] {    
     let ret = [string; 0UL];
     for (it in 0 .. argc) {
-	ret += [(*(argv + (it * 8))).to!string];
+	ret = ret + [(*(argv + (it * 8))).to!string];
     }
     return ret;
+}
+
+def dup (str : string) : string {
+    let aux = [char ; str.length];
+    for it in 0U .. str.length
+        aux [it] = str [it];
+    return cast:string (aux);
+}
+
+def cstString (len : ulong, ca : ptr!char) : string {    
+    let aux = [char ; len];
+    for it in 0U .. len {
+        aux [it] = *(ca + it);
+    }
+    
+    return cast:string (aux);
 }
 

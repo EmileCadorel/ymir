@@ -28,7 +28,6 @@ class ArrayInfo : InfoType {
      */
     this () {
 	this._content = new VoidInfo ();
-	//this._destruct = &ArrayUtils.InstDestruct;
     }
 
     /**
@@ -37,7 +36,6 @@ class ArrayInfo : InfoType {
      */
     this (InfoType content) {
 	this._content = content;
-	//this._destruct = &ArrayUtils.InstDestruct;
     }
 
     /**
@@ -89,8 +87,6 @@ class ArrayInfo : InfoType {
      */
     override InfoType BinaryOp (Word token, Expression right) {
 	if (token == Tokens.EQUAL) return Affect (right);
-	else if (token == Tokens.PLUS) return Plus (right);
-	else if (token == Tokens.PLUS_AFF) return PlusAff (right);
 	else if (token == Keys.IS) return Is (right);
 	else if (token == Keys.NOT_IS) return NotIs (right);
 	return null;
@@ -125,64 +121,6 @@ class ArrayInfo : InfoType {
 	ret.lintInst = &ArrayUtils.InstApply;
 	return ret;
     }
-
-    /**
-     Operateur '+'.
-     Params:
-     right = l'operande droite de l'operation.
-     Returns: le type résultat ou null.
-     */
-    private InfoType Plus (Expression right) {
-	auto arr = cast (ArrayInfo) right.info.type;
-	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
-	    auto str = new ArrayInfo (this._content.clone ());
-	    switch (this._content.size.id) {
-	    case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.BYTE); break;
-	    case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UBYTE); break;
-	    case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.SHORT); break;
-	    case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.USHORT); break;
-	    case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.INT); break;
-	    case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.UINT); break;
-	    case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.LONG); break;
-	    case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlus !(LSize.ULONG); break;
-	    case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.FLOAT); break;
-	    case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlus!(LSize.DOUBLE); break;
-	    default : assert (false, "TODO");		
-	    }
-	    return str;
-	}
-	return null;
-    }
-
-    /**
-     Operateur '+='.
-     Params:
-     right = l'operande droite de l'operation.
-     Returns: le type résultat ou null.
-    */
-    private InfoType PlusAff (Expression right) {
-	auto arr = cast (ArrayInfo) right.info.type;
-	if (arr && arr._content.isSame (this._content) && !cast(VoidInfo) this._content) {
-	    auto str = new ArrayInfo (this._content.clone ());
-
-	    switch (this._content.size.id) {
-	    case LSize.BYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.BYTE); break;
-	    case LSize.UBYTE.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UBYTE); break;
-	    case LSize.SHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.SHORT); break;
-	    case LSize.USHORT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.USHORT); break;
-	    case LSize.INT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.INT); break;
-	    case LSize.UINT.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.UINT); break;
-	    case LSize.LONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.LONG); break;
-	    case LSize.ULONG.id: str.lintInst = &ArrayUtils.InstPlusAff !(LSize.ULONG); break;
-	    case LSize.FLOAT.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.FLOAT); break;
-	    case LSize.DOUBLE.id : str.lintInst = &ArrayUtils.InstPlusAff!(LSize.DOUBLE); break;
-	    default : assert (false, "TODO");
-	    }	    
-	    return str;
-	}
-	return null;
-    }
-
     
     /**
      Operateur 'is'.
@@ -278,20 +216,10 @@ class ArrayInfo : InfoType {
      */
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
-	if (var.token.str == "nbRef") return NbRef ();
 	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;
 	else if (var.token.str == "ptr") return toPtr;
 	return null;
-    }
-
-    /**
-     Returns: le type résultat de 'array.nbRef'.
-     */
-    private InfoType NbRef () {
-	auto l = new DecimalInfo (DecimalConst.ULONG);
-	l.lintInst = &ArrayUtils.InstNbRef;
-	return l;
     }
     
     /**
@@ -347,7 +275,6 @@ class ArrayInfo : InfoType {
 	    default : assert (false);
 	    }
 	    ch.isConst = false;
-	    ch.setDestruct (null);
 	    return ch;
 	}
 	return null;
@@ -384,7 +311,6 @@ class ArrayInfo : InfoType {
     override InfoType clone () {
 	auto ret = new ArrayInfo (this._content.clone ());
 	ret.value = this._value;
-	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }
 
@@ -408,7 +334,6 @@ class ArrayInfo : InfoType {
 	} else if (cast(StringInfo) other && cast(CharInfo) this._content) {
 	    auto _other = new StringInfo ();
 	    _other.lintInstS.insertBack (&ArrayUtils.InstCastString);
-	    _other.setDestruct (null);
 	    return _other;
 	}
 	return null;	
@@ -463,16 +388,6 @@ class ArrayInfo : InfoType {
      */
     override LSize size () {
 	return LSize.LONG;
-    }
-
-    /**
-     Returns: les informations de déstruction du tableau.
-     */
-    override InfoType destruct () {
-	if (this._destruct is null) return null;
-	auto ret = this.clone ();
-	ret.setDestruct (this._destruct);
-	return ret;
     }
 
     override InfoType getTemplate (ulong i) {

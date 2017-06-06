@@ -19,16 +19,13 @@ class RangeInfo : InfoType {
     /** Le type contenu dans le type range  */
     private InfoType _content;
     
-    this () {
-	this._destruct = &RangeUtils.InstDestruct;
-    }
+    this () {}
 
     /**
      Params:
      content = le type contenu dans le type range.
      */
     this (InfoType content) {
-	this._destruct = &RangeUtils.InstDestruct;
 	this._content = content;
     }
 
@@ -44,7 +41,6 @@ class RangeInfo : InfoType {
      */
     override InfoType clone () {
 	auto ret = new RangeInfo (this._content.clone ());
-	if (this._destruct is null) ret._destruct = null;
 	ret.value = this._value;
 	return ret;
     }
@@ -317,16 +313,6 @@ class RangeInfo : InfoType {
      */
     static LSize sizeOf () {
 	return LSize.ULONG;
-    }
-
-    /**
-     Returns: Les informations de destruction du type ou null.
-     */
-    override InfoType destruct () {
-	if (this._destruct is null) return null;
-	auto ret = this.clone ();
-	ret.setDestruct (this._destruct);
-	return ret;
     }
 
     /**

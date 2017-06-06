@@ -29,7 +29,7 @@ class StructUtils {
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
 	auto var = new Var (aff);
-	var.info = new Symbol (false, aff, new UndefInfo);
+	var.info = new Symbol (aff, new UndefInfo);
 	foreach (it ; params) {
 	    final switch (it.size.id) {
 	    case LSize.ULONG.id: nbUlong ++; break;
@@ -82,7 +82,7 @@ class StructUtils {
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
 	auto var = new Var (aff);
-	var.info = new Symbol (false, aff, new UndefInfo);
+	var.info = new Symbol (aff, new UndefInfo);
 	foreach (it ; params) {
 	    final switch (it.size.id) {
 	    case LSize.ULONG.id: nbUlong ++; break;
@@ -198,20 +198,7 @@ class StructUtils {
 	inst += llist;
 	return inst;
     }
-       
-    static LInstList GetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    static LInstList StringOf (LInstList, LInstList left) {
-	return left;
-    }
-
+    
     static LInstList Init (LInstList, LInstList) {
 	return new LInstList (new LConstDecimal (0, LSize.LONG));
     }

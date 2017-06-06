@@ -55,7 +55,7 @@ class Expand : Expression {
 	if (tuple) {
 	    foreach (it ; 0 .. tuple.params.length) {
 		auto exp = new Expand (this._token, expr, it);
-		exp.info = new Symbol (false, exp.token, tuple.params[it].clone);
+		exp.info = new Symbol (exp.token, tuple.params[it].clone);
 		params.insertBack (exp);
 	    }
 	}
@@ -63,18 +63,6 @@ class Expand : Expression {
 	auto aux = new ParamList (this._token, params);	
 	aux.info = new Symbol (this._token, new UndefInfo ());
 	return aux;
-    }
-
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._expr)
-	    this._expr.removeGarbage ();
-    }
-    
-    override void garbage () {
-	super.garbage ();
-	if (this._expr)
-	    this._expr.garbage ();
     }
 
     override Expression templateExpReplace (Expression [string] values) {

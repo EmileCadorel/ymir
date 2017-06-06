@@ -23,9 +23,6 @@ class Table {
     /** Le contexte courant */
     private Namespace _namespace;
 
-    /** La zone est garbage ? */
-    private bool _pacified;
-
     private ulong _nbFrame = 0;
     
     private immutable __maxNbRec__ = 300;
@@ -45,23 +42,10 @@ class Table {
     
     /**
      On quitte un scope.
-     Returns: La liste des symboles à détruire à la fin du scope que l'on vient de quitter
      */
-    Array!Symbol quitBlock () {
-	if (!this._frameTable.empty) {
-	    return this._frameTable.front.quitBlock ();
-	} return make!(Array!Symbol);
-    }
-
-    /**
-     On ne garbage plus les données qui sont dans ce block     
-     */
-    void pacifyMode () {
-	this._pacified = true;
-    }
-
-    void unpacifyMode () {
-	this._pacified = false;
+    void quitBlock () {
+	if (!this._frameTable.empty) 
+	    this._frameTable.front.quitBlock ();	
     }
     
     /**
@@ -147,33 +131,6 @@ class Table {
 	    _globalScope [info.sym.str] = info;
 	} else {
 	    this._frameTable.front.insert (info.sym.str, info);
-	}
-    }
-        
-    /**
-     insert un symbole dans le GC du scope le plus mince.
-     Params:
-     info = le symbole a placer dans le GC.
-     */
-    void garbage (Symbol info) {
-	if (!this._pacified) {
-	    info.setId ();
-	    if (!this._frameTable.empty)
-		this._frameTable.front.garbage (info);
-	    else this._globalScope.garbage (info);
-	}
-    }
-
-    /**
-     Retire un symbole dans le GC du scope le plus mince
-     Params:
-     info = le symbole a retirer dans le GC
-     */
-    void removeGarbage (Symbol info) {
-	if (!this._pacified) {
-	    if (!this._frameTable.empty)
-		this._frameTable.front.removeGarbage (info);
-	    else this._globalScope.removeGarbage (info);
 	}
     }
     

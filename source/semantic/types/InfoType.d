@@ -95,10 +95,6 @@ class InfoType {
     /** Liste des traitement unaire à appliquer à l'opérande de droite pour la transformer en lint*/
     private Array!(InstCompS) _lintInstSR;
 
-    /** Fonction de transformation pour l'appel du destructeur */
-    protected InstCompS _destruct = null;
-
-    protected bool _isGarbaged = true;
     
     /** Fonction de transformation pour les opérateur multiple */
     private InstCompMult _lintInstMult = null;
@@ -330,7 +326,7 @@ class InfoType {
      */
     final InfoType BinaryOp (Word token, InfoType type) {
 	auto expr = new Expression (token);
-	expr.info = new Symbol (false, token, type, type.isConst);
+	expr.info = new Symbol (token, type, type.isConst);
 	return this.BinaryOp (token, expr);
     }
 
@@ -531,38 +527,7 @@ class InfoType {
     ref Array!InstCompS lintInstSR () {
 	return this._lintInstSR;
     }
-    
-    /**
-     Returns: les informations de destructions du type en sortie de scope.
-     */
-    InfoType destruct () {
-	return null;
-    }
-
-    /**
-     Met à jour le destructeur du type.
-     Params:
-     s = le destructeur.
-     */
-    void setDestruct (InstCompS s) {
-	this._destruct = s;
-    }
-
-    /**
-     Returns: le type a t'il un destructeur ?
-     */
-    bool isDestructible () {
-	return this._destruct !is null && this._isGarbaged && !this._isType;
-    }
-
-    void isGarbaged (bool isIt) {
-	this._isGarbaged = isIt;
-    }
-
-    bool isGarbaged () {
-	return this._isGarbaged;
-    }
-    
+        
     /**
      Returns: les informations de transformation d'operateur multiple du lint.
      */
@@ -596,13 +561,6 @@ class InfoType {
     */
     LInstList lintInstR (LInstList left, ulong nb = 0) {
 	return this._lintInstSR [$ - nb - 1] (left);
-    }
-
-    /**
-     Utilisé pour les destructeur
-    */
-    LInstList destruct (LInstList elem) {
-	return this._destruct (elem);
     }
 
     static bool isPrimitive (InfoType info) {

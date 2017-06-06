@@ -93,7 +93,7 @@ class Binary : Expression {
 	    } else 
 		  throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}	
-	aux.info = new Symbol (false, aux._token, type);
+	aux.info = new Symbol (aux._token, type);
 	Table.instance.retInfo.changed = true;
 	return aux;
     }
@@ -169,15 +169,9 @@ class Binary : Expression {
 	
 	    aux.info = new Symbol (aux._token, type);
 	} else {
-	    if (this._info.isDestructible)
-		Table.instance.garbage (this._info);
 	    aux.info = this._info;
 	}
 	
-	if (aux.info.value) {	    
-	    if (aux.left) aux.left.removeGarbage ();
-	    if (aux.right) aux.right.removeGarbage ();
-	} 
 	return aux;	
     }
 
@@ -191,7 +185,7 @@ class Binary : Expression {
 	import ast.Par;
 	if (isTest (this._token)) return findOpTest (aux);
 	else if (isEq (this._token)) return findOpEqual (aux);
-	aux.removeGarbage ();
+
 	try {
 	    auto word = Word (this._token.locus, Keys.OPBINARY.descr, true);
 	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
@@ -215,7 +209,7 @@ class Binary : Expression {
 
     auto findOpTest (Binary aux) {
 	import ast.Par, semantic.types.BoolInfo, semantic.types.DecimalInfo;
-	aux.removeGarbage ();
+
 	try {
 	    auto word = Word (this._token.locus, Keys.OPTEST.descr, true);
 	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
@@ -243,7 +237,7 @@ class Binary : Expression {
     auto findOpEqual (Binary aux) {
 	import ast.Par, semantic.types.BoolInfo, semantic.types.DecimalInfo;
 	import ast.Unary;
-	aux.removeGarbage ();
+
 	try {
 	    auto word = Word (this._token.locus, Keys.OPEQUAL.descr, true);
 	    auto var = new Var (word);
@@ -294,22 +288,6 @@ class Binary : Expression {
 	auto aux = new Binary (this._token, left, right);
 	aux.info = this._info;
 	return aux;
-    }
-
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._left)
-	    this._left.removeGarbage ();
-	if (this._right)
-	    this._right.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	if (this._left)
-	    this._left.garbage ();
-	if (this._right)
-	    this._right.garbage ();
     }
     
     /**

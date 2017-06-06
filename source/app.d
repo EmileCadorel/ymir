@@ -63,9 +63,6 @@ Array!TFrame targetTime (Array!LFrame frames) {
 
 string preCompiled (string name) {    
     if (Options.instance.isOn (OptionEnum.STD_COMPILATION)) {
-	ArrayUtils.createFunctions ();
-	StringUtils.createFunctions ();
-	ClassUtils.createFunctions ();
 	RangeUtils.createFunctions ();
 	LVisitor.createFunctions ();
 	

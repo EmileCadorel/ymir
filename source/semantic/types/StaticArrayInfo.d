@@ -16,13 +16,11 @@ class StaticArrayInfo : ArrayInfo {
     this (InfoType content, Value length) {
 	super (content);
 	this._length = (cast (DecimalValue) length).value.to!ulong;
-	this._destruct = null;
     }
     
     this (InfoType content, ulong length) {
 	super (content);
 	this._length = length;
-	this._destruct = null;
     }
     
 

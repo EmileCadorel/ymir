@@ -99,8 +99,6 @@ class Match : Expression {
 		if (insts.length != 1 || !cast (Expression) insts[0]) {
 		    throw new NoValueMatch (this._blocks [it].token);
 		} else {
-		    Table.instance.pacifyMode ();
-		    scope (exit) Table.instance.unpacifyMode ();
 		    results.insertBack ((cast (Expression) insts [0]).expression);
 		    if (info is null) {
 			info = results.back ().info;
@@ -121,8 +119,6 @@ class Match : Expression {
 	    if (insts.length != 1 || !cast (Expression) insts [0])
 		throw new NoValueMatch (this._default.token);
 
-	    Table.instance.pacifyMode ();
-	    scope (exit) Table.instance.unpacifyMode ();
 	    def = (cast (Expression) insts [0]).expression;
 	    if (info is null) {
 		info = def.info;

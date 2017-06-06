@@ -20,9 +20,9 @@ def append (ref str : string, c : char) : string {
    Returns: un tableau de chaine, chaque case correspond à une ligne
  */
 def splitLines (str : string) : [string] {
-    let ret = [''];
+    let ret = [""];
     for (it in str) {
-	if (it == '\n') ret += [''];
+	if (it == '\n') ret = ret + [""];
 	else ret [ret.length - 1ul].append (it);
     }
     return ret;

@@ -1,0 +1,19 @@
+
+extern (C) GC_malloc (ulong) : ptr!(void);
+
+def cstArray (len : ulong, size : ubyte) : ptr!(void) {    
+    let array = GC_malloc (len * size + ulong.sizeof);
+    array.ulong = len;
+    return array;
+}
+
+def opBinary('+', T of [U], U) (a : T, b : T) : T {
+    let c = [U ; a.length + b.length];    
+    for it in 0U .. a.length
+        c [it] = a [it];
+
+    for it in 0U .. b.length
+        c [it + a.length] = b [it];
+
+    return c;        
+}

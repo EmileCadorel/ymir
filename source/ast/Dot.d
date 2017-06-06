@@ -66,22 +66,6 @@ class Dot : Expression {
 	}
     }    
     
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._left)
-	    this._left.removeGarbage ();
-	if (this._right)
-	    this._right.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	if (this._left)
-	    this._left.garbage ();
-	if (this._right)
-	    this._right.garbage ();
-    }
-
     override Expression clone () {
 	return new Dot (this._token, this._left.clone, cast (Var) this._right.clone ());
     }

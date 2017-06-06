@@ -17,7 +17,6 @@ class Block : Instruction {
     private Word _ident;
     private Array!Declaration _decls;
     private Array!Instruction _insts;
-    private Array!Symbol _dest;
     
     this (Word word, Array!Declaration decls, Array!Instruction insts) {
 	super (word);
@@ -78,10 +77,9 @@ class Block : Instruction {
 	    }
 	}
 	
-	auto dest = Table.instance.quitBlock ();
+	Table.instance.quitBlock ();
 	if (error > 0) throw new ErrorOccurs (error);
 	block._insts = insts;
-	block._dest = dest;
 	return block;	
     }
 
@@ -103,13 +101,6 @@ class Block : Instruction {
     override Instruction instruction () {
 	Table.instance.retInfo.currentBlock = "true";
 	return this.instructions ();
-    }
-
-    /**
-     Returns: la liste des symboles à supprimer en sortie de block.
-     */
-    ref Array!Symbol dest () {
-	return this._dest;
     }
 
     /**

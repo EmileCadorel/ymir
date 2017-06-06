@@ -100,11 +100,9 @@ class Par : Expression {
 		    throw new TemplateInferType (aux._left.token, aux._score.token);
 		}
 
-		if (aux.info.value) aux.removeGarbage ();
-		else Table.instance.retInfo.changed = true;
+		if (!aux.info.value) Table.instance.retInfo.changed = true;
 		return aux;
 	    } catch (YmirException exp) {
-		aux.removeGarbage ();
 		throw exp;
 	    }
 	} else {
@@ -113,9 +111,6 @@ class Par : Expression {
 	    aux.info = this._info;
 	}
 	
-	if (aux.info.value) {
-	    aux.removeGarbage ();
-	}
 	return aux;
 	
     }
@@ -142,7 +137,6 @@ class Par : Expression {
 
     private auto findOpCall (Par aux) {
 	import syntax.Keys;
-	aux.removeGarbage ();
 	if (this._left.token == Keys.OPCALL) return null;
 	try {
 	    auto word = Word (this._token.locus, Keys.OPCALL.descr, true);
@@ -156,23 +150,6 @@ class Par : Expression {
 	}
     }       
     
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._params)
-	    this._params.removeGarbage ();
-	if (this._left)
-	    this._left.removeGarbage ();	
-    }
-    
-    override void garbage () {
-	if (!this.info || !this.info.isImmutable) {
-	    super.garbage ();
-	    if (this._params)
-		this._params.garbage ();
-	    if (this._left)
-		this._left.garbage ();
-	}
-    }
 
     override Expression templateExpReplace (Expression [string] values) {
 	auto params = this._params.templateExpReplace (values);

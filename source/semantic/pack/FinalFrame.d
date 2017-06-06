@@ -29,9 +29,6 @@ class FinalFrame {
     /** les paramètre de la frame */
     private Array!Var _vars;
 
-    /** les symboles à détruire en sortie de frame */
-    private Array!Symbol _dest;
-
     /++ Les templates utilisé pour valider la frame +/
     private Array!Expression _tmps;
 
@@ -81,13 +78,6 @@ class FinalFrame {
      */
     ref ulong last () {
 	return this._last;
-    }
-
-    /**
-     Returns: la liste des symboles a détruire en fin de frame
-     */
-    ref Array!Symbol dest () {
-	return this._dest;
     }
 
     /**

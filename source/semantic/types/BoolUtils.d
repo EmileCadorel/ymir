@@ -136,32 +136,6 @@ class BoolUtils {
     }
 
     /**
-     Constante de nom du type bool.
-     Params:
-     left = l'expression de type bool.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList BoolGetStringOf (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	auto str = new String (Word.eof, type.typeString).expression;
-	str.info.type.setDestruct (null);
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-
-    
-    /**
-     Constante de nom du type bool (nécessite BoolGetStringOf au préalable).
-     Params:
-     left = l'expression de type bool.
-     Returns: la liste d'instruction du lint.
-     */
-    static LInstList BoolStringOf (LInstList, LInstList left) {
-	return left;
-    }
-
-    /**
      Constante 'true' de type bool.
      Returns: la liste d'instruction du lint.
      */

@@ -117,7 +117,7 @@ class Frame {
     static FrameProto validate (Word name, Namespace namespace, Namespace from, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
 	Table.instance.setCurrentSpace (namespace, name.str);
 	if (ret is null)
-	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	    Table.instance.retInfo.info = new Symbol (Word.eof, new UndefInfo ());
 	else
 	    Table.instance.retInfo.info = ret;
 	
@@ -137,7 +137,7 @@ class Frame {
 	    FrameTable.instance.insert (finFrame);
 	    
 	    finFrame.file = name.locus.file;
-	    finFrame.dest = Table.instance.quitBlock ();
+	    Table.instance.quitBlock ();
 	    verifyReturn (name, proto.type, Table.instance.retInfo);
 	    finFrame.last = Table.instance.quitFrame ();
 	    return proto;
@@ -150,7 +150,7 @@ class Frame {
     protected final FrameProto validate (Array!Var finalParams) {
 	Table.instance.setCurrentSpace (this._namespace, this._function.name);
 	if (this._function.type is null)
-	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	    Table.instance.retInfo.info = new Symbol (Word.eof, new UndefInfo ());
 	else 
 	    Table.instance.retInfo.info = this._function.type.asType ().info;	
 		
@@ -172,7 +172,7 @@ class Frame {
 	    FrameTable.instance.insert (finFrame);
 	    
 	    finFrame.file = this._function.ident.locus.file;
-	    finFrame.dest = Table.instance.quitBlock ();
+	    Table.instance.quitBlock ();
 	    verifyReturn (this._function.ident, proto.type, Table.instance.retInfo);
 	    finFrame.last = Table.instance.quitFrame ();
 	    return proto;
@@ -186,7 +186,7 @@ class Frame {
     protected final FrameProto validate (Namespace space, Namespace from, Array!Var finalParams) {
 	Table.instance.setCurrentSpace (space, this._function.name);
 	if (this._function.type is null)
-	    Table.instance.retInfo.info = new Symbol (false, Word.eof, new UndefInfo ());
+	    Table.instance.retInfo.info = new Symbol (Word.eof, new UndefInfo ());
 	else 
 	    Table.instance.retInfo.info = this._function.type.asType ().info;	
 		
@@ -208,7 +208,7 @@ class Frame {
 	    FrameTable.instance.insert (finFrame);
 	    
 	    finFrame.file = this._function.ident.locus.file;
-	    finFrame.dest = Table.instance.quitBlock ();
+	    Table.instance.quitBlock ();
 	    verifyReturn (this._function.ident, proto.type, Table.instance.retInfo);
 	    finFrame.last = Table.instance.quitFrame ();
 	    return proto;

@@ -103,14 +103,12 @@ class ConstRange : Expression {
 	if (aux._left.info.isImmutable && aux._right.info.isImmutable) {
 	    import semantic.value.RangeValue;
 	    aux.info.value = new RangeValue (aux._left.info.value, aux._right.info.value);
-	    //Table.instance.removeGarbage (aux.info);
 	}
 	return aux;
     }
 
     auto findOpRange (ConstRange aux) {
 	import ast.Par, syntax.Keys, ast.ParamList;
-	aux.removeGarbage ();
 	try {
 	    auto word = Word (this._token.locus, Keys.OPRANGE.descr, true);
 	    auto var = new Var (word);
@@ -122,25 +120,7 @@ class ConstRange : Expression {
 	    return null;
 	}
     }
-    
-    
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._left)
-	    this._left.removeGarbage ();
-	if (this._right)
-	    this._right.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	if (this._left)
-	    this._left.garbage ();
-	if (this._right)
-	    this._right.garbage ();
-    }
-
-    
+            
     override Expression templateExpReplace (Expression [string] values) {
 	auto left = this._left.templateExpReplace (values);
 	auto right = this._right.templateExpReplace (values);

@@ -34,9 +34,6 @@ class For : Instruction {
     /// L'information de la procédure à suivre (renseigné à la sémantique)
     private InfoType _ret;
 
-    /// Les symboles à détruire à la fin de la boucle for.
-    private Array!Symbol _dest;
-
     this (Word token, Word id, Array!Var var, Expression iter, Block block) {
 	super (token);
 	this._id = id;
@@ -68,13 +65,6 @@ class For : Instruction {
     }
 
     /**
-     Returns: La liste des symboles à détruire
-     */
-    ref Array!Symbol dest () {
-	return this._dest;
-    }
-
-    /**
      Returns: le block de la boucle
      */
     Block block () {
@@ -101,7 +91,6 @@ class For : Instruction {
 	auto expr = this._iter.expression;
 	auto type = expr.info.type.ApplyOp (aux);
 	if (type is null) throw new UndefinedOp (this.token, expr.info);	
-	else if (expr.info.isImmutable) Table.instance.removeGarbage (expr.info);
 	
 	foreach (it ; aux) Table.instance.insert (it.info);	
 	
@@ -112,7 +101,7 @@ class For : Instruction {
 	auto bl = this._block.block;
 	auto res = new For (this._token, this._id, aux, expr, bl);
 	res._ret = type;
-	res._dest = Table.instance.quitBlock ();
+	Table.instance.quitBlock ();
 	return res;
     }
 

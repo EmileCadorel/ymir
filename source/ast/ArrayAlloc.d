@@ -54,11 +54,10 @@ class ArrayAlloc : Expression {
 	if (!cast (Type) aux._type && !(cast (StructCstInfo) aux._type.info.type)) throw new UseAsType (aux._type.token);
 	if (auto type = cast (StructCstInfo) aux._type.info.type) {
 	    aux._type.info.type = type.CallOp (aux._type.token, new ParamList (this._token, make!(Array!Expression))).ret;
-	    Table.instance.removeGarbage (aux._type.info);
 	}
 	
 	
-	auto ul = new Symbol (false, this._token, new DecimalInfo (DecimalConst.ULONG));
+	auto ul = new Symbol (this._token, new DecimalInfo (DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);
 	if (cmp is null) throw new IncompatibleTypes (ul, aux._size.info);
 	aux._cster = cmp;
@@ -77,22 +76,6 @@ class ArrayAlloc : Expression {
 	return new ArrayAlloc (this._token, this._type.clone, this._size.clone ());
     }
     
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._type)
-	    this._type.removeGarbage ();
-	if (this._size)
-	    this._size.removeGarbage ();	
-    }
-
-    override void garbage () {
-	super.garbage ();
-	if (this._type)
-	    this._type.garbage ();
-	if (this._size)
-	    this._size.garbage ();	
-    }
-
     override void print (int nb = 0) {
 	writefln ("%s<ArrayAlloc> %s(%d, %d) ",
 		  rightJustify ("", nb, ' '),

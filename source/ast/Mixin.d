@@ -38,7 +38,6 @@ class Mixin : Expression {
 	if (msg.info.value is null)
 	    throw new NotImmutable (msg.info);
 	
-	Table.instance.removeGarbage (msg.info);	
 	auto visit = new Visitor ();
 	visit.lexer = new StringLexer ("{\n\t" ~ (cast(StringValue) msg.info.value).value ~ "\n}",
 				       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],
@@ -72,7 +71,6 @@ class Mixin : Expression {
 	if (msg.info.value is null)
 	    throw new NotImmutable (msg.info);
 	
-	Table.instance.removeGarbage (msg.info);	
 	auto visit = new Visitor ();
 	visit.lexer = new StringLexer ((cast(StringValue) msg.info.value).value,
 				       [Tokens.SPACE, Tokens.RETOUR, Tokens.RRETOUR, Tokens.TAB],

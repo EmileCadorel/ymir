@@ -122,24 +122,7 @@ class LambdaFunc : Expression {
 	auto block = new Block (this._expr.token, make!(Array!Declaration) (), insts);
 	return new LambdaFunc (this._token, this._params, block).expression ();
     }
-    
-    override void removeGarbage () {
-	super.removeGarbage ();
-	foreach (it ; this._params)
-	    it.removeGarbage ();
-	if (this._ret)
-	    this._ret.removeGarbage ();
-    }
-
-    override void garbage () {
-	super.garbage ();
-	foreach (it ; this._params)
-	    it.garbage ();
-	if (this._ret)
-	    this._ret.garbage ();
-    }
-
-    
+        
     override Expression templateExpReplace (Expression [string] values) {
 	Array!Var var;
 	foreach (it ; this._params)

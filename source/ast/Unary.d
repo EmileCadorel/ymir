@@ -47,12 +47,7 @@ class BefUnary : Expression {
 	    
 	    aux._info = new Symbol (aux._token, type);
 	    return aux;
-	} else {
-	    if (this._info.isDestructible && !this._info.value)
-		Table.instance.garbage (this._info);
-	    else if (this._info.value)
-		this.removeGarbage;
-	    
+	} else {	    
 	    return this;	    
 	}
 
@@ -60,7 +55,6 @@ class BefUnary : Expression {
 
     private auto findOpUnary (BefUnary aux) {
 	import ast.Par, syntax.Keys, ast.Constante;
-	aux.removeGarbage ();
 	if (this._token != Tokens.AND) {
 	    try {
 		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);
@@ -73,20 +67,7 @@ class BefUnary : Expression {
 		return null;
 	    }
 	} return null;
-    }
-    
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._elem)
-	    this._elem.removeGarbage ();
-    }
-    
-    override void garbage () {
-	super.garbage ();
-	if (this._elem)
-	    this._elem.garbage ();
-    }
-    
+    }        
 
     override Expression templateExpReplace (Expression [string] values) {
 	return new BefUnary (this._token, this._elem.templateExpReplace (values));
@@ -171,7 +152,6 @@ class AfUnary : Expression {
     
     private auto findOpUnary (BefUnary aux) {
 	import ast.Par, syntax.Keys, ast.Constante;
-	aux.removeGarbage ();
 	if (this._token != Tokens.AND) {
 	    try {
 		auto word = Word (this._token.locus, Keys.OPUNARY.descr, true);

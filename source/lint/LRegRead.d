@@ -39,7 +39,7 @@ class LRegRead : LExp {
     
     override string toString () {
 	return this._data.toString () ~ "["
-	    ~ this._beginStatic.toString () ~ "+" ~ this._size.simple ~ "]";
+	    ~ this._beginStatic.toString () ~ ":" ~ this._size.simple ~ "]";
     }
     
 }

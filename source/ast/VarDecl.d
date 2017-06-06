@@ -58,7 +58,6 @@ class VarDecl : Instruction {
 			aux.info = new Symbol (aux.token, type.info.type.clone (), true);
 			aux.info.value = type.info.type.value;
 			if (!aux.info.isImmutable) throw new NotImmutable (this._insts [id].info);
-			type.removeGarbage ();
 			Table.instance.insert (aux.info);
 			auxDecl._decls.insertBack (aux);
 			this._insts [id] = null;
@@ -81,7 +80,7 @@ class VarDecl : Instruction {
 			aux.info.staticValue = type.info.type.value;
 			if (!aux.info.isStatic)
 			    throw new NotImmutable (this._insts [id].info);
-			type.removeGarbage ();
+
 			Table.instance.insert (aux.info);
 			auxDecl._decls.insertBack (aux);
 			this._insts [id] = null;

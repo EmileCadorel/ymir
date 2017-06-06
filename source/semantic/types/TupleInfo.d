@@ -15,9 +15,7 @@ class TupleInfo : InfoType {
     /** Les paramètres du tuple */
     private Array!InfoType _params;    
 
-    this () {
-	this._destruct = &StructUtils.InstDestruct;
-    }
+    this () {}
     
     /** Returns: les paramètres du tuple */
     ref Array!InfoType params () {
@@ -110,7 +108,6 @@ class TupleInfo : InfoType {
 		type.lintInst = &TupleUtils.Attrib;
 		type.leftTreatment = &TupleUtils.GetAttrib;
 		type.isConst = false;
-		type.isGarbaged = false;
 		return type;
 	    }
 	    return null;
@@ -143,7 +140,6 @@ class TupleInfo : InfoType {
 	foreach (it; this._params) {
 	    tu._params .insertBack (it.clone ());
 	}
-	if (this._destruct is null) tu.setDestruct (null);
 	tu.value = this._value;
 	tu._isType = this._isType;
 	return tu;
@@ -212,14 +208,6 @@ class TupleInfo : InfoType {
 	return ret;
     }
     
-    override InfoType destruct () {
-	if (this._destruct is null || this._isType) return null;
-	auto ret = this.clone ();
-	ret.setDestruct (this._destruct);
-	return ret;
-    }
-
-
     override LSize size () {
 	return LSize.LONG;
     }

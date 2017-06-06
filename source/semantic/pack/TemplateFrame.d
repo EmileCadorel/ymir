@@ -128,9 +128,7 @@ class TemplateFrame : Frame {
 	    if (!TemplateSolver.isSolved (this._function.tmps, tmps)) return null;
 	    
 	    if (this._function.test) {
-		Table.instance.pacifyMode ();		
 		auto valid = func.test.templateExpReplace (tmps) .expression ();
-		Table.instance.unpacifyMode ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
 		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
 	    }
@@ -175,7 +173,6 @@ class TemplateFrame : Frame {
 
     private string computeTempName (string name) {
 	string un = this._name;	    
-	Table.instance.pacifyMode ();
 	un ~= "(";
 	foreach (it ; func.tmps) {
 	    if (auto _val = it.expression ().info.value) un ~= _val.toString;		    
@@ -184,7 +181,6 @@ class TemplateFrame : Frame {
 	    if (it !is func.tmps [$ - 1]) un ~= ",";
 	    else un ~= ")";		
 	}	
-	Table.instance.unpacifyMode ();
 	return un;
     }
     
@@ -238,9 +234,7 @@ class TemplateFrame : Frame {
     	Array!Expression vars;
     	totals.length = this._function.tmps.length;
 
-    	Table.instance.pacifyMode ();
 	auto res = TemplateSolver.solve (this._function.tmps, params);
-    	Table.instance.unpacifyMode ();
 
 	if (!res.valid)
 	    return null;
@@ -263,9 +257,7 @@ class TemplateFrame : Frame {
 	
     	if (TemplateSolver.isSolved (this._function.tmps, res)) {	    
     	    if (func.test) {		
-    		Table.instance.pacifyMode ();
     		auto valid = func.test.expression ();
-    		Table.instance.unpacifyMode ();
     		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
     		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
     	    }

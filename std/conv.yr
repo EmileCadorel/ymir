@@ -14,7 +14,7 @@ def to (T of string)  (a : ptr!char) : string {
     let ret = [*a];
     a = a + 1;
     while (*a != 0ub) {
-	ret += [*a];
+	ret = ret + [*a];
 	a = a + 1;
     }
     return cast:string (ret);

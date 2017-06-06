@@ -20,7 +20,6 @@ import ast.Constante;
 class StringInfo : InfoType {
 
     this () {
-	this._destruct = &StringUtils.InstDestruct;
     }
 
     /**
@@ -246,7 +245,6 @@ class StringInfo : InfoType {
 	auto type = cast (ArrayInfo) info;
 	if (type && cast (CharInfo) type.content) {
 	    auto other = new ArrayInfo (new CharInfo);
-	    other.setDestruct (null);
 	    other.lintInstS.insertBack (&StringUtils.InstCastArray);
 	    return other;
 	}
@@ -292,9 +290,7 @@ class StringInfo : InfoType {
     override InfoType DotOp (Var var) {
 	InfoType ret = null;
 	if (var.templates.length != 0) return null;
-	if (var.token.str == "nbRef") ret = NbRef ();
 	if (var.token.str == "length") ret = Length ();
-	else if (var.token.str == "dup") ret = Dup ();
 	else if (var.token.str == "typeid") return StringOf ();
 	else if (var.token.str == "ptr") ret = Ptr ();
 	if (ret && this._value) ret.value = this._value.DotOp (var);
@@ -322,16 +318,6 @@ class StringInfo : InfoType {
     }
 
     /**
-     Le nombre de référence vers le string;
-     Returns: un type int.
-    */
-    private InfoType NbRef () {
-	auto _int = new DecimalInfo (DecimalConst.ULONG);
-	_int.lintInst = &StringUtils.InstNbRef;
-	return _int;
-    }
-
-    /**
      Le taille de la chaine.
      Returns: un type long.
      */
@@ -339,17 +325,6 @@ class StringInfo : InfoType {
 	auto _int = new DecimalInfo (DecimalConst.ULONG);
 	_int.lintInst = &StringUtils.InstLength ;
 	return _int;
-    }
-
-    /**
-     Une copie de la chaine.
-     Returns: un type string.
-     */
-    private InfoType Dup () {
-	auto str = new StringInfo ();
-	str.lintInst = &StringUtils.InstDup;
-	str.isConst = false;
-	return str;
     }
 
     /**
@@ -382,7 +357,6 @@ class StringInfo : InfoType {
 	    auto ch = new CharInfo;
 	    ch.lintInstMult = &StringUtils.InstAccessS;
 	    ch.isConst = false;
-	    ch.setDestruct (null);
 	    if (this._value)
 		ch.value = this._value.AccessOp (expr);
 	    return ch;
@@ -411,7 +385,6 @@ class StringInfo : InfoType {
     override InfoType clone () {
 	auto ret = new StringInfo ();
 	ret.value = this._value;
-	if (this._destruct is null) ret._destruct = null;
 	return ret;
     }
 
@@ -428,16 +401,6 @@ class StringInfo : InfoType {
      */
     override LSize size () {
 	return LSize.LONG;
-    }
-
-    /**
-     Returns: Le type contenant les informations de destruction.
-     */
-    override InfoType destruct () {
-	if (this._destruct is null) return null;
-	auto ret = new StringInfo ();
-	ret.setDestruct (this._destruct);
-	return ret;
     }
 
 }

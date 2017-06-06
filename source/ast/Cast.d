@@ -62,23 +62,6 @@ class Cast : Expression {
 	    return aux;
 	}
     }
-
-    override void removeGarbage () {
-	super.removeGarbage ();
-	if (this._type)
-	    this._type.removeGarbage ();
-	if (this._expr)
-	    this._expr.removeGarbage ();
-    }
-    
-    override void garbage () {
-	super.garbage ();
-	if (this._type)
-	    this._type.garbage ();
-	if (this._expr)
-	    this._expr.garbage ();
-    }
-
     
     override Expression templateExpReplace (Expression [string] values) {
 	auto type = cast (Var) this._type.templateExpReplace (values);

@@ -54,7 +54,6 @@ class Is : Expression {
     override Expression expression () {
 	if (this._type) {
 	    import semantic.types.StructInfo;
-	    Table.instance.pacifyMode ();
 	    auto aux = new Is (this._token, this._left.expression, this._type.expression);
 	    if (!(cast (Type) aux._type) &&
 		!(cast (StructCstInfo) aux._type.info.type) &&
@@ -66,11 +65,9 @@ class Is : Expression {
 	    auto type = new BoolInfo ();
 	    aux._info = new Symbol (this._token, type, true);
 	    aux._info.value = new BoolValue (res);
-	    Table.instance.unpacifyMode ();
 	    return aux;
 	} else {
 	    import semantic.types.PtrFuncInfo;
-	    Table.instance.pacifyMode ();
 	    auto aux = new Is (this._token, this._left.expression, this._expType);
 	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
 	    auto type = new BoolInfo ();
@@ -86,7 +83,6 @@ class Is : Expression {
 		    cast (StructCstInfo) (aux._left.info.type) !is null
 		);
 	    }
-	    Table.instance.unpacifyMode ();
 	    return aux;
 	}
     }
