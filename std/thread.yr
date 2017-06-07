@@ -16,6 +16,13 @@ def thread (T) (fun : fn (T)->void, data) {
     return Thread (ret);
 }
 
+def thread (fun : fn ()->void) : Thread {
+    let ret = 0UL;
+    let aux = cast:fn (ptr!(void))->void (fun);
+    pthread_create (&ret, null, aux, null);
+    return Thread (ret);
+}
+
 def join (th : Thread) {
     pthread_join (th.id, null);
 }

@@ -950,12 +950,17 @@ class Visitor {
     private Expression visitPthPar (Word token) {
 	Array!Expression params;
 	Expression exp;
-	Word tok;
+	Word tok, next;
 	bool isTuple = false;
 	if (this._lambdaPossible && canVisitVarDeclaration ()) return visitLambda ();
 	tok = this._lex.next ();	
-	if (tok == Tokens.RPAR) isTuple = true;
-	else {
+	if (tok == Tokens.RPAR) {
+	    this._lex.next (next).rewind ();	
+	    if (next == Tokens.LACC || next == Tokens.IMPLIQUE) {
+		return visitLambdaEmpty ();
+	    }
+	    isTuple = true;
+	} else {
 	    this._lex.rewind ();
 	    while (true) {
 		params.insertBack (visitExpressionUlt ());
@@ -963,13 +968,13 @@ class Visitor {
 		if (tok == Tokens.RPAR) break;
 		else {
 		    isTuple = true;
-		    auto next = this._lex.next ();
+		    next = this._lex.next ();
 		    if (next == Tokens.RPAR) break;
 		    else this._lex.rewind ();
 		}
 	    }
 	}
-	
+		
 	if (params.length != 1 || isTuple) exp = new ConstTuple (token, tok, params);
 	else exp = params[0];
 	
@@ -1327,6 +1332,17 @@ class Visitor {
 	return new FuncPtr (begin, params, ret);
     }
 
+    private Expression visitLambdaEmpty () {
+	auto next = this._lex.next (Tokens.IMPLIQUE, Tokens.LACC);
+	if (next == Tokens.IMPLIQUE) {
+	    auto expr = visitExpressionUlt ();
+	    return new LambdaFunc (next, make!(Array!Var), expr);
+	} else {
+	    this._lex.rewind ();
+	    return new LambdaFunc (next, make!(Array!Var), visitBlock ());
+	} 
+    }
+    
     private Expression visitLambda () {
 	Array!Var params;
 	this._lex.rewind ();

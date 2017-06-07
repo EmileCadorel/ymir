@@ -1,3 +1,4 @@
+import std.thread;
 
 struct Test {
     a : int
@@ -12,5 +13,8 @@ self () {
 }
 
 def main () {
-    println (Single.a);
+    let th = thread (
+        () => println ("Lancé, ", Single.a)        
+    );
+    th.join ();
 }

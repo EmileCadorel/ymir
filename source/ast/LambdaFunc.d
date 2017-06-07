@@ -11,6 +11,7 @@ import semantic.types.VoidInfo;
 import semantic.pack.FrameTable;
 import semantic.pack.FrameProto;
 import semantic.pack.FinalFrame;
+import ast.Declaration, ast.Instruction, ast.Return;
 import std.conv;
 
 /**
@@ -116,11 +117,49 @@ class LambdaFunc : Expression {
     }
 
     private Expression expressionWithExpr () {
-	import ast.Instruction, ast.Declaration, ast.Return;
-	Array!Instruction insts;
-	insts.insertBack (new Return (this._expr.token, this._expr));
-	auto block = new Block (this._expr.token, make!(Array!Declaration) (), insts);
-	return new LambdaFunc (this._token, this._params, block).expression ();
+	auto token = Word (this._token.locus, "lambda_" ~ to!string (getLast ()),false);
+	
+	auto space = Table.instance.namespace;
+	Table.instance.enterFrame (space, token.str, this._params.length, true);
+	Table.instance.enterBlock ();
+	
+	Expression [] temp;
+	temp.length = this._params.length + 1;
+	if (this._ret !is null)
+	    temp [0] = this._ret.asType ();
+	else temp [0] = null;
+	
+	foreach (it ; 0 .. this._params.length) {	    
+	    if (auto t = cast(TypedVar) this._params [it])
+		temp [it + 1] = new Type (t.type.token, t.getType ().clone ());
+	    else throw new NeedAllType (this._params[it].token, "lambda");
+	}
+	
+	Symbol retInfo = this._ret !is null ? this._ret.asType ().info : null;	
+	auto finalParams = Frame.computeParams (this._params);
+	auto inst = this._expr.expression;	
+	if (cast (VoidInfo) inst.info.type is null) {
+	    this._block = new Block (this._expr.token, make!(Array!Declaration),
+				     make!(Array!Instruction) (new Return (this._expr.token, this._expr)));
+	} else {
+	    this._block = new Block (this._expr.token, make!(Array!Declaration),
+				     make!(Array!Instruction) (this._expr));
+	}
+	
+	this._proto = Frame.validate (token, space, space, retInfo, finalParams, this._block, make!(Array!Expression));
+	
+	if (temp [0] is null) {
+	    temp [0] = new Type (token, this._proto.type.type.cloneForParam);
+	}
+
+	auto word = Word (this._token.locus, Keys.FUNCTION.descr, true);
+	auto t_info = InfoType.factory (word, temp);
+
+	auto ret = new LambdaFunc (this._token, finalParams, this._ret, block);
+	ret._info = new Symbol (this._token, t_info, true);
+	
+	ret._proto = this._proto;
+	return ret;
     }
         
     override Expression templateExpReplace (Expression [string] values) {
