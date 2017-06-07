@@ -1,25 +1,16 @@
-extern (C) pthread_create (th : ptr!ulong, attr : ptr!void, fun : fn (ptr!void)->void, data : ptr!void);
-extern (C) pthread_join (th : ulong, attr : ptr!void);
+import std.thread;
 
-def thread (T) (fun : fn (T)->void, data) {
-    let ret = 0UL;
-    let aux = cast:fn (ptr!(void))->void (fun);
-    pthread_create (&ret, null, aux, data.ptr);
-    return ret;
-}
-
-def join (th : ulong) {
-    pthread_join (th, null);
+def test (data : tuple!(int, float, string)) {
+    let (a, b, c) = data;
+    println ("LANCÉ ", c);
+    println (a, ' ', b);    
 }
 
 def main () {
-    let th = thread (
-        (data : tuple!(int, int, int)) {
-            let (a, b, c) = data;
-            println (a, ' ', b, ' ', c);
-        },
-        (1, 2, 3)
-    );
-
-    th.join ();
+    for it in 0 .. 100 {
+        let th = thread (&test, 1, 2.3, "salut");
+        th.join ();
+    }
+    
+    println ("FIN");
 }
