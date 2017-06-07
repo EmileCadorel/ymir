@@ -26,6 +26,7 @@ class Self : Declaration {
 	foreach (it ; ot.insts) {
 	    Table.instance.addStaticInit (it);
 	}
+	Table.instance.quitFrame ();
     }
 
     override void declareAsExtern (Module) {
