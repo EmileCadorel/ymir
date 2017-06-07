@@ -61,6 +61,13 @@ class Mangler {
 	return buf.toString;
     }       
 
+    static string mangle (string type : "function") (Namespace namespace) {
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%sPF", mangle!"namespace" (namespace.toString));
+	buf.writef ("Zv");
+	return buf.toString;
+    }       
+    
     static string mangle (string type : "namespace") (string name) {
 	auto buf = new OutBuffer;
 	while (true) {

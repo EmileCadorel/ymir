@@ -82,32 +82,6 @@ string preCompiled (string name) {
     return null;
 }
 
-string compileTemplates (string name) {
-    Array!LFrame frames;
-    auto visitor = new LVisitor ();
-    foreach (it ; FrameTable.instance.templates) {
-	frames.insertBack (visitor.visit (it));
-    }
-    
-    foreach (key, value ; LFrame.preCompiled) {
-	if (!value.isStd) {
-	    frames.insertBack (value);
-	}
-	LFrame.preCompiled.remove (key);
-    }
-    
-    debug {
-	writeln (" ------------------------ TEMPLATES ------------------------");
-	foreach (it ; frames) {
-	    writeln (it);
-	}
-	writeln (" ------------------------ FIN-TEMPLATES ------------------------");
-    }
-    
-    auto target = targetTime (frames);
-    toFile (target, name);
-    return name;
-}
 
 void toFile (Array!TFrame frames, string filename) {
     auto file = File (filename, "w");
@@ -156,7 +130,6 @@ void main (string [] args) {
 	    files ~= [file ~ ".s"];
 	}
 
-	//files ~= [compileTemplates ("__templates__.s")];
 	if (auto name = preCompiled ("__precompiled__.s"))
 	    files ~= [name];	
 

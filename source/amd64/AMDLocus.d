@@ -47,8 +47,12 @@ class AMDLocus : TInst {
 
     this (Location locus) {
 	this._loc = locus;
-	if (this._loc.file != "" && this._loc.file.extension == ".yr") 
+	if (this._loc.file != "" && this._loc.file.extension == ".yr") {
+	    if ((locus.file in AMDFile.__locusFiles__) is null) 
+		auto fl = new AMDFile (locus.file);
+	    
 	    this._id = AMDFile.__locusFiles__ [locus.file];
+	}
     }
 
     Location loc () {

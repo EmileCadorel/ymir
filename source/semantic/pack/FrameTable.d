@@ -28,6 +28,7 @@ class FrameTable {
     /** La liste des structures declaré */
     private Array!StructCstInfo _structs;
 
+    
     /**
      Insertion d'une nouvelle frame pure
      Params:

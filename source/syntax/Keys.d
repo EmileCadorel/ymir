@@ -47,5 +47,6 @@ enum Keys : Token {
     REF = Token ("ref", 51),
     PROTECTED = Token ("protected", 53),
     MIXIN = Token ("mixin", 54),
-    OF = Token ("of", 55)
+    OF = Token ("of", 55),
+    SELF = Token ("self", 56)
 }

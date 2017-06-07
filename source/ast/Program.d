@@ -31,11 +31,13 @@ class Program {
     /**
      Declare les informations dans la table de symbole
      */
-    void declare () {
+    void declare () {	
 	string name = this._locus.locus.file;
 	if (name.extension == ".yr")
 	    name = name [0 .. name.lastIndexOf (".")];
 	Table.instance.setCurrentSpace (null, Mangler.mangle!"file" (name));
+	Table.instance.addForeignModule (Table.instance.globalNamespace);	
+	    
 	foreach (it ; __declareAtBegins__) {
 	    if (this._locus.locus.file != it.str ~ ".yr") {
 		auto _imp = new Import (it, make!(Array!Word)(it));

@@ -21,6 +21,9 @@ class Table {
     /++ Liste des modules importé dans la vie de la compilation +/
     private Array!Module _importation;
 
+    /++ Liste de modules compilé, par nécéssairement importé +/
+    private Array!Namespace _foreigns;
+    
     /** Le contexte courant */
     private Namespace _namespace;
 
@@ -312,6 +315,16 @@ class Table {
     }    
 
     /++
+     Ajoute un module (non utilisable)
+     Params:
+     name = le namespace du module
+     +/
+    void addForeignModule (Namespace space) {
+	if (!this.moduleExists (space))
+	    this._foreigns.insertBack (space);
+    }
+    
+    /++
      Retourne la liste des modules autorisé au namespace
      Params:
      space = le namespace qui à des accés.
@@ -383,6 +396,23 @@ class Table {
 	return spaces;
     }    
 
+    /++ 
+     La liste des modules connu de la table des symbole.
+     Returns: les namespaces de chacun des modules.
+     +/
+    Array!Namespace modulesAndForeigns () {
+	Array!Namespace spaces;
+	foreach (it ; this._importation) {
+	    spaces.insertBack (it.space);
+	}
+
+	foreach (it ; this._foreigns)
+	    spaces.insertBack (it);
+	
+	return spaces;
+    }    
+
+    
     /**
      On a déja importé ce module ?
      */

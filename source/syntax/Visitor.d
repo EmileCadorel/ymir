@@ -87,6 +87,8 @@ class Visitor {
 	    else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
+	    else if (word == Keys.STATIC) decls.insertBack (this.visitGlobal ());
+	    else if (word == Keys.SELF) decls.insertBack (this.visitSelf ());
 	    else if (word == Keys.PUBLIC) {
 		auto pub_decls = visitPublicBlock ();
 		foreach (it ; pub_decls) decls.insertBack (it);
@@ -153,7 +155,40 @@ class Visitor {
 	}
 	return decls;
     }	
-        
+
+    private Self visitSelf () {
+	Array!Instruction insts;
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	this._lex.next (Tokens.LPAR);
+	this._lex.next (Tokens.RPAR);
+	return new Self (begin, visitBlock ());	
+    }    
+    
+    /++
+     global = 'static' (Identifiant '=' expression) ';'
+     +/
+    private Global visitGlobal () {
+	this._lex.rewind ();
+	auto begin = this._lex.next ();
+	auto ident = visitIdentifiant ();	
+	auto next = this._lex.next (Tokens.EQUAL, Tokens.COLON);
+	if (next == Tokens.EQUAL) {
+	    auto expr = visitExpression ();
+	    this._lex.next (Tokens.SEMI_COLON);
+	    return new Global (ident, expr);
+	} else {
+	    Expression type;
+	    next = this._lex.next ();
+	    if (next == Keys.FUNCTION) type = visitFuncPtrSimple ();
+	    else {
+		this._lex.rewind ();
+		type = visitType ();
+	    }
+	    this._lex.next (Tokens.SEMI_COLON);
+	    return new Global (ident, null, type);
+	}
+    }
     
     /**
      import := 'import' (Identifiant ('.' Identifiant)*) (',' Identifiant ('.' Identifiant))* ';'

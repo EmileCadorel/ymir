@@ -1,13 +1,16 @@
 
-def test () {
-    let static b = 12;
-    b ++;
-    println (b);
+struct Test {
+    a : int
+}
+
+static array = [1, 2, 3];
+static Single : Test;
+
+self () {
+    println ("ici");
+    Single = Test (12);
 }
 
 def main () {
-    let static c = "j";
-    println (c);
-    test ();
-    test ();
+    println (Single.a);
 }

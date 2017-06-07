@@ -73,6 +73,21 @@ class LVisitor {
     static LPairLabel isInCondition () {
 	return __currentCondition__;
     }
+
+    LFrame computeStaticInit () {
+	auto last = LReg.lastId;
+	LReg.lastId = 0;
+	auto ret = new LReg (LSize.NONE);
+	auto entry = new LLabel (new LInstList);
+	auto end = new LLabel (new LInstList);
+	foreach (it ; Table.instance.staticInits) {
+	    visitInstruction (entry, end, ret, it);
+	}
+	auto name = new Namespace (Table.instance.globalNamespace, "self");
+	auto fr = new LFrame (Mangler.mangle!"function" (name), entry, end, null, make!(Array!LReg));
+	LReg.lastId = last;
+	return fr;
+    }
     
     /**
      On visite toutes les frames sémantiques
@@ -89,6 +104,9 @@ class LVisitor {
 	    }
 	    LFrame.preCompiled.remove (key);
 	}
+
+	if (Table.instance.globalNamespace !is null)
+	    frames.insertBack (computeStaticInit ());
 	
 	return frames;
     }
@@ -120,8 +138,13 @@ class LVisitor {
 	    }
 	}
 
-	if (semFrame.name == Keys.MAIN.descr) {
-	    semFrame.block.insts = Table.instance.staticInits ~ semFrame.block.insts;
+	if (semFrame.name == Keys.MAIN.descr)  {	    
+	    foreach (it ; Table.instance.modulesAndForeigns) {
+		auto namespace = new Namespace (it, "self");
+		entry.insts += new LCall (Mangler.mangle!"function" (namespace),
+					  make!(Array!LExp),
+					  LSize.NONE);
+	    }
 	}
 	
 	visit (entry, end, retReg, semFrame.block);

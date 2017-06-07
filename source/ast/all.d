@@ -45,3 +45,5 @@ public import ast.OfVar;
 public import ast.Match;
 public import ast.DColon;
 public import ast.TupleDest;
+public import ast.Global;
+public import ast.Self;
