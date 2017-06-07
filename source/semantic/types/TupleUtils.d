@@ -81,7 +81,7 @@ class TupleUtils {
 	    }	    
 	}
 
-	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	
 	inst += new LRegRead (null, size, ret.size);
 	return inst;

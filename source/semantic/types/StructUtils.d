@@ -24,7 +24,7 @@ class StructUtils {
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	auto interne = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
@@ -54,14 +54,12 @@ class StructUtils {
 		interne += type.lintInst (llist, rlist);
 	    } else assert (false, typeid (it).toString);
 	    
-	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 						 
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
-				   new LConstDecimal (1, LSize.LONG));
-
 	entry.insts += interne;
+	
 	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
 	fr.isStd = false;
 	LFrame.preCompiled [__CstName__ ~ name] = fr;	
@@ -77,7 +75,7 @@ class StructUtils {
 	auto entry = new LLabel (new LInstList), end = new LLabel;
 	auto interne = new LInstList;
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 
 	Word aff = Word.eof;
 	aff.str = Tokens.EQUAL.descr;
@@ -104,12 +102,10 @@ class StructUtils {
 	    else
 		interne += new LWrite (left, new LConstDouble (0));
 	    
-	    size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 	
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
-	entry.insts += new LWrite (new LRegRead (retReg, new LConstDecimal (0, LSize.INT), LSize.LONG),
-				   new LConstDecimal (1, LSize.LONG));
 	entry.insts += interne;
 	
 	auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
@@ -228,7 +224,7 @@ class StructUtils {
 	    }	    
 	}
 
-	auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	
 	inst += new LRegRead (null, size, ret.size);
 	return inst;
@@ -265,15 +261,6 @@ class StructUtils {
 	return llist;
     }
 
-
-    static LInstList InstNbRef (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT), LSize.LONG);
-	return inst;
-    }
-
     static LInstList InstTupleOf (LInstList, LInstList list) {
 	return list;
     }
@@ -282,7 +269,7 @@ class StructUtils {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
 	inst += list;
-	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (2, LSize.INT, LSize.LONG), Tokens.PLUS);
+	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), Tokens.PLUS);
 	return inst;
     }
     

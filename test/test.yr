@@ -1,34 +1,41 @@
-import std.conv;
-import std.array;
-import core.array;
+// extern (C) pthread_create (th : ptr!ulong, attr : ptr!void, fun : fn (ptr!void) : void, data : ptr!void);
+// extern (C) pthread_join (th : ulong, attr : ptr!void);
 
-def append (ref str : string, c : char) : string {
-    let aux = [char; str.length + 1ul];
-    for (it in 0UL .. str.length) {
-	aux [it] = str [it];
-    }
-    
-    aux [aux.length - 1ul] = c;
-    str = cast:string (aux);
-    return str;
+// def thread (fun : fn (ptr!(void)) : void, data) {
+//     let ret = 0UL;
+//     pthread_create (&ret, null, fun, data.ptr);
+//     return ret;
+// }
+
+// def join (th : ulong) {
+//     pthread_join (th, null);
+// }
+
+// def main () {
+//     let th = thread (
+//         (data : ptr!(void)) {
+//             let real = cast:tuple!(int, int, int) (data);
+//             let (a, b, c) = real;
+//             println (a, ' ', b, ' ', c);
+//         },
+//         (1, 2, 3)
+//     );
+
+//     th.join ();
+// }
+
+struct Test {
+    a : int,
+    b : float
 }
 
-/**   
-   Params:
-   str = le texte a splitter
-   Returns: un tableau de chaine, chaque case correspond à une ligne
- */
-def splitLines (str : string) : [string] {
-    let ret = [""];
-    for (it in 0U .. str.length) {
-        if (str [it] == '\n') ret = ret + [""];
-        else ret [ret.length - 1ul].append (str [it]);        
-    }
-    return ret;
+def foo (a : int, b : float) {    
+}
+
+def test (a) {
+    foo (a.a, a.b);
 }
 
 def main () {
-    let a = "salut" + "h";
-    a += "ku";
+    test (Test (1, 2.));
 }
-

@@ -504,11 +504,10 @@ class StructInfo : InfoType {
      On peut aussi acceder au attributs de cette manière.
      */
     override InfoType DotOp (Var var) {
-	if (var.templates.length != 0) {
+	if (var.templates.length == 0) {
 	    if (var.token.str == "init") return Init ();
 	    else if (var.token.str == "typeid") return StringOf ();
 	    else if (var.token.str == "typename") return TypeName ();
-	    else if (var.token.str == "nbRef") return nbRef ();
 	    else if (var.token.str == "tupleof") return TupleOf ();
 	    else if (var.token.str == "ptr") return Ptr ();
 	    else if (var.token.str == "sizeof") return SizeOf ();	    
@@ -613,14 +612,7 @@ class StructInfo : InfoType {
 	str.value = new StringValue (this._name);
 	return str;
     }
-
-    
-    private InfoType nbRef () {
-	auto nb = new DecimalInfo (DecimalConst.ULONG);
-	nb.lintInst = &StructUtils.InstNbRef;
-	return nb;
-    }
-    
+       
     /**
      Accés à un paramètre de la structure.
      */

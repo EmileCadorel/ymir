@@ -9,6 +9,7 @@ import semantic.types.StringInfo;
 import semantic.types.StructInfo;
 import semantic.types.NullInfo;
 import semantic.types.DecimalInfo;
+import semantic.types.TupleInfo;
 
 /**
  Classe contenant les informations sur un type pointeur.
@@ -395,6 +396,10 @@ class PtrInfo : InfoType {
 	    auto ptr = new PtrInfo (type.content.clone ());
 	    ptr.lintInstS.insertBack (&PtrUtils.InstCast);
 	    return ptr;
+	} else if (auto tu = cast (TupleInfo) other) {
+	    auto ot = tu.cloneForParam ();
+	    ot.lintInstS.insertBack (&PtrUtils.InstCast);
+	    return ot;
 	}
 	return null;
     }

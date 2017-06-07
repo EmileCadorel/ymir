@@ -496,7 +496,14 @@ class LVisitor {
 	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
 	    inst += visitExpression (it);
-	    exps.insertBack (inst.getFirst ());	    
+	    auto exp = inst.getFirst ();
+	    if (auto cal = cast (LCall) exp) {
+		auto aux = new LReg (cal.size);
+		inst += cal;
+		inst += new LWrite (aux, cal);
+		exp = aux;
+	    } 
+	    exps.insertBack (exp);	    
 	}
 
 	string tupleName = Mangler.mangle!"tuple" (new Namespace (_tuple.token.locus.file), _tuple.info.type.simpleTypeString ());
@@ -704,7 +711,13 @@ class LVisitor {
 		for (long nb = treat [it].lintInstS.length - 1; nb >= 0; nb--) {
 		    elist = treat [it].lintInst (elist, nb);
 		}
-
+	    
+	    auto curr = elist.getFirst ();
+	    if (auto call = cast (LCall) curr) {
+		auto aux = new LReg (call.size);
+		elist += call;
+		elist += new LWrite (aux, call);		
+	    } else elist += curr;
 	    rights.insertBack (elist);
 	}
     }
@@ -732,7 +745,7 @@ class LVisitor {
 		}	    
 	    }
 	    
-	    auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
 	    return inst;
 	} else if (auto type = cast (StructInfo) expand.expr.info.type) {
@@ -751,7 +764,7 @@ class LVisitor {
 		}	    
 	    }
 	    
-	    auto size = ClassUtils.addAllSize (nbLong + 2, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	    inst += new LRegRead (tuple, size, type.params[expand.index].size);
 	    return inst;
 	} else assert (false, typeid (expand.expr).toString);
