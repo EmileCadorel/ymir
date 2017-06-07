@@ -4,6 +4,7 @@ import semantic.pack.FrameScope, semantic.pack.Scope;
 import std.container;
 import semantic.pack.Module;
 import semantic.pack.Namespace;
+import ast.Instruction;
 import utils.exception, syntax.Word;
 
 /**
@@ -26,6 +27,8 @@ class Table {
     private ulong _nbFrame = 0;
     
     private immutable __maxNbRec__ = 300;
+
+    private Array!(Instruction) _staticInits;
     
     private this () {
 	_globalScope = new Scope ();
@@ -126,12 +129,27 @@ class Table {
      info = le symbole à insérer.
      */
     void insert (Symbol info) {
-	if (info !is null) info.setId ();
 	if (this._frameTable.empty) {
 	    _globalScope [info.sym.str] = info;
 	} else {
 	    this._frameTable.front.insert (info.sym.str, info);
 	}
+    }
+
+    /++
+     Ajoute une instruction a executé en debut de programme
+     Params:
+     exp = l'Instruction à executé
+     +/
+    void addStaticInit (Instruction exp) {
+	this._staticInits.insertBack (exp);
+    }
+
+    /++
+     La liste des instructions a éffectué en tout début de programme.
+     +/
+    Array!Instruction staticInits () {
+	return this._staticInits;
     }
     
     /**

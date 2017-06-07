@@ -1,15 +1,26 @@
 
-extern (C) pthread_create (th : ptr!ulong, attr : ptr!void, fun : fn (ptr!void)->void, data : ptr!void);
+extern (C) pthread_create (th : ptr!ulong, attr : ptr!void,
+                           fun : fn (ptr!void)->void, data : ptr!void);
+
 extern (C) pthread_join (th : ulong, attr : ptr!void);
+extern (C) pthread_cancel (th : ulong);
+
+struct Thread {
+    id : ulong
+}
 
 def thread (T) (fun : fn (T)->void, data) {
     let ret = 0UL;
     let aux = cast:fn (ptr!(void))->void (fun);
     pthread_create (&ret, null, aux, data.ptr);
-    return ret;
+    return Thread (ret);
 }
 
-def join (th : ulong) {
-    pthread_join (th, null);
+def join (th : Thread) {
+    pthread_join (th.id, null);
+}
+
+def cancel (th : Thread) {
+    pthread_cancel (th.id);
 }
 

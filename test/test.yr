@@ -1,16 +1,13 @@
-import std.thread;
 
-def test (data : tuple!(int, float, string)) {
-    let (a, b, c) = data;
-    println ("LANCÉ ", c);
-    println (a, ' ', b);    
+def test () {
+    let static b = 12;
+    b ++;
+    println (b);
 }
 
 def main () {
-    for it in 0 .. 100 {
-        let th = thread (&test, 1, 2.3, "salut");
-        th.join ();
-    }
-    
-    println ("FIN");
+    let static c = "j";
+    println (c);
+    test ();
+    test ();
 }

@@ -857,7 +857,7 @@ class AMDVisitor : TVisitor {
 		AMDData.insts += new AMDType (reg.name ~ '.' ~ reg.id.to!string, AMDTypes.OBJECT);
 		AMDData.insts += new AMDInstSize (reg.name ~ '.' ~ reg.id.to!string, getSize (reg.size).size.to!string);
 		auto label = new AMDLabel (reg.name ~ '.' ~ reg.id.to!string, new TInstList);
-		label.inst +=  new AMDLong (reg.value);
+		label.inst +=  new AMDLong ("0");
 		AMDData.insts += label;
 		AMDData.add (reg.name ~ reg.id.to!string);
 	    }

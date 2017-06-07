@@ -21,6 +21,7 @@ import semantic.types.ClassUtils;
 import semantic.value.all;
 import lint.LUnop, lint.LReserve;
 import utils.Mangler;
+import semantic.pack.Table;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -117,6 +118,10 @@ class LVisitor {
 		} else list = new LInstList (ret);
 		entry.insts += compS.lintInst (list);
 	    }
+	}
+
+	if (semFrame.name == Keys.MAIN.descr) {
+	    semFrame.block.insts = Table.instance.staticInits ~ semFrame.block.insts;
 	}
 	
 	visit (entry, end, retReg, semFrame.block);
@@ -663,7 +668,7 @@ class LVisitor {
 	if (elem.info.value && !elem.info.isStatic)
 	    return elem.info.value.toLint (elem.info);
 	else if (elem.info.isStatic) {
-	    return new LInstList (new LReg (elem.info.id, elem.info.type.size, elem.token.str, elem.info.staticValue.toString));
+	    return new LInstList (new LReg (elem.info.id, elem.info.type.size, elem.token.str));
 	} else {
 	    if (elem.info.isScoped)
 		return new LInstList (new LReg (elem.info.id, elem.info.type.size, true));

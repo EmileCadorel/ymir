@@ -77,12 +77,11 @@ class VarDecl : Instruction {
 		    if (auto bin = cast (Binary) this._insts [id]) {
 			auto type = bin.right.expression ();
 			aux.info = new Symbol (aux.token, type.info.type.cloneForParam (), false);
-			aux.info.staticValue = type.info.type.value;
-			if (!aux.info.isStatic)
-			    throw new NotImmutable (this._insts [id].info);
-
+			aux.info.isStatic = true;
 			Table.instance.insert (aux.info);
 			auxDecl._decls.insertBack (aux);
+			Table.instance.addStaticInit (bin.expression);
+			
 			this._insts [id] = null;
 		    } else throw new StaticWithoutValue (it.token);
 		} else {

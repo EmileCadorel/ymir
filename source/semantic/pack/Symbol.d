@@ -29,7 +29,10 @@ class Symbol {
     /** La liste des identifiants numérique de symbole (par frame) */
     private static SList!ulong __last__;
 
-    private Value _staticValue;
+    /++ La liste des identifiants numérique de symbole statique +/
+    private static ulong __lastStatic__ = 0;
+    
+    private bool _isStatic;
     
     /**
      Params:
@@ -70,7 +73,12 @@ class Symbol {
     }
 
     bool isStatic () {
-	return this._staticValue !is null;
+	return this._isStatic;
+    }
+
+    void isStatic (bool val) {
+	this._isStatic = val;
+	if (val) setStaticId ();
     }
 
     bool isType () {
@@ -81,11 +89,7 @@ class Symbol {
 
     bool isScoped () {
 	return this._type.isScopable;
-    }
-    
-    ref Value staticValue () {
-	return this._staticValue;
-    }
+    }    
 
     /**
      Returns: La valeur contenu dans l'objet (si immutable, sinon null)
@@ -183,6 +187,11 @@ class Symbol {
 	}
     }
 
+    void setStaticId () {
+	this._id = __lastStatic__ + 1;
+	__lastStatic__ ++;
+    }
+    
     /**
      Génére un clone du symbole mais de manière scopé
      */

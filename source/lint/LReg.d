@@ -8,7 +8,6 @@ class LReg : LExp {
     private ulong _id;
     private LSize _size;
     private string _name;
-    private string _value;
     private ulong _length;
     private bool _isStatic;
     private bool _scoped;
@@ -30,12 +29,11 @@ class LReg : LExp {
 	this._scoped = true;
     }
     
-    this (ulong id, LSize size, string name, string value) {
+    this (ulong id, LSize size, string name) {
 	this._id = id;
 	this._size = size;
 	this._isStatic = true;
 	this._name = name;
-	this._value = value;
     }    
     
     static ulong lastId () {
@@ -60,10 +58,6 @@ class LReg : LExp {
 	return this._name;
     }
 
-    string value () {
-	return this._value;
-    }
-    
     override bool isInst () {
 	return false;
     }
