@@ -5,6 +5,7 @@ import ast.Var;
 import syntax.Word, utils.YmirException, utils.exception;
 import semantic.pack.Symbol;
 import std.container;
+import ast.FuncPtr;
 
 
 /**
@@ -17,12 +18,12 @@ import std.container;
 class Cast : Expression {
 
     /// Le type vers lequel on cast
-    private Var _type;
+    private Expression _type;
 
     /// L'expression a caster
     private Expression _expr;
 
-    this (Word begin, Var type, Expression expr) {
+    this (Word begin, Expression type, Expression expr) {
 	super (begin);
 	this._type = type;
 	this._expr = expr;
@@ -37,20 +38,13 @@ class Cast : Expression {
      Throws: UseAsVar, si le contenu est un type, UndefinedOp.
      */
     override Expression expression () {
-	auto type = this._type.asType ();
+	auto type = this._type.expression ();
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
-
+	if (!cast (Type) type && !cast (FuncPtr) type)
+	    throw new UseAsType (type.token);
+	
 	if (expr.info.type.isSame (type.info.type)) {
-	    Warning.instance.warning_at (this._token.locus,
-					 "L'element '%s%s%s', est déjà de type '%s%s%s'",
-					 Colors.YELLOW.value,
-					 expr.token.str,
-					 Colors.RESET.value,
-					 Colors.YELLOW.value,
-					 type.info.type.typeString (),
-					 Colors.RESET.value);
-
 	    return expr;
 	} else {
 	    auto info = expr.info.type.CastOp (type.info.type);
@@ -64,14 +58,14 @@ class Cast : Expression {
     }
     
     override Expression templateExpReplace (Expression [string] values) {
-	auto type = cast (Var) this._type.templateExpReplace (values);
+	auto type = this._type.templateExpReplace (values);
 	auto expr = this._expr.templateExpReplace (values);
 	
 	return new Cast (this._token, type, expr);
     }
 
     override Expression clone () {
-	return new Cast (this._token, cast (Var) this._type.clone (), this._expr.clone ());
+	return new Cast (this._token, this._type.clone (), this._expr.clone ());
     }
 
     

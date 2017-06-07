@@ -215,6 +215,7 @@ class PtrFuncInfo : InfoType {
 	return LSize.LONG;
     }
 
+    
     /**
      Surcharge de l'operateur '()'
      Params:
@@ -255,6 +256,15 @@ class PtrFuncInfo : InfoType {
     override InfoType CompOp (InfoType other) {
 	if (other.isSame (this) || cast (UndefInfo) other) {
 	    auto ptr = this.clone ();
+	    ptr.lintInst = &PtrFuncUtils.InstAffect;
+	    return ptr;
+	}
+	return null;
+    }
+
+    override InfoType CastOp (InfoType other) {
+	if (auto fn = cast (PtrFuncInfo) other) {
+	    auto ptr = fn.clone ();
 	    ptr.lintInst = &PtrFuncUtils.InstAffect;
 	    return ptr;
 	}

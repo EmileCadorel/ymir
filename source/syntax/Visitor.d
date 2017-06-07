@@ -1219,21 +1219,25 @@ class Visitor {
      */
     private Expression visitCast () {
 	this._lex.rewind ();
+	Expression type;
 	auto begin = this._lex.next ();
-	auto word = this._lex.next ();
-	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
-	auto type = visitType ();
-	word = this._lex.next ();
-	if (word != Tokens.LPAR) throw new SyntaxError (word, [Tokens.LPAR.descr]);
+	auto word = this._lex.next (Tokens.COLON);
+	auto next = this._lex.next ();
+	if (next == Keys.FUNCTION) {
+	    type = visitFuncPtrSimple ();	    
+	} else {
+	    this._lex.rewind ();
+	    type = visitType ();
+	}
+	word = this._lex.next (Tokens.LPAR);
 	auto expr = visitExpression ();
-	word = this._lex.next ();
-	if (word !=  Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
-	return new Cast (begin, type, expr);
+	word = this._lex.next (Tokens.RPAR);
+	return new Cast (begin, type, expr);	
     }
 
 
     /**
-     func := 'function' '(' (var (',' var)*)? ')' ':' var
+     func := 'function' '(' (var (',' var)*)? ')' '->' var
      */
     private Expression visitFuncPtrSimple () {
 	Array!Var params;
@@ -1251,8 +1255,7 @@ class Visitor {
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
 	    }	    
 	}
-	word = this._lex.next ();
-	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	word = this._lex.next (Tokens.ARROW);
 	auto ret = visitType ();
 	return new FuncPtr (begin, params, ret);
     }
@@ -1277,8 +1280,7 @@ class Visitor {
 		else if (word != Tokens.COMA) throw new SyntaxError (word, [Tokens.COMA.descr, Tokens.RPAR.descr]);		
 	    }	    
 	}
-	word = this._lex.next ();
-	if (word != Tokens.COLON) throw new SyntaxError (word, [Tokens.COLON.descr]);
+	word = this._lex.next (Tokens.ARROW);
 	auto ret = visitType ();
 	word = this._lex.next ();
 	if (word == Tokens.LPAR) {

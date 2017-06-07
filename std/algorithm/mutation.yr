@@ -38,7 +38,7 @@ def reverse (T) (a : [T]) : [T] {
     return b;
 }
 
-def generate (T) (length : ulong, call : fn (ulong) : T) : [T] {
+def generate (T) (length : ulong, call : fn (ulong)->T) : [T] {
     let a = [T ; length];
     for (it in 0UL .. length) {
 	a [it] = call (it);

@@ -125,13 +125,11 @@ class FuncPtr : Expression {
 	auto buf = new OutBuffer ();
 	buf.writef ("function (");
 	foreach (it ; this._params)
-	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "):");
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : ")->");
 	buf.writef ("%s", this._ret.prettyPrint);
 	if (this._expr)
 	    buf.writef ("(%s)", this._expr.prettyPrint);
 	return buf.toString ();
     }
-    
-    
-    
+           
 }

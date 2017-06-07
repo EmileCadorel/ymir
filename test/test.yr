@@ -1,41 +1,25 @@
-// extern (C) pthread_create (th : ptr!ulong, attr : ptr!void, fun : fn (ptr!void) : void, data : ptr!void);
-// extern (C) pthread_join (th : ulong, attr : ptr!void);
+extern (C) pthread_create (th : ptr!ulong, attr : ptr!void, fun : fn (ptr!void)->void, data : ptr!void);
+extern (C) pthread_join (th : ulong, attr : ptr!void);
 
-// def thread (fun : fn (ptr!(void)) : void, data) {
-//     let ret = 0UL;
-//     pthread_create (&ret, null, fun, data.ptr);
-//     return ret;
-// }
-
-// def join (th : ulong) {
-//     pthread_join (th, null);
-// }
-
-// def main () {
-//     let th = thread (
-//         (data : ptr!(void)) {
-//             let real = cast:tuple!(int, int, int) (data);
-//             let (a, b, c) = real;
-//             println (a, ' ', b, ' ', c);
-//         },
-//         (1, 2, 3)
-//     );
-
-//     th.join ();
-// }
-
-struct Test {
-    a : int,
-    b : float
+def thread (T) (fun : fn (T)->void, data) {
+    let ret = 0UL;
+    let aux = cast:fn (ptr!(void))->void (fun);
+    pthread_create (&ret, null, aux, data.ptr);
+    return ret;
 }
 
-def foo (a : int, b : float) {    
-}
-
-def test (a) {
-    foo (a.a, a.b);
+def join (th : ulong) {
+    pthread_join (th, null);
 }
 
 def main () {
-    test (Test (1, 2.));
+    let th = thread (
+        (data : tuple!(int, int, int)) {
+            let (a, b, c) = data;
+            println (a, ' ', b, ' ', c);
+        },
+        (1, 2, 3)
+    );
+
+    th.join ();
 }
