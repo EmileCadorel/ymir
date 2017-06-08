@@ -487,6 +487,15 @@ class Visitor {
 	if (next == Keys.FUNCTION) {
 	    auto type = visitFuncPtrSimple ();
 	    return new TypedVar (ident, type, Word.eof);
+	} else if (next == Tokens.LCRO) {
+	    auto begin = next;
+	    auto type = visitType ();
+	    next = this._lex.next (Tokens.RCRO, Tokens.SEMI_COLON);
+	    if (next == Tokens.SEMI_COLON) {
+		auto len = visitNumeric (this._lex.next ());
+		this._lex.next (Tokens.RCRO);
+		return new TypedVar (ident, new ArrayAlloc (begin, type, len), Word.eof);
+	    } else return new TypedVar (ident, new ArrayVar (begin, type), Word.eof);
 	} else {
 	    _lex.rewind ();
 	    auto type = visitType ();

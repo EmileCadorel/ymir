@@ -10,7 +10,7 @@ import ast.Var;
 import utils.exception;
 import std.stdio, std.string;
 import semantic.types.DecimalInfo;
-import ast.Constante;
+import ast.Constante, ast.FuncPtr;
 import std.container;
 
 /**
@@ -49,14 +49,15 @@ class ArrayAlloc : Expression {
     override Expression expression () {
 	import semantic.types.StructInfo, ast.ParamList, semantic.pack.Table;
 	auto aux = new ArrayAlloc (this._token, null, this._size.expression);
+
+	if (auto fn = cast (FuncPtr) this._type) aux._type = fn.expression ();
+	else if (auto type = cast (Var) this._type)  aux._type = type.asType ();
+	else throw new UseAsType (this._type.token);
 	
-	aux._type = this._type.expression;
-	if (!cast (Type) aux._type && !(cast (StructCstInfo) aux._type.info.type)) throw new UseAsType (aux._type.token);
 	if (auto type = cast (StructCstInfo) aux._type.info.type) {
 	    aux._type.info.type = type.CallOp (aux._type.token, new ParamList (this._token, make!(Array!Expression))).ret;
-	}
-	
-	
+	} 
+		
 	auto ul = new Symbol (this._token, new DecimalInfo (DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);
 	if (cmp is null) throw new IncompatibleTypes (ul, aux._size.info);

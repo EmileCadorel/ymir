@@ -142,7 +142,7 @@ def to if (isTuple!(T2) ())
 def to if (is (T2 : struct))
     (T of string, T2) (elem : T2) {
 	if (elem is null) return T2.typename;	
-	else return T2.typename + "(" + addTupleComa (expand (elem.tupleof)) + ")";
+	else return T2.typename + '(' + addTupleComa (expand (elem.tupleof)) + ')';
     }
 
 def to if (is (T : [ubyte]))

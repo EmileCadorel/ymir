@@ -841,6 +841,10 @@ class LVisitor {
 	    list += visitParamList (exprs, par.score.treat, par.paramList);
 	    if (par.score.dyn) {
 		auto left = visitExpression (par.left);
+		if (par.score.left) {
+		    for (long nb = par.score.left.lintInstS.length - 1; nb >= 0; nb --) 
+			left = par.score.left.lintInst (left, nb);
+		}
 		list += left;
 		call = new LCall (left.getFirst (), exprs, par.score.ret.size, par.score.isVariadic);
 	    } else {		

@@ -79,30 +79,8 @@ class RefInfo : InfoType {
 	    refRight = type.content;
 	} else aux = this._content.BinaryOp (token, right);	
 	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-
-	    if (refRight) {
-		if (refRight.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (refRight.size == LSize.UBYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (refRight.size == LSize.SHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-		else if (refRight.size == LSize.USHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-		else if (refRight.size == LSize.INT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-		else if (refRight.size == LSize.UINT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-		else if (refRight.size == LSize.LONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-		else if (refRight.size == LSize.ULONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-		else if (refRight.size == LSize.FLOAT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-		else if (refRight.size == LSize.DOUBLE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    }
-	    
+	    aux = addUnref (aux);
+	    if (refRight) aux = addUnrefRight (aux);
 	    return aux;
 	}	
 	return null;
@@ -118,34 +96,10 @@ class RefInfo : InfoType {
     override InfoType BinaryOpRight (Word token, Expression left) {
 	auto aux = this._content.BinaryOpRight (token, left);	
 	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
+	    return addUnref (aux);
 	} else {
-	    aux = left.info.type.BinaryOp (token, this._content);
-	    if (aux) {
-		if (this._content.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (this._content.size == LSize.UBYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (this._content.size == LSize.SHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-		else if (this._content.size == LSize.USHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-		else if (this._content.size == LSize.INT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-		else if (this._content.size == LSize.UINT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-		else if (this._content.size == LSize.LONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-		else if (this._content.size == LSize.ULONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-		else if (this._content.size == LSize.FLOAT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-		else if (this._content.size == LSize.DOUBLE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-		return aux;
-	    }
+	    return addUnrefRight (left.info.type.BinaryOp (token, this._content));
 	}
-	return null;
     }
 
     /**
@@ -156,21 +110,7 @@ class RefInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType AccessOp (Word token, ParamList params) {
-	auto aux = this._content.AccessOp (token, params);
-	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	}
-	return null;	
+	return addUnref (this._content.AccessOp (token, params));
     }
 
     /**
@@ -180,57 +120,15 @@ class RefInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType DotOp (Var var) {	
-	auto aux = this._content.DotOp (var);
-	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	}
-	return null;	
+	return addUnref (this._content.DotOp (var));
     }
 
     override InfoType DotExpOp (Expression elem) {
-	auto aux = this._content.DotExpOp (elem);
-	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	}
-	return null;	
+	return addUnref (this._content.DotExpOp (elem));
     }
 
     override InfoType DColonOp (Var var) {
-	auto aux = this._content.DColonOp (var);
-	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	}
-	return null;	
+	return addUnref (this._content.DColonOp (var));
     }
     
     
@@ -241,21 +139,7 @@ class RefInfo : InfoType {
      Returns: le type résultat ou null.
      */
     override InfoType UnaryOp (Word op) {
-	auto aux = this._content.UnaryOp (op);
-	if (aux !is null) {
-	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
-	    else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-	    else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-	    else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-	    else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-	    else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	}
-	return null;
+	return addUnref (this._content.UnaryOp (op));
     }
 
     /**
@@ -279,25 +163,10 @@ class RefInfo : InfoType {
 	    rf.lintInst = &RefUtils.InstAffect;
 	    return rf;
 	} else {
-	    auto aux = this._content.CastOp (other);	    
-	    if (aux !is null) {
-		if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
-		else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-		else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-		else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-		else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-		else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-		else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-		else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-		else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-		return aux;
-	    }
-	    return null;
+	    return addUnref (this._content.CastOp (other));	    
 	}
     }
-   
-    
+       
     /**
      Surcharge de l'operateur de cast automatique.
      Params:
@@ -311,27 +180,26 @@ class RefInfo : InfoType {
 	    rf.lintInst = &RefUtils.InstAffect;
 	    return rf;
 	} else {
-	    auto aux = this._content.CompOp (other);
-	    if (aux !is null) {
-		if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
-		else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
-		else if (this._content.size == LSize.SHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
-		else if (this._content.size == LSize.USHORT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
-		else if (this._content.size == LSize.INT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
-		else if (this._content.size == LSize.UINT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
-		else if (this._content.size == LSize.LONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
-		else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
-		else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
-		else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-		return aux;
-	    }
-	    return null;
+	    return addUnref (this._content.CompOp (other));
 	}
     }
 
 
     override InfoType ApplyOp (Array!Var vars) {
-	auto aux = this._content.ApplyOp (vars);
+	return addUnref (this._content.ApplyOp (vars));
+    }
+
+    override ApplicationScore CallOp (Word op, ParamList params)  {
+	auto ret = this._content.CallOp (op, params);
+	if (ret && ret.dyn) {
+	    ret.left = addUnref (this._content.cloneForParam ());	    
+	}
+	return ret;
+    }
+
+    
+    
+    private InfoType addUnref (InfoType aux) {
 	if (aux !is null) {
 	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
 	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
@@ -343,11 +211,26 @@ class RefInfo : InfoType {
 	    else if (this._content.size == LSize.ULONG)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
 	    else if (this._content.size == LSize.FLOAT)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
 	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
-	    return aux;
-	    
 	}
-	return null;
+	return aux;
     }
+
+    private InfoType addUnrefRight (InfoType aux) {
+	if (aux) {
+	    if (this._content.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
+	    else if (this._content.size == LSize.UBYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
+	    else if (this._content.size == LSize.SHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.SHORT));
+	    else if (this._content.size == LSize.USHORT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.USHORT));
+	    else if (this._content.size == LSize.INT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.INT));
+	    else if (this._content.size == LSize.UINT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.UINT));
+	    else if (this._content.size == LSize.LONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.LONG));
+	    else if (this._content.size == LSize.ULONG)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.ULONG));
+	    else if (this._content.size == LSize.FLOAT)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.FLOAT));
+	    else if (this._content.size == LSize.DOUBLE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.DOUBLE));
+	}
+	return aux;	    
+    }
+
     
     /**
      Returns: le nom du type.

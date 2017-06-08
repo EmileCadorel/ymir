@@ -91,7 +91,7 @@ class StructCstInfo : InfoType {
      Returns: une instance de StructInfo
      */
     static InfoType create (Word name, Expression [] templates) {
-	import std.format;
+	import std.format, ast.FuncPtr, ast.ArrayAlloc;
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
 	
 	if (cst is null) assert (false, "Nooooon !!!");
@@ -103,18 +103,25 @@ class StructCstInfo : InfoType {
 	if (cst._types.empty) {	    	    
 	    foreach (it ; cst._params) {
 		auto printed = false;
-		auto sym = Table.instance.get (it.type.token.str);
-		if (sym) {
-		    auto _st = cast (StructCstInfo) (sym.type);
-		    if (_st) {
-			cst._types.insertBack (_st);
+		if (auto fn = cast (FuncPtr) it.expType) {
+		    assert (false, "TODO");
+		} else if (auto array = cast (ArrayAlloc) it.expType) {
+		    assert (false, "TODO");
+		} else {
+		    auto type = it.type.asType ();
+		    auto sym = type.info;//Table.instance.get (it.type.token.str);
+		    if (sym) {
+			auto _st = cast (StructCstInfo) (sym.type);
+			if (_st) {
+			    cst._types.insertBack (_st);
+			    cst._names.insertBack (it.token.str);
+			    printed = true;			
+			}		    
+		    }
+		    if (!printed) {
+			cst._types.insertBack (it.getType ());
 			cst._names.insertBack (it.token.str);
-			printed = true;			
-		    }		    
-		}
-		if (!printed) {
-		    cst._types.insertBack (it.getType ());
-		    cst._names.insertBack (it.token.str);
+		    }
 		}
 	    }
 	}

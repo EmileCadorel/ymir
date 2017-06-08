@@ -58,6 +58,16 @@ def print (b : bool) {
     else print ('false');
 }
 
+def print (T of [U], U) (a : T) {
+    import std.conv;
+    print (a.to!string);
+}
+
+def print if (is (T : struct)) (T) (a : T) {
+    import std.conv;
+    print (a.to!string);
+}
+
 def println (i) {
     print (expand (i));
     print ('\n');
@@ -83,3 +93,5 @@ def printfln (str : string, nexts) {
     printf (str.ptr, expand (nexts));
     putchar ('\n');
 }
+
+

@@ -1,20 +1,12 @@
-import std.thread;
 
-struct Test {
-    a : int
-}
-
-static array = [1, 2, 3];
-static Single : Test;
-
-self () {
-    println ("ici");
-    Single = Test (12);
+def foo (a : int, b : int) {
+    return a + b;
 }
 
 def main () {
-    let th = thread (
-        () => println ("Lancé, ", Single.a)        
-    );
-    th.join ();
+    let a = [fn (int, int) -> int ; 0U];
+    a = a + [&foo];
+    for it in a {
+        println (it (1, 2));
+    }    
 }

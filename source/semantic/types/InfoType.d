@@ -58,6 +58,9 @@ class ApplicationScore {
     /** On est sur un appel dynamique ?*/
     bool dyn;
 
+    /** Si l'appel est dynamique, cette element est le caster de gauche */
+    InfoType left;
+    
     /** Le type de retour de la surcharge */
     InfoType ret;
 
