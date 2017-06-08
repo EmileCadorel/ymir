@@ -1,16 +1,14 @@
+import std.singleton;
 
-struct Singleton (T) {
-    a : T
+private struct TestIn {
+    a : int
 }
 
-def singleton (T) () {
-    let static sig = Singleton!(T) ();
-    return sig;
+def Test () {
+    return Singleton!(TestIn);    
 }
 
 def main () {
-    let a = singleton!(int);
-    a.a = 12;
-    let b = singleton!(int);
-    println (b);
+    Test().a = 12;
+    println (Test());
 }

@@ -185,9 +185,8 @@ class StructCstInfo : InfoType {
 	foreach (it_ ; this._tmps) { // Il faut qu'il soit dans le bon ordre
 	    foreach (key, value ; res.elements) {
 		if (key == it_.token.str) {
-		    auto type = cast (Type) value;
-		    types.insertBack (type.info.type);
-		    name ~= type.info.type.typeString;
+		    types.insertBack (value.info.type);
+		    name ~= value.info.type.typeString;
 		    if (it != res.elements.length - 1)
 			name ~= ", ";
 		    it ++;

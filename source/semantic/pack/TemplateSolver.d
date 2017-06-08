@@ -428,6 +428,8 @@ class TemplateSolverS {
 	    return this.solveInside (tmps, of, right);
 	} else if (auto type = cast (Type) right) {
 	    return this.solveInside (left, type);
+	} else if (auto type = cast (Var) right) {
+	    return this.solveInside (left, type);
 	} else return TemplateSolution (0, false);
     }
 
@@ -446,6 +448,28 @@ class TemplateSolverS {
 	return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
     }    
 
+    /++
+     + Résoud  un paramètre template
+     + Example:
+     + ------------------
+     + struct Test { a : int }
+     + 
+     + def foo (T) () {
+     +    // ...
+     + }
+     +
+     + foo!(Test); // solveInside (T, Test);
+     + ------------------
+     +/
+    private TemplateSolution solveInside (Var left, Var right) {
+	import semantic.types.StructInfo;
+	auto type = right.info.type;
+	if (auto cst = cast (StructCstInfo) type) {
+	    auto clo = right.clone ();
+	    return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
+	} else return TemplateSolution (0, false);
+    }
+    
     /**
      Résoud un paramètre template
      Example:

@@ -60,7 +60,7 @@ class Var : Expression {
     
     /**
      Vérification sémantique.
-     Pour être juste le symbole de l'identifiant doit éxister.
+     Pour être juste le symbole de l'identifiant doit exister.
      Il peut être un type, une fonction, une structure ...
      Throws: UndefinedVar, si l'identifiant n'existe pas
      */
@@ -79,6 +79,13 @@ class Var : Expression {
 		    auto call = new Par (this._token, this._token, this, params, true);
 		    this._inside = call;
 		    return call.expression;
+		} else if (auto dt = cast (Dot) this._inside) {
+		    if (this is dt.left) {
+			auto params = new ParamList (this._token, make!(Array!Expression));
+			auto call = new Par (this._token, this._token, this, params, true);
+			this._inside = call;
+			return call.expression;
+		    }
 		}
 		
 		auto id = aux.info.id;
