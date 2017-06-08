@@ -4,6 +4,5 @@
 	"Emile Cadorel"
     ],
     "buildRequirements" : ["allowWarnings"],
-    "license": "GPL-3.0",
-    "dflags" : ["-v"]
+    "license": "GPL-3.0"
 }

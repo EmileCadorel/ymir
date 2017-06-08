@@ -63,8 +63,10 @@ class Block : Instruction {
 		if (Table.instance.retInfo.hasReturned () ||
 		    Table.instance.retInfo.hasBreaked ())
 		    throw new UnreachableStmt (it.token);
-		insts.insertBack (it.instruction);
-		insts.back ().father = block;
+		if (!cast (None) it) {
+		    insts.insertBack (it.instruction);
+		    insts.back ().father = block;
+		}
 	    } catch (RecursiveExpansion exp) {
 		throw exp;
 	    } catch (YmirException exp) {

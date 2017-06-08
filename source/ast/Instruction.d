@@ -76,3 +76,9 @@ class Instruction {
     void print (int nb = 0) {}
     
 }
+
+class None : Instruction {
+    this (Word tok) {
+	super (tok);
+    }
+}

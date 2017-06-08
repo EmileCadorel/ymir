@@ -825,7 +825,7 @@ class Visitor {
 	    Warning.instance.warning_at (tok.locus,
 				"Utilisez {} pour une instruction vide pas %s",
 				tok.str);
-	    return new Instruction (tok);
+	    return new None (tok);
 	} else {
 	    _lex.rewind ();
 	    auto retour = cast(Instruction)visitExpressionUlt ();

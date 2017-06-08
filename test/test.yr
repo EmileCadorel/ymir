@@ -1,7 +1,4 @@
 
-def foo () {
-}
-
-def main () {       
-    let a = foo (1, 2);
+def main ()  {
+    if (true);
 }
