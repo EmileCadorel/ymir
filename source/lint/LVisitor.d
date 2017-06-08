@@ -558,7 +558,9 @@ class LVisitor {
 	    inst += new LConstDecimal (0, LSize.LONG);
 	} else {
 	    auto ptr = cast (PtrFuncInfo) fptr.info.type;
-	    inst += new LConstFunc (ptr.score.name);
+	    if (ptr.score) 
+		inst += new LConstFunc (ptr.score.name);
+	    else return visitExpression (fptr.expr);
 	}
 	return inst;
     }
