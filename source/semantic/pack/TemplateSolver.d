@@ -2,6 +2,8 @@ module semantic.pack.TemplateSolver;
 import ast.all;
 import std.container, std.stdio;
 import semantic.types.InfoType;
+import semantic.types.StructInfo;
+import semantic.types.FunctionInfo;
 import semantic.types.RefInfo;
 import utils.exception;
 import utils.Singleton;
@@ -329,7 +331,8 @@ class TemplateSolverS {
     private TemplateSolution solve (Var elem, TypedVar param, InfoType type) {
 	if (auto tv = cast (TypedVar) elem) return TemplateSolution (0, false);
 	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (0, false);
-
+	else if (cast (StructCstInfo) type || cast (FunctionInfo) type) return TemplateSolution (0, false);
+	
 	auto type_ = type.cloneForParam;
 	return TemplateSolution (__VAR__, true, type_, [elem.token.str : new Type (param.type.token, type_)]);
     }

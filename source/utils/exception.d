@@ -181,7 +181,7 @@ class UndefinedOp : YmirException {
 	}
 
 	if (auto fun = cast(FunctionInfo) left.type) {
-	    buf.writefln ("): les candidats sont");
+	    buf.writefln ("): ");
 	    super.addLine (buf, token.locus);
 	    foreach (key, value ; fun.candidates) {
 		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);

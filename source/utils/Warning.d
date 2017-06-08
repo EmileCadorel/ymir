@@ -39,14 +39,17 @@ class Warning {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s    | %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
+	    auto leftLine = center (format ("%d", locus.line), 4, ' ');
+	    auto padd = center ("", leftLine.length, ' ');
+	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s%s| %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
 			  Colors.BOLD.value,
+			  padd, 
 			  Colors.RESET.value			  
 	    );
 	    
 	    buf.writef ("%s%s| %s%s%s%s%s%s",
 			Colors.BOLD.value,
-			center (format ("%d", locus.line), 4, ' '),
+			leftLine, 
 			Colors.RESET.value,
 			line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
@@ -54,7 +57,7 @@ class Warning {
 			Colors.RESET.value,
 			line[locus.column + locus.length - 1.. $]);
 	    if (line[$-1] != '\n') buf.write ("\n");
-	    buf.writef ("%s    | %s", Colors.BOLD.value, Colors.RESET.value);
+	    buf.writef ("%s%s| %s", Colors.BOLD.value, padd, Colors.RESET.value);
 	    foreach (it ; 0 .. locus.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');

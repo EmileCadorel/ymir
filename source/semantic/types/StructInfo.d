@@ -302,16 +302,6 @@ class StructCstInfo : InfoType {
 	score.ret = ret;
 	return score;
     }
-
-    override InfoType CompOp (InfoType other) {
-	if (cast (UndefInfo) other) {
-	    auto ret = this.clone ();
-	    ret.lintInst = &StructUtils.InstAffectRight;
-	    return ret;
-	}
-	return null;
-    }
-
     
     /**
      Returns: le nom pour le mangling
@@ -325,7 +315,7 @@ class StructCstInfo : InfoType {
      Returns: le nom complet pour les informations d'erreur
      */
     override string typeString () {
-	auto name = this._name ~ "(";
+	auto name = "typeof " ~ this._name ~ "(";
 	if (this._types.empty) {	    
 	    foreach (it ; this._params) {
 		if (auto _st = cast(StructCstInfo) it.getType ())
@@ -349,7 +339,7 @@ class StructCstInfo : InfoType {
 	}
 	name ~= ")";
 	return name;
-    }
+    }    
 
     /**
      Returns: la taille (même si ca veut rien dire)
