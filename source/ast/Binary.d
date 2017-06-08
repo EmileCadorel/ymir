@@ -120,10 +120,10 @@ class Binary : Expression {
 
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) {
-	    type = aux._right.info.type.BinaryOpRight (this._token, aux._left);
-	    if (type is null) 
+	    auto call = findOpAssign (aux);
+	    if (!call)
 		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-	    aux._isRight = true;
+	    return call;
 	}
 	
 	aux.info = new Symbol (aux._token, type);
@@ -159,9 +159,8 @@ class Binary : Expression {
 		    auto call = findOpBinary (aux);
 		    if (!call)
 			throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-		    else {
-			return call;
-		    }
+
+		    return call;		    
 		}
 		aux._isRight = true;
 	    }
@@ -180,6 +179,20 @@ class Binary : Expression {
 	return new Binary (this._token, left, right);
     }
 
+    auto findOpAssign (Binary aux) {
+	import ast.Par;
+	try {
+	    auto word = Word (this._token.locus, Keys.OPASSIGN.descr, true);
+	    auto var = new Var (word, make!(Array!Expression) (new String (this._token, this._token.str)));
+	    
+	    auto params = new ParamList (this._token, make!(Array!Expression) (this._left, this._right));
+	    auto call = new Par (this._token, this._token, var, params, false);
+	    return call.expression;
+	} catch (YmirException) {
+	    return null;
+	}
+    }   
+    
     auto findOpBinary (Binary aux) {	
 	import ast.Par;
 	if (isTest (this._token)) return findOpTest (aux);

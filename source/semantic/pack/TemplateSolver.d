@@ -97,6 +97,7 @@ class TemplateSolverS {
      Returns: le tableau associatif des nouvelles expression
      */
     TemplateSolution solve (Array!Expression tmps, Var param, InfoType type) {
+	if (auto t = cast (RefInfo) type) type = t.content;
 	if (auto typed = cast (TypedVar) param) {
 	    if (typed.expType) {
 		return solve (tmps, typed.expType, type);
@@ -150,6 +151,7 @@ class TemplateSolverS {
      Returns: le tableau associatif des nouvelles expression
      */
     TemplateSolution solveInside (Array!Expression tmps, Var param, InfoType type) {
+	if (auto t = cast (RefInfo) type) type = t.content;
 	if (auto arr = cast (ArrayVar) param) {
 	    return solve (tmps, arr, type);
 	} else {
@@ -209,7 +211,6 @@ class TemplateSolverS {
      */
     private TemplateSolution solve (Array!Expression tmps, ArrayVar param, InfoType type) {
 	import semantic.types.ArrayInfo;
-	
 	if (!cast (ArrayInfo) type) {
 	    if (auto ptr = cast (RefInfo) type) {
 		if (!cast (ArrayInfo) ptr.content)

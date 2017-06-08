@@ -48,5 +48,6 @@ enum Keys : Token {
     PROTECTED = Token ("protected", 53),
     MIXIN = Token ("mixin", 54),
     OF = Token ("of", 55),
-    SELF = Token ("self", 56)
+    SELF = Token ("self", 56),
+    OPASSIGN = Token ("opAssign", 57)
 }

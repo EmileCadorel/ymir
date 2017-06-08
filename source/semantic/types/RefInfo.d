@@ -263,7 +263,7 @@ class RefInfo : InfoType {
     }   
     
     override InfoType getTemplate (ulong i) {
-	if (i == 0) return this._content;
+	if (i == 0) return this._content.getTemplate (i);
 	return null;
     }
 

@@ -1,20 +1,11 @@
-import std.conv;
 
-private struct Singleton {
-    a : int,
-    b : float
-}
-
-static instance : Singleton;
-
-public def singleton () {
-    if (instance is null) {
-        instance = Singleton (0, 1.2);
-    }
-    return instance;
+def opAssign ("+=", T of [U], U) (ref a : T, b : T) {
+    a = a + b;
+    return a;
 }
 
 def main () {
-    let a = singleton ();
+    let a = [1, 3];
+    a += [4];
     println (a);
 }
