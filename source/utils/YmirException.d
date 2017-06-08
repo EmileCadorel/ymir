@@ -16,7 +16,8 @@ enum Colors : Color {
     BLUE = Color ("\u001B[1;36m"),
     YELLOW = Color ("\u001B[1;33m"),
     RED = Color ("\u001B[1;31m"),
-    GREEN = Color ("\u001B[1;32m")	
+    GREEN = Color ("\u001B[1;32m"),
+    BOLD = Color ("\u001B[1;50m")
 }
 
 /**
@@ -103,12 +104,22 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column - 1],
+	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s    | %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
+			  Colors.BOLD.value,
+			  Colors.RESET.value			  
+	    );
+	    
+	    buf.writef ("%s%s| %s%s%s%s%s%s",
+			Colors.BOLD.value,
+			center (format ("%d", locus.line), 4, ' '),
+			Colors.RESET.value,
+			line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
 			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
 			line[locus.column + locus.length - 1 .. $]);
 	    if (line[$-1] != '\n') buf.write ("\n");
+	    buf.writef ("%s    | %s", Colors.BOLD.value, Colors.RESET.value);
 	    foreach (it ; 0 .. locus.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
@@ -131,7 +142,16 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef ("%s%s%s%s%s%s%s%s%s", line[0 .. locus.column - 1],
+	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s    | %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
+			  Colors.BOLD.value,
+			  Colors.RESET.value			  
+	    );
+	    
+	    buf.writef ("%s%s| %s%s%s%s%s%s%s%s%s%s",
+			Colors.BOLD.value,
+			center (format ("%d", locus.line), 4, ' '),
+			Colors.RESET.value,
+			line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
 			line[locus.column - 1 .. locus.column + locus.length - 1],
 			Colors.RESET.value,
@@ -142,6 +162,7 @@ class YmirException : Exception {
 			line [locus2.column + locus2.length - 1 .. $]);
 	    
 	    if (line[$-1] != '\n') buf.write ("\n");
+	    buf.writef ("%s    | %s", Colors.BOLD.value, Colors.RESET.value);
 	    foreach (it ; 0 .. locus.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
@@ -169,12 +190,22 @@ class YmirException : Exception {
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
-	    buf.writef ("%s%s%s%s%s", line[0 .. locus.column + index],
+	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s    | %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
+			  Colors.BOLD.value,
+			  Colors.RESET.value			  
+	    );
+	    
+	    buf.writef ("%s%s| %s%s%s%s%s%s",
+			Colors.BOLD.value,
+			center (format ("%d", locus.line), 4, ' '),
+			Colors.RESET.value,
+			line[0 .. locus.column + index],
 			Colors.YELLOW.value,
 			line[locus.column + index .. locus.column + index + length],
 			Colors.RESET.value,
 			line[locus.column + index + length .. $]);
 	    if (line[$-1] != '\n') buf.write ("\n");
+	    buf.writef ("%s    | %s", Colors.BOLD.value, Colors.RESET.value);
 	    foreach (it ; 0 .. locus.column + index) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');

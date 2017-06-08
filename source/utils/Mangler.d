@@ -32,6 +32,20 @@ class Mangler {
 	return buf.toString;
     }       
 
+
+    static string mangle (string type : "method") (string name, FrameProto frame) {
+	if (name == Keys.MAIN.descr || frame.externC) return name;
+	auto namespace = frame.namespace.toString;
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%s%sPM", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	foreach (it ; frame.vars) {
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
+	}
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
+	return buf.toString;
+    }       
+
+    
     static string mangle (string type : "struct") (StructCstInfo str) {
 	auto buf = new OutBuffer ();
 	buf.write ("ST");
@@ -67,6 +81,27 @@ class Mangler {
 	buf.writef ("Zv");
 	return buf.toString;
     }       
+
+    static string mangle (string type : "method") (FinalFrame frame) {
+	auto name = frame.name;
+	if (name == Keys.MAIN.descr) return name;
+	auto namespace = frame.namespace.toString;
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%s%sPM", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	foreach (it ; frame.vars) {
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
+	}
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
+	return buf.toString;
+    }       
+
+    static string mangle (string type : "method") (Namespace namespace) {
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%sPM", mangle!"namespace" (namespace.toString));
+	buf.writef ("Zv");
+	return buf.toString;
+    }       
+
     
     static string mangle (string type : "namespace") (string name) {
 	auto buf = new OutBuffer;

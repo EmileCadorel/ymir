@@ -1,10 +1,9 @@
 {
     "name": "ymir",
-    "description": "Ymir compiler which create C source files.",
-    "compiler" : "gdc",
     "authors": [
 	"Emile Cadorel"
     ],
     "buildRequirements" : ["allowWarnings"],
-    "license": "GPL-3.0"
+    "license": "GPL-3.0",
+    "dflags" : ["-v"]
 }

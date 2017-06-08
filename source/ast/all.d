@@ -47,3 +47,5 @@ public import ast.DColon;
 public import ast.TupleDest;
 public import ast.Global;
 public import ast.Self;
+public import ast.Trait;
+public import ast.Impl;

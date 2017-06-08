@@ -63,7 +63,7 @@ class Visitor {
 			      Keys.TRUE, Keys.FALSE, Keys.NULL, Keys.CAST,
 			      Keys.FUNCTION, Keys.LET, Keys.IS, Keys.EXTERN,
 			      Keys.PUBLIC, Keys.PRIVATE, Keys.TYPEOF, Keys.IMMUTABLE,
-			      Keys.CONST, Keys.REF
+			      Keys.CONST, Keys.REF, Keys.TRAIT
 	];
 
 	this._decoKeys = [Keys.IMMUTABLE, Keys.CONST, Keys.STATIC];
@@ -89,6 +89,8 @@ class Visitor {
 	    else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else if (word == Keys.STATIC) decls.insertBack (this.visitGlobal ());
 	    else if (word == Keys.SELF) decls.insertBack (this.visitSelf ());
+	    else if (word == Keys.TRAIT) decls.insertBack (this.visitTrait ());
+	    else if (word == Keys.IMPL) decls.insertBack (this.visitImpl ());
 	    else if (word == Keys.PUBLIC) {
 		auto pub_decls = visitPublicBlock ();
 		foreach (it ; pub_decls) decls.insertBack (it);
@@ -113,6 +115,8 @@ class Visitor {
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
 		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
+		else if (word == Keys.TRAIT) decls.insertBack (this.visitTrait ());
+		else if (word == Keys.IMPL) decls.insertBack (this.visitImpl ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
 		decls.back ().isPublic = true;
@@ -122,6 +126,8 @@ class Visitor {
 	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else if (next == Keys.TRAIT) decls.insertBack (this.visitTrait ());
+	    else if (next == Keys.IMPL) decls.insertBack (this.visitImpl ());
 	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = true;
@@ -139,6 +145,8 @@ class Visitor {
 		else if (word == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 		else if (word == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 		else if (word == Keys.IMPORT) decls.insertBack (this.visitImport ());
+		else if (word == Keys.TRAIT) decls.insertBack (this.visitTrait ());
+		else if (word == Keys.IMPL) decls.insertBack (this.visitImpl ());
 		else if (word == Keys.ENUM) decls.insertBack (this.visitEnum ());
 		else if (word == Tokens.RACC) break;
 		else throw new SyntaxError (word);
@@ -149,6 +157,8 @@ class Visitor {
 	    else if (next == Keys.EXTERN) decls.insertBack (this.visitExtern ());
 	    else if (next == Keys.STRUCT) decls.insertBack (this.visitStruct ());
 	    else if (next == Keys.IMPORT) decls.insertBack (this.visitImport ());
+	    else if (next == Keys.TRAIT) decls.insertBack (this.visitTrait ());
+	    else if (next == Keys.IMPL) decls.insertBack (this.visitImpl ());
 	    else if (next == Keys.ENUM) decls.insertBack (this.visitEnum ());
 	    else throw new SyntaxError (next);
 	    decls.back ().isPublic = false;
@@ -156,6 +166,71 @@ class Visitor {
 	return decls;
     }	
 
+
+    private Impl visitImpl () {
+	auto ident = visitIdentifiant ();
+	this._lex.next (Keys.FOR);
+	auto what = visitIdentifiant ();
+	this._lex.next (Tokens.LACC);
+	auto next = this._lex.next ();
+	Array!Function methods;
+	if (next != Tokens.RACC) {
+	    while (true) {
+		methods.insertBack (visitFunction ());
+		 next = this._lex.next (Tokens.RACC, Keys.DEF);
+		if (next == Tokens.RACC) break;
+		else this._lex.rewind ();
+	    }
+	}
+	return new Impl (ident, what, methods);
+    }
+    
+    /++
+     traitProto := 'def' Identifiant '(' (var (',' var)*)? ')' ':' type ';'
+     +/
+    private TraitProto visitTraitProto () {
+	auto ident = visitIdentifiant ();
+	Array!Var params;
+	this._lex.next (Tokens.LPAR);
+	auto next = this._lex.next ();
+	if (next != Tokens.RPAR) {
+	    this._lex.rewind ();	
+	    while (true) {
+		params.insertBack (visitVarDeclaration ());
+		next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+		if (next == Tokens.RPAR) break;
+	    }
+	}
+
+	Var type;
+	next = this._lex.next (Tokens.COLON, Tokens.SEMI_COLON);
+	if (next == Tokens.COLON) {
+	    type = visitType ();
+	    this._lex.next (Tokens.SEMI_COLON);
+	}
+	return new TraitProto (ident, params, type);
+    }
+    
+    /++
+     trait := 'trait' Identifiant '{' traitProto* '}'
+     +/
+    private Trait visitTrait () {
+	Array!TraitProto meth;
+	auto ident = visitIdentifiant ();
+	this._lex.next (Tokens.LACC);
+
+	while (true) {
+	    auto next = this._lex.next (Tokens.RACC, Keys.DEF);
+	    if (next == Keys.DEF) {
+		meth.insertBack (visitTraitProto ());
+	    } else break;
+	}
+	return new Trait (ident, meth);
+    }
+    
+    /++
+     self := 'self' '(' ')' block
+     +/
     private Self visitSelf () {
 	Array!Instruction insts;
 	this._lex.rewind ();
@@ -1358,14 +1433,14 @@ class Visitor {
     }
 
     private Expression visitLambdaEmpty () {
-	auto next = this._lex.next (Tokens.IMPLIQUE, Tokens.LACC);
+	auto next = this._lex.next ();
 	if (next == Tokens.IMPLIQUE) {
 	    auto expr = visitExpressionUlt ();
 	    return new LambdaFunc (next, make!(Array!Var), expr);
-	} else {
+	} else if (next == Tokens.LACC) {
 	    this._lex.rewind ();
 	    return new LambdaFunc (next, make!(Array!Var), visitBlock ());
-	} 
+	} else throw new SyntaxError (next, [Tokens.IMPLIQUE.descr, Tokens.LACC.descr]);
     }
     
     private Expression visitLambda () {

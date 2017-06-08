@@ -84,7 +84,7 @@ class Par : Expression {
 		if (type is null) {		
 		    auto call = !dotCall && !this._opCall ? findOpCall (aux) : null;
 		    if (!call) {
-			if (this._end.locus.line != this._token.locus.line || this._end.locus == this._token.locus)
+			if (this._end.locus.line != this._token.locus.line || this._end.locus.column == this._token.locus.column)
 			    throw new UndefinedOp (this._token, aux._left.info, aux._params);
 			throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);
 		    } else return call;

@@ -15,7 +15,7 @@ import ast.Var;
  +    a : int
  + }
  +
- + impl Test {
+ + impl Object for Test {
  +    def new () { return Test (10); }
  +    def foo (self) { println (self.to!string); }
  + }
@@ -47,18 +47,7 @@ class Implementer : InfoType {
 	foreach (it ; this._statics)
 	    it.alone = true;	
     }
-
-    /++
-     Surcharge de l'operateur '::'
-     +/
-    override InfoType DColonOp (Var var) {
-	foreach (it ; this._statics) {
-	    if (var.token.str == it.name) {
-		return it;
-	    }
-	}
-	return null;
-    }        
+    
     
 }
 

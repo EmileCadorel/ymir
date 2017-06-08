@@ -49,7 +49,6 @@ class StringUtils {
 	left = llist.getFirst ();
 	right = rlist.getFirst ();
 	inst += llist + rlist;
-	writeln (left, ' ', right);
 	if (auto call = cast (LCall) left) {
 	    auto aux = new LReg (left.size);
 	    inst += new LWrite (aux, left);

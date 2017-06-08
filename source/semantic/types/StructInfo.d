@@ -42,6 +42,9 @@ class StructCstInfo : InfoType {
 
     /** La structure peut être construire en dehors du block ? */
     private bool _isPublic;
+
+    /+++/
+    private static StructCstInfo [string] __creations__;
     
     /++
      L'emplacemence de la création de la structure.
@@ -99,7 +102,13 @@ class StructCstInfo : InfoType {
      */
     static InfoType create (Word name, Expression [] templates) {
 	import std.format, ast.FuncPtr, ast.ArrayAlloc;
+	if (name.str in __creations__)
+	    throw new RecursiveCreation (name);
+	
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
+
+	__creations__ [name.str] = cst;
+	scope (exit) __creations__.remove (name.str);
 	
 	if (cst is null) assert (false, "Nooooon !!!");
 	if (cst._tmps.length == 0 && templates.length != 0)

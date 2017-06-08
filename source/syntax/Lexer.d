@@ -121,8 +121,9 @@ class Lexer {
     /**
      Retour en arriere dans le fichier
      */
-    void rewind (ulong nb = 1) {
+    Lexer rewind (ulong nb = 1) {
 	this._current -= nb;
+	return this;
     }
 
     ulong tell () {

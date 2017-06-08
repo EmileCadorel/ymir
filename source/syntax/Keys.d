@@ -49,5 +49,7 @@ enum Keys : Token {
     MIXIN = Token ("mixin", 54),
     OF = Token ("of", 55),
     SELF = Token ("self", 56),
-    OPASSIGN = Token ("opAssign", 57)
+    OPASSIGN = Token ("opAssign", 57),
+    TRAIT = Token ("trait", 58),
+    IMPL = Token ("impl", 59)
 }

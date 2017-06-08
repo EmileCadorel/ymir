@@ -14,7 +14,6 @@ class UninitVar : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Variable non initialisé '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	
 	super.addLine (buf, token.locus);
@@ -36,7 +35,6 @@ class UndefinedAttribute : YmirException {
     */
     this (Word token, Symbol left, Var right) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Attribut '%s%s%s' non définis pour le type '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, right.token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
@@ -60,7 +58,6 @@ class NoReturnStmt : YmirException {
      */
     this (Word token, Symbol type) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : La fonction '%s%s%s' ne retournant pas void se termine sans retourner '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
@@ -74,7 +71,6 @@ class ReturnVoid : YmirException {
 
     this (Word token, Symbol type) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : Retour d'un élément de type '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
@@ -96,7 +92,6 @@ class UndefinedEscapeChar : YmirException {
      */
     this (Word token, ulong index, string elem) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Escape char '%s%s%s' inconnu :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, elem, Colors.RESET.value);
 	
@@ -121,7 +116,6 @@ class UndefinedOp : YmirException {
      */
     this (Word token, Symbol left, Symbol right) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
@@ -139,7 +133,6 @@ class UndefinedOp : YmirException {
      */
     this (Word token, Symbol left, InfoType right) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
@@ -157,7 +150,6 @@ class UndefinedOp : YmirException {
      */
     this (Word token, Symbol left) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Operateur '%s%s%s' non définis pour le type '%s%s%s' :",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
@@ -178,7 +170,6 @@ class UndefinedOp : YmirException {
 	import semantic.types.FunctionInfo;
 	
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Operateur '%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
 		    Colors.YELLOW.value, token.str, Colors.RESET.value,
 		    Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
@@ -193,7 +184,6 @@ class UndefinedOp : YmirException {
 	    buf.writefln ("): les candidats sont");
 	    super.addLine (buf, token.locus);
 	    foreach (key, value ; fun.candidates) {
-		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);
 		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
 		super.addLine (buf, key.locus);
 	    }
@@ -214,7 +204,6 @@ class UndefinedOp : YmirException {
     this (Word token, Word token2, Symbol left, ParamList right) {
 	import semantic.types.FunctionInfo;
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Operateur '%s%s%s%s' non définis entre les types '%s%s%s' et (", Colors.RED.value, Colors.RESET.value,
 		    Colors.YELLOW.value, token.str, token2.str, Colors.RESET.value,
 		    Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
@@ -226,10 +215,9 @@ class UndefinedOp : YmirException {
 	}
 	
 	if (auto fun = cast(FunctionInfo) left.type) {
-	    buf.writefln ("): les candidats sont");
-	    super.addLine (buf, token.locus);
+	    buf.writefln ("): ");
+	    super.addLine (buf, token.locus, token2.locus);
 	    foreach (key, value ; fun.candidates) {
-		buf.writef ("%s:(%d, %d): ", key.locus.file, key.locus.line, key.locus.column);
 		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
 		super.addLine (buf, key.locus);
 	    }
@@ -256,14 +244,12 @@ class IncompatibleTypes : YmirException {
      */
     this (Symbol left, Symbol right) {
 	auto buf = new OutBuffer;
-	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
 	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	super.addLine (buf, left.sym.locus);
 	if (!right.sym.isEof) {
-	    buf.writef ("%s:(%d, %d): ", right.sym.locus.file, right.sym.locus.line, right.sym.locus.column);
 	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
 	    super.addLine (buf, right.sym.locus);
 	}
@@ -277,14 +263,12 @@ class IncompatibleTypes : YmirException {
      */
     this (Location locus, Symbol left, Symbol right) {
 	auto buf = new OutBuffer;
-	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
 	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	super.addLine (buf, left.sym.locus);
 	if (!right.sym.isEof) {
-	    buf.writef ("%s:(%d, %d): ", right.sym.locus.file, right.sym.locus.line, right.sym.locus.column);
 	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);	    
 	    super.addLine (buf, right.sym.locus);
 	}
@@ -297,7 +281,6 @@ class IncompatibleTypes : YmirException {
     import semantic.types.InfoType;
     this (Symbol left, InfoType right) {
 	auto buf = new OutBuffer;
-	buf.writef ("%s:(%d, %d): ", left.sym.locus.file, left.sym.locus.line, left.sym.locus.column);
 	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
@@ -321,7 +304,6 @@ class NotLValue : YmirException {
      */
     this (Word token, Symbol type) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: L'element '%s%s%s' de type '%s%s%s' n'est pas une lvalue :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString (), Colors.RESET.value);
@@ -343,7 +325,6 @@ class UnreachableStmt : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : L'instruction '%s%s%s' n'est pas atteignable ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	
 	super.addLine (buf, token.locus);
@@ -365,7 +346,6 @@ class UndefinedVar : YmirException {
 	import semantic.types.UndefInfo;
 	
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Variable inconnu '%s%s%s'", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	if (alike !is null) {
 	    buf.writef (", peut être : '%s%s%s'", Colors.YELLOW.value, alike.sym.str, Colors.RESET.value);
@@ -391,7 +371,6 @@ class UseAsType : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas un type ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	super.addLine (buf, token.locus);
 	msg = buf.toString();        
@@ -410,7 +389,6 @@ class UseAsVar : YmirException {
      */
     this (Word token, Symbol info) {
 	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' est un type : '%s%s%s'", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, info.typeString, Colors.RESET.value);
 	super.addLine (buf, token.locus);
@@ -427,7 +405,6 @@ class UseAsTemplateType : YmirException {
 
     this (Word token, Word token2) {
 	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' est une variable template", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	super.addLine (buf, token.locus);
 
@@ -454,13 +431,9 @@ class ShadowingVar : YmirException {
      */
     this (Word token, Word token2) {
 	OutBuffer buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : '%s%s%s' est déjâ definis ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
-	
-	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
+	super.addLine (buf, token.locus);	
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
-
 	super.addLine (buf, token2.locus);
 	msg = buf.toString();        
     }
@@ -478,12 +451,10 @@ class MultipleLoopName : YmirException {
      */
     this (Word token, Word token2) {
 	auto buf = new OutBuffer;
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s : l'identifiant de boucle '%s%s%s' est déjâ definis ",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	super.addLine (buf, token.locus);
 	
-	buf.writef ("%s:(%d,%d): ", token2.locus.file, token2.locus.line, token2.locus.column);
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
 	
 	super.addLine (buf, token2.locus);
@@ -503,7 +474,6 @@ class NotATemplate : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: L'élément %s'%s'%s n'est pas un template :", Colors.RED.value,
 		      Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	super.addLine (buf, token.locus);
@@ -517,7 +487,6 @@ class NotATemplate : YmirException {
      */
     this (Word token, Array!Expression tmps) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writef ("%sErreur%s: Aucune spécialisation de template pour %s'%s'%s avec (", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	foreach (it ; tmps)
 	    buf.writef ("%s%s%s%s", Colors.YELLOW.value,
@@ -542,7 +511,6 @@ class UndefinedType : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 
 	super.addLine (buf, token.locus);
@@ -556,7 +524,6 @@ class UndefinedType : YmirException {
      */
     this (Word token, string msg) {
 	OutBuffer buf = new OutBuffer();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, msg);
 
 	super.addLine (buf, token.locus);
@@ -575,10 +542,7 @@ class NoValueNonVoidFunction : YmirException {
      token = emplacement du retour
      */
     this (Word token) {
-	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ",
-		      token.locus.file, token.locus.line, token.locus.column);
-	
+	OutBuffer buf = new OutBuffer ();	
 	buf.writefln ("%sErreur%s: La fonction ne retourne pas void :",
 		    Colors.RED.value,
 		    Colors.RESET.value);
@@ -601,12 +565,10 @@ class TemplateSpecialisation : YmirException {
      */
     this (Word first, Word second) {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", first.locus.file, first.locus.line, first.locus.column);
 	buf.writefln ("%sErreur%s : la specialisation de template fonctionne avec '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, first.str, Colors.RESET.value);
 
 	super.addLine (buf, first.locus);
-	buf.writef ("%s:(%d,%d): ", second.locus.file, second.locus.line, second.locus.column);
 	buf.writefln ("%sErreur%s : et '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, second.str, Colors.RESET.value);
 	super.addLine (buf, second.locus);
@@ -623,7 +585,6 @@ class NotImmutable : YmirException {
      */
     this (Symbol sym) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", sym.sym.locus.file, sym.sym.locus.line, sym.sym.locus.column);
 	buf.writefln ("%sErreur%s : La valeur ne peut être connu à la compilation",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.sym.locus);
@@ -636,7 +597,6 @@ class ImmutableWithoutValue : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
 	buf.writefln ("%sErreur%s : Déclaration d'une variable immutable sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
@@ -649,7 +609,6 @@ class ConstWithoutValue : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
 	buf.writefln ("%sErreur%s : Déclaration d'une variable constante sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
@@ -662,7 +621,6 @@ class StaticWithoutValue : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
 	buf.writefln ("%sErreur%s : Déclaration d'une variable static sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
@@ -676,7 +634,6 @@ class StaticAssertFailure : YmirException {
     
     this (Word sym, string msg) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s(%d,%d): ", sym.locus.file, sym.locus.line, sym.locus.column);
 	buf.writef ("%sErreur%s : Assertion Failure :",
 		    Colors.RED.value, Colors.RESET.value);
 	
@@ -700,7 +657,6 @@ class TemplateCreation : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sNote%s : Création de template : ", Colors.BLUE.value, Colors.RESET.value);
 	
 	super.addLine (buf, token.locus);
@@ -722,7 +678,6 @@ class MixinCreation : YmirException {
      */
     this (Word token) {
 	OutBuffer buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sNote%s : Création de mixin : ", Colors.BLUE.value, Colors.RESET.value);
 	
 	super.addLine (buf, token.locus);
@@ -750,12 +705,10 @@ class TemplateInferType : YmirException {
      */
     this (Word token, Word func) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : Reference vers un type de retour deduis pour l'appel : ",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, token.locus);
 
-	buf.writef ("%s:(%d,%d): ", func.locus.file, func.locus.line, func.locus.column);
 	buf.writefln ("%sNote%s : type deduis de la fonction :",
 		      Colors.BLUE.value, Colors.RESET.value);
 	
@@ -776,7 +729,6 @@ class NeedAllType : YmirException {
      */
     this (Word token, string type = "fonction") {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : Tous les types sont requis dans une prototype de %s : ",
 		      Colors.RED.value, Colors.RESET.value, type);
 	super.addLine (buf, token.locus);
@@ -796,7 +748,6 @@ class OnlyTypeNeeded : YmirException {
      */
     this (Word token) {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s:(%d,%d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : Pas d'indentifiant de variable requis dans une prototype de ptr!function : ",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, token.locus);
@@ -817,7 +768,6 @@ class BreakOutSideBreakable : YmirException {
      */
     this (Word token) {
 	auto buf = new OutBuffer ();
-	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : Break en dehors d'un scope breakable",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, token.locus);
@@ -837,7 +787,6 @@ class BreakRefUndefined : YmirException {
      */
     this (Word token, string name) {
 	auto buf = new OutBuffer ();
-	buf.writef("%s:(%d, %d): ", token.locus.file, token.locus.line, token.locus.column);
 	buf.writefln ("%sError%s : l'identifiant de boucle '%s%s%s' n'existe pas",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, name, Colors.RESET.value);
@@ -858,9 +807,7 @@ class FloatingPointException : YmirException {
      */
     this (Location locus) {
 	auto buf = new OutBuffer;
-	buf.writefln ("%s:(%d, %d): %sErreur%s Division par zero ",
-		      locus.file, locus.line, locus.column,
-		      Colors.RED.value, Colors.RESET.value);
+	buf.writefln ("%sErreur%s Division par zero ", Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, locus);
 	msg = buf.toString ();
     }
@@ -876,8 +823,7 @@ class ImportError : YmirException {
      */
     this (Word locus) {
 	auto buf = new OutBuffer;
-	buf.writefln ("%s:(%d, %d): %sErreur%s Fichier importe inexistant '%s%s.yr%s'",
-		      locus.locus.file, locus.locus.line, locus.locus.column,
+	buf.writefln ("%sErreur%s Fichier importe illisible '%s%s.yr%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, locus.str, Colors.RESET.value);
 	
@@ -900,10 +846,7 @@ class ExpandNonTuple : YmirException {
      */
     this (Word locus, Symbol type) {
 	auto buf = new OutBuffer;
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de développer un type '(%s%s%s)', le type doit être un tuple",
-		      locus.locus.file,
-		      locus.locus.line,
-		      locus.locus.column,
+	buf.writefln ("%sErreur%s: Impossible de développer un type '(%s%s%s)', le type doit être un tuple",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
 
@@ -918,10 +861,7 @@ class OutOfRange : YmirException {
 
     this (Symbol sym, ulong id, ulong length) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Index %d en dehors du range [0 .. %d]",
-		      sym.sym.locus.file,
-		      sym.sym.locus.line,
-		      sym.sym.locus.column,
+	buf.writefln ("%sErreur%s: Index %d en dehors du range [0 .. %d]",
 		      Colors.RED.value, Colors.RESET.value,
 		      id, length);
 	super.addLine (buf, sym.sym.locus);
@@ -933,10 +873,7 @@ class CapacityOverflow : YmirException {
 
     this (Symbol sym, string val) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Dépassement de capacité du type '%s%s%s', '%s%s%s'",
-		      sym.sym.locus.file,
-		      sym.sym.locus.line,
-		      sym.sym.locus.column,
+	buf.writefln ("%sErreur%s: Dépassement de capacité du type '%s%s%s', '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, sym.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, val, Colors.RESET.value
@@ -951,10 +888,7 @@ class WrongTypeForMain : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: La fonction main doit être main ([string]) ou main ()",
-		      sym.locus.file,
-		      sym.locus.line,
-		      sym.locus.column,
+	buf.writefln ("%sErreur%s: La fonction main doit être main ([string]) ou main ()",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
 	msg = buf.toString ();
@@ -967,10 +901,7 @@ class RecursiveExpansion : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Nombre d'expansion récursive statique atteinte",
-		      sym.locus.file,
-		      sym.locus.line,
-		      sym.locus.column,
+	buf.writefln ("%sErreur%s: Nombre d'expansion récursive statique atteinte",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
 	msg = buf.toString ();	
@@ -983,10 +914,7 @@ class NoValueMatch : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Le block n'est pas une expression ",
-		      sym.locus.file,
-		      sym.locus.line,
-		      sym.locus.column,
+	buf.writefln ("%sErreur%s: Le block n'est pas une expression ",
 		      Colors.RED.value, Colors.RESET.value);
 	super.addLine (buf, sym.locus);
 	msg = buf.toString;
@@ -998,10 +926,7 @@ class NotDefaultMatch : YmirException {
 
     this (Word sym) {
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Pas de cas par défaut dans une expression %smatch%s ",
-		      sym.locus.file,
-		      sym.locus.line,
-		      sym.locus.column,
+	buf.writefln ("%sErreur%s: Pas de cas par défaut dans une expression %smatch%s ",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
@@ -1017,10 +942,7 @@ class DestOfNonTuple : YmirException {
     this (Symbol sym) {
 	auto loc = sym.sym.locus;
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de destructurer un élément de type %s%s%s, on a besoin d'un %stuple%s ",
-		      loc.file,
-		      loc.line,
-		      loc.column,
+	buf.writefln ("%sErreur%s: Impossible de destructurer un élément de type %s%s%s, on a besoin d'un %stuple%s ",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, sym.type.typeString, Colors.RESET.value,
 		      Colors.YELLOW.value, Colors.RESET.value
@@ -1033,10 +955,7 @@ class DestOfNonTuple : YmirException {
     this (ulong len, ulong len2, Symbol sym) {	
 	auto loc = sym.sym.locus;
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de destructurer, les tailles diffèrent %s%d%s, %s%d%s",
-		      loc.file,
-		      loc.line,
-		      loc.column,
+	buf.writefln ("%sErreur%s: Impossible de destructurer, les tailles diffèrent %s%d%s, %s%d%s",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, len, Colors.RESET.value,
 		      Colors.YELLOW.value, len2, Colors.RESET.value
@@ -1055,10 +974,7 @@ class CannotRefEnum : YmirException {
     this (Word token) {
 	auto loc = token.locus;
 	auto buf = new OutBuffer ();
-	buf.writefln ("%s:(%d, %d): %sErreur%s: Impossible de prendre une réference vers un type %senum%s ",
-		      loc.file,
-		      loc.line,
-		      loc.column,
+	buf.writefln ("%sErreur%s: Impossible de prendre une réference vers un type %senum%s ",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
@@ -1066,7 +982,20 @@ class CannotRefEnum : YmirException {
 	super.addLine (buf, loc);
 	msg = buf.toString;
     }
-    
 }
 
+class RecursiveCreation : YmirException {
+    this (Word token) {
+	auto loc = token.locus;
+	auto buf = new OutBuffer;
+	buf.writefln ("%sErreur%s: La construction de la structure '%s%s%s', dépend d'elle même",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }
+    
+}
 
