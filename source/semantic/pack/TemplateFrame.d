@@ -86,9 +86,14 @@ class TemplateFrame : Frame {
 	auto score = new ApplicationScore (ident);
 	Expression [string] tmps;
 
+	auto tScope = Table.instance.templateScope;
 	auto globSpace = Table.instance.namespace;
 	Table.instance.setCurrentSpace (this._namespace, this._function.name);
-	scope (exit) Table.instance.resetCurrentSpace (globSpace);
+	Table.instance.templateScope = globSpace;
+	scope (exit) {
+	    Table.instance.resetCurrentSpace (globSpace);
+	    Table.instance.templateScope = tScope;
+	}
 	
 	if (attrs.length == 0 && args.length == 0) {
 	    return null;
@@ -127,7 +132,7 @@ class TemplateFrame : Frame {
 	    
 	    if (!TemplateSolver.isSolved (this._function.tmps, tmps)) return null;
 	    
-	    if (this._function.test) {
+	    if (this._function.test) {		
 		auto valid = func.test.templateExpReplace (tmps) .expression ();
 		if (!valid.info.isImmutable) throw new NotImmutable (valid.info);
 		else if (!(cast (BoolValue)valid.info.value).isTrue) return null;	
@@ -226,8 +231,13 @@ class TemplateFrame : Frame {
     	    return null;
 
 	auto globSpace = Table.instance.namespace;
+	auto tScope = 	Table.instance.templateScope;
 	Table.instance.setCurrentSpace (this._namespace, this._function.name);
-	scope (exit) Table.instance.resetCurrentSpace (globSpace);
+	Table.instance.templateScope = globSpace;
+	scope (exit) {
+	    Table.instance.resetCurrentSpace (globSpace);
+	    Table.instance.templateScope = tScope;
+	}
 	
     	InfoType [] totals;
     	Array!Expression finals;

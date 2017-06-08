@@ -68,7 +68,10 @@ class LReg : LExp {
     
     override string toString () {
 	import std.format;
-	return format("#%d", this._id);
+	if (!this._isStatic)
+	    return format("#%d", this._id);
+	else
+	    return format("#(%s)", this._name);
     }
     
 }

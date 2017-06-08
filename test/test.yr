@@ -1,6 +1,19 @@
-import test.test2;
+import std.thread;
+import std.singleton;
+
+static array = [int ; 1UL];
+
+def foo () {
+    Singleton!(Mutex).lock ();
+    array += [2];
+    Singleton!(Mutex).unlock ();
+}
 
 def main () {
-    Test().a = 12;
-    println (Test());
+    let th = thread (&foo);    
+    Singleton!(Mutex).lock ();
+    array += [1];    
+    Singleton!(Mutex).unlock ();
+    th.join ();
+    println (array);
 }

@@ -91,15 +91,16 @@ class Module {
      Returns: Le namespace à le droit d'accéder au module ?
      +/
     bool authorized (Namespace space) {
-	if (this._namespace.isSubOf (space)) return true;
-	foreach (it ; this._opens) {
-	    if (it.isSubOf (space)) return true;
+	if (space !is null) {
+	    if (this._namespace.isSubOf (space)) return true;
+	    foreach (it ; this._opens) {
+		if (it.isSubOf (space)) return true;
+	    }
+	    
+	    foreach (it ; this._publicOpen) {
+		if (it.isSubOf (space)) return true;
+	    }
 	}
-
-	foreach (it ; this._publicOpen) {
-	    if (it.isSubOf (space)) return true;
-	}
-	
 	return false;
     }
     

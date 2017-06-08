@@ -343,10 +343,11 @@ class Table {
     Array!Module getAllMod (Namespace space) {
 	Array!Module alls;
 	foreach (it ; this._importation) {
-	    if (it.authorized (space)) {
+	    if (it.authorized (space) || it.authorized (this._templateScope)) {
 		alls.insertBack (it);
 	    }
 	}
+       	
 	return alls;
     }
     

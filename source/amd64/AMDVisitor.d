@@ -853,7 +853,8 @@ class AMDVisitor : TVisitor {
 	import amd64.AMDRodata;
 	if (reg.isStatic) {
 	    if (!AMDData.exists (reg.name ~ reg.id.to!string)) {
-		auto list = new TInstList;
+		auto list = new TInstList;		
+		AMDData.insts += new AMDAlign (8);
 		AMDData.insts += new AMDType (reg.name ~ '.' ~ reg.id.to!string, AMDTypes.OBJECT);
 		AMDData.insts += new AMDInstSize (reg.name ~ '.' ~ reg.id.to!string, getSize (reg.size).size.to!string);
 		auto label = new AMDLabel (reg.name ~ '.' ~ reg.id.to!string, new TInstList);

@@ -58,6 +58,7 @@ class Struct : Declaration {
 	    throw new ShadowingVar (this._ident, exist.sym);
 	} else {
 	    auto str = new StructCstInfo (Table.instance.namespace, this._ident.str, this._tmps);
+	    str.isPublic = true;
 	    FrameTable.instance.insert (str);
 	    auto sym = new Symbol(this._ident, str);
 	    Table.instance.insert (sym);
