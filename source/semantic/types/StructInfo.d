@@ -40,6 +40,9 @@ class StructCstInfo : InfoType {
     /** La structure a été importé ?*/
     private bool _extern;
 
+    /** La structure peut être construire en dehors du block ? */
+    private bool _isPublic;
+    
     /++
      L'emplacemence de la création de la structure.
      +/
@@ -58,6 +61,10 @@ class StructCstInfo : InfoType {
 	return this._extern;
     }
 
+    ref bool isPublic () {
+	return this._isPublic;
+    }
+    
     /** 
      Ajoute un attributs à la structure
      Params:
@@ -251,6 +258,9 @@ class StructCstInfo : InfoType {
      params = les paramètres passé à la structure
      */
     override ApplicationScore CallOp (Word token, ParamList params) {
+	if (!this._isPublic && !this._namespace.isSubOf (Table.instance.templateScope))
+	    return null;
+	
 	if (params.length == 0) return emptyCall (token);
 	if (params.params.length != this._params.length) {
 	    return null;

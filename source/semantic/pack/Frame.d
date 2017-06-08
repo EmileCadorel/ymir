@@ -116,6 +116,11 @@ class Frame {
      +/
     static FrameProto validate (Word name, Namespace namespace, Namespace from, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
 	Table.instance.setCurrentSpace (namespace, name.str);
+
+	auto last = Table.instance.templateScope;
+	Table.instance.templateScope = from;	
+	scope (exit) Table.instance.templateScope = last;
+	
 	if (ret is null)
 	    Table.instance.retInfo.info = new Symbol (Word.eof, new UndefInfo ());
 	else
@@ -185,11 +190,15 @@ class Frame {
     
     protected final FrameProto validate (Namespace space, Namespace from, Array!Var finalParams) {
 	Table.instance.setCurrentSpace (space, this._function.name);
+	auto last = Table.instance.templateScope;
+	Table.instance.templateScope = from;	
+	scope (exit) Table.instance.templateScope = last;
+	
 	if (this._function.type is null)
 	    Table.instance.retInfo.info = new Symbol (Word.eof, new UndefInfo ());
 	else 
 	    Table.instance.retInfo.info = this._function.type.asType ().info;	
-		
+	
 	auto proto = new FrameProto (this._function.name, from, Table.instance.retInfo.info, finalParams, this._tempParams);
 	
 	if (!FrameTable.instance.existProto (proto)) {

@@ -1,12 +1,4 @@
-import std.singleton;
-
-private struct TestIn {
-    a : int
-}
-
-def Test () {
-    return Singleton!(TestIn);    
-}
+import test.test2;
 
 def main () {
     Test().a = 12;

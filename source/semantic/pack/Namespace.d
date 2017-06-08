@@ -34,13 +34,15 @@ class Namespace {
     }        
 
     bool isSubOf (Namespace other) {
-	if (this._names.length <= other._names.length) {
-	    foreach (it ; 0 .. this._names.length) {
+	if (other !is null) {
+	    if (this._names.length <= other._names.length) {
+		foreach (it ; 0 .. this._names.length) {
 		if (other._names [it] != this._names [it]) {
 		    return false;
 		}
+		}
+		return true;
 	    }
-	    return true;
 	}
 	return false;
     }

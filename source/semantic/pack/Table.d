@@ -18,6 +18,9 @@ class Table {
     /** Le scope global du programme */
     private Scope _globalScope;
 
+    /** Le namespace qui est en train de faire une résolution template */
+    private Namespace _templateScope;
+    
     /++ Liste des modules importé dans la vie de la compilation +/
     private Array!Module _importation;
 
@@ -126,6 +129,13 @@ class Table {
 	return this._namespace;
     }
 
+    /++
+     Returns: la namespace qui est en train de faire une résolution template
+     +/
+    ref Namespace templateScope () {
+	return this._templateScope;
+    }
+    
     /**
      Insert un nouveau symbole dans le scope le plus mince.
      Params:

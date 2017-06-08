@@ -76,8 +76,9 @@ class Struct : Declaration {
 	} else {
 	    auto str = new StructCstInfo (mod.space, this._ident.str, this._tmps);
 	    str.isExtern = this._tmps.length == 0;
+	    str.isPublic = this._isPublic;
 	    auto sym = new Symbol (this._ident, str);
-	    sym.isPublic = this._isPublic;
+	    sym.isPublic = this._isPublic;	    
 	    
 	    mod.insert (sym);
 	    foreach (it ; this._params) {
@@ -85,7 +86,7 @@ class Struct : Declaration {
 		    str.addAttrib (ty);
 		} else throw new NeedAllType (this._ident, "structure");		
 	    }	   
-	}
+	}	
     }
     
     override Declaration templateReplace (Expression [string] values) {

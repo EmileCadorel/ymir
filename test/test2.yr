@@ -1,0 +1,10 @@
+import std.singleton;
+
+private struct TestIn {
+    a : int
+}
+
+
+def Test () : TestIn {
+    return Singleton!(TestIn);    
+}

@@ -1,10 +1,6 @@
 
-private struct SingletonContainer (T) {
-    instance : T
-}
-
 def Singleton if (is (T : struct)) (T) () {
-    let static inst = SingletonContainer!(T) (T ());
-    return inst.instance;
+    let static inst = T ();
+    return inst;
 }
 
