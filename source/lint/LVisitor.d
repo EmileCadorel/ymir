@@ -98,15 +98,15 @@ class LVisitor {
 	    frames.insertBack (this.visit (it));
 	}
 	
+	if (Table.instance.globalNamespace !is null)
+	    frames.insertBack (computeStaticInit ());
+	
 	foreach (key, value ; LFrame.preCompiled) {
 	    if (!value.isStd) {
 		frames.insertBack (value);
 	    }
 	    LFrame.preCompiled.remove (key);
 	}
-
-	if (Table.instance.globalNamespace !is null)
-	    frames.insertBack (computeStaticInit ());
 	
 	return frames;
     }

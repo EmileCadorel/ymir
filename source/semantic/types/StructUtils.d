@@ -153,6 +153,7 @@ class StructUtils {
 	    }
 	    params.insertBack (exp);
 	}
+	    
 	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	return inst;
     }

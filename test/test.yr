@@ -1,11 +1,16 @@
 
-def opAssign ("+=", T of [U], U) (ref a : T, b : T) {
-    a = a + b;
-    return a;
+struct Singleton (T) {
+    a : T
+}
+
+def singleton (T) () {
+    let static sig = Singleton!(T) ();
+    return sig;
 }
 
 def main () {
-    let a = [1, 3];
-    a += [4];
-    println (a);
+    let a = singleton!(int);
+    a.a = 12;
+    let b = singleton!(int);
+    println (b);
 }
