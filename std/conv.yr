@@ -125,7 +125,7 @@ def addTupleComa (T) (left : T, elem) : string {
 	else
 	    return to!(string)(left) + ", null";
     } else {
-	return to!(string) (left) + ", " + addTupleComa (expand (elem));
+        return left.to!(string) + ", " + addTupleComa (expand (elem));
     }
 }
 
@@ -135,8 +135,8 @@ def addTupleComa () : string {
 }
 
 def to if (isTuple!(T2) ())
-    (T of string, T2) (elem : T2) : string {	
-	return 'tuple(' + addTupleComa (expand (elem)) + ')';	
+    (T of string, T2) (elem : T2) : string {
+        return "tuple(" + addTupleComa (expand (elem)) + ')';
     }
 
 def to if (is (T2 : struct))

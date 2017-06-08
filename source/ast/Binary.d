@@ -160,7 +160,6 @@ class Binary : Expression {
 		    if (!call)
 			throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 		    else {
-			//call.garbage ();
 			return call;
 		    }
 		}

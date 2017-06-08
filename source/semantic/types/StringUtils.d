@@ -44,21 +44,39 @@ class StringUtils {
 	return inst;
     }
 
+    private static LInstList computeLeftAndRight (ref LExp left, ref LExp right, LInstList llist, LInstList rlist) {
+	auto inst = new LInstList;
+	left = llist.getFirst ();
+	right = rlist.getFirst ();
+	inst += llist + rlist;
+	writeln (left, ' ', right);
+	if (auto call = cast (LCall) left) {
+	    auto aux = new LReg (left.size);
+	    inst += new LWrite (aux, left);
+	    left = aux;
+	}
+
+	if (auto call = cast (LCall) right) {
+	    auto aux = new LReg (right.size);
+	    inst += new LWrite (aux, right);
+	    right = aux;
+	}
+	return inst;
+    }
+    
     /**
      Returns: la liste d'instruction d'un operateur plus entre 2 string.
     */
     static LInstList InstPlus (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst ();
-	inst += llist + rlist;
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
 	inst +=  new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	return inst;
     }
 
     static LInstList InstPlusChar (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
-	inst += llist + rlist;
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
 	inst += new LCall (__PlusStringChar__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	return inst;
     }
@@ -67,9 +85,8 @@ class StringUtils {
      Appel de la fonction "=="
      */
     static LInstList InstEqual (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst;
-	inst += llist + rlist;
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
 	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
 	auto ret = new LReg (LSize.BYTE);
 	inst += new LWrite (ret, call);
@@ -80,9 +97,8 @@ class StringUtils {
      Appel de la fonction !('==')
      */
     static LInstList InstNotEqual (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst;
-	inst += llist + rlist;
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
 	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
 	auto ret = new LReg (LSize.BYTE);
 	inst += new LWrite (ret, call);
@@ -94,18 +110,9 @@ class StringUtils {
      Returns: la liste d'instruction d'un operateur += entre 2 string.
     */
     static LInstList InstPlusAffect (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	LExp res;
-	if ((cast (LReg) rightExp) is null) {
-	    auto aux = new LReg (LSize.ULONG);
-	    inst += new LWrite (aux, rightExp);
-	    res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, aux), LSize.LONG);
-	} else {
-	    res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
-	}
-	
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	LExp res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);       	
 	inst += new LWrite (leftExp, res);
 	inst += leftExp;
 	return inst;
@@ -115,9 +122,8 @@ class StringUtils {
      Returns: la liste d'instruction d'une affectation entre une string jamais affecté et une string.
      */
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
+	LExp leftExp, rightExp;
+	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
 	if (auto cst = cast (LConstString) rightExp) return affectConstStringRight (inst, leftExp, cst);
 	inst += new LWrite (leftExp, rightExp);
 	inst += leftExp;

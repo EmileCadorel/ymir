@@ -1,10 +1,20 @@
+import std.conv;
 
+private struct Singleton {
+    a : int,
+    b : float
+}
 
+static instance : Singleton;
+
+public def singleton () {
+    if (instance is null) {
+        instance = Singleton (0, 1.2);
+    }
+    return instance;
+}
 
 def main () {
-    let foo = (a : int, b : int) => a < b;    
-    let a = fn (int, int) -> bool (foo);
-
-
-    println (a (12, 4));
+    let a = singleton ();
+    println (a);
 }

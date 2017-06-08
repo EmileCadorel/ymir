@@ -144,8 +144,14 @@ class StructUtils {
 	Array!LExp params;
 	inst += llist;
 	foreach (it ; rlist) {
-	    params.insertBack (it.getFirst ());
+	    auto exp = it.getFirst ();
 	    inst += it;
+	    if (auto call = cast (LCall) exp) {
+		auto aux = new LReg (call.size);
+		inst += new LWrite (aux, call);
+		exp = aux;
+	    }
+	    params.insertBack (exp);
 	}
 	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	return inst;
