@@ -101,7 +101,8 @@ class FuncPtr : Expression {
 	if (this._expr) {
 	    auto expr = this._expr.templateExpReplace (values);
 	    return new FuncPtr (this._token, params, cast (Var) ret, expr);
-	}	
+	}
+		    
 	return new FuncPtr (this._token, params, cast (Var) ret);
     }
 

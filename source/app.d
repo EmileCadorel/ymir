@@ -143,7 +143,7 @@ void main (string [] args) {
 	    options ~= ["-o", Options.instance.getOption (OptionEnum.TARGET)];
 	
 	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
-	    auto pid = spawnProcess (["gcc"] ~
+	    auto pid = spawnProcess (["gcc", "-O6"] ~				     
 				     options ~
 				     files ~
 				     Options.instance.libs ~

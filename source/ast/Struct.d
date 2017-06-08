@@ -24,9 +24,9 @@ class Struct : Declaration {
     /// Les paramètre de la srtucture
     private Array!Var _params;
 
-    private Array!Var _tmps;
+    private Array!Expression _tmps;
     
-    this (Word ident, Array!Var tmps, Array!Var params) {
+    this (Word ident, Array!Expression tmps, Array!Var params) {
 	this._ident = ident;
 	this._params = params;
 	this._tmps = tmps;

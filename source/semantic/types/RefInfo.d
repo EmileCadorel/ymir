@@ -236,7 +236,7 @@ class RefInfo : InfoType {
      Returns: le nom du type.
      */
     override string typeString () {
-	return "ref!" ~ this._content.typeString ();
+	return "ref(" ~ this._content.typeString () ~ ")";
     }
 
     /**

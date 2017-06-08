@@ -322,13 +322,13 @@ class PtrFuncInfo : InfoType {
      */
     override string typeString () {
 	auto buf = new OutBuffer ();
-	buf.write ("function(");
+	buf.write ("fn(");
 	foreach (it ; this._params) {
 	    buf.write (it.typeString);
 	    if (it != this._params [$ - 1])
 		buf.write (",");
 	}
-	buf.writef ("):%s", this._ret.typeString);
+	buf.writef (")->%s", this._ret.typeString);
 	return buf.toString ();
     }
         

@@ -29,7 +29,7 @@ class StructCstInfo : InfoType {
     private Array!InfoType _types;
 
     /** Les templates découvert à la syntaxe */
-    private Array!Var _tmps;
+    private Array!Expression _tmps;
     
     /** Les templates utilisé pour la spécilisation */
     private Array!InfoType _oldTmps;
@@ -45,7 +45,7 @@ class StructCstInfo : InfoType {
      +/
     private Namespace _namespace;
     
-    this (Namespace space, string name, Array!Var tmps) {
+    this (Namespace space, string name, Array!Expression tmps) {
 	this._namespace = space;
 	this._name = name;
 	this._tmps = tmps;
@@ -95,34 +95,40 @@ class StructCstInfo : InfoType {
 	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
 	
 	if (cst is null) assert (false, "Nooooon !!!");
-	if (templates.length != cst._tmps.length)
-	    throw new UndefinedType (name, format("prend %d type en template", cst._tmps.length));
-	if (cst._tmps.length != 0)
-	    return cst.TempOp (make!(Array!Expression) (templates)).emptyCall (name).ret;
+	if (cst._tmps.length == 0 && templates.length != 0)
+	    throw new NotATemplate (name);
+
+	if (cst._tmps.length != 0) {
+	    auto ret = cst.TempOp (make!(Array!Expression) (templates));
+	    if (ret is null) throw new NotATemplate (name, make!(Array!Expression) (templates));
+	    return ret.emptyCall (name).ret;
+	}
 	
 	if (cst._types.empty) {	    	    
 	    foreach (it ; cst._params) {
 		auto printed = false;
+		Symbol sym;
 		if (auto fn = cast (FuncPtr) it.expType) {
-		    assert (false, "TODO");
+		    auto type = fn.expression;
+		    sym = type.info;
 		} else if (auto array = cast (ArrayAlloc) it.expType) {
 		    assert (false, "TODO");
 		} else {
-		    auto type = it.type.asType ();
-		    auto sym = type.info;//Table.instance.get (it.type.token.str);
-		    if (sym) {
-			auto _st = cast (StructCstInfo) (sym.type);
-			if (_st) {
-			    cst._types.insertBack (_st);
-			    cst._names.insertBack (it.token.str);
-			    printed = true;			
-			}		    
-		    }
-		    if (!printed) {
-			cst._types.insertBack (it.getType ());
-			cst._names.insertBack (it.token.str);
-		    }
+		    sym = Table.instance.get (it.type.token.str);
+		    if (sym is null) it.type.asType ();
 		}
+		if (sym) {
+		    auto _st = cast (StructCstInfo) (sym.type);
+		    if (_st) {
+			cst._types.insertBack (_st);
+			cst._names.insertBack (it.token.str);
+			printed = true;			
+		    }		    
+		}
+		if (!printed) {
+		    cst._types.insertBack (it.getType ());
+		    cst._names.insertBack (it.token.str);
+		}		
 	    }
 	}
 	
@@ -132,14 +138,24 @@ class StructCstInfo : InfoType {
     }
 
     InfoType create (Word name) {
+	import std.format, ast.FuncPtr, ast.ArrayAlloc;
 	if (this._types.empty) {	    	    
 	    foreach (it ; this._params) {
 		auto printed = false;
-		auto sym = Table.instance.get (it.type.token.str);
+		Symbol sym;
+		if (auto fn = cast (FuncPtr) it.expType) {
+		    auto type = fn.expression;
+		    sym = type.info;
+		} else if (auto array = cast (ArrayAlloc) it.expType) {
+		    assert (false, "TODO");
+		} else {
+		    sym = Table.instance.get (it.type.token.str);
+		    if (sym is null) it.type.asType ();
+		}
 		if (sym) {
 		    auto _st = cast (StructCstInfo) (sym.type);
 		    if (_st) {
-			this._types.insertBack (_st.TempOp (it.type.templates));
+			this._types.insertBack (_st);
 			this._names.insertBack (it.token.str);
 			printed = true;			
 		    }		    
@@ -147,7 +163,7 @@ class StructCstInfo : InfoType {
 		if (!printed) {
 		    this._types.insertBack (it.getType ());
 		    this._names.insertBack (it.token.str);
-		}
+		}		
 	    }
 	}
        
@@ -166,20 +182,24 @@ class StructCstInfo : InfoType {
 	string name = this._name;
 	name ~= "!(";
 	uint it = 0;
-	foreach (key, value ; res.elements) {
-	    auto type = cast (Type) value;
-	    types.insertBack (type.info.type);
-	    name ~= type.info.type.typeString;
-	    if (it != res.elements.length - 1)
-		name ~= ", ";
-	    it ++;
+	foreach (it_ ; this._tmps) { // Il faut qu'il soit dans le bon ordre
+	    foreach (key, value ; res.elements) {
+		if (key == it_.token.str) {
+		    auto type = cast (Type) value;
+		    types.insertBack (type.info.type);
+		    name ~= type.info.type.typeString;
+		    if (it != res.elements.length - 1)
+			name ~= ", ";
+		    it ++;
+		}
+	    }
 	}
 	
 	name ~= ")";
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
-	auto ret = new StructCstInfo (this._namespace, name, make!(Array!Var));
+	auto ret = new StructCstInfo (this._namespace, name, make!(Array!Expression));
 	ret._oldTmps = types;
 	foreach (it_ ; this._params) {
 	    ret.addAttrib (cast (TypedVar) it_.templateExpReplace (res.elements));

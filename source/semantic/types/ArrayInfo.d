@@ -373,7 +373,7 @@ class ArrayInfo : InfoType {
      Returns: Le type du tableau sous forme de chaine.
      */
     override string typeString () {
-	return "array!" ~ this._content.typeString ();
+	return "[" ~ this._content.typeString () ~ "]";
     }
 
     /**

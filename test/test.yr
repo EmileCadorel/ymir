@@ -1,12 +1,39 @@
 
-def foo (a : int, b : int) {
+struct Test {
+    a : fn (int, int) -> int
+}
+
+struct Signal (T of [U], U) {
+    list : [fn (T) -> U]
+}
+
+def foo (a : int, b : int) 
     return a + b;
+
+def foo2 (a : [int]) 
+    return a[0] + 1;
+
+
+def connect (T of [U], U) (sig : Signal!(T), fun : fn (T) -> U) {
+    sig.list = sig.list + [fun];
+}
+
+def test (T of [U], U) (sig : Signal!(T)) {
+    println (sig.typeid);
 }
 
 def main () {
-    let a = [fn (int, int) -> int ; 0U];
-    a = a + [&foo];
-    for it in a {
-        println (it (1, 2));
-    }    
+    let a = Test (&foo);
+    println (a.a (1, 2));
+
+    let sig = Signal!([int]) ([]);    
+    sig.connect (&foo2);
+    sig.connect (
+        (a : [int]) => a[0] * 3
+    );
+
+    for it in sig.list {
+        println (it ([8]));
+    }
+    
 }

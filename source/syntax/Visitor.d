@@ -214,28 +214,33 @@ class Visitor {
 	return new Import (begin, idents);
     }
 
+    Array!Expression visitTemplateStruct () {
+	Array!Expression expr;
+	auto next = this._lex.next ();
+	if (next != Tokens.RPAR) {
+	    this._lex.rewind ();
+	    while (next != Tokens.RPAR) {	    
+		expr.insertBack (visitOf ());
+		next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+	    }
+	}
+	return expr;
+    }
+    
     /**
      struct := 'struct' '(' (var (',' var)*)? ')' Identifiant ';'
      */
     private Struct visitStruct () {
 	Word word = this._lex.next (), ident;
 	Array!Var exps;
-	Array!Var temps;
+	Array!Expression temps;
 	if (word == Tokens.LPAR) {
-	    auto next = this._lex.next ();
-	    if (next != Tokens.RPAR) {
-		this._lex.rewind ();
-		while (1) {
-		    temps.insertBack (visitType ());
-		    next = this._lex.next (Tokens.RPAR, Tokens.COMA);
-		    if (next == Tokens.RPAR) break;
-		}
-	    }
-	    word = this._lex.next ();
+	    temps = visitTemplateStruct ();
+	    word = this._lex.next (Tokens.PIPE);
 	}
-		
+	
 	if (word == Tokens.PIPE) {
-	    while (true) {
+		while (true) {
 		exps.insertBack (visitStructVarDeclaration ());
 		this._lex.next (word);
 		if (word == Tokens.ARROW) break;
@@ -248,7 +253,12 @@ class Visitor {
 	} else {
 	    this._lex.rewind ();
 	    ident = visitIdentifiant ();
-	    auto next = this._lex.next (Tokens.LACC);
+	    auto next = this._lex.next (Tokens.LPAR, Tokens.LACC);
+	    if (next == Tokens.LPAR) {
+		temps = visitTemplateStruct ();
+		this._lex.next (Tokens.LACC); 
+	    }
+	    
 	    while (true) {
 		exps.insertBack (visitStructVarDeclaration ());
 		word = this._lex.next (Tokens.COMA, Tokens.RACC);
@@ -489,7 +499,13 @@ class Visitor {
 	    return new TypedVar (ident, type, Word.eof);
 	} else if (next == Tokens.LCRO) {
 	    auto begin = next;
-	    auto type = visitType ();
+	    next = this._lex.next ();
+	    Expression type;
+	    if (next == Keys.FUNCTION) type = visitFuncPtrSimple ();
+	    else {
+		this._lex.rewind ();
+		type = visitType ();
+	    }
 	    next = this._lex.next (Tokens.RCRO, Tokens.SEMI_COLON);
 	    if (next == Tokens.SEMI_COLON) {
 		auto len = visitNumeric (this._lex.next ());
