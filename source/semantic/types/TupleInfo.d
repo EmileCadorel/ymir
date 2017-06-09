@@ -97,6 +97,25 @@ class TupleInfo : InfoType {
 	}
 	return null;
     }
+
+    override InfoType CastOp (InfoType other) {
+	import semantic.types.ArrayInfo;
+	import semantic.types.DecimalInfo;
+	import semantic.types.PtrInfo;
+	import ast.Constante;
+	if (auto arr = cast (ArrayInfo) other) {
+	    if (this._params.length == 2) {
+		auto ul = cast (DecimalInfo) this._params [0];
+		auto pt = cast (PtrInfo) this._params [1];
+		if (ul && pt && ul.type == DecimalConst.ULONG) {
+		    auto ret = other.clone ();
+		    ret.lintInst = &TupleUtils.InstAffectRight;
+		    return ret;
+		}		
+	    }
+	}
+	return null;
+    }
     
     override InfoType DotExpOp (Expression right) {
 	import semantic.value.DecimalValue;
@@ -207,7 +226,8 @@ class TupleInfo : InfoType {
 	ret.leftTreatment = &TupleUtils.InstCreateCstEmpty;
 	return ret;
     }
-    
+
+       
     override LSize size () {
 	return LSize.LONG;
     }

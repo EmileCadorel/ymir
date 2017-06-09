@@ -219,6 +219,7 @@ class ArrayInfo : InfoType {
 	else if (var.token.str == "length") return Length;
 	else if (var.token.str == "typeid") return StringOf;
 	else if (var.token.str == "ptr") return toPtr;
+	else if (var.token.str == "tupleof") return TupleOf;
 	return null;
     }
     
@@ -252,6 +253,19 @@ class ArrayInfo : InfoType {
 	return _str;
     }
 
+    /++
+     [].tupleof;
+     +/
+    private InfoType TupleOf () {
+	import semantic.types.TupleInfo;
+	import semantic.types.PtrInfo;
+	auto t = new TupleInfo ();
+	t.params = make!(Array!InfoType) ([new DecimalInfo (DecimalConst.ULONG),
+					  new PtrInfo (new VoidInfo)]);
+	t.lintInst = &ArrayUtils.InstCastTuple;
+	return t;
+    }
+    
     /**
      L'operateur '[]' avec un seul paramètre.
      Params:

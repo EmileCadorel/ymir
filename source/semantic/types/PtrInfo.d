@@ -400,6 +400,13 @@ class PtrInfo : InfoType {
 	    auto ot = tu.cloneForParam ();
 	    ot.lintInstS.insertBack (&PtrUtils.InstCast);
 	    return ot;
+	} else if (auto ul = cast (DecimalInfo) other) {
+	    import ast.Constante;
+	    if (ul.type == DecimalConst.ULONG) {
+		auto ot = ul.cloneForParam ();
+		ot.lintInstS.insertBack (&PtrUtils.InstCast);
+		return ot;
+	    }
 	}
 	return null;
     }

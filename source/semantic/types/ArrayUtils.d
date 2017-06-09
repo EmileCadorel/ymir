@@ -111,6 +111,16 @@ class ArrayUtils {
     }
 
     /**
+     Transforme le tableau en tuple.
+     Params:
+     llist = les instructions du tableau.
+     Returns: les instructions du lint.
+     */
+    static LInstList InstCastTuple (LInstList, LInstList llist) {
+	return llist;
+    }
+    
+    /**
      Recupere le string qui contient le type du tableau.
      Params:
      left = l'expression du tableau.

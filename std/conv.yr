@@ -45,6 +45,10 @@ def to if (is (T2 : short))
 	return to!(string) (cast:int(elem));
     }
 
+def to (T of string, T2) (elem : ptr!(T2)) : string {
+    return (cast:ulong (elem)).to!string;
+}
+
 def to if (is (T2 : byte))
     (T of string, T2) (elem : T2) : string {
 	let aux = cast:int (elem);
@@ -113,13 +117,13 @@ def to (T of string) (elem : T) {
     else return elem;
 }
 
-def addTupleComa if (!is (T : tuple))
+def addTupleComa if (!isTuple!(T))
     (T) (left : T) : string {
 	return to!(string) (left);
     }
 
 def addTupleComa (T) (left : T, elem) : string {
-    static if (!isPrimitive!(typeof (elem))() && !is(typeof (elem) : tuple)) {
+    static if (!isPrimitive!(typeof (elem))() && !isTuple!(typeof (elem))()) {
 	if (elem !is null)
 	    return to!(string)(left) + ", " + addTupleComa (expand (elem));
 	else
@@ -134,7 +138,7 @@ def addTupleComa () : string {
     return "";
 }
 
-def to if (is(T2 : tuple))
+def to if (isTuple!(T2) ())
     (T of string, T2) (elem : T2) : string {
         return "tuple(" + addTupleComa (expand (elem)) + ')';
     }

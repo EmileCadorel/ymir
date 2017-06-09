@@ -1,3 +1,5 @@
+import std.traits;
+
 extern (C) GC_malloc (ulong) : ptr!(void);
 
 struct Array (T) {
@@ -17,6 +19,21 @@ def opIndex (T, U) (a : ptr!(T), b : range!(U)) : Array!T {
 def cstArray (len : ulong, size : ubyte) : ptr!(void) {
     let array = GC_malloc (len * size);
     return (len, array).ptr;
+}
+
+def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : range!(I)) {    
+    if (rng.fst < rng.scd) {
+        let len = rng.scd - rng.fst;
+        let aux = a.tupleof;
+        let ret = (cast:ulong (len),
+                   cast:ptr!(ubyte) (aux.1)
+                       + (cast:ulong (rng.fst) * U.sizeof));
+        
+        return cast:[U] (ret);
+    } else if (rng.fst == rng.scd) {
+        return [U ; 0UL];
+    } else 
+        return null;
 }
 
 def opBinary('+', T of [U], U) (a : T, b : T) : T {

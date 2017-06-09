@@ -1,8 +1,8 @@
 import std.conv;
 
-extern (C) putchar (char);
-
 def main () {
-    let a = "salut";
+    let a = [1, 2, 3];
+    let b = a [0 .. 1];
+    println (b);
     println (a);
 }

@@ -65,7 +65,7 @@ class Is : Expression {
 	    auto type = new BoolInfo ();
 	    aux._info = new Symbol (this._token, type, true);
 	    aux._info.value = new BoolValue (res);
-	    return aux;
+	    return aux;	    
 	} else {
 	    import semantic.types.PtrFuncInfo;
 	    auto aux = new Is (this._token, this._left.expression, this._expType);
@@ -76,10 +76,6 @@ class Is : Expression {
 		aux._info.value = new BoolValue (
 		    cast (FunctionInfo) (aux._left.info.type) !is null ||
 		    cast (PtrFuncInfo) (aux._left.info.type) !is null
-		);
-	    } else if (this._expType == Keys.TUPLE) {
-		aux._info.value = new BoolValue (
-		    cast (TupleInfo) (aux._left.info.type) !is null
 		);
 	    } else {
 		aux._info.value = new BoolValue (

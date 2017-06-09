@@ -85,7 +85,7 @@ class Dot : Expression {
     }
 
     override Expression templateExpReplace (Expression [string] values) {
-	return new Dot (this._token, this._left.templateExpReplace (values), cast (Var) this._right.templateExpReplace (values));
+	return new Dot (this._token, this._left.templateExpReplace (values), this._right.templateExpReplace (values));
     }
     
     /**
