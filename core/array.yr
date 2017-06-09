@@ -1,5 +1,18 @@
-
 extern (C) GC_malloc (ulong) : ptr!(void);
+
+struct Array (T) {
+    length : ulong,
+    raw : ptr!(int)
+}
+
+def opIndex (T, I) (a : Array!(T), id : I) : ref T {
+    return (a.raw + (cast:ulong (id) * T.sizeof)).T;
+}
+
+def opIndex (T, U) (a : ptr!(T), b : range!(U)) : Array!T {
+    return Array!(T) (cast:ulong (b.scd - b.fst), a);
+}
+
 
 def cstArray (len : ulong, size : ubyte) : ptr!(void) {    
     let array = GC_malloc (len * size + ulong.sizeof);

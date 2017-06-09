@@ -33,6 +33,10 @@ def print (i : ptr!void) : void {
     printf (("%lu").ptr, i);
 }
 
+def print (T) (i : ptr!(T)) : void {
+    printf (("%lu").ptr, i);
+}
+
 def print (i : uint) : void {
     printf (("%u").ptr, i);
 }

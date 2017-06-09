@@ -216,6 +216,8 @@ class StructCstInfo : InfoType {
 	
 	auto ret = new StructCstInfo (this._namespace, name, make!(Array!Expression));
 	ret._oldTmps = types;
+	ret._isPublic = this._isPublic;
+	
 	foreach (it_ ; this._params) {
 	    ret.addAttrib (cast (TypedVar) it_.templateExpReplace (res.elements));
 	}
