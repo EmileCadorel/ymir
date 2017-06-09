@@ -1,15 +1,6 @@
 import std.stdio;
 import std.string;
 
-def print (as : [string]) {
-    println ('[');
-    for (it in 0ul .. as.length) {
-	print ('  ', as [it]);
-	if (it < as.length - 1ul) println (',');
-    }
-    println ("\n]");
-}
-
 def map (as : [string], op) {
     for (it in as) {
 	it = op (it);

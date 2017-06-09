@@ -113,13 +113,13 @@ def to (T of string) (elem : T) {
     else return elem;
 }
 
-def addTupleComa if (!isTuple!(T)())
+def addTupleComa if (!is (T : tuple))
     (T) (left : T) : string {
 	return to!(string) (left);
     }
 
 def addTupleComa (T) (left : T, elem) : string {
-    static if (!isPrimitive!(typeof (elem))() && !isTuple!(typeof (elem))()) {
+    static if (!isPrimitive!(typeof (elem))() && !is(typeof (elem) : tuple)) {
 	if (elem !is null)
 	    return to!(string)(left) + ", " + addTupleComa (expand (elem));
 	else
@@ -134,7 +134,7 @@ def addTupleComa () : string {
     return "";
 }
 
-def to if (isTuple!(T2) ())
+def to if (is(T2 : tuple))
     (T of string, T2) (elem : T2) : string {
         return "tuple(" + addTupleComa (expand (elem)) + ')';
     }

@@ -51,5 +51,6 @@ enum Keys : Token {
     SELF = Token ("self", 56),
     OPASSIGN = Token ("opAssign", 57),
     TRAIT = Token ("trait", 58),
-    IMPL = Token ("impl", 59)
+    IMPL = Token ("impl", 59),
+    TUPLE = Token ("tuple", 60)
 }

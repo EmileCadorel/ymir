@@ -621,12 +621,10 @@ class LVisitor {
 		for (long nb = cster.lintInstS.length - 1; nb >= 0; nb --) {		
 		    ret = cster.lintInst (ret, nb);
 		}
-	    } else ret = visitExpression (carray.params [it]);
-	    auto regRead = new LRegRead (aux,
-					 new LBinop (new LConstDecimal (it, LSize.INT, type.content.size), new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.PLUS),
-					 type.content.size);
+	    } else ret = visitExpression (carray.params [it]);	    
+	    auto access = ArrayUtils.InstAccess (aux, new LConstDecimal (it, LSize.INT, type.content.size), type.content.size);
 	    
-	    inst += cster.lintInst (new LInstList (regRead), ret);
+	    inst += cster.lintInst (new LInstList (access), ret);
 	}
 	inst += aux;
 	return inst;

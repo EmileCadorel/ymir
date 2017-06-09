@@ -152,48 +152,6 @@ class StringUtils {
 	inst += new LWrite (leftExp, new LCall (__CstName__, exps, LSize.LONG));
 	return inst;
     }
-
-    /**
-     Returns: la liste d'instruction d'un acces à un élément d'un string.
-     */
-    static LInstList InstAccessS (LInstList llist, Array!LInstList rlists) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
-	inst += llist + rlists.back ();
-	auto elem = new LBinop (new LConstDecimal (1, LSize.LONG, LSize.LONG),
-				new LBinop (leftExp, new LCast (rightExp, LSize.ULONG),
-					    Tokens.PLUS),
-				Tokens.PLUS);
-	
-	inst += new LRegRead (elem, new LConstDecimal (0, LSize.INT), LSize.BYTE);
-	return inst;
-    }
-
-    /**
-     Returns: la liste d'instruction de récupération de la taille d'un string.
-     */
-    static LInstList InstLength (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	if (auto str = (cast(LConstString) leftExp)) {
-	    inst += new LConstDecimal (str.value.length, LSize.ULONG);
-	} else {
-	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.ULONG);
-	}
-	return inst;
-    }
-
-    /**
-     Returns: la liste d'instruction de récupération du ptr!char de la string.
-     */
-    static LInstList InstPtr (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.PLUS);
-	return inst;
-    }
     
     /**
      Returns: la liste d'instruction de la transformation d'une string en array (llist);

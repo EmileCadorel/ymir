@@ -63,7 +63,7 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = list.getFirst ();
 	inst += list;
-	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), Tokens.PLUS);
+	inst += new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG);
 	return inst;
     }
     
@@ -80,17 +80,26 @@ class ArrayUtils {
 	auto inst = new LInstList;
 	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
 	inst += llist + rlists.back ();
-	auto elem = new LBinop (new LConstDecimal (1, LSize.LONG, LSize.LONG),
-				new LBinop (leftExp,
-					    new LBinop (new LCast (rightExp, LSize.ULONG),
-							new LConstDecimal (1, LSize.LONG, size),
-							Tokens.STAR),
-					    Tokens.PLUS),
-				Tokens.PLUS);
+	auto elem = new LBinop (
+	    new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+	    new LBinop (new LCast (rightExp, LSize.ULONG),
+			new LConstDecimal (1, LSize.LONG, size),
+			Tokens.STAR),
+	    Tokens.PLUS);
+	
 	inst += new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);	
 	return inst;
     }
 
+    static LRegRead InstAccess (LExp left, LExp right, LSize size) {
+	auto elem = new LBinop (new LRegRead (left, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+				right,
+				Tokens.PLUS);
+	
+	return new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);
+    }
+
+    
     /**
      Transforme le tableau en string.
      Params:
@@ -143,9 +152,10 @@ class ArrayUtils {
 	inst += debut;
 	inst += new LJump (test, vrai);
 	inst += new LGoto (faux);
-	vrai.insts += new LWrite (rightExp, new LBinop (leftExp, new LBinop (new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
-									     new LConstDecimal (1, LSize.LONG, LSize.LONG), Tokens.PLUS),
-							Tokens.PLUS));
+	vrai.insts += new LWrite (rightExp, new LBinop (new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+							new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
+							Tokens.PLUS)
+	);
 	vrai.insts += block;
 	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
 	vrai.insts += new LGoto (debut);

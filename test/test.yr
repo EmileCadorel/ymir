@@ -1,13 +1,8 @@
 import std.conv;
-import core.array;
+
+extern (C) putchar (char);
 
 def main () {
-    let a = [1, 2];
-    a [0] = 13;
-
-    let c = a.ptr [0 .. 2];
-    c[1] = 12;
-    println (c.tupleof.0, ' ', c.tupleof.1);
-    println (c [1]);
-
+    let a = "salut";
+    println (a);
 }

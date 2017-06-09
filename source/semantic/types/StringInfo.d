@@ -323,7 +323,7 @@ class StringInfo : InfoType {
      */
     private InfoType Length () {
 	auto _int = new DecimalInfo (DecimalConst.ULONG);
-	_int.lintInst = &StringUtils.InstLength ;
+	_int.lintInst = &ArrayUtils.InstLength ;
 	return _int;
     }
 
@@ -333,7 +333,7 @@ class StringInfo : InfoType {
      */
     private InfoType Ptr () {
 	auto ret = new PtrInfo (new CharInfo);
-	ret.lintInst = &StringUtils.InstPtr;
+	ret.lintInst = &ArrayUtils.InstPtr;
 	return ret;
     }
 
@@ -355,7 +355,7 @@ class StringInfo : InfoType {
 	import semantic.types.RangeInfo;
 	if (cast(DecimalInfo) expr.info.type) {
 	    auto ch = new CharInfo;
-	    ch.lintInstMult = &StringUtils.InstAccessS;
+	    ch.lintInstMult = &ArrayUtils.InstAccessS!(LSize.UBYTE);
 	    ch.isConst = false;
 	    if (this._value)
 		ch.value = this._value.AccessOp (expr);

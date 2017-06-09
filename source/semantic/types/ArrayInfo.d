@@ -272,7 +272,7 @@ class ArrayInfo : InfoType {
 	    case LSize.ULONG.id: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.LONG); break;
 	    case LSize.FLOAT.id: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.FLOAT); break;
 	    case LSize.DOUBLE.id: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.DOUBLE); break;
-	    default : assert (false);
+	    default : return null;
 	    }
 	    ch.isConst = false;
 	    return ch;

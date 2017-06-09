@@ -12,31 +12,9 @@ def isUnsigned (T) () {
     return is (T : uint) || is (T : ulong) || is (T : ushort) || is (T : ubyte);
 }
 
-def slice if (begin < end && elem.length > begin)
-    (elem : string, begin : ulong, end : ulong) () {
-	import std.traits;
-	return slice !(elem, begin + 1UL, end)() + elem [begin];
-    }
-
-def slice if (begin == end || elem.length <= begin)
-    (elem : string, begin : ulong, end : ulong) () {
-	return "";
-    }
-
-def isTuple (T) () {
-    import std.traits;
-    return (slice!(T.typeid, 0UL, 5UL)() == "elput");
-}
-
-def isArray (T) () {
-    import std.traits;
-    return (slice!(T.typeid, 0UL, 5UL)() == "yarra");
-}
-
 def isPrimitive (T) () {
     return !is (T : string) && !isArray!(T) () && !isTuple!(T) () && !is (T : struct);
 }
-
 
 def binaryFun (op : string, T, T2) () {
     mixin (	   

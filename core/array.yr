@@ -14,10 +14,9 @@ def opIndex (T, U) (a : ptr!(T), b : range!(U)) : Array!T {
 }
 
 
-def cstArray (len : ulong, size : ubyte) : ptr!(void) {    
-    let array = GC_malloc (len * size + ulong.sizeof);
-    array.ulong = len;
-    return array;
+def cstArray (len : ulong, size : ubyte) : ptr!(void) {
+    let array = GC_malloc (len * size);
+    return (len, array).ptr;
 }
 
 def opBinary('+', T of [U], U) (a : T, b : T) : T {

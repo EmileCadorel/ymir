@@ -77,6 +77,10 @@ class Is : Expression {
 		    cast (FunctionInfo) (aux._left.info.type) !is null ||
 		    cast (PtrFuncInfo) (aux._left.info.type) !is null
 		);
+	    } else if (this._expType == Keys.TUPLE) {
+		aux._info.value = new BoolValue (
+		    cast (TupleInfo) (aux._left.info.type) !is null
+		);
 	    } else {
 		aux._info.value = new BoolValue (
 		    cast (StructInfo) (aux._left.info.type) !is null ||
