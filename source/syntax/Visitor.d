@@ -1143,7 +1143,7 @@ class Visitor {
 	next = this._lex.next ();
 	if (next != Tokens.COLON) throw new SyntaxError (next, [Tokens.COLON.descr]);
 	next = this._lex.next ();
-	if (next == Keys.FUNCTION || next == Keys.STRUCT) {
+	if (next == Keys.FUNCTION || next == Keys.STRUCT || next == Keys.TUPLE) {
 	    auto expType = next;
 	    next = this._lex.next ();
 	    if (next != Tokens.RPAR) throw new SyntaxError (next, [Tokens.RPAR.descr]);

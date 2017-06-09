@@ -14,7 +14,7 @@ def opUnary if (is (T : int) || is (T : long) || is (T : ulong) || is (T : uint)
 	return a;
     }
 
-def opBinary if (isDecimal!(T)() && isSigned!(T2)())
+def opBinary if (isDecimal!(T) && isSigned!(T2))
     ('^^', T, T2) (a : T, b : T2) {
 	import std.math;
 	return pow (a, b);

@@ -1,8 +1,9 @@
 import std.conv;
 
+def test if (is (T : t!(int))) (T) (a : T) {
+}
+
 def main () {
-    let a = [1, 2, 3];
-    let b = a [0 .. 1];
-    println (b);
-    println (a);
+    let a = (1, 2);
+    test (a);
 }

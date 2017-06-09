@@ -1,6 +1,7 @@
 import std.math;
 import std.algorithm.comparaison;
 import std.conv;
+import std.traits;
 
 def opTest ('>') (a : int, b : string) : bool {
     return true;
@@ -15,6 +16,10 @@ def opEquals (a : string, b : string) : bool {
 
 def opIndex (str : string) : [char] {
     return cast:[char] (str);
+}
+
+def opIndex if (isDecimal!(T)) (T) (str : string, rng : r!(T)) {
+    return cast:string (str[][rng]);
 }
 
 def opTest ('<') (a : string, b : string) : bool {
@@ -68,7 +73,7 @@ private def creator () {
     let b = "a" < "b";
 }
 
-def getArgs (argc : int, argv : ptr!(ptr!char)) : [string] {    
+def getArgs (argc : int, argv : p!(p!char)) : [string] {    
     let ret = [string; 0UL];
     for (it in 0 .. argc) {
 	ret = ret + [(*(argv + (it * 8))).to!string];
@@ -83,7 +88,7 @@ def dup (str : string) : string {
     return cast:string (aux);
 }
 
-def cstString (len : ulong, ca : ptr!char) : string {    
+def cstString (len : ulong, ca : p!char) : string {    
     let aux = [char ; len];
     for it in 0U .. len {
         aux [it] = *(ca + it);

@@ -205,7 +205,7 @@ def isWhite (c : char) : bool {
     return !(c != '\n' && c != '\t' && c != '\v' && c != '\r' && c != ' ');
 }
 
-def substr (str : string, rng : range!ulong) : string {
+def substr (str : string, rng : r!ulong) : string {
     let fst = cast:long (rng.fst), scd = cast:long (rng.scd);
     if (cast:long(str.length) < fst || cast:long(str.length) < scd) return null;
     else {

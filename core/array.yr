@@ -1,32 +1,18 @@
 import std.traits;
 
-extern (C) GC_malloc (ulong) : ptr!(void);
+extern (C) GC_malloc (ulong) : p!(void);
 
-struct Array (T) {
-    length : ulong,
-    raw : ptr!(int)
-}
-
-def opIndex (T, I) (a : Array!(T), id : I) : ref T {
-    return (a.raw + (cast:ulong (id) * T.sizeof)).T;
-}
-
-def opIndex (T, U) (a : ptr!(T), b : range!(U)) : Array!T {
-    return Array!(T) (cast:ulong (b.scd - b.fst), a);
-}
-
-
-def cstArray (len : ulong, size : ubyte) : ptr!(void) {
+def cstArray (len : ulong, size : ubyte) : p!(void) {
     let array = GC_malloc (len * size);
     return (len, array).ptr;
 }
 
-def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : range!(I)) {    
+def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : r!(I)) {    
     if (rng.fst < rng.scd) {
         let len = rng.scd - rng.fst;
         let aux = a.tupleof;
         let ret = (cast:ulong (len),
-                   cast:ptr!(ubyte) (aux.1)
+                   cast:p!(ubyte) (aux.1)
                        + (cast:ulong (rng.fst) * U.sizeof));
         
         return cast:[U] (ret);

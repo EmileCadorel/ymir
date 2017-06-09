@@ -1,5 +1,5 @@
 extern (C) putchar (c : char);
-extern (C) printf (c : ptr!char, ...);
+extern (C) printf (c : p!char, ...);
 
 def print (c : char) : void
     putchar (c);
@@ -29,11 +29,11 @@ def print (i : ulong) : void {
     printf (("%lu").ptr, i);
 }
 
-def print (i : ptr!void) : void {
+def print (i : p!void) : void {
     printf (("%lu").ptr, i);
 }
 
-def print (T) (i : ptr!(T)) : void {
+def print (T) (i : p!T) : void {
     printf (("%lu").ptr, i);
 }
 
@@ -92,7 +92,7 @@ def printf (str : string, nexts) {
 }
 
 def printfln (str : string, nexts) {
-    extern (C) printf (c : ptr!char, ...);
+    extern (C) printf (c : p!char, ...);
     extern (C) putchar (c : char);
     printf (str.ptr, expand (nexts));
     putchar ('\n');

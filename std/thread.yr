@@ -1,11 +1,11 @@
 
-extern (C) pthread_create (th : ptr!ulong, attr : ptr!void,
-                           fun : fn (ptr!void)->void, data : ptr!void);
+extern (C) pthread_create (th : p!ulong, attr : p!void,
+                           fun : fn (p!void)->void, data : p!void);
 
-extern (C) pthread_mutex_lock (mut : ptr!(void));
-extern (C) pthread_mutex_unlock (mut : ptr!(void));
+extern (C) pthread_mutex_lock (mut : p!(void));
+extern (C) pthread_mutex_unlock (mut : p!(void));
 
-extern (C) pthread_join (th : ulong, attr : ptr!void);
+extern (C) pthread_join (th : ulong, attr : p!void);
 extern (C) pthread_cancel (th : ulong);
 
 struct Thread {
@@ -14,14 +14,14 @@ struct Thread {
 
 def thread (T) (fun : fn (T)->void, data) {
     let ret = 0UL;
-    let aux = cast:fn (ptr!(void))->void (fun);
+    let aux = cast:fn (p!(void))->void (fun);
     pthread_create (&ret, null, aux, data.ptr);
     return Thread (ret);
 }
 
 def thread (fun : fn ()->void) : Thread {
     let ret = 0UL;
-    let aux = cast:fn (ptr!(void))->void (fun);
+    let aux = cast:fn (p!(void))->void (fun);
     pthread_create (&ret, null, aux, null);
     return Thread (ret);
 }

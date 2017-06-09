@@ -142,12 +142,12 @@ class InfoType {
 		    "float" : &FloatInfo.create,
 		    "char" : &CharInfo.create,
 		    "void" : &VoidInfo.create,
-		    "ptr" : &PtrInfo.create,
+		    "p" : &PtrInfo.create,
 		    "array" : &ArrayInfo.create,
 		    "fn" : &PtrFuncInfo.create,
 		    "ref" : &RefInfo.create,
-		    "range" : &RangeInfo.create,
-		    "tuple" : &TupleInfo.create];
+		    "r" : &RangeInfo.create,
+		    "t" : &TupleInfo.create];
     }    
     
     /**

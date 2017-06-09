@@ -1,19 +1,19 @@
 import std.conv;
 
-extern (C) fopen (name : ptr!char, mode : ptr!char) : ptr!void;
-extern (C) fread (buf : ptr!char, size : uint, len : ulong, file : ptr!void) : uint;
-extern (C) fwrite (buf : ptr!char, size : uint, len : ulong, file : ptr!void);
-extern (C) fclose (file : ptr!void);
+extern (C) fopen (name : p!char, mode : p!char) : p!void;
+extern (C) fread (buf : p!char, size : uint, len : ulong, file : p!void) : uint;
+extern (C) fwrite (buf : p!char, size : uint, len : ulong, file : p!void);
+extern (C) fclose (file : p!void);
 
-extern (C) getenv (name : ptr!char) : ptr!char;
-extern (C) printf (str : ptr!char, ...); 
-extern (C) malloc (size : uint) : ptr!void;
-extern (C) free (a : ptr!void);
-extern (C) free (a : ptr!char);
+extern (C) getenv (name : p!char) : p!char;
+extern (C) printf (str : p!char, ...); 
+extern (C) malloc (size : uint) : p!void;
+extern (C) free (a : p!void);
+extern (C) free (a : p!char);
 
 
 struct
-| content : ptr!void
+| content : p!void
 -> File;
 
 def fopen (filename : string, mode : string) : File {

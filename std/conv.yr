@@ -8,7 +8,7 @@ def to (T of string, c : char) () {
     return '' + c;
 }
 
-def to (T of string)  (a : ptr!char) : string {
+def to (T of string)  (a : p!char) : string {
     if (a is null) return '';
     else if (*a == 0ub) return ''; 
     let ret = [*a];
@@ -45,7 +45,7 @@ def to if (is (T2 : short))
 	return to!(string) (cast:int(elem));
     }
 
-def to (T of string, T2) (elem : ptr!(T2)) : string {
+def to (T of string, T2) (elem : p!(T2)) : string {
     return (cast:ulong (elem)).to!string;
 }
 
