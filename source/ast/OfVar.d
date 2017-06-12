@@ -3,6 +3,7 @@ module ast.OfVar;
 import ast.Expression;
 import ast.Var;
 import syntax.Word;
+import utils.exception;
 
 class OfVar : Var {
     
@@ -55,7 +56,7 @@ class VariadicSoluce : Expression {
     }
 
     override Expression expression () {
-	assert (false);
+	throw new UseAsExp (this._token);
     }
 
     InfoType [] types () {

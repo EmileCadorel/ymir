@@ -1,9 +1,8 @@
 import std.thread;
 
-def foo (T...) (a : t!(int, T, int)) {
-    
+def foo (T...) (a : t!(T)) {
 }
 
 def main () {
-    foo ((1, 2));
+    foo (4, 4, 5);
 }

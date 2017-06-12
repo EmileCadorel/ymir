@@ -397,6 +397,18 @@ class UseAsVar : YmirException {
     
 }
 
+class UseAsExp : YmirException {
+
+    this (Word token) {
+	OutBuffer buf = new OutBuffer;
+	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas une rvalue ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString();        
+    }
+
+    
+}
+
 
 /**
  Utilisation d'une variable template comme type.
@@ -998,4 +1010,3 @@ class RecursiveCreation : YmirException {
     }
     
 }
-

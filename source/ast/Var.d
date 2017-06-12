@@ -148,6 +148,7 @@ class Var : Expression {
 		if (auto v = cast (Var) clo) {
 		    v.deco = this._deco;
 		}
+		clo.token.locus = this._token.locus;
 		return clo;
 	    }
 	}
