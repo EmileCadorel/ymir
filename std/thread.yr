@@ -12,11 +12,15 @@ struct Thread {
     id : ulong
 }
 
-def thread (T) (fun : fn (T)->void, data) {
-    let ret = 0UL;
-    let aux = cast:fn (p!(void))->void (fun);
-    pthread_create (&ret, null, aux, data.ptr);
-    return Thread (ret);
+def thread (T...) (fun : fn (t!(T))->void, data) {
+    static if (is (data : t!(T))) {
+        let ret = 0UL;
+        let aux = cast:fn (p!(void))->void (fun);
+        pthread_create (&ret, null, aux, data.ptr);
+        return Thread (ret);
+    } else {
+        static assert (false);
+    }
 }
 
 def thread (fun : fn ()->void) : Thread {

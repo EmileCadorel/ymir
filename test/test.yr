@@ -1,8 +1,12 @@
 import std.thread;
 
-def foo (T...) (a : t!(T)) {
-}
-
 def main () {
-    foo (4, 4, 5);
+
+    let a = thread (
+        (a : t!(int, char)) {
+            println (a.0, ' ', a.1);
+        },
+        1, 'r'
+    );
+    a.join ();
 }

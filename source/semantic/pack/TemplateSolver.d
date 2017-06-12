@@ -460,7 +460,9 @@ class TemplateSolverS {
      */    
     TemplateSolution solve (Array!Expression tmps, Array!Expression params) {
 	auto soluce = TemplateSolution (0, true);
-	if (tmps.length < params.length) return TemplateSolution (0, false);
+	if (tmps.length < params.length)
+	    return TemplateSolution (0, false);
+	    
 	foreach (it ; 0 .. params.length) {
 	    TemplateSolution res;
 	    if (auto v = cast (Var) tmps [it]) {
