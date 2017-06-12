@@ -1,9 +1,9 @@
 import std.thread;
 
-def test (T of [U], U) (a : T) {
-    println (a);
+def foo (T...) (a : t!(int, T, int)) {
+    
 }
 
-def main () {        
-    test ([10, 11]);
+def main () {
+    foo ((1, 2));
 }

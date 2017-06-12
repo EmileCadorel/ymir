@@ -536,6 +536,8 @@ class Visitor {
 	} else if (next == Keys.OF && deco.isEof) {
 	    auto type = visitType ();
 	    return new OfVar (ident, type);	    
+	} else if (next == Tokens.TDOT) {
+	    return new VariadicVar (ident);
 	} else this._lex.rewind ();
 	return new Var (ident, deco);
     }

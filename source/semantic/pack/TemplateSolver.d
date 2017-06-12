@@ -22,9 +22,12 @@ struct TemplateSolution {
 
     /// Le type de la solution 
     InfoType type;
-
+    
     /// Les types template inféré
-    Expression [string] elements;    
+    Expression [string] elements;
+
+    /// les types variadic de la solution.
+    InfoType [] varTypes;
 }
 
 alias TemplateSolver = TemplateSolverS.instance;
@@ -49,10 +52,19 @@ class TemplateSolverS {
     bool merge (ref long score, ref Expression [string] left, TemplateSolution right) {
 	foreach (key, value ; right.elements) {
 	    if (auto inside = key in left) {
-		auto ltype = cast (Type) *inside;
-		auto rtype = cast (Type) value;
-		if (!ltype || !rtype || !ltype.info.type.isSame (rtype.info.type))
-		    return false;		
+		auto l = cast (VariadicSoluce) *inside;
+		auto r = cast (VariadicSoluce) value;
+		if (l && r) {
+		    if (l.types.length != r.types.length) return false;
+		    foreach (it ; 0 .. l.types.length) {
+			if (!l.types [it].isSame (r.types [it])) return false;
+		    }
+		} else {
+		    auto ltype = cast (Type) *inside;
+		    auto rtype = cast (Type) value;
+		    if (!ltype || !rtype || !ltype.info.type.isSame (rtype.info.type))
+			return false;
+		}
 	    } else {
 		left [key] = value;
 	    }
@@ -63,19 +75,28 @@ class TemplateSolverS {
     }    
 
     /**
-     Fusionne deux instances de solutions de templates
-     Params:
-     left = les types inféré en premier
-     right = les nouveau types a inséré
-     Returns: les solutions sont complémentaire ?
-     */
+       Fusionne deux instances de solutions de templates
+       Params:
+       left = les types inféré en premier
+       right = les nouveau types a inséré
+       Returns: les solutions sont complémentaire ?
+    */
     bool merge (ref long score, ref Expression [string] left, Expression [string] right) {
 	foreach (key, value ; right) {
 	    if (auto inside = key in left) {
-		auto ltype = cast (Type) *inside;
-		auto rtype = cast (Type) value;
-		if (!ltype || !rtype || !ltype.info.type.isSame (rtype.info.type))
-		    return false;		
+		auto l = cast (VariadicSoluce) *inside;
+		auto r = cast (VariadicSoluce) value;
+		if (l && r) {
+		    if (l.types.length != r.types.length) return false;
+		    foreach (it ; 0 .. l.types.length) {
+			if (!l.types [it].isSame (r.types [it])) return false;
+		    }
+		} else {
+		    auto ltype = cast (Type) *inside;
+		    auto rtype = cast (Type) value;
+		    if (!ltype || !rtype || !ltype.info.type.isSame (rtype.info.type))
+			return false;
+		}
 	    } else {
 		left [key] = value;
 	    }
@@ -83,7 +104,7 @@ class TemplateSolverS {
 	
 	return true;
     }    
-    
+        
     /**
      Résolution du type d'un paramètre, 
      Example:
@@ -111,10 +132,17 @@ class TemplateSolverS {
 		foreach (it ; 0 .. typed.type.templates.length) {
 		    if (auto var = cast (Var) typed.type.templates [it]) {
 			if (!type.getTemplate (it)) return TemplateSolution (0, false);
-			auto res = this.solveInside (tmps, var, type.getTemplate (it));
+			auto res = this.solveInside (tmps, var, type.getTemplate (it, typed.type.templates.length - (it + 1)));
 			if (!res.valid || !merge (soluce.score, soluce.elements, res))
 			    return TemplateSolution (0, false);
-			types.insertBack (new Type (var.token, res.type));
+
+			if (res.type)
+			    types.insertBack (new Type (var.token, res.type));
+			else
+			    foreach (_it ; 0 .. res.varTypes.length) {
+				auto word = Word (var.token.locus, var.token.str ~ "_" ~ _it.to!string, false);
+				types.insertBack (new Type (word, res.varTypes [_it]));
+			    }
 		    }
 		}
 		
@@ -163,10 +191,17 @@ class TemplateSolverS {
 	    foreach (it ; 0 .. param.templates.length) {
 		if (auto var = cast (Var) param.templates [it]) {
 		    if (!type.getTemplate (it)) return TemplateSolution (0, false);
-		    auto res = this.solveInside (tmps, var, type.getTemplate (it));
+		    auto res = this.solveInside (tmps, var, type.getTemplate (it, param.templates.length - (it + 1)));
 		    if (!res.valid || !merge (soluce.score, soluce.elements, res))
 			return TemplateSolution (0, false);
-		    types.insertBack (new Type (var.token, res.type));
+		    
+		    if (res.type)
+			types.insertBack (new Type (var.token, res.type));
+		    else
+			foreach (_it ; 0 .. res.varTypes.length) {
+			    auto word = Word (var.token.locus, var.token.str ~ "_" ~ _it.to!string, false);
+			    types.insertBack (new Type (word, res.varTypes [_it]));
+			}
 		}
 	    }
 	    
@@ -193,8 +228,33 @@ class TemplateSolverS {
 	    return soluce;
 	}
     }
-    
 
+
+    /++
+     Résoud un paramètre template de type variadic
+     Params:
+     tmps = la liste des templates de l'élement que l'on est en train de résoudre
+     param = l'expression type de l'attribut
+     type = les types interne du paramètre.
+     Returns: une solution template
+     +/
+    TemplateSolution solveInside (Array!Expression tmps, Var var, InfoType [] type) {
+	if (type.length == 1) return solveInside (tmps, var, type [0]);
+	else {
+	    foreach (it ; tmps) {
+		if (auto vvar = cast (VariadicVar) it) {
+		    if (var.token.str == vvar.token.str) {
+			TemplateSolution res = TemplateSolution (__VAR__, true);
+			res.varTypes = type;
+			res.elements [var.token.str] = new VariadicSoluce (var.token, type);
+			return res;
+		    }
+		}
+	    }
+	    return TemplateSolution (0, false);
+	}
+    }
+    
     /**
      Résoud un paramètre template de type tableau
      Example:
@@ -209,7 +269,7 @@ class TemplateSolverS {
      tmps = les paramètres templates de la fonction
      param = l'expression type de l'attribut
      type = Le type du paramètre
-     Return: une solution template
+     Returns: une solution template
      */
     private TemplateSolution solve (Array!Expression tmps, ArrayVar param, InfoType type) {
 	import semantic.types.ArrayInfo;
@@ -241,10 +301,10 @@ class TemplateSolverS {
      Résoud un paramètre template de type fonction
      Example:
      -------
-     def foo (T) (a : function (T) : T) {         
+     def foo (T) (a : fn (T) -> T) {         
      }
 
-     foo ((a : int) => 10); // solve ([T], function (T) : T, funcPtr(int):int);
+     foo ((a : int) => 10); // solve ([T], fn (T) -> T, funcPtr(int)->int);
      -------
      */
     private TemplateSolution solve (Array!Expression tmps, Expression param, InfoType type) {
@@ -257,10 +317,15 @@ class TemplateSolverS {
 	Array!InfoType types;       
 	auto soluce = TemplateSolution (0, true);
 	foreach (it ; 0 .. ptr.params.length) {
-	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it));
+	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it, ptr.params.length - (it + 1)));
 	    if (!res.valid || !merge (soluce.score, soluce.elements, res))
 		return TemplateSolution (0, false);
-	    types.insertBack (res.type);
+	    if (res.type)
+		types.insertBack (res.type);
+	    else
+		foreach (_it ; 0 .. res.varTypes.length) {
+		    types.insertBack (res.varTypes [_it]);
+		}
 	}
 	
 	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
@@ -284,10 +349,16 @@ class TemplateSolverS {
 	Array!InfoType types;
 	auto soluce = TemplateSolution (0, true);
 	foreach (it ; 0 .. ptr.params.length) {
-	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it));
+	    auto res = solveInside (tmps, ptr.params [it], func.getTemplate (it, ptr.params.length - (it + 1)));
 	    if (!res.valid || !merge (soluce.score, soluce.elements, res))
 		return TemplateSolution (0, false);
-	    types.insertBack (res.type);
+
+	    if (res.type)
+		types.insertBack (res.type);
+	    else
+		foreach (_it ; 0 .. res.varTypes.length) {
+		    types.insertBack (res.varTypes [_it]);
+		}
 	}
 
 	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
@@ -431,6 +502,8 @@ class TemplateSolverS {
 	    return this.solveInside (tmps, of, right);
 	} else if (auto type = cast (Type) right) {
 	    return this.solveInside (left, type);
+	} else if (auto vvar = cast (VariadicVar) left) {
+	    return this.solveInside (tmps, vvar, right);
 	} else if (auto type = cast (Var) right) {
 	    return this.solveInside (left, type);
 	} else return TemplateSolution (0, false);
@@ -450,7 +523,7 @@ class TemplateSolverS {
 	clo.info.type = clo.info.type.cloneForParam ();
 	return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
     }    
-
+    
     /++
      + Résoud  un paramètre template
      + Example:
@@ -502,6 +575,19 @@ class TemplateSolverS {
 	    return res;
 	}
     }
+
+    /++
+     Résoud un paramètre template.
+     Example:
+     -----------
+     def foo (T...) (a : t!(T)) {
+     }
+     foo ((1, 2, 3)); // solveInside (T..., tuple(int, int, int));
+     -----------     
+     +/
+    private TemplateSolution solveInside (Array!Expression tmps, VariadicVar var, Expression right) {
+	assert (false);
+    }
     
     /**
      Résoud un paramètre template
@@ -525,7 +611,7 @@ class TemplateSolverS {
 	    return TemplateSolution (0, false);
 	return res;
     }
-
+    
     /**
      Résoud un paramètre template
      Example:

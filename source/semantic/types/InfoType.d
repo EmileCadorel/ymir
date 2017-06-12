@@ -579,6 +579,25 @@ class InfoType {
      */
     InfoType getTemplate (ulong) {
 	return null;
-    }	
+    }
+
+    /++
+     Retourne les paramètre templates sur un range (pour les variadics templates).
+     Params:
+     begin = le nombre de templates avant
+     end = le nombre de templates après.
+     Example:
+     --------
+     def foo (T ...) (a : t!(int, T, int)) {
+     }
+
+     foo ((1, "r", 't', 7.4, 2));
+     // getTemplate (1, 1) -> [string, char, float];
+     --------
+     Returns: this.templates [begin .. end]
+     +/
+    InfoType [] getTemplate (ulong bef, ulong af) {
+	return [getTemplate (bef)];
+    }
     
 }

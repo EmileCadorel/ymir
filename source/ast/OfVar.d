@@ -27,3 +27,43 @@ class OfVar : Var {
     }
             
 }
+
+class VariadicVar : Var {
+
+    this (Word ident) {
+	super (ident);
+    }
+
+    override Var expression () {
+	assert (false);
+    }
+
+    override Var templateExpReplace (Expression [string] values) {
+	assert (false);
+    }
+    
+}
+
+class VariadicSoluce : Expression {
+    import semantic.types.InfoType;
+    
+    private InfoType [] _types;
+
+    this (Word ident, InfoType [] types) {
+	super (ident);
+	this._types = types;
+    }
+
+    override Expression expression () {
+	assert (false);
+    }
+
+    InfoType [] types () {
+	return this._types;
+    }
+    
+    override Expression templateExpReplace (Expression [string] values) {
+	assert (false);
+    }
+    
+}

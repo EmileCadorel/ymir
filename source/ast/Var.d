@@ -138,7 +138,8 @@ class Var : Expression {
 	} else return asType ();
     }    
         
-    override Expression templateExpReplace (Expression [string] values) {	
+    override Expression templateExpReplace (Expression [string] values) {
+	import ast.OfVar, std.conv;
 	foreach (key, value ; values) {
 	    if (key == this._token.str) {
 		auto clo = value.clone ();
@@ -152,8 +153,16 @@ class Var : Expression {
 	}
 
 	Array!Expression tmps;
-	foreach (it ; this._templates)
-	    tmps.insertBack (it.templateExpReplace (values));
+	foreach (it ; this._templates) {
+	    auto ret = it.templateExpReplace (values);
+	    if (auto vvar = cast (VariadicSoluce) ret) {
+		foreach (_it ; 0 .. vvar.types.length) {
+		    auto word = Word (it.token.locus, it.token.str ~ "_" ~ to!string (_it), false);
+		    tmps.insertBack (new Type (word, vvar.types [_it]));
+		}
+	    } else 
+		tmps.insertBack (ret);
+	}
 	
 	auto ret =  new Var (this._token, tmps);
 	ret.deco = this._deco;

@@ -348,6 +348,17 @@ class PtrFuncInfo : InfoType {
 	if (i < this._params.length) return this._params [i];
 	else return this._ret;
     }
+
+    override InfoType [] getTemplate (ulong bef, ulong af) {
+	if (bef < this._params.length) {
+	    InfoType [] ret = new InfoType [this._params.length - bef - af];
+	    foreach (it ; bef .. this._params.length - af) {
+		ret [it - bef] = this._params [it];
+	    }
+	    return ret;
+	}
+	return null;
+    }
     
     ref InfoType ret () {
 	return this._ret;

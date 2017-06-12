@@ -93,9 +93,19 @@ class FuncPtr : Expression {
 
 
     override Expression templateExpReplace (Expression [string] values) {
+	import ast.OfVar, std.conv;
 	Array!Var params;
-	foreach (it ; this._params)
-	    params.insertBack (cast (Var) it.templateExpReplace (values));
+	foreach (it ; this._params) {
+	    auto ret = it.templateExpReplace (values);
+	    if (auto vvar = cast (VariadicSoluce) ret) {
+		foreach (_it ; 0 .. vvar.types.length) {
+		    auto word = Word (it.token.locus, it.token.str ~ "_" ~ to!string (_it), false);
+		    params.insertBack (new Type (word, vvar.types [_it]));		
+		}
+	    } else {
+		params.insertBack (cast (Var) ret);
+	    }
+	}
 	
 	auto ret = this._ret.templateExpReplace (values);
 	if (this._expr) {

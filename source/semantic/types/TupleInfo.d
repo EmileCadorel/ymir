@@ -238,5 +238,16 @@ class TupleInfo : InfoType {
 	return null;
     }
 
+    override InfoType [] getTemplate (ulong bef, ulong af) {
+	if (bef < this._params.length) {
+	    InfoType [] ret = new InfoType [this._params.length - bef - af];
+	    foreach (it ; bef .. this._params.length - af) {
+		ret [it - bef] = this._params [it];
+	    }
+	    return ret;
+	}
+	return null;
+    }
+    
 }
     
