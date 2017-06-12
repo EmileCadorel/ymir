@@ -94,11 +94,11 @@ class RefInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType BinaryOpRight (Word token, Expression left) {
-	auto aux = this._content.BinaryOpRight (token, left);	
+	auto aux = this._content.BinaryOpRight (token, left);
 	if (aux !is null) {
-	    return addUnref (aux);
+	    return addUnrefRight (aux);
 	} else {
-	    return addUnrefRight (left.info.type.BinaryOp (token, this._content));
+	    return addUnref (left.info.type.BinaryOp (token, this._content));
 	}
     }
 
@@ -183,7 +183,6 @@ class RefInfo : InfoType {
 	    return addUnref (this._content.CompOp (other));
 	}
     }
-
 
     override InfoType ApplyOp (Array!Var vars) {
 	return addUnref (this._content.ApplyOp (vars));

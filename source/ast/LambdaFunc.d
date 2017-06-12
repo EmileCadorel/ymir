@@ -189,12 +189,17 @@ class LambdaFunc : Expression {
     }
     
     override string prettyPrint () {
-		import std.outbuffer;
+	import std.outbuffer, semantic.types.PtrFuncInfo;
 	auto buf = new OutBuffer ();
 	buf.writef ("lambda (");
 	foreach (it ; this._params)
-	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : "):");
-	buf.writef ("%s", this._ret.prettyPrint);
+	    buf.writef ("%s%s", it.prettyPrint, it !is this._params [$ - 1] ? ", " : ")");
+	if (this._ret) 
+	    buf.writef (" -> %s", this._ret.prettyPrint);
+	else if (this._expr)
+	    buf.writef (" => %s", this._expr.prettyPrint);
+	else buf.writef (" -> %s", (cast (PtrFuncInfo) this._info.type).ret.typeString);
+
 	return buf.toString ();
     }
     

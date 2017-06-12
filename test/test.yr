@@ -1,9 +1,9 @@
-import std.conv;
+import std.thread;
 
-def test if (is (T : t!(int))) (T) (a : T) {
+def test (T of [U], U) (a : T) {
+    println (a);
 }
 
-def main () {
-    let a = (1, 2);
-    test (a);
+def main () {        
+    test ([10, 11]);
 }

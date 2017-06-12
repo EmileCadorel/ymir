@@ -208,6 +208,7 @@ class Function : Declaration {
     bool verifyTemplates () {
 	import ast.OfVar;
 	bool isPure = true;
+	Array!Var exists;
 	foreach (it ; this._tmps) {
 	    if (auto tvar = cast (TypedVar) it) {
 		foreach (it_ ; this._params) {
@@ -218,13 +219,31 @@ class Function : Declaration {
 		    }
 		}
 		isPure = false;
-	    } else if (cast (Var) it || cast (OfVar) it)
+		verifyMult (tvar, exists);	
+	    } else if (auto var = cast (Var) it) {
 		isPure = false;
-	    
+		verifyMult (var, exists);
+	    }	    
 	}
 	return isPure;
     }
-        
+
+    /++
+     Verifie que le paramètre template n'a pas été définis plusieurs fois
+     Params:
+     var = le paramètre template
+     exists = les autres templates
+     Throws: ShadowingVar
+     +/
+    private void verifyMult (Var var, ref Array!Var exists) {
+	foreach (it ; exists) {
+	    if (var.token.str == it.token.str) {
+		throw new ShadowingVar (var.token,  it.token);
+	    }
+	}
+	exists.insertBack (var);
+    }
+    
     /**
      Verifie que la fonction est une fonction pure ou non.     
      */
