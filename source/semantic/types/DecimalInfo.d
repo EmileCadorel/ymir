@@ -95,6 +95,7 @@ class DecimalInfo : InfoType {
 	case Tokens.DIV.descr: return opNorm !(Tokens.DIV) (right);
 	case Tokens.STAR.descr: return opNorm !(Tokens.STAR) (right);
 	case Tokens.PIPE.descr: return opNorm!(Tokens.PIPE) (right);
+	case Tokens.AND.descr: return opNorm!(Tokens.AND) (right);
 	case Tokens.LEFTD.descr: return opNorm!(Tokens.LEFTD) (right);
 	case Tokens.XOR.descr: return opNorm!(Tokens.XOR) (right);
 	case Tokens.RIGHTD.descr: return opNorm!(Tokens.RIGHTD) (right);

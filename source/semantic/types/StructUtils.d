@@ -52,6 +52,10 @@ class StructUtils {
 		for (long nb = type.lintInstSR.length - 1; nb >= 0; nb --)
 		    rlist = type.lintInstR (rlist, nb);
 		interne += type.lintInst (llist, rlist);
+	    } else if (auto str = cast (StructCstInfo) it) {
+		auto rExp = regs.back ();
+		auto lExp = new LRegRead (retReg, size, it.size);
+		interne += new LWrite (lExp, rExp);
 	    } else assert (false, typeid (it).toString);
 	    
 	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
