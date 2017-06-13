@@ -72,6 +72,11 @@ def print if (is (T : struct)) (T) (a : T) {
     print (a.to!string);
 }
 
+def println if (is(T : tuple)) (T) (a : T) {
+    print (a);
+    print ('\n');
+}
+
 def println (i) {
     print (expand (i));
     print ('\n');
@@ -98,4 +103,24 @@ def printfln (str : string, nexts) {
     putchar ('\n');
 }
 
+private def printTu (T) (a : T) {
+    print (a);
+}
 
+private def printTu (T) (a : T, next) {
+    print (a);
+    print (", ");
+    printTu (expand (next));
+}
+
+private def printTu (T, U) (a : T, next : U) {
+    print (a);
+    print (", ");
+    print (next);
+}
+
+def print if (is (T : tuple)) (T) (a : T) {
+    print ("(");
+    printTu (expand (a));
+    print (")");
+}

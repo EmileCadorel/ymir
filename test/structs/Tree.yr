@@ -7,6 +7,7 @@ struct
 | value : string
 -> Tree;
 
+
 def println (r : Tree, nb : int) : void {
     let i = 0;
     while (i < nb) {
@@ -31,7 +32,6 @@ def addNode (root : Tree, node : Tree) : void {
 
 def main () {
     let root = Tree (null, null, 0, "Root");
-    let p = cast:ptr!(byte) (root.ptr);
     addNode (root, Tree (null, null, -1, "Left"));
     addNode (root, Tree (null, null, -3, "Left2"));
     addNode (root, Tree (null, null, 1, "Right"));

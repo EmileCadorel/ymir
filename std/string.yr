@@ -284,3 +284,19 @@ def toStringz (str : string) : string {
     return cast:string(res);
 }
 
+def fromStringZ (T of char) (a : p!T) : string {
+    if (a is null) return "";
+    else if (*a == 0UB) return "";
+    let anc = a;
+    let len = 0U;
+    while (*a != 0UB) {
+        len ++;
+        a = a + 1;
+    }
+    let ret = [char ; len];
+    for it in 0U .. len {
+        ret [it] = *(anc + it);
+    }
+    return cast:string (ret);
+}
+

@@ -1,12 +1,5 @@
-import std.thread;
+import std.file;
 
-def main () {
-
-    let a = thread (
-        (a : t!(int, char)) {
-            println (a.0, ' ', a.1);
-        },
-        1, 'r'
-    );
-    a.join ();
+def main (args) {
+    tree (args [1], 0);
 }

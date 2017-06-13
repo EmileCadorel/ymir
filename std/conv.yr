@@ -45,7 +45,7 @@ def to if (is (T2 : short))
 	return to!(string) (cast:int(elem));
     }
 
-def to (T of string, T2) (elem : p!(T2)) : string {
+def to if (!is (char : T2)) (T of string, T2) (elem : p!(T2)) : string {
     return (cast:ulong (elem)).to!string;
 }
 

@@ -95,13 +95,13 @@ def chdir (path : string) : bool {
 // };
 
 extern (C) readdir (a : p!void) : p!byte;
-def dirEntries (path : string) : [string] {
+def dirEntries (T of string) (path : T) : [string] {
     import std.conv, std.stdio;
     let dir = opendir (path.toStringz.ptr);
     let entry = readdir (dir);
     let res = [string; 0UL];
     while (entry !is null) {
-	let name = to!(string) (cast:p!(char) (entry + 19));	
+	let name = (cast:p!(char) (entry + 19)).fromStringZ;
 	if ((entry + 18).byte == 4)
 	    res = res + [name + "/"];
 	else res = res + [name];
@@ -152,10 +152,10 @@ def tree (path, dec) : void {
 		print (' ');
 	    }
 	    
-	    println ('|-', res [it]);
-
+	    println ('|-', res [it], ' ', isDir (path + res [it]));
 	    if (isDir (path + res [it])) {
-		test (path + res [it], dec + 4);
+
+		tree (path + res [it], dec + 4);
 	    }
 	}
     }    

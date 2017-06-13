@@ -83,9 +83,9 @@ class PureFrame : Frame {
 		new TypedVar (Word (tok.locus, "#argc", false),
 			      new Var (Word (tok.locus, "int", false))),
 		new TypedVar (Word (tok.locus, "#argv", false),
-			 new Var (Word (tok.locus, "ptr", false),
+			 new Var (Word (tok.locus, "p", false),
 				  make!(Array!Expression) (
-				      new Var (Word (tok.locus, "ptr", false),
+				      new Var (Word (tok.locus, "p", false),
 					       make!(Array!Expression) (
 						   new Var (Word(tok.locus, "char", false)))
 				      )
