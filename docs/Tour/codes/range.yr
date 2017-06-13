@@ -1,0 +1,13 @@
+def main () {
+    // rng is r!(int);
+    let rng = 1 .. 3;
+
+    // Range is an iterable type.
+    // 
+    for it in 0 .. 6 {
+        print (it, ", "); // prints "1, 2, 3, 4, 5, "
+    }
+
+    // We can get the values
+    println ("Range (", rng.fst, " .. ", rng.scd, ')');        
+}

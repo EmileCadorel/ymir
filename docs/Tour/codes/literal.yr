@@ -1,0 +1,22 @@
+def main () {
+    // Floating point multiplication
+    println ("1.0 * 0.34 = ", 1. * .34);
+
+    // uint addition
+    println ("1 + 2 = ", 1U + 2U);
+
+    // int substraction
+    println ("1 - 2 = ", 1 - 2);
+    
+    // Boolean logic
+    println ("true and false is ", true && false);
+    println ("true or false is ", true || false);
+    println ("not true is ", !true);
+
+    // Bitwise operations
+    println ("3 or 5 = ", 3UB | 5UB);
+    println ("3 xor 5 = ", 3UB ^ 5UB);
+    //println ("3 and 5 = ", 3UB & 5UB);
+    println ("1 << 5 = ", 1 << 5);
+    println ("128 >> 2 = ", 128U >> 2U);        
+}

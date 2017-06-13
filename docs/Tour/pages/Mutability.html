@@ -1,0 +1,35 @@
+
+<div class="container">
+  <div class="content-header">
+    <h1 id="page_name"></h1>
+  </div>
+  
+  <!-- Main content -->
+  <section class="content tuto_content" id="content_page">
+    <div class="row"><div class="col-xl-12">
+	<hr>
+	Ymir is a statically typed language. To provide a good type-safety, there are type qualifiers in Ymir.
+	The first one is <code>imut</code>. All immutables variables are evaluated at compile time and they never change.
+	
+	<div class="editor" value="imut.yr" min="25"></div>
+
+	The second one is <code>const</code>. This keyword guarantee that the object won't be modified. This restriction is just valid for the current scope.
+
+	<div class="editor" value="const.yr" min="25"></div>	      
+	<hr>
+    </div></div>
+    <div class="row">
+      <div class="col-lg-2">
+	<a href="#" onclick="loadContent(this)" value="Bindings.html" title="3. Variable Bindings">
+	  <span class="h4"><i class="fa fa-angle-left"></i> Arrays and Slices</span>
+	</a>
+      </div>
+      <div class="col-lg-2 col-lg-offset-8">
+	<a href="#" class="next_link" onclick="loadContent(this)" value="CustomTypes.html" title="4. Custom types">
+	  <span class="h4">Custom types <i class="fa fa-angle-right"></i> </span>
+	</a>
+      </div>
+    </div>
+
+  </section>
+</div>

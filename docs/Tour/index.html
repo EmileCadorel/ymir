@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Ymir Tour</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+	 folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="dist/css/skins/_all-skins.min.css">
+
+    <!-- bootstrap wysihtml5 - text editor -->
+    <link rel="stylesheet" href="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    
+    <link type="text/css" rel="stylesheet" href="../assets/css/pilcrow.css">
+    <link type="text/css" rel="stylesheet" href="../assets/css/hljs-github.min.css"/>
+    
+
+    <link type="text/css" rel="stylesheet" href="css/ace_editor.css"/>
+    <link type="text/css" rel="stylesheet" href="css/code.css"/>
+    
+  </head>
+  <body class="hold-transition skin-purple sidebar-mini sidebar-skin-light">
+    <div class="wrapper">
+
+      <header class="main-header">
+	<!-- Logo -->
+	<a href="https://github.com/EmileCadorel/ymir" class="logo">
+	  <!-- mini logo for sidebar mini 50x50 pixels -->
+	  <span class="logo-mini"><b>Y</b>mir</span>
+	  <!-- logo for regular state and mobile devices -->
+	  <span class="logo-lg"><b>Ymir</b> Tour</span>
+	</a>
+	<!-- Header Navbar: style can be found in header.less -->
+	<nav class="navbar navbar-static-top">
+	  <!-- Sidebar toggle button-->
+	  <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+	  </a>
+
+	  <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+	    </ul>
+	  </div>
+	</nav>
+      </header>
+      <!-- Left side column. contains the logo and sidebar -->
+      <aside class="main-sidebar">
+	<!-- sidebar: style can be found in sidebar.less -->
+	<section class="sidebar">
+	  <!-- search form -->
+	  <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+              <input type="text" name="q" class="form-control" placeholder="Search...">
+              <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+	  </form>
+	  <!-- /.search form -->
+	  <!-- sidebar menu: : style can be found in sidebar.less -->
+	  <ul class="sidebar-menu" data-widget="tree">
+            <!-- <li class="treeview"> -->
+	    <!--  <a href="#"> -->
+	    <!--     <i class="fa fa-circle-o"></i> -->
+	    <!--     <span> Example </span> -->
+	    <!--   </a> -->
+            <!--   <ul class="treeview-menu"> -->
+            <!--     <li><a href="#"><i class="fa fa-circle-o"></i>Example1</a></li> -->
+            <!--   </ul> -->
+            <!-- </li> -->
+
+            <li class="treeview active">
+	      <a href="#" id="home" onclick="loadContent(this)" value="Hello_World.html" title="1. First program">
+		<i class="fa fa-circle-o"></i>
+		<span>Hello World</span>
+	      </a>
+	      <ul class="treeview-menu ">
+		<li><a href="#" value="Comments.html" onclick="loadContent(this)" title="1.1 Comments"><i class="fa fa-circle-o"></i>Comments</a> 
+		</li>
+	      </ul>
+            </li>
+	    <li class="treeview active">
+	      <a href="#" onclick="loadContent(this)" value="BasicTypes.html" title="2. Basic types">
+		<i class="fa fa-circle-o"></i>
+		<span>Basic Types</span>
+	      </a>
+	      <ul class="treeview-menu">
+		<li> <a href="#" onclick="loadContent(this)" value="Literals.html" title="2.1 Literals and operators"><i class="fa fa-circle-o"></i>Literals</a></li>
+		<li> <a href="#" onclick="loadContent(this)" value="Tuples.html" title="2.2 Tuples"><i class="fa fa-circle-o"></i>Tuples</a></li>
+		<li> <a href="#" onclick="loadContent(this)" value="Array.html" title="2.3 Arrays and Slices"><i class="fa fa-circle-o"></i>Arrays and Slices</a> </li>
+		<li> <a href="#" onclick="loadContent(this)" value="Ranges.html" title="2.4 Ranges"><i class="fa fa-circle-o"></i>Ranges</a> </li>
+	      </ul>
+	    </li>
+	    <li class="treeview active">
+	      <a href="#" onclick="loadContent(this)" value="Bindings.html" title="3. Variable Bindings">
+		<i class="fa fa-circle-o"></i>
+		<span>Variable Bindings</span>
+	      </a>
+	      <ul class="treeview-menu">
+		<li> <a href="#" onclick="loadContent(this)" value="Mutability.html" title="3.1 Mutability"><i class="fa fa-circle-o"></i> Mutability</a></li>
+	      </ul>
+	    </li>
+	    <li class="treeview active">
+	      <a href="#" onclick="loadContent(this)" value="CustomTypes.html" title="4. Custom types">
+		<i class="fa fa-circle-o"></i>
+		<span>Custom types</span>
+	      </a>
+	      <ul class="treeview-menu">
+		<li> <a href="#" onclick="loadContent(this)" value="Structure.html" title="4.1 Structures"><i class="fa fa-circle-o"></i>Structures</a></li>
+		<li> <a href="#" onclick="loadContent(this)" value="Enums.html" title="4.2 Enums"><i class="fa fa-circle-o"></i>Enums</a></li>
+	      </ul>
+	    </li>
+
+	  </ul>
+	</section>
+	<!-- /.sidebar -->
+      </aside>
+
+      <!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+
+	<!-- Main content -->
+	<div id="content_page">
+
+	</div>
+	<!-- /.content -->
+      </div>
+      <!-- /.content-wrapper -->
+      <footer class="main-footer">
+	<div class="pull-right hidden-xs">
+	  <b>Version</b> 0.0.1
+	</div>
+      </footer>
+
+      <!-- Control Sidebar -->
+      <aside class="control-sidebar control-sidebar-dark">
+	<!-- Create the tabs -->
+	<ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+	  <li><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+	  <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
+	</ul>
+	<!-- Tab panes -->
+	<div class="tab-content">
+	</div>
+        <!-- /.tab-pane -->
+      </aside>
+      <!-- /.control-sidebar -->
+      <!-- Add the sidebar's background. This div must be placed
+	   immediately after the control sidebar -->
+      <div class="control-sidebar-bg"></div>
+    </div>
+    <!-- ./wrapper -->
+
+    <!-- jQuery 2.2.3 -->
+    <script src="plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+      $.widget.bridge('uibutton', $.ui.button);
+    </script>
+    <!-- Bootstrap 3.3.6 -->
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- Bootstrap WYSIHTML5 -->
+    <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+
+    
+    <!-- AdminLTE App -->
+    <script src="dist/js/app.min.js"></script>
+    <script src="js/load.js"></script>
+
+    <!-- Local fallback for Font Awesome -->
+    <script>
+      if ($(".fa").css("font-family") !== "FontAwesome") {
+      $('<link rel="stylesheet" type="text/css" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">').prependTo('head');
+      }
+    </script>
+
+    <!-- Livereload script (if served using the cli tool) -->
+    
+    <script src="ace-builds/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>    
+    
+  </body>
+</html>

@@ -1,0 +1,15 @@
+def main () {
+    let imut a = 3, imut b = "Hi";
+
+    // This addition will be performed at compile time.
+    println (a + 5);
+
+    // Same thing for this one.
+    println (b + " there");
+
+    // Error, an immutable initialisation needs a value
+    // let imut b; 
+
+    // Error immutable variables are not lvalue
+    // a = 34;
+}

@@ -1,0 +1,34 @@
+def reverse (a : t!(uint, bool)) : t!(bool, uint) {
+    let (r, v) = a;
+    return (v, r);
+}
+
+def simple (a : uint, b : bool, c : string) {
+    println (a, ' ', b, ' ', c);
+}
+
+def main () {
+    let tuple = (1UB, "salut", 'r');
+
+    // Values can be extracted from tuple using index
+    println ("tuple first value ", tuple.0);
+    println ("tuple second value ", tuple.1);
+
+    // Tuple can be tuple member
+    let mult = ((1, 2), (4, 5));
+    println (mult);
+
+    let pair = (1U, true);
+    println (reverse (pair), " is reversed");
+
+    // Tuple can be expand to function parameters
+    simple (expand (pair), "salut");
+
+    // To create an tuple with only one value
+    println ((1,), " is a tuple");
+    println ((1), " is an integer");
+
+    // Tuple can be destructured
+    let (a, b...) = tuple;
+    println (b, " is a tuple and ", a, " is an ubyte");
+}

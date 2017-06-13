@@ -1,0 +1,11 @@
+def main () {
+    // Variable types are infered
+    let a = 12; // a is an int
+
+    // A suffix can be used to specify the type
+    // Here b is an uint, c a bool and, d a char
+    let b = 12U, c = false, d = 'r';
+
+    // Error, cannot change type of variables.
+    b = false;
+}

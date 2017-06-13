@@ -1,0 +1,15 @@
+// Function return type is infered
+def foo () {
+    return "salut";
+}
+
+def main () {
+    // An integer
+    let a = 12;
+
+    // A boolean and an int
+    let b = true, c = a;
+
+    // a string
+    let d = foo (); 
+}

@@ -1,0 +1,8 @@
+//This is a comment
+
+// The first function that will be called at execution
+def main () {
+
+    // Print text to the console
+    println ("Hello World !!");
+}

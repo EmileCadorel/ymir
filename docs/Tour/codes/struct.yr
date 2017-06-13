@@ -1,0 +1,28 @@
+// A structure with two fields
+struct Point {
+    x : float,
+    y : float
+}
+
+// Struct can be field of another struct
+struct Rectangle {
+    a : Point,
+    b : Point
+}
+
+def main () {
+    // all values are needed
+    let point = Point (.1, .7);
+
+    // A struct can be constructed without value either
+    // All fields are set two 0x0.
+    let point2 = Point (); 
+
+    // We can get a tuple from a structure
+    let (x, y) = point.tupleof;
+
+    let rect = Rectangle (point, Point (3.3, 4.5));
+
+    // Structure are printable.
+    println (rect);    
+}

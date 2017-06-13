@@ -1,0 +1,20 @@
+// Const will guarantee that a won't be modified
+def foo (const a : [int]) {
+    // ...
+}
+
+def foo2 (a : [int]) {
+    // ...
+}
+
+def main () {
+    let const a = [1, 2], b = [2, 4];
+    
+    // Thanks to const both calls will compile 
+    foo (a);
+    foo (b);
+
+    // Error, a is const
+    // foo2 (a);
+    foo (b);
+}
