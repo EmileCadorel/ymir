@@ -1,0 +1,25 @@
+def main () {
+
+    let number = 12;
+
+    match number {
+        1 => println ("One");
+        2 => println ("Two");
+
+        // match an exclusive range
+        3 ... 20 => {
+            println ("Between 3 and 19");
+        }
+        _ => println ("didn't match");
+    };
+
+    let boolean = true;
+
+    // Match can be used as expression too
+    let binary = match boolean {
+        false => 0UB;
+        _ => 1UB; // any other cases
+    };
+
+    println (boolean, " -> ", binary);
+}

@@ -1,0 +1,15 @@
+def main () {
+    let n = 0;
+    
+    // Labeled loop must have parentheses around its test
+    while: outer (n < 101) {
+        println ("Entered the outer loop");
+        for: inner (i in 0 .. n) {
+            println ("Entered the inner loop");
+            if i == 100
+                break outer;
+        }
+        n ++;
+    }
+    println ("Exited the outer loop");
+}

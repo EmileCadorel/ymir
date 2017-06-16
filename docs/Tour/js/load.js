@@ -22,7 +22,6 @@ function loadContent (element) {
 	// }
 	
 	page.innerHTML = (data);
-	document.getElementById ("page_name").innerHTML = title;
 	reloadScripts ();
 	setAce ();
     });

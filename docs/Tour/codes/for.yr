@@ -1,0 +1,11 @@
+def main () {
+    
+    // Iterate from 0 (inclusive) to 101 (exclusive)
+    for i in 0 .. 101 {
+        if i % 2 == 0 {
+            println ("even");
+        } else {
+            println ("odd");
+        }
+    }    
+}

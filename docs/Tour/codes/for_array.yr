@@ -1,0 +1,14 @@
+def main () {
+    let a = [1, 2, 3];
+    
+    for it in [3, 2, 1] {
+        println (it); // 3, 2, 1
+    }
+
+    // The iterator is a reference 
+    for it in a {
+        it = it + 1;
+    }
+    
+    println (a); // [2, 3, 4]
+}
