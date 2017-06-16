@@ -43,6 +43,17 @@ class For : Instruction {
 	this._block = block;
     }        
 
+
+    /**
+     Met à jour le père de la boucle
+     Params: 
+     father = le block qui contient l'instruction
+     */
+    override void father (Block father) {
+	super._block = father;
+	this._block.father = father;
+    }
+    
     /**
      Returns: la liste des itérateurs
      */
@@ -98,7 +109,7 @@ class For : Instruction {
 	
 	Table.instance.retInfo.currentBlock = "for";
 	Table.instance.retInfo.changed = true;
-	auto bl = this._block.block;
+	auto bl = this._block.blockWithoutEnter;
 	auto res = new For (this._token, this._id, aux, expr, bl);
 	res._ret = type;
 	Table.instance.quitBlock ();

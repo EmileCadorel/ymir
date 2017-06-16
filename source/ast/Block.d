@@ -46,6 +46,12 @@ class Block : Instruction {
      */
     Block block () {
 	Table.instance.enterBlock ();
+	auto block = blockWithoutEnter ();
+	Table.instance.quitBlock ();
+	return block;
+    }
+
+    Block blockWithoutEnter () {
 	if (!this._ident.isEof ()) 
 	    Table.instance.retInfo.setIdent (this._ident);
 	
@@ -78,12 +84,11 @@ class Block : Instruction {
 		debug { throw err; }
 	    }
 	}
-	
-	Table.instance.quitBlock ();
 	if (error > 0) throw new ErrorOccurs (error);
 	block._insts = insts;
 	return block;	
     }
+    
 
     override Block templateReplace (Expression [string] values) {
 	Array!Declaration decls;

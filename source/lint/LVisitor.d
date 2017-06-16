@@ -379,7 +379,6 @@ class LVisitor {
 	    if (nb < elem.nbBlock)
 		current = current.father;
 	}
-
 	auto endLabel = this._endLabels [current];
 	list += new LGoto (endLabel);
 	return list;
