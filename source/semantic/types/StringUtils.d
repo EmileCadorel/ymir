@@ -16,19 +16,19 @@ import ast.Expression, ast.Constante, syntax.Word;
 class StringUtils {
 
     /** Le nom du constructeur d'un string */
-    static immutable string __CstName__ = "_Y4core6string9cstStringPFulPaZs";
+    static immutable string __CstName__ = "_Y4core6string9cstStringFulPaZs";
 
     /** Le nom du duplicateur de string */
-    static immutable string __DupString__ = "_Y4core6string3dupPFsZs";
+    static immutable string __DupString__ = "_Y4core6string3dupFsZs";
 
     /** Le nom de la fonction + de deux string */
-    static immutable string __PlusString__ = "_Y4core6string14opBinaryNG43GNPFssZs";
+    static immutable string __PlusString__ = "_Y4core6string14opBinaryNG43GNFssZs";
 
     /** Le nom de la fonction + de deux string */
-    static immutable string __PlusStringChar__ = "_Y4core6string14opBinaryNG43GNPFsaZs";
+    static immutable string __PlusStringChar__ = "_Y4core6string14opBinaryNG43GNFsaZs";
 
     /** Le nom de la fonction '==' de deux string */
-    static immutable string __EqualString__ = "_Y4core6string8opEqualsPFssZb";
+    static immutable string __EqualString__ = "_Y4core6string8opEqualsFssZb";
     
 
     /**

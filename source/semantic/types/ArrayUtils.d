@@ -15,7 +15,7 @@ import std.traits;
  */
 class ArrayUtils {
 
-    static immutable string __CstName__ = "_Y4core5array8cstArrayPFulubZPv";
+    static immutable string __CstName__ = "_Y4core5array8cstArrayFulubZPv";
     
     /**
      Affect un tableau (qui n'a pas encore été affecté) à null, .

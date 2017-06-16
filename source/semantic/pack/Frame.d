@@ -40,6 +40,8 @@ class Frame {
     protected bool _isInternal = false;
 
     protected bool _isPrivate = false;
+
+    protected bool _isVariadic = false;
     
     /**
      Les premiers paramètre templates;
@@ -114,7 +116,7 @@ class Frame {
      ret = le type de retour
      les paramètre finaux de la frame.
      +/
-    static FrameProto validate (Word name, Namespace namespace, Namespace from, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps) {
+    static FrameProto validate (Word name, Namespace namespace, Namespace from, Symbol ret, Array!Var finalParams, Block block, Array!Expression tmps, bool variadic = false) {
 	Table.instance.setCurrentSpace (namespace, name.str);
 
 	auto last = Table.instance.templateScope;
@@ -137,7 +139,8 @@ class Frame {
 	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
 					    from, name.str,
 					    finalParams, block, tmps);
-	    
+
+	    finFrame.isVariadic = variadic;
 	    proto.type = Table.instance.retInfo.info;
 	    FrameTable.instance.insert (finFrame);
 	    
@@ -188,7 +191,7 @@ class Frame {
     }
 
     
-    protected final FrameProto validate (Namespace space, Namespace from, Array!Var finalParams) {
+    protected final FrameProto validate (Namespace space, Namespace from, Array!Var finalParams, bool variadic = false) {
 	Table.instance.setCurrentSpace (space, this._function.name);
 	auto last = Table.instance.templateScope;
 	Table.instance.templateScope = from;	
@@ -212,7 +215,8 @@ class Frame {
 	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
 					    from, this._function.name,
 					    finalParams, block, this._tempParams);
-	    
+
+	    finFrame.isVariadic = variadic;
 	    proto.type = Table.instance.retInfo.info;
 	    FrameTable.instance.insert (finFrame);
 	    
@@ -241,6 +245,10 @@ class Frame {
 
     ref bool isInternal () {
 	return this._isInternal;
+    }
+
+    ref bool isVariadic () {
+	return this._isVariadic;
     }
     
     /**

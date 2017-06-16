@@ -176,8 +176,14 @@ class Function : Declaration {
 	Expression test;
 	if (this._test)
 	    test = this._test.templateExpReplace (values);
+
+	Array!Expression tmps;
+	foreach (it ; this._tmps) {
+	    auto aux = it.templateExpReplace (values);
+	    if (aux is it) tmps.insertBack (it);
+	}
 	
-	return new Function (this._ident, type, params, make!(Array!Expression), test, block.templateReplace (values));
+	return new Function (this._ident, type, params, tmps, test, block.templateReplace (values));
     }    
     
     /**

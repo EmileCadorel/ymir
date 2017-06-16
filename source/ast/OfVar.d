@@ -40,7 +40,8 @@ class VariadicVar : Var {
     }
 
     override Var templateExpReplace (Expression [string] values) {
-	assert (false);
+	if (auto it = this._token.str in values) return null; 
+	else return this;
     }
     
 }

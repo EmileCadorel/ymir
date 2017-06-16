@@ -129,8 +129,15 @@ class FunctionInfo : InfoType {
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 
 	    Table.instance.addCall (func_token);
-	    auto info = goods[0].validate (right, right.treat);	    
-	    right.name = Mangler.mangle!"function" (info.name, info);
+	    FrameProto info;
+	    if (right.toValidate) {
+		info = right.toValidate.validate (right, right.treat);
+		right.name = Mangler.mangle!"functionv" (info.name, info);		
+	    } else {
+		info = goods [0].validate (right, right.treat);
+		right.name = Mangler.mangle!"function" (info.name, info);
+	    }
+
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)
@@ -188,8 +195,15 @@ class FunctionInfo : InfoType {
 	    }
 
 	    Table.instance.addCall (func_token);
-	    auto info = goods [0].validate (right, right.treat);
-	    right.name = Mangler.mangle!"function" (info.name, info);
+	    FrameProto info;
+	    if (right.toValidate) {
+		info = right.toValidate.validate (right, right.treat);
+		right.name = Mangler.mangle!"functionv" (info.name, info);
+	    } else {
+		info = goods [0].validate (right, right.treat);
+		right.name = Mangler.mangle!"function" (info.name, info);
+	    }
+	    
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
 	    if (cast (RefInfo) right.ret)

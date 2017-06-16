@@ -126,6 +126,8 @@ class TemplateSolverS {
 		return solve (tmps, typed.expType, type);
 	    } else if (auto arr = cast (ArrayVar) typed.type) {
 		return solve (tmps, arr, type);
+	    } else if (cast (Type) typed.type) {
+		return TemplateSolution (0, true, typed.type.info.type);
 	    } else {
 		Array!Expression types;
 		auto soluce = TemplateSolution (0, true);
@@ -163,6 +165,7 @@ class TemplateSolverS {
 			}
 		    } 
 		}
+
 		
 		soluce.type = new Var (typed.type.token, types).asType.info.type;
 		soluce.score += __VAR__;
@@ -744,6 +747,30 @@ class TemplateSolverS {
 	}
 	return true;
     }
+
+    /++
+     Vérifie que le type est bien un variadic template et qu'il est utilisable.
+     Params:
+     tmps = les templates de l'éléments.
+     type = le type censé etre variadic
+     types = les types passé à l'élément pour la spécialisation (uniquement ceux qui vont être transformé).
+     Returns: le type variadic (un tuple) ou null.
+     +/
+    TemplateSolution getVariadic (Array!Expression tmps, Var type, Array!InfoType types) {
+	import semantic.types.TupleInfo;
+	foreach (it ; tmps) {
+	    if (auto var = cast (VariadicVar) it) {
+		if (type.token.str == var.token.str) {
+		    auto tuple = new TupleInfo ();
+		    Array!InfoType others;
+		    foreach (it_ ; types) others.insertBack (it_.cloneForParam ());
+		    tuple.params = others;
+		    return TemplateSolution (__VAR__, true, tuple, [type.token.str : new Type (type.token, tuple)]);
+		}
+	    }
+	}
+	return TemplateSolution (0, false);
+    }    
 
     /**
      Example:

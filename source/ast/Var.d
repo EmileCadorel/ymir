@@ -5,13 +5,13 @@ import std.stdio, std.string, std.outbuffer, utils.YmirException;
 import semantic.pack.Symbol, ast.Constante;
 import utils.exception;
 import semantic.types.ArrayInfo;
-import ast.FuncPtr;
+import ast.FuncPtr, semantic.types.TupleInfo;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
 import semantic.types.EnumInfo;
 import semantic.types.StructInfo;
 import ast.Par, ast.ParamList, ast.Dot;
-
+import ast.OfVar, std.conv;
 
 /**
  Une variable est généré à la syntaxe par un identifiant.
@@ -139,9 +139,8 @@ class Var : Expression {
     }    
         
     override Expression templateExpReplace (Expression [string] values) {
-	import ast.OfVar, std.conv;
 	foreach (key, value ; values) {
-	    if (key == this._token.str) {
+	    if (key == this._token.str) {		
 		auto clo = value.clone ();
 		/*if (!cast (Decimal) clo)
 		 clo.token = this._token;*/
@@ -341,6 +340,11 @@ class ArrayVar : Var {
     
     override Var templateExpReplace (Expression [string] values) {
 	auto cont = this._content.templateExpReplace (values);
+	if (auto vvar = cast (VariadicSoluce) cont) {
+	    auto tu = new TupleInfo ();
+	    tu.params = make!(Array!InfoType) (vvar.types);
+	    cont = new Type (cont.token, tu);
+	}
 	return new ArrayVar (this._token, 
 			     this._content.templateExpReplace (values));
     }
@@ -460,9 +464,9 @@ class TypedVar : Var {
     }
         
     override Var templateExpReplace (Expression [string] values) {
-	if (this._type)
+	if (this._type) {
 	    return new TypedVar (this._token, cast (Var) this._type.templateExpReplace (values), this._deco);
-	else
+	} else
 	    return new TypedVar (this._token, this._expType.templateExpReplace (values), this._deco);	
     }
     

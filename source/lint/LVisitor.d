@@ -51,7 +51,7 @@ class LVisitor {
 	auto vrai = new LLabel (new LInstList), faux = new LLabel;
 	entry.insts += new LJump (test, vrai);
 	entry.insts += new LGoto (faux);
-	auto printsName = "_Y4core5stdio5printPFsZv";
+	auto printsName = "_Y4core5stdio5printFsZv";
 	vrai.insts += new LCall (printsName, make!(Array!LExp) (loc), LSize.NONE);
 	auto test2 = new LBinop (msg, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
 	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel;
@@ -154,8 +154,12 @@ class LVisitor {
 	    retReg = new LReg (LSize.LONG);
 	    end.insts += new LWrite (retReg, new LConstDecimal (0, LSize.LONG));
 	}
-	
-	auto fr = new LFrame (Mangler.mangle!"function" (semFrame), semFrame.name, entry, end, retReg, args);
+
+	string name;
+	if (semFrame.isVariadic) name = Mangler.mangle!"functionv" (semFrame);
+	else name = Mangler.mangle!"function" (semFrame);
+	    
+	auto fr = new LFrame (name, semFrame.name, entry, end, retReg, args);
 	fr.file = semFrame.file;
 	fr.lastId = LReg.lastId;
 	return fr;

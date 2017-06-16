@@ -66,20 +66,34 @@ class TemplateFrame : Frame {
     }
 
     private ApplicationScore isApplicableVariadics (Word ident, Array!Var attrs, Array!InfoType params) {
-	if (attrs.length == 0 || cast (TypedVar) attrs [$ - 1])
+	if (attrs.length == 0)
 	    return null;
-	else {
-	    auto types = make!(Array!InfoType) (params [0 .. attrs.length]);
-	    auto score = this.isApplicableSimple (ident, attrs, types);
-	    if (score is null || score.score == 0) return score;
-	    auto tuple = new TupleInfo ();
-	    auto last = score.treat.back ();
-	    auto tuple_types = make!(Array!InfoType) (params [attrs.length - 1 .. $]);
-	    tuple.params = tuple_types;
-	    score.treat.back () = tuple;
-	    score.score += AFF - CHANGE;
-	    return score;
-	}
+	else if (auto tvar = cast (TypedVar) attrs [$ - 1]) {
+	    Array!InfoType others = make!(Array!InfoType) (params [attrs.length - 1 .. $]);
+	    
+	    auto res = TemplateSolver.getVariadic (this._function.tmps, tvar.type, others);
+	    if (!res.valid) return null;
+	    else {
+		auto func = this._function.templateReplace (res.elements);
+		Frame tmps;
+		if (!TemplateSolver.isSolved (this._function.tmps, res)) {
+		    func.tmps = TemplateSolver.unSolved (this._function.tmps, res);
+		    tmps = new TemplateFrame (this._namespace, func);
+		} else {
+		    tmps = new UnPureFrame (this._namespace, func);
+		}
+
+		tmps.isVariadic = true;
+		auto types = make!(Array!InfoType) (params [0 .. attrs.length - 1]);
+		types.insertBack (res.type);
+		auto score = tmps.isApplicable (types);
+		if (score) {
+		    score.score += res.score;
+		    score.toValidate = tmps;
+		}
+		return score;				
+	    }
+	} return null;
     }    
     
     private ApplicationScore isApplicableSimple (Word ident, Array!Var attrs, Array!InfoType args) {

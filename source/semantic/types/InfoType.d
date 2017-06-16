@@ -17,6 +17,7 @@ import semantic.pack.Symbol;
 import semantic.value.Value;
 public import semantic.value.all;
 public import semantic.pack.Namespace;
+import semantic.pack.Frame;
 
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
@@ -74,7 +75,11 @@ class ApplicationScore {
     bool isVariadic;
 
     /** Le prototype est dérivé d'une fonction template */
-    bool isTemplate;    
+    bool isTemplate;
+
+    /++ La frame a valider si le score est correct (utilisé uniquement dans les variadics templates) +/
+    Frame toValidate;
+    
 }
 
 

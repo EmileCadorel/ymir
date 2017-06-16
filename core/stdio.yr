@@ -72,55 +72,40 @@ def print if (is (T : struct)) (T) (a : T) {
     print (a.to!string);
 }
 
-def println if (is(T : tuple)) (T) (a : T) {
-    print (a);
+def println (T) (i : T) {
+    print (i);
     print ('\n');
 }
 
-def println (i) {
-    print (expand (i));
+def println (I, T...) (i : I, next : T) {
+    print (i);
+    print (expand (next));
     print ('\n');
 }
 
-def print (i, nexts) {
+
+def print (I, T...) (i : I, nexts : T) {
     print (i);
     print (expand (nexts));
 }
 
-def println (f : float, i) {
+def println (T...) (f : float, i : T) {
     print (f, i);
     print ('\n');
 }
 
-def printf (str : string, nexts) {
+def printf (T...) (str : string, nexts : T) {
     printf (str.ptr, expand (nexts));
 }
 
-def printfln (str : string, nexts) {
-    extern (C) printf (c : p!char, ...);
-    extern (C) putchar (c : char);
+def printfln (T...) (str : string, nexts : T) {
     printf (str.ptr, expand (nexts));
     putchar ('\n');
 }
 
-private def printTu (T) (a : T) {
-    print (a);
-}
-
-private def printTu (T) (a : T, next) {
-    print (a);
-    print (", ");
-    printTu (expand (next));
-}
-
-private def printTu (T, U) (a : T, next : U) {
-    print (a);
-    print (", ");
-    print (next);
-}
-
 def print if (is (T : tuple)) (T) (a : T) {
+    import std.conv;
     print ("(");
-    printTu (expand (a));
+    print (a.to!string);
     print (")");
 }

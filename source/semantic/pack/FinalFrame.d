@@ -32,6 +32,9 @@ class FinalFrame {
     /++ Les templates utilisé pour valider la frame +/
     private Array!Expression _tmps;
 
+    /++ La frame a été crée depuis un spécialisation variadic +/
+    private bool _isVariadic;
+    
     /** le block de la frame */
     private Block _block;
 
@@ -80,6 +83,13 @@ class FinalFrame {
 	return this._last;
     }
 
+    /++
+     Returns: la frame a ete crée depuis une spécialisation variadic ?
+     +/
+    ref bool isVariadic () {
+	return this._isVariadic;
+    }
+    
     /**
      Returns: la liste des paramètres de la frame
      */

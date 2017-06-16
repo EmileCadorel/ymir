@@ -17,7 +17,7 @@ class UnPureFrame : Frame {
 
     /** Le nom de la frame */
     private string _name;    
-
+    
     /**
      Params:
      namespace = le contexte de la frame.
@@ -27,47 +27,6 @@ class UnPureFrame : Frame {
 	super (namespace, func);
 	this._name = func.ident.str;
     }
-
-
-    override ApplicationScore isApplicable (ParamList params) {
-	if (params.length > this._function.params.length) return this.isApplicableVariadic (params);
-	else return super.isApplicable (params);
-	
-    }
-
-    override ApplicationScore isApplicable (Array!InfoType params) {
-	if (params.length > this._function.params.length) return this.isApplicableVariadic (params);
-	else return super.isApplicable (params);
-    }
-
-    private ApplicationScore isApplicableVariadic (ParamList params) {
-	if (this._function.params.length == 0 || cast (TypedVar) this._function.params [$ - 1]) 
-	    return null;
-	else {
-	    auto ftype = params.paramTypes;	    
-	    auto types = make!(Array!InfoType) (ftype [0 .. this._function.params.length]);
-	    
-	    auto score = super.isApplicable (this._function.ident, this._function.params, types);
-	    if (score is null || score.score == 0) return score;
-	    auto tuple = new TupleInfo ();
-	    auto last = score.treat.back ();
-	    auto tuple_types = make!(Array!InfoType) (ftype [this._function.params.length - 1 .. $]);
-	    
-	    tuple.params = tuple_types;
-	    score.treat.back () = tuple;
-	    score.score += AFF - CHANGE;
-	    return score;
-	}
-    }
-
-    private ApplicationScore isApplicableVariadic (Array!InfoType params) {
-	if (this._function.params.length == 0 || cast (TypedVar) this._function.params [$ - 1]) 
-	    return null;
-	else {
-	    return null;
-	}
-    }
-
     
     /**
      Analyse sémantique de la frame.
@@ -80,9 +39,9 @@ class UnPureFrame : Frame {
 	Table.instance.enterBlock ();
 	
 	Array!Var finalParams = Frame.computeParams (this._function.params, params);
-	return super.validate (this._namespace, Table.instance.globalNamespace, finalParams);
-    }
-
+	return super.validate (this._namespace, Table.instance.globalNamespace, finalParams, this._isVariadic);
+    }    
+    
     /**
      Analyse sémantique de la frame.
      Params:

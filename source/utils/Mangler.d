@@ -24,7 +24,7 @@ class Mangler {
 	if (name == Keys.MAIN.descr || frame.externC) return name;
 	auto namespace = frame.namespace.toString;
 	auto buf = new OutBuffer ();
-	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	buf.writef ("_Y%s%sF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
 	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
 	}
@@ -32,7 +32,18 @@ class Mangler {
 	return buf.toString;
     }       
 
-
+    static string mangle (string type : "functionv") (string name, FrameProto frame) {
+	if (name == Keys.MAIN.descr || frame.externC) return name;
+	auto namespace = frame.namespace.toString;
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%s%sVF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	foreach (it ; frame.vars) {
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
+	}
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
+	return buf.toString;
+    }       
+   
     static string mangle (string type : "method") (string name, FrameProto frame) {
 	if (name == Keys.MAIN.descr || frame.externC) return name;
 	auto namespace = frame.namespace.toString;
@@ -44,7 +55,6 @@ class Mangler {
 	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
 	return buf.toString;
     }       
-
     
     static string mangle (string type : "struct") (StructCstInfo str) {
 	auto buf = new OutBuffer ();
@@ -67,7 +77,7 @@ class Mangler {
 	if (name == Keys.MAIN.descr) return name;
 	auto namespace = frame.namespace.toString;
 	auto buf = new OutBuffer ();
-	buf.writef ("_Y%s%sPF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	buf.writef ("_Y%s%sF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
 	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
 	}
@@ -75,9 +85,23 @@ class Mangler {
 	return buf.toString;
     }       
 
+    static string mangle (string type : "functionv") (FinalFrame frame) {
+	auto name = frame.name;
+	if (name == Keys.MAIN.descr) return name;
+	auto namespace = frame.namespace.toString;
+	auto buf = new OutBuffer ();
+	buf.writef ("_Y%s%sVF", mangle!"namespace" (namespace), mangle!"namespace" (name));
+	foreach (it ; frame.vars) {
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
+	}
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
+	return buf.toString;
+    }       
+
+    
     static string mangle (string type : "function") (Namespace namespace) {
 	auto buf = new OutBuffer ();
-	buf.writef ("_Y%sPF", mangle!"namespace" (namespace.toString));
+	buf.writef ("_Y%sF", mangle!"namespace" (namespace.toString));
 	buf.writef ("Zv");
 	return buf.toString;
     }       
