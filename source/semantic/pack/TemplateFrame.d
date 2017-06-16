@@ -87,6 +87,7 @@ class TemplateFrame : Frame {
 		auto types = make!(Array!InfoType) (params [0 .. attrs.length - 1]);
 		types.insertBack (res.type);
 		auto score = tmps.isApplicable (types);
+		
 		if (score) {
 		    score.score += res.score;
 		    score.toValidate = tmps;
@@ -186,7 +187,7 @@ class TemplateFrame : Frame {
 	Array!Var finalParams = Frame.computeParams (func.params, params);
 
 	Symbol ret = func.type !is null ? func.type.asType ().info : null;
-	auto proto = Frame.validate (this._function.ident, this._namespace, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values));
+	auto proto = Frame.validate (this._function.ident, this._namespace, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values), this._isVariadic);
 	return proto;
     }
 

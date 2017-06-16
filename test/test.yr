@@ -1,4 +1,8 @@
 
+def foo (TNext..., T) (a : T, b : TNext) {
+    println (a, b);
+}
+
 def main () {
-    printfln ("Ici %.4f, %s ", 34.4543, ("salut").ptr);
+    foo (1, 23, 44);
 }
