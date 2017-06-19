@@ -134,3 +134,13 @@ def facto(x : int) : int {
     return x;
 }
 
+/**
+Calcule de la somme de begin .. end
+ */
+def sum(T) (rng : r!T) {
+    import std.algorithm.comparaison;
+    let n = max (rng.scd - 1, rng.fst - 1);
+    let n2 = min (rng.scd - 1, rng.fst - 1);
+    return ((n * (n + 1)) / 2) - ((n2 * (n2 + 1)) / 2);
+}
+

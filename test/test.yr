@@ -1,8 +1,9 @@
-
-def foo (TNext..., T) (a : T, b : TNext) {
-    println (a, b);
-}
+import std.math;
 
 def main () {
-    foo (1, 23, 44);
+    println (sum (1 .. 100));
+    let sum = 0;
+    for it in 0 .. 100
+        sum += it;
+    println (sum);
 }
