@@ -41,7 +41,8 @@ class TypeOf : Expression {
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
 	else if (cast (UndefInfo) expr.info.type) throw new UninitVar (expr.token);
 
-	auto res = new Type (this._token, expr.info.type);
+	auto res = new Type (this._token, expr.info.type.clone ());
+	res.info.type.isType = true;
 	return res;	
     }
 

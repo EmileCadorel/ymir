@@ -582,9 +582,11 @@ class StructInfo : InfoType {
      Returns: une fonction statique ou null.
      +/
     override InfoType DColonOp (Var var) {
-	foreach (it ; this._statics) {
-	    if (it.name == var.token.str) {
-		return it;
+	if (this._isType) {
+	    foreach (it ; this._statics) {
+		if (it.name == var.token.str) {
+		    return it;
+		}
 	    }
 	}
 	return null;
