@@ -14,8 +14,11 @@ impl Object for Test {
        
 }
 
+def foo (a : Test) {
+}
 
 def main () {
     let a = Test::new (12);
     println (typeof (a)::new (897));
+    foo (a);
 }

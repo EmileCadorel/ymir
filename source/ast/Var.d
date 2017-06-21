@@ -8,6 +8,7 @@ import semantic.types.ArrayInfo;
 import ast.FuncPtr, semantic.types.TupleInfo;
 import semantic.pack.Table;
 import syntax.Keys, semantic.types.RefInfo;
+import semantic.impl.ObjectInfo;
 import semantic.types.EnumInfo;
 import semantic.types.StructInfo;
 import ast.Par, ast.ParamList, ast.Dot;
@@ -220,6 +221,11 @@ class Var : Expression {
 		    else return new Type (this._token, encst.create ());	    
 		} else if (auto str = cast (StructCstInfo) en.type) {
 		    auto type = str.create (this._token, temp.array ());
+		    if (this._deco == Keys.REF)
+			return new Type (this._token, new RefInfo (type));
+		    else return new Type (this._token, type);
+		} else if (auto str = cast (ObjectCstInfo) en.type) {
+		    auto type = str.impl.create (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
 			return new Type (this._token, new RefInfo (type));
 		    else return new Type (this._token, type);
