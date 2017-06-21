@@ -21,20 +21,20 @@ enum
 extern (C) SDL_Quit ();
 extern (C) SDL_Init (int) : int;
 extern (C) SDL_GL_SetAttribute (int, int);
-extern (C) SDL_CreateWindow (name : ptr!char, posx : int, posy : int, width : int, height : int, options : int) : ptr!void;
+extern (C) SDL_CreateWindow (name : p!char, posx : int, posy : int, width : int, height : int, options : int) : p!void;
 
-extern (C) SDL_GL_CreateContext (win : ptr!void) : ptr!void;
+extern (C) SDL_GL_CreateContext (win : p!void) : p!void;
 
 extern (C) glewInit () : int;
-extern (C) glewGetErrorString (int) : ptr!char;
+extern (C) glewGetErrorString (int) : p!char;
 
 extern (C) glEnable (int);
 extern (C) glClearColor (float, float, float, float);
 extern (C) glClear (int);
-extern (C) SDL_GL_SwapWindow (win : ptr!void);
+extern (C) SDL_GL_SwapWindow (win : p!void);
 
 struct
-| content : ptr!void
+| content : p!void
 -> SDL_Window;
 
 
@@ -55,7 +55,7 @@ def createWindow (name : string, width : int, height : int) : SDL_Window {
 }
 
 struct
-| val : ptr!void
+| val : p!void
 -> GL_Context;
 
 def createContext (win : SDL_Window) : GL_Context {

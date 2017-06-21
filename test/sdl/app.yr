@@ -3,9 +3,19 @@ import signal;
 import std.map, std.conv;
 import std.array, std.stdio;
 
-def main () {
+static END = false;
+
+def end (a : short) {
+    END = true;
+}
+
+def main () {       
+    let signal = [Signal!(short) ; 512U];    
+    signal [cast:int(SDL_Keycode::SDLK_ESCAPE)].connect (&end);
+    
+    
     let win = initSDL ("Test", 800, 600);
-    while (!poll ()) {
+    while (!END && !poll (signal)) {
     	win.clear ();
     	win.swapWindow ();
     }

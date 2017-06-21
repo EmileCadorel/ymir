@@ -1,1 +1,19 @@
 import std.map;
+
+
+struct Signal (T) {
+    sig : [fn (T) -> void]    
+}
+
+def connect (T) (ref sig : Signal!T, fun : fn (T) -> void) {
+    if sig is null sig = Signal!(T);
+    if (sig.sig is null)
+        sig.sig = [fun];
+    else
+        sig.sig += [fun];
+}
+
+def opCall (T) (sig : Signal!T, param : T) {
+    for it in sig.sig
+        it (param);
+}
