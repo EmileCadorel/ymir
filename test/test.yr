@@ -3,13 +3,13 @@ trait Object {
 }
 
 struct Test {
-    a : int
 }
 
 impl Object for Test {
 
-    def new (a : int) {        
-        return Test (a);
+    def new (a : int) {
+        println (a);
+        return Test ();
     }
        
 }

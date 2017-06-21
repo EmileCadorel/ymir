@@ -370,7 +370,7 @@ class Visitor {
 	    ident = visitIdentifiant ();
 	    word = this._lex.next ();
 	    if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	    
-	} else {
+	} else if (word != Tokens.ARROW) {
 	    this._lex.rewind ();
 	    ident = visitIdentifiant ();
 	    auto next = this._lex.next (Tokens.LPAR, Tokens.LACC);
@@ -378,13 +378,19 @@ class Visitor {
 		temps = visitTemplateStruct ();
 		this._lex.next (Tokens.LACC); 
 	    }
-	    
-	    while (true) {
-		exps.insertBack (visitStructVarDeclaration ());
-		word = this._lex.next (Tokens.COMA, Tokens.RACC);
-		if (word == Tokens.RACC) break;
-	    }	    
-	} 
+	    next = this._lex.next ();
+	    if (next != Tokens.RACC) {
+		this._lex.rewind ();
+		while (true) {
+		    exps.insertBack (visitStructVarDeclaration ());
+		    word = this._lex.next (Tokens.COMA, Tokens.RACC);
+		    if (word == Tokens.RACC) break;
+		}
+	    } 
+	} else {
+	    ident = visitIdentifiant ();
+	    this._lex.next (Tokens.COMA);
+	}	
 	return new Struct (ident, temps, exps);	
     }    
 
