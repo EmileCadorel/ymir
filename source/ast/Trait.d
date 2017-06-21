@@ -19,10 +19,10 @@ class Trait : Declaration {
     
     override void declare () {
 	auto space = Table.instance.namespace;
-	if (auto it = trait.TraitTable.exists (space, this._ident.str))
-	    throw new ShadowingVar (this._ident, it.locus);
+	if (auto it = Table.instance.getLocal (this._ident.str))
+	    throw new ShadowingVar (this._ident, it.sym);
 
-	trait.TraitTable.insert (new trait.TraitObj (this._ident, space, this._prototypes));
+	Table.instance.insert (new Symbol (this._ident, new trait.TraitObj (this._ident, space, this._prototypes), true));
     }
     
 }

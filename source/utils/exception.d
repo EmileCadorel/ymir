@@ -1010,3 +1010,36 @@ class RecursiveCreation : YmirException {
     }
     
 }
+
+class ImplementUnknown : YmirException {
+    this (Word token, Symbol alike) {
+	auto loc = token.locus;
+	auto buf = new OutBuffer;
+	buf.writef ("%sErreur%s: Implémentation d'une élément inconnu '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	if (alike !is null)
+	    buf.writef (", peut être : '%s%s%s'", Colors.YELLOW.value, alike.sym.str, Colors.RESET.value);
+	
+	buf.writefln ("");		
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }    
+}
+
+class ImplementNotStruct : YmirException {
+    this (Word token, Symbol sym) {
+	auto buf = new OutBuffer;
+	auto loc = sym.sym.locus;
+	buf.writefln ("%sErreur%s: Implémentation d'un élément qui n'est pas une structure '%s%s%s'",
+		    Colors.RED.value, Colors.RESET.value,
+		    Colors.YELLOW.value, sym.sym.str, Colors.RESET.value
+	);
+	super.addLine (buf, loc);
+	
+	buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
+	super.addLine (buf, token.locus);
+	msg = buf.toString;
+    }
+}

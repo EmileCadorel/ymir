@@ -41,8 +41,8 @@ class StructCstInfo : InfoType {
     private bool _extern;
 
     /** La structure peut être construire en dehors du block ? */
-    private bool _isPublic;
-
+    private bool _isPublic;    
+    
     /+++/
     private static StructCstInfo [string] __creations__;
     
@@ -104,13 +104,15 @@ class StructCstInfo : InfoType {
 	import std.format, ast.FuncPtr, ast.ArrayAlloc;
 	if (name.str in __creations__)
 	    throw new RecursiveCreation (name);
-	
-	auto cst = cast(StructCstInfo) (Table.instance.get (name.str).type);
-
+	auto info = Table.instance.get (name.str).type;
+	auto cst = cast(StructCstInfo) (info);
 	__creations__ [name.str] = cst;
 	scope (exit) __creations__.remove (name.str);
 	
-	if (cst is null) assert (false, "Nooooon !!!");
+	if (cst is null) {
+	    import semantic.impl.ObjectInfo;
+	    cst = (cast (ObjectCstInfo) info).impl;
+	}
 	if (cst._tmps.length == 0 && templates.length != 0)
 	    throw new NotATemplate (name);
 
@@ -377,7 +379,13 @@ class StructInfo : InfoType {
     private Array!string _attribs;
     
     private Array!InfoType _tmps;
-    
+
+    // Les méthodes
+    private Array!FunctionInfo _methods;
+
+    // Les methodes statiques
+    private Array!FunctionInfo _statics;
+
     /** Le nom de la structure */    
     private string _name;
 
@@ -423,6 +431,14 @@ class StructInfo : InfoType {
 	return this._attribs;
     }
 
+    void setStatics (Array!FunctionInfo funs) {
+	this._statics = funs;
+    }
+
+    void setMethods (Array!FunctionInfo funs) {
+	this._methods = funs;
+    }
+    
     Namespace namespace () {
 	return this._namespace;
     }
@@ -559,6 +575,21 @@ class StructInfo : InfoType {
 	return null;
     }
 
+    /++
+     Surcharge de l'operateur '::'
+     Params:
+     var = l'élement à droite de l'expression
+     Returns: une fonction statique ou null.
+     +/
+    override InfoType DColonOp (Var var) {
+	foreach (it ; this._statics) {
+	    if (it.name == var.token.str) {
+		return it;
+	    }
+	}
+	return null;
+    }
+    
     /**
      Surcharge du cast automatique     
      */
@@ -709,14 +740,20 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction concervées.
      */
     override InfoType clone () {
-	return create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	ret._statics = this._statics;
+	ret._methods = this._methods;
+	return ret;
     }
 
     /**
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction remise à zero.
     */
     override InfoType cloneForParam () {
-	return create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	ret._statics = this._statics;
+	ret._methods = this._methods;
+	return ret;
     }
 
     override InfoType getTemplate (ulong id) {

@@ -1,9 +1,21 @@
-import std.math;
+
+trait Object {
+}
+
+struct Test {
+    a : int
+}
+
+impl Object for Test {
+
+    def new (a : int) {        
+        return Test (a);
+    }
+       
+}
+
 
 def main () {
-    println (sum (1 .. 100));
-    let sum = 0;
-    for it in 0 .. 100
-        sum += it;
-    println (sum);
+    let a = Test::new (12);
+    println (typeof (a)::new (897));
 }

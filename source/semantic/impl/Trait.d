@@ -8,28 +8,7 @@ import semantic.types.FunctionInfo;
 import ast.Var, trait = ast.Trait;
 import utils.Singleton;
 import semantic.impl.Implementer;
-
-alias TraitTable = TraitTableS.instance;
-
-class TraitTableS {
-
-    Array!TraitObj _traits;
-    
-    TraitObj exists (Namespace space, string name) {
-	foreach (it ; this._traits) {
-	    if (name == it.name && space.isSubOf (it.space)) {
-		return it;
-	    }
-	}
-	return null;
-    }
-    
-    void insert (TraitObj t) {
-	this._traits.insertBack (t);
-    }
-    
-    mixin Singleton;
-}
+import semantic.types.InfoType;
 
 
 /++
@@ -42,7 +21,7 @@ class TraitTableS {
  + ---------
  +
 +/
-class TraitObj {
+class TraitObj : InfoType {
 
     private Word _locus;
 
@@ -73,5 +52,23 @@ class TraitObj {
     string name () {
 	return this._name;
     }
+    
+    override bool isSame (InfoType) {
+	return false;
+    }
+
+    override InfoType clone () {
+	return this;
+    }
+
+    override InfoType cloneForParam () {
+	return this;
+    }
+    
+    override string simpleTypeString () {
+	import std.format;
+	return format ("%d%s%s", this._name.length, "IM", this._name);
+    }
+
     
 }

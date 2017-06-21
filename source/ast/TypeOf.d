@@ -42,7 +42,7 @@ class TypeOf : Expression {
 	else if (cast (UndefInfo) expr.info.type) throw new UninitVar (expr.token);
 
 	auto res = new Type (this._token, expr.info.type);
-	return res;
+	return res;	
     }
 
     override Expression templateExpReplace (Expression [string] values) {

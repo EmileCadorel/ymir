@@ -172,18 +172,57 @@ class Visitor {
 	this._lex.next (Keys.FOR);
 	auto what = visitIdentifiant ();
 	this._lex.next (Tokens.LACC);
-	auto next = this._lex.next ();
+	auto next = this._lex.next (Tokens.RACC, Keys.DEF);
 	Array!Function methods;
 	if (next != Tokens.RACC) {
 	    while (true) {
-		methods.insertBack (visitFunction ());
-		 next = this._lex.next (Tokens.RACC, Keys.DEF);
+		methods.insertBack (visitFunctionImpl ());
+		next = this._lex.next (Tokens.RACC, Keys.DEF);
 		if (next == Tokens.RACC) break;
-		else this._lex.rewind ();
 	    }
 	}
 	return new Impl (ident, what, methods);
     }
+
+    private Function visitFunctionImpl () {
+	auto ident = visitIdentifiant ();
+	Array!Var params;
+	this._lex.next (Tokens.LPAR);
+	auto next = this._lex.next ();	
+	if (next != Tokens.RPAR) {
+	    this._lex.rewind ();
+	    while (true) {
+		if (params.length == 0) {
+		    next = this._lex.next ();
+		    if (next == Keys.SELF)
+			params.insertBack (new Var (next));		    
+		    else {
+			this._lex.rewind ();
+			params.insertBack (visitVarDeclaration ());
+		    }
+		} else
+		    params.insertBack (visitVarDeclaration ());
+		next = this._lex.next (Tokens.RPAR, Tokens.COMA);
+		if (next == Tokens.RPAR) break;
+	    }
+	}
+
+	Var type;
+	next = this._lex.next ();
+	if (next == Tokens.COLON) {
+	    auto deco = this._lex.next ();
+	    if (deco != Keys.REF) {
+		deco = Word.eof;
+		this._lex.rewind ();
+	    }	    
+	    type = visitType ();
+	    type.deco = deco;
+	} else this._lex.rewind ();
+	
+	return new Function (ident, params, make!(Array!Expression), null, visitBlock);
+    }
+
+
     
     /++
      traitProto := 'def' Identifiant '(' (var (',' var)*)? ')' ':' type ';'
@@ -205,7 +244,13 @@ class Visitor {
 	Var type;
 	next = this._lex.next (Tokens.COLON, Tokens.SEMI_COLON);
 	if (next == Tokens.COLON) {
+	    auto deco = this._lex.next ();
+	    if (deco != Keys.REF) {
+		deco = Word.eof;
+		this._lex.rewind ();
+	    }
 	    type = visitType ();
+	    type.deco = deco;
 	    this._lex.next (Tokens.SEMI_COLON);
 	}
 	return new TraitProto (ident, params, type);
