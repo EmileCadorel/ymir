@@ -169,10 +169,15 @@ class Visitor {
 
     private Impl visitImpl () {
 	auto ident = visitIdentifiant ();
-	this._lex.next (Keys.FOR);
-	auto what = visitIdentifiant ();
-	this._lex.next (Tokens.LACC);
-	auto next = this._lex.next (Tokens.RACC, Keys.DEF);
+	Word what = Word.eof;
+	auto next = this._lex.next (Keys.FOR, Tokens.LACC);
+	
+	if (next == Keys.FOR) {
+	    what = visitIdentifiant ();	
+	    this._lex.next (Tokens.LACC);
+	}
+	
+	next = this._lex.next (Tokens.RACC, Keys.DEF);
 	Array!Function methods;
 	if (next != Tokens.RACC) {
 	    while (true) {
@@ -181,7 +186,10 @@ class Visitor {
 		if (next == Tokens.RACC) break;
 	    }
 	}
-	return new Impl (ident, what, methods);
+	if (what.isEof) 
+	    return new Impl (ident, methods);
+	else
+	    return new Impl (ident, what, methods);
     }
 
     private Function visitFunctionImpl () {

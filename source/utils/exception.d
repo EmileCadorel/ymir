@@ -1015,7 +1015,7 @@ class ImplementUnknown : YmirException {
     this (Word token, Symbol alike) {
 	auto loc = token.locus;
 	auto buf = new OutBuffer;
-	buf.writef ("%sErreur%s: Implémentation d'une élément inconnu '%s%s%s'",
+	buf.writef ("%sErreur%s: Implémentation d'un élément inconnu '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
@@ -1027,6 +1027,23 @@ class ImplementUnknown : YmirException {
 	msg = buf.toString;
     }    
 }
+
+class ImplementNotLocal : YmirException {
+    this (Word token, Symbol sym) {
+	auto loc = token.locus;
+	auto buf = new OutBuffer ();
+	buf.writefln ("%sErreur%s: Implémentation d'un élément d'un module externe '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	super.addLine (buf, loc);
+	
+	buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
+	super.addLine (buf, sym.sym.locus);
+	msg = buf.toString;	
+    }
+}
+
 
 class ImplementNotStruct : YmirException {
     this (Word token, Symbol sym) {

@@ -274,7 +274,29 @@ class Table {
 	    }
 	}
 	return ret;
-    }    
+    }
+
+    Symbol local (string name) {
+	Symbol ret;
+	Namespace last = this.namespace;
+	if (!this._frameTable.empty) {
+	    ret = this._frameTable.front () [name];
+	    if (ret) return ret;
+	    
+	    foreach (it ; this._frameTable) {	    
+		if (it.namespace.isAbsSubOf (last)) {
+		    ret = it [name];
+		    if (ret && ret.isScoped) return ret;
+		    else ret = null;
+		    last = it.namespace;
+		} else if (this.namespace != last) break;
+	    }
+	}
+	
+	if (ret is null) ret = this._globalScope [name];
+	return ret;
+    }
+    
 
     /++
      Params:

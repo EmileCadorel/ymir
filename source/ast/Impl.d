@@ -17,6 +17,12 @@ class Impl : Declaration {
     
     private Word _what;
 
+    this (Word what, Array!Function methods) {
+	this._methods = methods;
+	this._what = what;
+	this._who = Word.eof;
+    }
+    
     this (Word who, Word what, Array!Function methods) {
 	this._methods = methods;
 	this._what = what;
@@ -25,9 +31,13 @@ class Impl : Declaration {
 
     override void declare () {
 	Array!FunctionInfo meth, stat;
-	auto sym = Table.instance.get (this._what.str);	
-	if (sym is null) {
-	    throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
+	auto sym = Table.instance.local (this._what.str);
+	auto ext = Table.instance.get (this._what.str);
+	if (sym is null) {	    
+	    if (ext !is null)
+		throw new ImplementNotLocal (this._what, ext);
+	    else
+		throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
 	} else if (auto str = cast (StructCstInfo) sym.type) {
 	    auto trait = Table.instance.get (this._who.str);
 	    declareMethods (meth, stat);
@@ -40,6 +50,24 @@ class Impl : Declaration {
 	    throw new ImplementNotStruct (this._what, sym);
     }
 
+    override void declareAsExtern (Module mod) {
+	Array!FunctionInfo meth, stat;
+	auto sym = mod.get(this._what.str);
+	if (sym is null) {	    
+	    throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
+	} else if (auto str = cast (StructCstInfo) sym.type) {
+	    //auto trait = mod.get (this._who.str);
+	    declareMethods (meth, stat);
+	    auto obj = new ObjectCstInfo (str);
+	    obj.setStatic (stat);
+	    obj.setMethods (meth);
+	    str.methods = meth;
+	    sym.type = obj;
+	} else
+	    throw new ImplementNotStruct (this._what, sym);
+    }
+    
+    
     private void declareMethods (ref Array!FunctionInfo meth, ref Array!FunctionInfo stat) {
 	foreach (it ; this._methods) {
 	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
