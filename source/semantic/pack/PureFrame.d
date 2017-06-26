@@ -17,7 +17,7 @@ class PureFrame : Frame {
     private string _name;
 
     /** le prototype de la frame */
-    private FrameProto _fr;
+    private FrameProto _proto;
 
     /** la frame à déjà été validé ? */
     private bool valid = false;
@@ -57,12 +57,14 @@ class PureFrame : Frame {
      Returns: le prototype de la frame, avec son nom définitif
      */
     override FrameProto validate () {
+	if (this._proto) return this._proto;
 	if (this._name == Keys.MAIN.descr && !this._pass) return validateMain ();
 	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
 	Table.instance.enterBlock ();
 	
 	Array!Var finalParams = super.computeParams (this._function.params);
-	return super.validate (finalParams);
+	this._proto = super.validate (finalParams);
+	return this._proto;
     }    
 
     private FrameProto validateMain () {

@@ -4,7 +4,7 @@ import syntax.Word, std.stdio;
 import semantic.types.InfoType;
 import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
-import std.string;
+import std.string, semantic.types.PtrFuncInfo;
 import ast.Par, ast.Instruction;
 
 /**
@@ -33,7 +33,7 @@ class Dot : Expression {
     this (Word word) {
 	super (word);
     }
-
+    
     /**
      Vérification sémantique.
      Pour être vrai, le type de l'élément de gauche doit surcharger l'operateur '.' (DotOp) avec l'element de droite.
@@ -53,6 +53,10 @@ class Dot : Expression {
 		if (cast (Type) call || cast (UndefInfo) call.info.type)
 		    throw new UndefinedAttribute (this._token, aux._left.info, var);
 		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();	    
+	    } else if (cast (PtrFuncInfo) type) {
+		auto call = new Var (var.token);
+		call.info = new Symbol (call.token, type, true);
+		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();
 	    }
 	    aux.info = new Symbol (aux._token, type);
 	    return aux;
@@ -118,13 +122,23 @@ class DotCall : Expression {
     /** Le premier paramètre de la fonction */
     private Expression _firstPar;
 
+    /++
+     Appel d'une méthode, donc résolution dynamique
+     +/
+    private bool _dyn;
+    
     this (Instruction inside, Word token, Expression call, Expression firstPar) {
 	super (token);
 	this._call = call;
 	this._firstPar = firstPar;
 	this._inside = inside;
+	this.info = call.info;
     }
-       
+
+    ref bool dyn () {
+	return this._dyn;
+    }
+    
     /**
      Returns: L'expression de l'appel
      */
@@ -132,6 +146,10 @@ class DotCall : Expression {
 	return this._call;
     }
 
+    Expression left () {
+	return this._firstPar;
+    }
+    
     override Expression templateExpReplace (Expression [string]) {
 	return this;
     }	
@@ -140,6 +158,7 @@ class DotCall : Expression {
 	import syntax.Tokens;
 	if (!cast (Par) this._inside) {
 	    auto aux = new Par (this._token, this._token);
+	    aux.dotCall = this;
 	    auto word = this._token;
 	    word.str = Tokens.LPAR.descr ~ Tokens.RPAR.descr;
 	    aux.paramList = new ParamList (this._token, make!(Array!Expression) (this._firstPar));

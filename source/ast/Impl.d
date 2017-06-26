@@ -34,6 +34,7 @@ class Impl : Declaration {
 	    auto obj = new ObjectCstInfo (str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
+	    str.methods = meth;
 	    sym.type = obj;
 	} else
 	    throw new ImplementNotStruct (this._what, sym);
@@ -42,14 +43,27 @@ class Impl : Declaration {
     private void declareMethods (ref Array!FunctionInfo meth, ref Array!FunctionInfo stat) {
 	foreach (it ; this._methods) {
 	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
-		meth.insertBack (declare (it));
+		meth.insertBack (declareMeth (it));
 	    } else {
-		stat.insertBack (declare (it));
+		stat.insertBack (declareStat (it));
 	    }
 	}
     }
 
-    private FunctionInfo declare (Function fun) {
+    private FunctionInfo declareMeth (Function fun) {
+	import semantic.pack.PureFrame;
+	auto name = Word (this._what.locus, this._what.str, false);
+	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
+	auto fr = cast (PureFrame) fun.verifyPure ();
+	if (fr is null) assert (false);
+	auto space = Table.instance.namespace ();
+	auto retFun = new FunctionInfo (space, fun.ident.str);
+	retFun.alone = true;
+	retFun.set (fr);
+	return retFun;
+    }
+
+    private FunctionInfo declareStat (Function fun) {
 	Frame fr = fun.verifyPure ();
 	auto space = Table.instance.namespace ();
 	auto retFun = new FunctionInfo (space, fun.ident.str);

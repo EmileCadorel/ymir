@@ -3,22 +3,33 @@ trait Object {
 }
 
 struct Test {
+    a : int
 }
 
 impl Object for Test {
 
     def new (a : int) {
-        println (a);
-        return Test ();
+        return Test (a);
     }
-       
-}
 
-def foo (a : Test) {
+    def foo (self, a : int) {
+        println (self, ' ', a);
+    }
+
+    def test (self, b : int, c : float) {
+        self.a = b;
+        println (c, ' ', self);
+    }
+    
+    def res (self) {
+        return 0;
+    }
+
 }
 
 def main () {
-    let a = Test::new (12);
-    println (typeof (a)::new (897));
-    foo (a);
+    let a = Test (12);
+    a.foo (12) ;
+    a.test (3, 45.);
+    let d = a.res;
 }

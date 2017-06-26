@@ -61,6 +61,13 @@ class FunctionInfo : InfoType {
 	this._infos = (fr);
     }
 
+    /++
+     Returns: La frame associé au symbol
+     +/
+    Frame frame () {
+	return this._infos;
+    }
+    
     /**
      Returns: `this`.
      */

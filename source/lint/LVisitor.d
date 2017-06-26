@@ -523,6 +523,7 @@ class LVisitor {
     }
 
     private LInstList visitConstTuple (ConstTuple _tuple) {
+	import semantic.types.FunctionInfo;
 	Array!LExp exps;
 	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
@@ -542,7 +543,9 @@ class LVisitor {
 	auto it = (StructUtils.__CstName__ ~ tupleName in LFrame.preCompiled);
 	if (it is null) {
 	    StructUtils.createCstStruct (tupleName,
-					 (cast (TupleInfo) _tuple.info.type).params);
+					 (cast (TupleInfo) _tuple.info.type).params,
+					 make!(Array!FunctionInfo)
+	    );
 	}
 	
 	inst += new LCall (StructUtils.__CstName__ ~ tupleName, exps, LSize.LONG);	
@@ -843,13 +846,22 @@ class LVisitor {
 	} else {
 	    list += visitParamList (exprs, par.score.treat, par.paramList);
 	    if (par.score.dyn) {
-		auto left = visitExpression (par.left);
-		if (par.score.left) {
-		    for (long nb = par.score.left.lintInstS.length - 1; nb >= 0; nb --) 
-			left = par.score.left.lintInst (left, nb);
+		if (par.dotCall) {
+		    auto leftTreat = par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
+		    auto left = visitExpression (par.dotCall.left);
+		    auto res = par.dotCall.info.type.lintInst (leftTreat, left);
+		    auto toCall = res.getFirst;
+		    list += res;
+		    call = new LCall (toCall, exprs, par.score.ret.size, par.score.isVariadic);
+		} else {
+		    auto left = visitExpression (par.left);
+		    if (par.score.left) {
+			for (long nb = par.score.left.lintInstS.length - 1; nb >= 0; nb --) 
+			    left = par.score.left.lintInst (left, nb);
+		    }
+		    list += left;
+		    call = new LCall (left.getFirst (), exprs, par.score.ret.size, par.score.isVariadic);
 		}
-		list += left;
-		call = new LCall (left.getFirst (), exprs, par.score.ret.size, par.score.isVariadic);
 	    } else {		
 		call = new LCall (par.score.name, exprs, par.score.ret.size, par.score.isVariadic);
 	    }

@@ -101,12 +101,12 @@ class TupleUtils {
     }
 
     static LInstList InstCreateCstEmpty (InfoType _type, Expression _tuple, Expression) {
-	import semantic.pack.Frame, semantic.types.StructUtils;
+	import semantic.pack.Frame, semantic.types.StructUtils, semantic.types.FunctionInfo;
 	
 	string tupleName = Mangler.mangle!"tuple" (new Namespace (_tuple.token.locus.file), _type.simpleTypeString ());
 	auto type = cast(TupleInfo) _type;
 	auto it = (StructUtils.__CstName__ ~ tupleName) in LFrame.preCompiled;
-	if (it is null) StructUtils.createCstStruct (tupleName, type.params);
+	if (it is null) StructUtils.createCstStruct (tupleName, type.params, make!(Array!FunctionInfo));
 	
 	return new LInstList (new LConstFunc (StructUtils.__CstNameEmpty__ ~ tupleName));
     }

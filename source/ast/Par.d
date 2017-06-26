@@ -29,6 +29,9 @@ class Par : Expression {
     /// L'expression de gauche
     private Expression _left;
 
+    /// L'expression dans le cas d'un dotCall.
+    private DotCall _dotCall;
+    
     /// Le score recupéré à l'analyse sémantique
     private ApplicationScore _score;
 
@@ -78,6 +81,7 @@ class Par : Expression {
 		    dotCall = true;
 		    aux._left = dcall.call;
 		    aux._params.params = make!(Array!Expression) ([dcall.firstPar] ~ aux._params.params.array ());
+		    aux._dotCall = dcall;
 		}
 
 		auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
@@ -184,6 +188,13 @@ class Par : Expression {
 	return this._params;
     }
 
+    /++
+     Returns: 
+     +/
+    ref DotCall dotCall () {
+	return this._dotCall;
+    }
+    
     /**
      Returns: La liste des paramètres de l'expression
      */

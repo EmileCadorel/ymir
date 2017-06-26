@@ -9,14 +9,14 @@ import lint.LVisitor, semantic.types.InfoType;
 import ast.Expression, lint.LFrame, semantic.types.ClassUtils;
 import lint.LCall, lint.LAddr, semantic.types.StructInfo;
 import semantic.types.UndefInfo, ast.Var, semantic.pack.Symbol;
-import semantic.pack.Frame, utils.Mangler;
+import semantic.pack.Frame, utils.Mangler, semantic.types.FunctionInfo;
 
 class StructUtils {
     
     static string __CstName__ = "_YPCstStruct";
     static string __CstNameEmpty__ = "_YPCstStructEmpty";
     
-    static void createCstStruct (string name, Array!InfoType params) {
+    static void createCstStruct (string name, Array!InfoType params, Array!FunctionInfo methods) {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
 	Array!LReg regs;
@@ -30,6 +30,17 @@ class StructUtils {
 	aff.str = Tokens.EQUAL.descr;
 	auto var = new Var (aff);
 	var.info = new Symbol (aff, new UndefInfo);
+
+	foreach (it ; methods) {
+	    auto fr = cast (FunctionInfo) it;
+	    nbUlong ++;
+	    auto lExp = new LRegRead (retReg, size, LSize.ULONG); 
+	    auto proto = fr.frame.validate;
+	    auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
+	    interne += new LWrite (lExp, rExp);
+	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	}
+
 	foreach (it ; params) {
 	    final switch (it.size.id) {
 	    case LSize.ULONG.id: nbUlong ++; break;
@@ -60,7 +71,7 @@ class StructUtils {
 	    
 	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
-						 
+	
 	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
 	entry.insts += interne;
 	
@@ -68,10 +79,10 @@ class StructUtils {
 	fr.isStd = false;
 	LFrame.preCompiled [__CstName__ ~ name] = fr;	
 	LReg.lastId = last;
-	createSimpleCstStruct (name, params);
+	createSimpleCstStruct (name, params, methods);
     }
     
-    static void createSimpleCstStruct (string name, Array!InfoType params) {
+    static void createSimpleCstStruct (string name, Array!InfoType params, Array!FunctionInfo methods) {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;
 	Array!LReg regs;
@@ -85,6 +96,17 @@ class StructUtils {
 	aff.str = Tokens.EQUAL.descr;
 	auto var = new Var (aff);
 	var.info = new Symbol (aff, new UndefInfo);
+
+	foreach (it ; methods) {
+	    auto fr = cast (FunctionInfo) it;
+	    nbUlong ++;
+	    auto lExp = new LRegRead (retReg, size, LSize.ULONG);
+	    auto proto = fr.frame.validate;
+	    auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
+	    interne += new LWrite (lExp, rExp);
+	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	}
+	
 	foreach (it ; params) {
 	    final switch (it.size.id) {
 	    case LSize.ULONG.id: nbUlong ++; break;
@@ -123,7 +145,7 @@ class StructUtils {
 	string name = Mangler.mangle!"struct" (type);
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createCstStruct (name, type.params);
+	    if (it is null) createCstStruct (name, type.params, type.methods);
 	}
 	auto inst = new LInstList ();
 	inst += new LConstFunc (__CstName__ ~ name);
@@ -135,7 +157,7 @@ class StructUtils {
 	string name = Mangler.mangle!"struct" (type);
 	if (!_extern) {
 	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createCstStruct (name, type.params);
+	    if (it is null) createCstStruct (name, type.params, type.methods);
 	}
 	auto inst = new LInstList ();
 	inst += new LConstFunc (__CstNameEmpty__ ~ name);
@@ -220,6 +242,8 @@ class StructUtils {
 	auto inst = new LInstList;
 
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	
+	foreach (it ; type.methods) nbUlong ++;	
 	foreach (it ; 0 .. ret.toGet) {
 	    final switch (type.params [it].size.id) {
 	    case LSize.LONG.id: nbLong ++; break;
@@ -240,7 +264,7 @@ class StructUtils {
 	inst += new LRegRead (null, size, ret.size);
 	return inst;
     }
-
+    
     static LInstList Attrib (LInstList sizeInst, LInstList left) {
 	auto inst = new LInstList;
 	auto leftExp = left.getFirst ();
@@ -250,6 +274,32 @@ class StructUtils {
 	return inst;
     }
 
+
+    static LInstList GetMethod (InfoType ret, Expression left, Expression) {
+	import semantic.types.RefInfo;
+	auto _ref = cast (RefInfo) (left.info.type);
+	auto type = cast (StructInfo) (left.info.type);
+	if (_ref) type = cast (StructInfo) _ref.content;
+	auto inst = new LInstList;
+
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+
+	foreach (it ; 0 .. ret.toGet) nbUlong ++;
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	
+	inst += new LRegRead (null, size, ret.size);
+	return inst;		
+    }
+
+    static LInstList Method (LInstList sizeInst, LInstList left) {
+	auto inst = new LInstList;
+	auto leftExp = left.getFirst;
+	auto size = cast (LRegRead) sizeInst.getFirst;
+	inst += left;
+	inst += new LRegRead (leftExp, size.begin, size.size);
+	return inst;
+    }
+        
     static LInstList InstEqual (LInstList llist, LInstList rlist) {
 	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
 	auto inst = new LInstList;
@@ -272,8 +322,27 @@ class StructUtils {
 	return llist;
     }
 
-    static LInstList InstTupleOf (LInstList, LInstList list) {
-	return list;
+    static LInstList GetTupleOf (InfoType ret, Expression left, Expression) {
+	import semantic.types.RefInfo;
+	auto _ref = cast (RefInfo) (left.info.type);
+	auto type = cast (StructInfo) (left.info.type);
+	if (_ref) type = cast (StructInfo) _ref.content;
+	auto inst = new LInstList;
+	
+	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+
+	foreach (it ; type.methods) nbUlong ++;
+	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	
+	auto llist = LVisitor.visitExpressionOutSide (left);
+	auto leftExp = llist.getFirst ();
+	inst += llist;
+	inst += new LBinop (leftExp, size, Tokens.PLUS);
+	return inst;		
+    }
+    
+    static LInstList InstTupleOf (LInstList llist, LInstList list) {
+	return llist;
     }
 
     static LInstList InstPtr (LInstList, LInstList list) {

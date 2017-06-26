@@ -33,6 +33,9 @@ class StructCstInfo : InfoType {
     
     /** Les templates utilisé pour la spécilisation */
     private Array!InfoType _oldTmps;
+
+    /++ Les méthodes implémenté par un impl +/
+    private Array!FunctionInfo _methods;
     
     /** Le nom des parametres*/
     private Array!string _names;
@@ -67,6 +70,13 @@ class StructCstInfo : InfoType {
     ref bool isPublic () {
 	return this._isPublic;
     }
+
+    /++
+     Returns: les méthodes implémentés par un impl.
+     +/
+    ref Array!FunctionInfo methods () {
+	return this._methods;
+    }
     
     /** 
      Ajoute un attributs à la structure
@@ -76,7 +86,7 @@ class StructCstInfo : InfoType {
     void addAttrib (TypedVar type) {
 	this._params.insertBack (type);
     }
-
+    
     bool needCreation () {
 	return this._tmps.length == 0;
     }
@@ -150,7 +160,7 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	auto ret = cast (StructInfo) StructInfo.create (cst._namespace, cst._name, cst._names, cst._types, cst._oldTmps);
+	auto ret = cast (StructInfo) StructInfo.create (cst._namespace, cst._name, cst._names, cst._types, cst._oldTmps, cst.methods);
 	ret.isExtern = cst._extern;
 	return ret;
     }
@@ -185,7 +195,7 @@ class StructCstInfo : InfoType {
 	    }
 	}
        
-	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps);
+	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps, this._methods);
 	ret.isExtern = this._extern;
 	return ret;
     }    
@@ -296,7 +306,7 @@ class StructCstInfo : InfoType {
 	    } else return null;
 	}
 	
-	auto ret = StructInfo.create (this._namespace, this._name, names, types, this._oldTmps);
+	auto ret = StructInfo.create (this._namespace, this._name, names, types, this._oldTmps, this._methods);
 	ret.lintInstMult = &StructUtils.InstCall;
 	if (this._extern) 
 	    ret.leftTreatment = &StructUtils.InstCreateCst!true;
@@ -392,12 +402,13 @@ class StructInfo : InfoType {
     /** La structure a été importé */
     private bool _extern;
 
-    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
+    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!FunctionInfo meth) {
 	this._namespace = space;
 	this._name = name;
 	this._attribs = names;
 	this._params = params;
 	this._tmps = olds;
+	this._methods = meth;
     }
 
     /**
@@ -415,8 +426,8 @@ class StructInfo : InfoType {
      names = les noms des attributs
      params = les types des attributs
      */
-    static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds) {
-	return new StructInfo (space, name, names, params, olds);
+    static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!FunctionInfo meths) {
+	return new StructInfo (space, name, names, params, olds, meths);
     }
 
     
@@ -427,6 +438,10 @@ class StructInfo : InfoType {
 	return this._params;
     }
 
+    ref Array!FunctionInfo methods () {
+	return this._methods;
+    }
+    
     ref Array!string attribs () {
 	return this._attribs;
     }
@@ -572,6 +587,12 @@ class StructInfo : InfoType {
 	    }
 	}
 	
+	foreach (it ; 0 .. this._methods.length) {
+	    if (var.token.str == this._methods [it].name) {
+		return GetMethod (it);
+	    }
+	}
+	
 	return null;
     }
 
@@ -646,6 +667,7 @@ class StructInfo : InfoType {
 	    params.insertBack (it.clone ());
 	auto t = new TupleInfo ();
 	t.params = params;
+	t.leftTreatment = &StructUtils.GetTupleOf;
 	t.lintInst = &StructUtils.InstTupleOf;
 	return t;
     }
@@ -687,7 +709,6 @@ class StructInfo : InfoType {
      Accés à un paramètre de la structure.
      */
     private InfoType GetAttrib (ulong nb) {
-	import std.array;
 	auto type = this._params [nb].clone ();
 	if (auto _cst = cast (StructCstInfo) type) {
 	    auto word = Word.eof;
@@ -700,7 +721,21 @@ class StructInfo : InfoType {
 	type.isConst = false;
 	return type;
     }    
-
+    
+    private InfoType GetMethod (ulong nb) {
+	import semantic.types.PtrFuncInfo;
+	auto proto = this._methods [nb].frame.validate ();
+	auto ret = new PtrFuncInfo ();
+	Array!InfoType infos;
+	foreach (it ; proto.vars) infos.insertBack (it.info.type);
+	ret.params = infos;
+	ret.ret = proto.type.type;
+	ret.toGet = nb;
+	ret.lintInst = &StructUtils.Method;
+	ret.leftTreatment = &StructUtils.GetMethod;
+	return ret;
+    }
+    
     /**
      Les deux types sont ils identique ?
      */
@@ -742,9 +777,8 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction concervées.
      */
     override InfoType clone () {
-	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps, this._methods);
 	ret._statics = this._statics;
-	ret._methods = this._methods;
 	return ret;
     }
 
@@ -752,9 +786,8 @@ class StructInfo : InfoType {
      Returns: une nouvelle instance de StructInfo, avec les informations de destruction remise à zero.
     */
     override InfoType cloneForParam () {
-	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps);
+	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps, this._methods);
 	ret._statics = this._statics;
-	ret._methods = this._methods;
 	return ret;
     }
 
