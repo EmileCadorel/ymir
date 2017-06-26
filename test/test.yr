@@ -1,7 +1,11 @@
-import test.test2;
+
+enum A {
+    A : "r",
+    B : "i",
+    C : "j"
+}
 
 def main () {
-    let a = Test::new (12);
-    a.test (2, 45.);
+    let a = A.members;
     println (a);
 }

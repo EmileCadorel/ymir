@@ -83,7 +83,8 @@ class Impl : Declaration {
 	auto name = Word (this._what.locus, this._what.str, false);
 	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
 	auto fr = cast (PureFrame) fun.verifyPure ();
-	if (fr is null) assert (false);
+	if (fr is null)
+	    throw new ImplMethodNotPure (fun.ident);
 	auto space = Table.instance.namespace ();
 	auto retFun = new FunctionInfo (space, fun.ident.str);
 	retFun.alone = true;

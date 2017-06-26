@@ -1028,6 +1028,21 @@ class ImplementUnknown : YmirException {
     }    
 }
 
+class ImplMethodNotPure : YmirException {
+    this (Word token) {
+	auto loc = token.locus;
+	auto buf = new OutBuffer;
+	buf.writefln ("%sErreur%s: Les méthodes d'une implémentation doivent être pure '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);
+	msg = buf.toString;
+    }    
+}
+
+
 class ImplementNotLocal : YmirException {
     this (Word token, Symbol sym) {
 	auto loc = token.locus;

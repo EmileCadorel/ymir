@@ -1,0 +1,14 @@
+import lex;
+
+
+def main (args) {
+    let lex = Lexer::new ("salut + (1 + 3)");
+    let word = Word::eof ();
+    let tokens = Tokens.members;
+    let skips = [Tokens::SPACE];    
+    while (true) {        
+        lex.get (word, tokens, skips);
+        if (word.isEof) break;
+        println (word);
+    }
+}

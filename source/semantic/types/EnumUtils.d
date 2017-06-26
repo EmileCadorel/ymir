@@ -4,6 +4,9 @@ import lint.LVisitor;
 import semantic.types.InfoType;
 import semantic.types.EnumInfo;
 import ast.Expression;
+import semantic.types.ArrayInfo, semantic.types.ArrayUtils;
+import std.container, lint.LReg, lint.LWrite, lint.LConst;
+import lint.LSize, lint.LCall, lint.LExp;
 
 class EnumUtils {
 
@@ -29,4 +32,27 @@ class EnumUtils {
 	return left;
     }
 
+    static LInstList GetMembers (InfoType ret, Expression left, Expression) {
+	auto type = cast (EnumCstInfo) left.info.type;
+	Array!LExp params;
+	params.insertBack (new LConstDecimal (type.values.length, LSize.LONG));
+	params.insertBack (new LConstDecimal (1, type.type.size, LSize.LONG));
+	auto inst = new LInstList;
+	auto aux = new LReg (ret.size);
+	inst += new LWrite (aux, new LCall (ArrayUtils.__CstName__, params, LSize.LONG));
+	foreach (it ; 0 .. type.values.length) {
+	    auto right = LVisitor.visitExpressionOutSide (type.values [it]);
+	    auto access = ArrayUtils.InstAccess (aux, new LConstDecimal (it, LSize.INT, type.type.size), type.type.size);
+	    auto rightExp = right.getFirst;
+	    inst += right;
+	    inst += new LWrite (access, rightExp);
+	}
+	inst += aux;
+	return inst;
+    }
+
+    static LInstList Members (LInstList llist, LInstList) {
+	return llist;
+    }
+        
 }

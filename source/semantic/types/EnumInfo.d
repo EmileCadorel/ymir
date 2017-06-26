@@ -67,7 +67,17 @@ class EnumCstInfo : InfoType {
 	}
 	return null;
     }
-
+       
+    override InfoType DotOp (Var var) {
+	import semantic.types.ArrayInfo;
+	if (var.token.str == "members") {
+	    auto info = new ArrayInfo (new EnumInfo (this._name, this._type.clone ()));
+	    info.lintInst = &EnumUtils.Members;
+	    info.leftTreatment = &EnumUtils.GetMembers;
+	    return info;
+	} else return null;
+    }
+    
     InfoType create () {
 	return new EnumInfo (this._name, this._type.cloneForParam ());
     }

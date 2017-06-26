@@ -13,69 +13,76 @@ struct Word {
     content : string 
 }
 
+impl Word {
+
+    def eof () {
+        return Word (null);
+    }
+
+    def isEof (self) {
+        return self.content is null;
+    }
+    
+}
+
 struct Lexer {
     content : string ,
     beg : ulong
 }
 
-def get (self : Lexer, ref word : Word, tokens : [Tokens], skips : [Tokens]) {
-    while (true) {
-        if (!self.getWord (word, tokens)) {
-            word = Word (null);
-            return self;
-        }
-        if (!isSkip (word, skips)) return self;
+impl Lexer {
+    def new (str : string) {
+        return Lexer (str, 0UL);
     }
-    return self;
-}
 
-def isSkip (word, skips: [Tokens]) {
-    for it in skips
-        if (it == word.content) return true;
-    return false;
-}
+    def get (self, ref word : Word, tokens : [Tokens], skips : [Tokens]) {
+        while (true) {
+            if (!self.getWord (word, tokens)) {
+                word = Word (null);
+                return self;
+            }
+            if (!self.isSkip (word, skips)) return self;
+        }
+        return self;
+    }
 
-def getWord (self : Lexer, ref word : Word, tokens : [Tokens]) {
-    if (self.beg >= self.content.length) return false;
-    let where = self.beg;
-    let line = self.content [self.beg .. self.content.length];
-    let max = 0UL, beg = line.length;
-    for (it in tokens) {
-        let id = line.indexOf (it);
-        if (id != line.length) {
-            if (id == beg && it.length > max) max = it.length;
-            else if (id < beg) {
-                beg = id;
-                max = it.length;
+    def isSkip (self, word : Word, skips: [Tokens]) {
+        for it in skips
+            if (it == word.content) return true;
+        return false;
+    }
+
+    def getWord (self, ref word : Word, tokens : [Tokens]) {
+        if (self.beg >= self.content.length) return false;
+        let where = self.beg;
+        let line = self.content [self.beg .. self.content.length];
+        let max = 0UL, beg = line.length;
+        for (it in tokens) {
+            let id = line.indexOf (it);
+            if (id != line.length) {
+                if (id == beg && it.length > max) max = it.length;
+                else if (id < beg) {
+                    beg = id;
+                    max = it.length;
+                }
             }
         }
+        self.constructWord (word, beg, max, line, where);
+        return true;
     }
-    constructWord (self, word, beg, max, line, where);
-    return true;
-}
 
-def constructWord (self : Lexer, ref word, beg, _max, line, where) {
-    if (beg == line.length + 1U) {
-        self.beg += line.length;
-        word.content = line;
-    } else if (beg == 0U) {
-        word.content = line [0U .. min (_max, line.length)];
-        self.beg = (where + _max);
-    } else if (beg > 0U) {
-        word.content = line [0U .. min (beg, line.length)];
-        self.beg = where + beg;
-    }    
-}
-
-def main (args) {
-    let lex = Lexer ("salut + (1 + 3)", 0U);
-    let word = Word (null);
-    let tokens = [Tokens::LPAR, Tokens::RPAR, Tokens::PLUS, Tokens::SUB, Tokens::SPACE];
-    let skips = [Tokens::SPACE];    
-    while (true) {        
-        lex.get (word, tokens, skips);
-        if (word.content is null) break;
-        println (word);
+    def constructWord (self, ref word : Word, beg : ulong, _max : ulong, line : string, where : ulong) {
+        if (beg == line.length + 1U) {
+            self.beg += line.length;
+            word.content = line;
+        } else if (beg == 0U) {
+            word.content = line [0U .. min (_max, line.length)];
+            self.beg = (where + _max);
+        } else if (beg > 0U) {
+            word.content = line [0U .. min (beg, line.length)];
+            self.beg = where + beg;
+        }    
     }
+      
 }
 
