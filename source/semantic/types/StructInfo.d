@@ -226,7 +226,7 @@ class StructCstInfo : InfoType {
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
-	auto ret = new StructCstInfo (this._namespace, name, make!(Array!Expression));
+	auto ret = new StructCstInfo (Table.instance.globalNamespace, name, make!(Array!Expression));
 	ret._oldTmps = types;
 	ret._isPublic = this._isPublic;
 	

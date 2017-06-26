@@ -11,6 +11,10 @@ enum
 | SDL_QUIT : 256
 -> SDL_EventCst;
 
+self () {
+    let signal = [Signal!(short) ; 512U];
+}
+
 enum SDL_Scancode {
 
     SDL_SCANCODE_A : 4,

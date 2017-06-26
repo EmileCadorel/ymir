@@ -171,6 +171,7 @@ class Table {
     void purge () {
 	this._globalScope.clear ();
 	this._frameTable.clear ();
+	this._staticInits.clear ();
     }
 
     /**
