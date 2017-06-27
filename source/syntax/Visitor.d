@@ -177,19 +177,26 @@ class Visitor {
 	    this._lex.next (Tokens.LACC);
 	}
 	
-	next = this._lex.next (Tokens.RACC, Keys.DEF);
-	Array!Function methods;
+	next = this._lex.next (Tokens.RACC, Keys.DEF, Keys.OVER);
+	Array!Function methods; Array!bool herit;
+	bool isOver = (next == Keys.OVER);
+	if (isOver && what.isEof) throw new SyntaxError (next, [Tokens.RACC.descr, Keys.DEF.descr]);
 	if (next != Tokens.RACC) {
 	    while (true) {
 		methods.insertBack (visitFunctionImpl ());
-		next = this._lex.next (Tokens.RACC, Keys.DEF);
+		herit.insertBack (isOver);
+		next = this._lex.next (Tokens.RACC, Keys.DEF, Keys.OVER);
 		if (next == Tokens.RACC) break;
+		else if (next == Keys.OVER) {
+		    if (what.isEof) throw new SyntaxError (next, [Tokens.RACC.descr, Keys.DEF.descr]);
+		    isOver = true;
+		} else isOver = false;
 	    }
 	}
 	if (what.isEof) 
 	    return new Impl (ident, methods);
 	else
-	    return new Impl (ident, what, methods);
+	    return new Impl (ident, what, methods, herit);
     }
 
     private Function visitFunctionImpl () {
@@ -1327,12 +1334,14 @@ class Visitor {
 	}
 	
 	Word next, beg;
-	string val = "";
+	string val = ""; bool anti = false;	
 	while (1) {
 	    next = _lex.next ();
 	    if (next.isEof ()) throw new SyntaxError (next);	    
-	    else if (next == word) break;
+	    else if (next == word && !anti) break;
 	    else val ~= next.str;
+	    if (next == Keys.ANTI) anti = true;
+	    else anti = false;
 	}
 	_lex.skipEnable (Tokens.SPACE);
 	_lex.skipEnable (Tokens.RETOUR);

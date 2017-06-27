@@ -1075,3 +1075,19 @@ class ImplementNotStruct : YmirException {
 	msg = buf.toString;
     }
 }
+
+class InHeritError : YmirException {
+    this (Word token) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: On ne peut hériter que d'%simpl%s ou de %strait%s pas de '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);	
+	msg = buf.toString;
+    }
+}

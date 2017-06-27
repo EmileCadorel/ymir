@@ -8,11 +8,46 @@ extern (C) SDL_PollEvent (a : p!ubyte) : bool;
 enum
 | SDL_KEYDOW : 768
 | SDL_KEYUP : 769
+| SDL_MOUSEBUTTONDOWN : 1025
+| SDL_MOUSEBUTTONUP : 1026
+| SDL_WINDOWEVENT : 512
 | SDL_QUIT : 256
 -> SDL_EventCst;
 
+enum SDL_Button {
+    LEFT : 1,
+    RIGHT : 3,
+    MIDDLE : 2,
+    X1 : 4,
+    X2 : 5
+}
+
+static Keyboard : [Signal!(t!(short, byte))];
+static Mouse : [Signal!(t!(byte, int, int, byte))];
+static quitEvent : Signal!(t);
+static resizeEvent : Signal!(t!(int, int));
+
 self () {
-    let signal = [Signal!(short) ; 512U];
+    Keyboard = [Signal!(t!(short, byte)) ; 512U];
+    Mouse = [Signal!(t!(byte, int, int, byte)) ; 6U];
+    resizeEvent = Signal!(t!(int, int));
+    quitEvent = Signal!(t);
+}
+
+def keyboard (key : SDL_Keycode) : ref Signal!(t!(short, byte)) {
+    return Keyboard [cast:int (key)];
+}
+
+def mouse (button : SDL_Button) : ref Signal!(t!(byte, int, int, byte)) {
+    return Mouse [cast:int(button)];
+}
+
+def quit () : ref Signal!(t) {
+    return quitEvent;
+}
+
+def resize () : ref Signal!(t!(int, int)) {
+    return resizeEvent;
 }
 
 enum SDL_Scancode {
@@ -435,7 +470,7 @@ enum SDL_Keycode {
 }
 
 
-def poll (sigs : [Signal!(short)]) : bool {
+def poll () : bool {
     let event = [ubyte; 56UL]; // SDL_Event fait 56 byte
     if (SDL_PollEvent (event.ptr)) {
         let (type, time, wid, state, repeat, scode, kcode, mod, pad) =
@@ -444,16 +479,26 @@ def poll (sigs : [Signal!(short)]) : bool {
         match type {
             SDL_EventCst::SDL_KEYDOW => {
                 let (a, b) = cast:t!(short, short) (&kcode);
-                if (sigs [b] !is null) {
-                    sigs [b] (b);
+                if (Keyboard [b] !is null) {
+                    Keyboard [b] (b, state);
                 }
                 return false;
             }
             SDL_EventCst::SDL_KEYUP => {
-                println ("Key_up");
+                let (a, b) = cast:t!(short, short) (&kcode);
+                if (Keyboard [b] !is null) {
+                    Keyboard [b] (b, state);
+                }
 	        return false;
             }
-            SDL_EventCst::SDL_QUIT => return true;
+            SDL_EventCst::SDL_MOUSEBUTTONDOWN => {
+                let (_a, _b, _c, which, button, _state, clicks, x, y) =
+                    cast:t!(int, int, int, int, byte, byte, byte, int, int) (event.ptr);
+                if (Mouse [button] !is null) {
+                    Mouse [button] (button, x, y, _state);
+                }
+            }
+            SDL_EventCst::SDL_QUIT => quitEvent (());            
         }
     } 
     return false;

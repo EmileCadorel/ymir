@@ -175,7 +175,9 @@ class AMDString : TInst {
 	auto buf = new OutBuffer;
 	buf.writef ("\t.string \"");
 	foreach (it ; this._value) {
-	    if (it == '\n') buf.write ("\\n");
+	    if (it == '\"') buf.write ("\\\"");
+	    else if (it == '\'') buf.write ("\\\'");
+	    else if (it == '\n') buf.write ("\\n");
 	    else buf.write (it);
 	}
 	buf.write ("\"\n");

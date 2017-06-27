@@ -523,7 +523,7 @@ class LVisitor {
     }
 
     private LInstList visitConstTuple (ConstTuple _tuple) {
-	import semantic.types.FunctionInfo;
+	import semantic.types.FunctionInfo, semantic.types.TupleUtils;
 	Array!LExp exps;
 	auto inst = new LInstList ();
 	foreach (it; _tuple.params) {
@@ -542,9 +542,8 @@ class LVisitor {
 	
 	auto it = (StructUtils.__CstName__ ~ tupleName in LFrame.preCompiled);
 	if (it is null) {
-	    StructUtils.createCstStruct (tupleName,
-					 (cast (TupleInfo) _tuple.info.type).params,
-					 make!(Array!FunctionInfo)
+	    TupleUtils.createCstTuple (tupleName,
+				       (cast (TupleInfo) _tuple.info.type).params
 	    );
 	}
 	

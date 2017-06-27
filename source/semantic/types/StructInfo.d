@@ -11,7 +11,7 @@ import ast.ParamList, semantic.pack.Frame, semantic.types.StringInfo;
 import semantic.pack.Table, utils.exception, semantic.types.ClassUtils;
 import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.DecimalInfo;
-import ast.Constante;
+import ast.Constante, semantic.impl.ObjectInfo;
 import semantic.pack.Namespace;
 
 /**
@@ -396,6 +396,9 @@ class StructInfo : InfoType {
     // Les methodes statiques
     private Array!FunctionInfo _statics;
 
+    // Les informations de l'ancêtre.
+    private StructInfo _ancestor;
+    
     /** Le nom de la structure */    
     private string _name;
 
@@ -446,6 +449,10 @@ class StructInfo : InfoType {
 	return this._attribs;
     }
 
+    ref StructInfo ancestor () {
+	return this._ancestor;
+    }
+    
     void setStatics (Array!FunctionInfo funs) {
 	this._statics = funs;
     }
@@ -578,7 +585,8 @@ class StructInfo : InfoType {
 	    else if (var.token.str == "typename") return TypeName ();
 	    else if (var.token.str == "tupleof") return TupleOf ();
 	    else if (var.token.str == "ptr") return Ptr ();
-	    else if (var.token.str == "sizeof") return SizeOf ();	    
+	    else if (var.token.str == "sizeof") return SizeOf ();
+	    else if (var.token.str == "super") return Super ();
 	}
 	
 	foreach (it ; 0 .. this._attribs.length) {
@@ -592,8 +600,11 @@ class StructInfo : InfoType {
 		return GetMethod (it);
 	    }
 	}
-	
-	return null;
+
+	if (this._ancestor) {
+	    return this._ancestor.DotOp (var);
+	} else 	
+	    return null;
     }
 
     /++
@@ -627,6 +638,8 @@ class StructInfo : InfoType {
 		aux.lintInstS.insertBack (&StructUtils.InstAddr);
 		return aux;
 	    }
+	} else if (this._ancestor) {
+	    return this._ancestor.CompOp (other);
 	}
 	return null;
     }
@@ -671,7 +684,7 @@ class StructInfo : InfoType {
 	t.lintInst = &StructUtils.InstTupleOf;
 	return t;
     }
-
+    
     private InfoType Ptr () {
 	import semantic.types.PtrInfo, semantic.types.VoidInfo;
 	auto ret = new PtrInfo (new VoidInfo);
@@ -685,6 +698,14 @@ class StructInfo : InfoType {
 	ret.lintInst = &StructUtils.SizeOf;
 	ret.leftTreatment = &StructUtils.GetSizeOf;
 	return ret;
+    }
+
+    private InfoType Super () {
+	if (this._ancestor) {
+	    auto ret = this._ancestor.clone ();
+	    ret.lintInst = &StructUtils.InstGetSuper;
+	    return ret;
+	} else return null;
     }
     
     /**
@@ -715,12 +736,23 @@ class StructInfo : InfoType {
 	    word.str = _cst._name;
 	    type = _cst.create (word);
 	}
+
 	type.toGet = nb;
+	if (this._ancestor) {
+	    type.toGet += this._ancestor.getNbAttrib;
+	}
+	
 	type.lintInst = &StructUtils.Attrib;
 	type.leftTreatment = &StructUtils.GetAttrib;
 	type.isConst = false;
 	return type;
     }    
+
+    private ulong getNbAttrib () {
+	if (this._ancestor) {
+	    return this._params.length + this._ancestor.getNbAttrib ();
+	} else return this._params.length;
+    }
     
     private InfoType GetMethod (ulong nb) {
 	import semantic.types.PtrFuncInfo;
@@ -731,9 +763,18 @@ class StructInfo : InfoType {
 	ret.params = infos;
 	ret.ret = proto.type.type;
 	ret.toGet = nb;
+	if (this._ancestor)
+	    ret.toGet += this._ancestor.getNbMethod ();
+	
 	ret.lintInst = &StructUtils.Method;
 	ret.leftTreatment = &StructUtils.GetMethod;
 	return ret;
+    }
+
+    private ulong getNbMethod () {
+	if (this._ancestor) {
+	    return this._methods.length + this._ancestor.getNbMethod ();
+	} else return this._methods.length;
     }
     
     /**
@@ -779,6 +820,7 @@ class StructInfo : InfoType {
     override InfoType clone () {
 	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps, this._methods);
 	ret._statics = this._statics;
+	ret._ancestor = this._ancestor;
 	return ret;
     }
 
@@ -788,6 +830,7 @@ class StructInfo : InfoType {
     override InfoType cloneForParam () {
 	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps, this._methods);
 	ret._statics = this._statics;
+	ret._ancestor = this._ancestor;
 	return ret;
     }
 

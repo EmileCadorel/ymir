@@ -122,7 +122,7 @@ def addTupleComa if (!isTuple!(T))
 	return to!(string) (left);
     }
 
-def addTupleComa (T) (left : T, elem) : string {
+def addTupleComa (T, T2 ...) (left : T, elem : T2) : string {
     static if (!isPrimitive!(typeof (elem))() && !isTuple!(typeof (elem))()) {
 	if (elem !is null)
 	    return to!(string)(left) + ", " + addTupleComa (expand (elem));

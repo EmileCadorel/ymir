@@ -2,7 +2,7 @@ module syntax.Keys;
 import syntax.Tokens;
 import std.typecons;
 
-enum Keys : Token {
+enum Keys  {
     IMPORT = Token ("import", 1),
     STRUCT = Token ("struct", 3),
     DEF = Token ("def", 4),
@@ -52,5 +52,6 @@ enum Keys : Token {
     OPASSIGN = Token ("opAssign", 57),
     TRAIT = Token ("trait", 58),
     IMPL = Token ("impl", 59),
-    TUPLE = Token ("tuple", 60)
+    TUPLE = Token ("tuple", 60),
+    OVER = Token ("over", 61)
 }

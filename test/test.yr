@@ -1,11 +1,44 @@
 
-enum A {
-    A : "r",
-    B : "i",
-    C : "j"
+struct Foo {
+    a : int
+}
+
+impl Foo {
+
+    def self (self, a : int) {
+        self.a = a;
+    }
+        
+    def test (self) {
+    }
+
+    def ancestor (self) {
+        println (self);
+    }
+    
+}
+
+struct Foo2 {
+    b : int
+}
+
+impl Foo for Foo2 {
+
+    def new (a : int, b : int) {
+        let ret = Foo2 ();
+        ret.self (a);
+        ret.b = b;
+        return ret;
+    }
+
+    def ancestor (self) {
+        self.super.ancestor ();
+        println (self);
+    }
+    
 }
 
 def main () {
-    let a = A.members;
-    println (a);
+    let a = Foo2::new (12, 34);
+    a.ancestor ();
 }

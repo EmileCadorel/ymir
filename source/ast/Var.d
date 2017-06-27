@@ -225,7 +225,7 @@ class Var : Expression {
 			return new Type (this._token, new RefInfo (type));
 		    else return new Type (this._token, type);
 		} else if (auto str = cast (ObjectCstInfo) en.type) {
-		    auto type = str.impl.create (this._token, temp.array ());
+		    auto type = str.create (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
 			return new Type (this._token, new RefInfo (type));
 		    else return new Type (this._token, type);

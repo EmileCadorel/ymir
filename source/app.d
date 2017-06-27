@@ -29,8 +29,14 @@ void semanticTime (string file) {
 	name.str = it.name;
 	if (it.needCreation) {
 	    auto type = cast (StructInfo) it.create (name, []);
-	    auto strName = Mangler.mangle!"struct" (it);
-	    StructUtils.createCstStruct (strName, type.params, type.methods);
+	    StructUtils.createCstStruct (type);
+	}
+    }
+    
+    foreach (it ; FrameTable.instance.objects) {
+	if (it.impl.needCreation) {
+	    auto type = cast (StructInfo) it.create ();
+	    StructUtils.createCstStruct (type);
 	}
     }
     

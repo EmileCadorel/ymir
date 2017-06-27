@@ -4,12 +4,20 @@ extern (C) fopen (name : p!char, mode : p!char) : p!void;
 extern (C) fread (buf : p!char, size : uint, len : ulong, file : p!void) : uint;
 extern (C) fwrite (buf : p!char, size : uint, len : ulong, file : p!void);
 extern (C) fclose (file : p!void);
+extern (C) fseek (file : p!void, int, int);
+extern (C) ftell (file : p!void) : ulong;
 
 extern (C) getenv (name : p!char) : p!char;
 extern (C) printf (str : p!char, ...); 
 extern (C) malloc (size : uint) : p!void;
 extern (C) free (a : p!void);
 extern (C) free (a : p!char);
+
+public enum File_Whence {
+    SET : 0,
+    CUR : 1,
+    END : 2
+}
 
 
 struct
@@ -28,7 +36,15 @@ def fclose (file : File) {
     }
 }
 
-def fread (file : File, len : uint) : string {
+def fseek (file : File, whence : File_Whence) {
+    fseek (file.content, 0, cast:int(whence));
+}
+
+def ftell (file : File) : ulong {
+    return ftell (file.content);
+}
+
+def fread (file : File, len : ulong) : string {
     let str = [char ; len];
     len = fread (str.ptr, char.sizeof, len, file.content);
     return cast:string (str);

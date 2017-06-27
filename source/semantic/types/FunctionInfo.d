@@ -92,7 +92,8 @@ class FunctionInfo : InfoType {
 	auto others = Table.instance.getAll (this._name);
 	foreach (it ; others) {
 	    if (auto fun = cast (FunctionInfo) it.type)
-		alls.insertBack (fun._infos);
+		if (!fun._alone)
+		    alls.insertBack (fun._infos);
 	}
 	return alls;
     }

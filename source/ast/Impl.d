@@ -8,10 +8,13 @@ import semantic.impl.ObjectInfo;
 import semantic.types.FunctionInfo;
 import ast.Function, syntax.Keys;
 import semantic.pack.Frame;
+import semantic.pack.FrameTable;
 
 class Impl : Declaration {
 
     private Array!Function _methods;
+
+    private Array!bool _herit;
 
     private Word _who;
     
@@ -23,10 +26,11 @@ class Impl : Declaration {
 	this._who = Word.eof;
     }
     
-    this (Word who, Word what, Array!Function methods) {
+    this (Word who, Word what, Array!Function methods, Array!bool herit) {
 	this._methods = methods;
 	this._what = what;
 	this._who = who;
+	this._herit = herit;
     }
 
     override void declare () {
@@ -39,13 +43,22 @@ class Impl : Declaration {
 	    else
 		throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
 	} else if (auto str = cast (StructCstInfo) sym.type) {
-	    auto trait = Table.instance.get (this._who.str);
+	    ObjectCstInfo ancestor;
+	    if (!this._who.isEof) {
+		auto trait = Table.instance.get (this._who.str);
+		if (trait is null || !(cast (ObjectCstInfo) trait.type)) {
+		    throw new InHeritError (this._who);
+		} else ancestor = cast (ObjectCstInfo) trait.type;
+	    }
+	    
 	    declareMethods (meth, stat);
-	    auto obj = new ObjectCstInfo (str);
+	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
 	    str.methods = meth;
 	    sym.type = obj;
+	    obj.setAncestor (ancestor);
+	    FrameTable.instance.insert (obj);	    
 	} else
 	    throw new ImplementNotStruct (this._what, sym);
     }
@@ -56,13 +69,22 @@ class Impl : Declaration {
 	if (sym is null) {	    
 	    throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
 	} else if (auto str = cast (StructCstInfo) sym.type) {
+	     ObjectCstInfo ancestor;
+	    if (!this._who.isEof) {
+		auto trait = Table.instance.get (this._who.str);
+		if (trait is null || !(cast (ObjectCstInfo) trait.type)) {
+		    throw new InHeritError (this._who);
+		} else ancestor = cast (ObjectCstInfo) trait.type;
+	    }
+	    
 	    //auto trait = mod.get (this._who.str);
 	    declareMethods (meth, stat);
-	    auto obj = new ObjectCstInfo (str);
+	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
 	    str.methods = meth;
 	    sym.type = obj;
+	    obj.setAncestor (ancestor);
 	} else
 	    throw new ImplementNotStruct (this._what, sym);
     }

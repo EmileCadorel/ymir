@@ -13,6 +13,7 @@ import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.DecimalInfo;
 import ast.Constante, semantic.types.StructInfo;
 import semantic.pack.Namespace;
+import std.stdio;
 
 /**
  Le constructeur de structure
@@ -28,8 +29,13 @@ class ObjectCstInfo : InfoType {
     // Les méthodes statique de l'implémentation
     private Array!FunctionInfo _statics;
 
+    // L'ancêtre de l'implémentation.
+    private ObjectCstInfo _ancestor;
+    
+    private Word _locus;
 
-    this (StructCstInfo impl) {
+    this (Word locus, StructCstInfo impl) {
+	this._locus = locus;
 	this._impl = impl;	
     }
 
@@ -44,12 +50,20 @@ class ObjectCstInfo : InfoType {
     void setMethods (Array!FunctionInfo infos) {
 	this._methods = infos;
     }
+
+    void setAncestor (ObjectCstInfo ancestor) {
+	this._ancestor = ancestor;
+    }
     
     override InfoType DColonOp (Var var) {
 	foreach (it ; this._statics) {
 	    if (it.name == var.token.str) {
 		return it;
 	    }
+	}
+	
+	if (this._ancestor) {
+	    return this._ancestor.DColonOp (var);
 	}
 	return null;
     }
@@ -60,12 +74,34 @@ class ObjectCstInfo : InfoType {
 	    if (auto str = cast (StructInfo) ret.ret) {
 		str.setStatics = this._statics;
 		str.setMethods = this._methods;
+		if (this._ancestor) {
+		    str.ancestor = this._ancestor.create;
+		    writeln (str.ancestor);
+		}
 	    }
 	    return ret;
 	} else
 	    return null;
     }
 
+    StructInfo create () {
+	auto info = cast (StructInfo) this._impl.create (this._locus);
+	info.setStatics = this._statics;
+	info.setMethods = this._methods;
+	if (this._ancestor)
+	    info.ancestor = this._ancestor.create;
+	return info;
+    }
+
+    StructInfo create (Word name, Expression [] templates) {
+	auto info = cast (StructInfo) this._impl.create (name, templates);
+	info.setStatics (this._statics);
+	info.setMethods (this._methods);
+	if (this._ancestor)
+	    info.ancestor = this._ancestor.create ();
+	return info;
+    }
+    
     override string simpleTypeString () {
 	import std.format;
 	return format ("IM%s", this._impl.simpleTypeString);
@@ -87,5 +123,5 @@ class ObjectCstInfo : InfoType {
     override bool isSame (InfoType) {
 	return false;
     }
-        
+    
 }

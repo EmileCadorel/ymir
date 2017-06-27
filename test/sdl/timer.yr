@@ -1,0 +1,27 @@
+extern (C) SDL_GetTicks ();
+
+struct Timer {
+    beginTime : int,
+    tickTime : int
+}
+
+impl Timer {
+
+    def start (self) {
+        self.beginTime = SDL_GetTicks ();
+        self.tickTime = self.beginTime;
+    }
+
+    def tick (self) {
+        self.tickTime = SDL_GetTicks ();
+    }
+
+    def frame (self) {
+        self.start ();
+    }
+
+    def elapsed (self) {
+        return self.tickTime - self.beginTime;
+    }
+        
+}
