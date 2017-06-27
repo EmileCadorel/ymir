@@ -1,3 +1,4 @@
+import std.conv;
 
 struct Foo {
     a : int
@@ -9,11 +10,8 @@ impl Foo {
         self.a = a;
     }
         
-    def test (self) {
-    }
-
-    def ancestor (self) {
-        println (self);
+    def toString (self) {
+        return to!string (self.a);
     }
     
 }
@@ -24,21 +22,38 @@ struct Foo2 {
 
 impl Foo for Foo2 {
 
-    def new (a : int, b : int) {
-        let ret = Foo2 ();
-        ret.self (a);
-        ret.b = b;
-        return ret;
+    def self (self, a : int, b : int) {
+        self.super.self (a);
+        self.b = b;
     }
 
-    def ancestor (self) {
-        self.super.ancestor ();
-        println (self);
+    def toString (self) {
+        return self.super.toString () + ", " + to!string (self.b);
     }
     
 }
 
+struct Foo3 {
+    c : int
+}
+
+impl Foo2 for Foo3 {
+
+    def new (a : int, b : int, c : int) {
+        let ret = Foo3 ();
+        ret.super.self (a, b);
+        ret.c = c;
+        return ret;
+    }
+
+    def toString (self) {
+        return self.super.toString () + ", " + to!string (self.c);
+    }
+    
+}
+
+
 def main () {
-    let a = Foo2::new (12, 34);
-    a.ancestor ();
+    let a = Foo3::new (1, 2, 3);
+    println (a.toString);
 }

@@ -19,14 +19,16 @@ class StructUtils {
    
     static LInstList AssocBlock (StructInfo info, LReg alloc, ref Array!LReg regs) {
 	auto interne = new LInstList;
-	LExp retReg, ancSize;
+	LExp retReg, ancSize, left;
 	if (info.ancestor) {
 	    interne = AssocBlockEmpty (info.ancestor, alloc);
 	    auto bin = cast (LBinop) interne.getFirst ();
 	    retReg = bin;
+	    left = bin.left;
 	    ancSize = bin.right;
 	} else {
 	    retReg = alloc;
+	    left = retReg;
 	    ancSize = new LConstDecimal (0, LSize.LONG);
 	}
 	
@@ -73,20 +75,21 @@ class StructUtils {
 	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 	
-	interne += new LBinop (retReg, new LBinop (size, ancSize, Tokens.PLUS), Tokens.PLUS);
+	interne += new LBinop (left, new LBinop (size, ancSize, Tokens.PLUS), Tokens.PLUS);
 	return interne;
     }
 
     static LInstList AssocBlockEmpty (StructInfo info, LReg alloc) {
 	auto interne = new LInstList;
-	LExp retReg, ancSize;
+	LExp retReg, ancSize, left;
 	if (info.ancestor) {
 	    interne = AssocBlockEmpty (info.ancestor, alloc);
 	    auto bin = cast (LBinop) interne.getFirst (); 
 	    retReg = bin;
+	    left = bin.left;
 	    ancSize = bin.right;
 	} else {
-	    retReg = alloc;
+	    retReg = left = alloc;
 	    ancSize = new LConstDecimal (0, LSize.LONG);
 	}
 	
@@ -117,15 +120,15 @@ class StructUtils {
 	    }
 	    
 
-	    auto left = (new LRegRead (retReg, size, it.size));
+	    auto lExp = (new LRegRead (retReg, size, it.size));
 	    if (it.size != LSize.FLOAT && it.size != LSize.DOUBLE)
-		interne += new LWrite (left, new LConstDecimal (0, it.size));
+		interne += new LWrite (lExp, new LConstDecimal (0, it.size));
 	    else
-		interne += new LWrite (left, new LConstDouble (0));	    
+		interne += new LWrite (lExp, new LConstDouble (0));	    
 	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
 	}
 	
-	interne += new LBinop (retReg, new LBinop (size, ancSize, Tokens.PLUS), Tokens.PLUS);
+	interne += new LBinop (left, new LBinop (size, ancSize, Tokens.PLUS), Tokens.PLUS);
 	return interne;
     }
     
