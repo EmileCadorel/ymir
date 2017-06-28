@@ -1,14 +1,20 @@
+import std.conv;
 
-struct Obj {}
+struct Obj {a : int}
 impl Obj {
 
     def new () {
         return Obj ();
     }
 
-    def test (self, a : int) {
-        println ("Obj ", a);
-    }    
+    def test (self, a : t!int) {
+        println ("Obj ", a.to!string);
+    }
+
+    def test2 (self, a : int, b : int) {
+        println (a * b);
+    } 
+    
 }
 
 struct MyObj {}
@@ -18,14 +24,23 @@ impl Obj for MyObj {
         return MyObj ();
     }
     
-    def test (self, a : f) {
-        println ("MyObj ", a);
+    over test (self, a : t!(int)) {
+        println ("MyObj ", a.to!string);
+    }
+
+    over test2 (self, a : int, b : int) {
+        println (a + b);
     }
     
 }
 
+def foo (ref a) {
+    a.test2 (1, 2);
+}
+
 
 def main () {
-    let a = MyObj::new ();
-    a.test (1);
+    let a = [Obj; 1U];
+    a [0] = MyObj::new ();
+    foo (a [0]);
 }

@@ -175,7 +175,7 @@ class DotCall : Expression {
 		throw new TemplateInferType (aux.left.token, aux.score.token);
 	    return aux;
 	} else
-	    return this;
+	    return this;	
     }    
 
     /**

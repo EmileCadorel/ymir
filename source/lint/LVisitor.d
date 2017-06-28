@@ -847,7 +847,14 @@ class LVisitor {
 	    if (par.score.dyn) {
 		if (par.dotCall) {
 		    auto leftTreat = par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
+
 		    auto left = visitExpression (par.dotCall.left);
+		    if (par.dotCall.info.type.lintInstS.length > 0) {
+			for (long nb = par.dotCall.info.type.lintInstS.length - 1; nb >= 0; nb --) {
+			    left = par.dotCall.info.type.lintInst (left, nb);
+			}
+		    }
+		    
 		    auto res = par.dotCall.info.type.lintInst (leftTreat, left);
 		    auto toCall = res.getFirst;
 		    list += res;

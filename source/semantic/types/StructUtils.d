@@ -34,13 +34,19 @@ class StructUtils {
 	
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-	foreach (it ; info.methods) {
-	    auto fr = cast (FunctionInfo) it;
-	    writeln (fr.frame);
+	foreach (fr ; info.methods) {
 	    if (cast (PureFrame) fr.frame) {
-		nbUlong ++;
-		auto lExp = new LRegRead (retReg, size, LSize.ULONG);
-		auto proto = fr.frame.validate;
+		LExp lExp;
+		if (fr.isOverride) {
+		    auto pos = info.ancestor.DotOp (new Var (fr.frame.ident));
+		    auto getMeth = pos.leftTreatment (pos, new Type (fr.frame.ident, info.ancestor), null);
+		    auto regReadMeth = cast (LRegRead) (getMeth.getFirst);
+		    lExp = new LRegRead (left, regReadMeth.begin, LSize.ULONG);
+		} else {
+		    nbUlong ++;
+		    lExp = new LRegRead (retReg, size, LSize.ULONG);
+		}
+		auto proto = fr.frame.validate;		
 		auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
 		interne += new LWrite (lExp, rExp);
 		size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
@@ -98,11 +104,18 @@ class StructUtils {
 	
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-	foreach (it ; info.methods) {
-	    auto fr = cast (FunctionInfo) it;
+	foreach (fr ; info.methods) {
 	    if (cast (PureFrame) fr.frame) {
-		nbUlong ++;
-		auto lExp = new LRegRead (retReg, size, LSize.ULONG); 
+		LExp lExp;
+		if (fr.isOverride) {
+		    auto pos = info.ancestor.DotOp (new Var (fr.frame.ident));
+		    auto getMeth = pos.leftTreatment (pos, new Type (fr.frame.ident, info.ancestor), null);
+		    auto regReadMeth = cast (LRegRead) (getMeth.getFirst);
+		    lExp = new LRegRead (left, regReadMeth.begin, LSize.ULONG);
+		} else {
+		    nbUlong ++;
+		    lExp = new LRegRead (retReg, size, LSize.ULONG);
+		}
 		auto proto = fr.frame.validate;
 		auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
 		interne += new LWrite (lExp, rExp);
@@ -331,7 +344,7 @@ class StructUtils {
 	auto inst = new LInstList;
 	auto leftExp = left.getFirst ();
 	auto size = cast (LRegRead) sizeInst.getFirst ();
-	inst += left;
+	inst += left;	
 	inst += new LRegRead (leftExp, size.begin, size.size);
 	return inst;
     }
@@ -349,9 +362,9 @@ class StructUtils {
 	    size = new LConstDecimal(0, LSize.LONG);
 	}
 	
-	auto toGet = nb < info.methods.length ? nb : info.methods.length;
+	auto toGet = nb < info.nbMethods ? nb : info.nbMethods;
 	foreach (it ; 0 .. toGet) nbUlong ++;	
-	if (toGet == nb && toGet < info.methods.length) {
+	if (toGet == nb && toGet < info.nbMethods) {
 	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
 			       size, Tokens.PLUS);
 	    done = true;

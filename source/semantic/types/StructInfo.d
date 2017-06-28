@@ -624,7 +624,8 @@ class StructInfo : InfoType {
 
 	foreach (it ; 0 .. this._methods.length) {
 	    if (var.token.str == this._methods [it].name) {
-		return GetMethod (it);
+		if (!this._methods [it].isOverride)
+		    return GetMethod (it);
 	    }
 	}
 
@@ -843,6 +844,10 @@ class StructInfo : InfoType {
 	}
     }
 
+    ulong nbMethods () {
+	return computeMethPos (this._methods.length);
+    }
+    
     private ulong computeMethPos (ulong nb) {
 	ulong ret = 0;
 	foreach (it ; 0 .. nb) {

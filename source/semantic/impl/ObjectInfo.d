@@ -55,8 +55,7 @@ class ObjectCstInfo : InfoType {
     void setAncestor (ObjectCstInfo ancestor) {
 	this._ancestor = ancestor;
     }
-
-
+    
     MethodInfo possessMeth (string name) {	    
 	foreach (it ; this._methods) {
 	    if (it.name == name) return it;
