@@ -13,6 +13,8 @@ import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.DecimalInfo;
 import ast.Constante, semantic.impl.ObjectInfo;
 import semantic.pack.Namespace;
+import semantic.impl.MethodInfo;
+import semantic.pack.PureFrame;
 
 /**
  Le constructeur de structure
@@ -35,7 +37,7 @@ class StructCstInfo : InfoType {
     private Array!InfoType _oldTmps;
 
     /++ Les méthodes implémenté par un impl +/
-    private Array!FunctionInfo _methods;
+    private Array!MethodInfo _methods;
     
     /** Le nom des parametres*/
     private Array!string _names;
@@ -74,7 +76,7 @@ class StructCstInfo : InfoType {
     /++
      Returns: les méthodes implémentés par un impl.
      +/
-    ref Array!FunctionInfo methods () {
+    ref Array!MethodInfo methods () {
 	return this._methods;
     }
     
@@ -391,7 +393,7 @@ class StructInfo : InfoType {
     private Array!InfoType _tmps;
 
     // Les méthodes
-    private Array!FunctionInfo _methods;
+    private Array!MethodInfo _methods;
 
     // Les methodes statiques
     private Array!FunctionInfo _statics;
@@ -408,7 +410,7 @@ class StructInfo : InfoType {
     /++ Tout les appels se font de manière statique +/
     private bool _simple;
 
-    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!FunctionInfo meth) {
+    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!MethodInfo meth) {
 	this._namespace = space;
 	this._name = name;
 	this._attribs = names;
@@ -432,7 +434,7 @@ class StructInfo : InfoType {
      names = les noms des attributs
      params = les types des attributs
      */
-    static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!FunctionInfo meths) {
+    static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!MethodInfo meths) {
 	return new StructInfo (space, name, names, params, olds, meths);
     }
 
@@ -444,7 +446,7 @@ class StructInfo : InfoType {
 	return this._params;
     }
 
-    ref Array!FunctionInfo methods () {
+    ref Array!MethodInfo methods () {
 	return this._methods;
     }
     
@@ -460,7 +462,7 @@ class StructInfo : InfoType {
 	this._statics = funs;
     }
 
-    void setMethods (Array!FunctionInfo funs) {
+    void setMethods (Array!MethodInfo funs) {
 	this._methods = funs;
     }
     
@@ -619,7 +621,7 @@ class StructInfo : InfoType {
 		return GetAttrib (it);
 	    }
 	}
-	
+
 	foreach (it ; 0 .. this._methods.length) {
 	    if (var.token.str == this._methods [it].name) {
 		return GetMethod (it);
@@ -819,14 +821,14 @@ class StructInfo : InfoType {
     
     private InfoType GetMethod (ulong nb) {
 	import semantic.types.PtrFuncInfo;
-	auto proto = this._methods [nb].frame.validate ();
-	if (!this._simple) {
+	if (!this._simple && cast (PureFrame) this._methods [nb].frame) {
+	    auto proto = this._methods [nb].frame.validate ();
 	    auto ret = new PtrFuncInfo ();
 	    Array!InfoType infos;
 	    foreach (it ; proto.vars) infos.insertBack (it.info.type);
 	    ret.params = infos;
 	    ret.ret = proto.type.type;
-	    ret.toGet = nb;
+	    ret.toGet = computeMethPos (nb);
 	    if (this._ancestor)
 		ret.toGet += this._ancestor.getNbMethod ();
 	    
@@ -837,15 +839,22 @@ class StructInfo : InfoType {
 	    import semantic.impl.MethodInfo;
 	    auto fr = this._methods [nb].frame;
 	    auto ret = new MethodInfo (fr.namespace, fr.ident.str, fr);
-	    writeln (ret.typeString);
 	    return ret;
 	}
     }
 
+    private ulong computeMethPos (ulong nb) {
+	ulong ret = 0;
+	foreach (it ; 0 .. nb) {
+	    if (cast (PureFrame) this._methods [it].frame) ret ++;
+	}
+	return ret;
+    }
+    
     private ulong getNbMethod () {
 	if (this._ancestor) {
-	    return this._methods.length + this._ancestor.getNbMethod ();
-	} else return this._methods.length;
+	    return computeMethPos (this._methods.length) + this._ancestor.getNbMethod ();
+	} else return computeMethPos (this._methods.length);
     }
     
     /**

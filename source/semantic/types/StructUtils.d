@@ -10,7 +10,7 @@ import ast.Expression, lint.LFrame, semantic.types.ClassUtils;
 import lint.LCall, lint.LAddr, semantic.types.StructInfo;
 import semantic.types.UndefInfo, ast.Var, semantic.pack.Symbol;
 import semantic.pack.Frame, utils.Mangler, semantic.types.FunctionInfo;
-import std.stdio;
+import std.stdio, semantic.pack.PureFrame;
 
 class StructUtils {
     
@@ -36,12 +36,15 @@ class StructUtils {
 	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	foreach (it ; info.methods) {
 	    auto fr = cast (FunctionInfo) it;
-	    nbUlong ++;
-	    auto lExp = new LRegRead (retReg, size, LSize.ULONG); 
-	    auto proto = fr.frame.validate;
-	    auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
-	    interne += new LWrite (lExp, rExp);
-	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    writeln (fr.frame);
+	    if (cast (PureFrame) fr.frame) {
+		nbUlong ++;
+		auto lExp = new LRegRead (retReg, size, LSize.ULONG);
+		auto proto = fr.frame.validate;
+		auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
+		interne += new LWrite (lExp, rExp);
+		size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    }
 	}
 
 	foreach (it ; info.params) {
@@ -97,12 +100,14 @@ class StructUtils {
 	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
 	foreach (it ; info.methods) {
 	    auto fr = cast (FunctionInfo) it;
-	    nbUlong ++;
-	    auto lExp = new LRegRead (retReg, size, LSize.ULONG); 
-	    auto proto = fr.frame.validate;
-	    auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
-	    interne += new LWrite (lExp, rExp);
-	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);	
+	    if (cast (PureFrame) fr.frame) {
+		nbUlong ++;
+		auto lExp = new LRegRead (retReg, size, LSize.ULONG); 
+		auto proto = fr.frame.validate;
+		auto rExp = new LConstFunc (Mangler.mangle!"function" (proto.name, proto));
+		interne += new LWrite (lExp, rExp);
+		size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    }
 	}
 
 	foreach (it ; info.params) {

@@ -291,7 +291,6 @@ class FunctionInfo : InfoType {
     override string typeString () {
 	import std.format, std.outbuffer;
 	auto frames = this.getFrames ();
-	writeln (frames.length);
 	if (frames.length == 1 && this._infos.func) {
 	    auto buf = new OutBuffer ();
 	    buf.writef ("%s.%s(", this._namespace.toString, this._name);

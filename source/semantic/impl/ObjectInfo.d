@@ -13,7 +13,8 @@ import semantic.types.BoolUtils, semantic.types.RefInfo;
 import semantic.types.DecimalInfo;
 import ast.Constante, semantic.types.StructInfo;
 import semantic.pack.Namespace;
-import std.stdio;
+import semantic.impl.MethodInfo;
+import std.stdio, semantic.pack.PureFrame;
 
 /**
  Le constructeur de structure
@@ -24,7 +25,7 @@ class ObjectCstInfo : InfoType {
     private StructCstInfo _impl;
 
     // Les méthodes de l'implémentation
-    private Array!FunctionInfo _methods;
+    private Array!MethodInfo _methods;
 
     // Les méthodes statique de l'implémentation
     private Array!FunctionInfo _statics;
@@ -47,12 +48,59 @@ class ObjectCstInfo : InfoType {
 	this._statics = infos;
     }
 
-    void setMethods (Array!FunctionInfo infos) {
+    void setMethods (Array!MethodInfo infos) {
 	this._methods = infos;
     }
 
     void setAncestor (ObjectCstInfo ancestor) {
 	this._ancestor = ancestor;
+    }
+
+
+    MethodInfo possessMeth (string name) {	    
+	foreach (it ; this._methods) {
+	    if (it.name == name) return it;
+	}
+	
+	if (this._ancestor)
+	    return this._ancestor.possessMeth (name);
+	return null;
+    }
+
+    /++
+     Vérifie que l'implémentation est correcte
+     +/
+    void verify () {	
+	foreach (it ; this._methods) {
+	    if (this._ancestor) {
+		auto possess = this._ancestor.possessMeth (it.name);
+		if (possess && !it.isOverride) {
+		    throw new ImplicitOverride (it.frame.ident, possess.frame.ident);
+		} else if (!possess && it.isOverride) {
+		    throw new NoOverride (it.frame.ident);
+		} else if (possess && it.isOverride) {
+		    if (!cast (PureFrame) it.frame) {
+			throw new OverrideNotPure (it.frame.ident, possess.frame.ident); 
+		    } else if (!cast (PureFrame) possess.frame) {
+			throw new OverrideNotPure (possess.frame.ident);
+		    }
+
+		    auto right = possess.frame.validate ();
+		    auto left = it.frame.validate ();
+		    if (right.vars.length != left.vars.length)
+			throw new NoOverride (it.frame.ident, possess, possess.frame.ident);
+
+		    // Le premier param est forcement différent c'est l'objet
+		    foreach (it_ ; 1 .. right.vars.length) {
+			if (!left.vars [it_].info.type.isSame (right.vars [it_].info.type))
+			    throw new NoOverride (it.frame.ident, possess, possess.frame.ident);
+		    }
+
+		    if (!left.type.type.isSame (right.type.type))
+			throw new NoOverride (it.frame.ident, possess, possess.frame.ident);		    
+		}
+	    }
+	}
     }
     
     override InfoType DColonOp (Var var) {

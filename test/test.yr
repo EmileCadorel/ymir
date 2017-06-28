@@ -1,56 +1,31 @@
-import std.conv;
 
-struct Object { type : int }
-impl Object {
-    def self (self, a : int) {
-        self.type = a;
-    }
-}
+struct Obj {}
+impl Obj {
 
-def castTo (T) (a : Object) {
-    if (T::id() == a.type) return cast:T (a);
-    else return null;
-}
-
-
-struct Test {
-    a : int
-}
-
-impl Object for Test {
     def new () {
-        let a = Test (0);
-        a.super.self (Test::id ());
-        return a;
+        return Obj ();
     }
 
-    def id () {
-        return 1;
-    }
-}
-
-struct Michel {
-    b : int
-}
-
-impl Object for Michel {    
-    def new () {
-        let a = Michel (234);
-        a.super.self (Michel::id ());
-        return a;
-    }
-
-    def id () {
-        return 2;
+    def test (self, a : int) {
+        println ("Obj ", a);
     }    
 }
 
+struct MyObj {}
+impl Obj for MyObj {
+
+    def new () {
+        return MyObj ();
+    }
+    
+    def test (self, a : f) {
+        println ("MyObj ", a);
+    }
+    
+}
 
 
 def main () {
-    let a = Object ();
-    a = Test::new ();    
-    println (a.castTo!Test);
-    a = Michel::new ();
-    let b = a.castTo!Test;
+    let a = MyObj::new ();
+    a.test (1);
 }

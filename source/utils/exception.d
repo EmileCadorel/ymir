@@ -1091,3 +1091,87 @@ class InHeritError : YmirException {
 	msg = buf.toString;
     }
 }
+
+class ImplicitOverride : YmirException {
+
+    this (Word token, Word token2) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: Surcharge implicite de la méthode '%s%s%s', utilisez le mot clé '%sover%s' au lieu de '%sdef%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value,
+		      Colors.YELLOW.value, Colors.RESET.value
+	);
+	super.addLine (buf, loc);	
+	buf.writefln ("%sNote%s: ",
+		      Colors.BLUE.value, Colors.RESET.value);
+	
+	super.addLine (buf, token2.locus);	
+	msg = buf.toString;
+    }    
+}
+
+class NoOverride : YmirException {
+    import semantic.types.InfoType;
+    
+    this (Word token) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: La méthode '%s%s%s' ne surcharge personne",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);	
+	msg = buf.toString;
+    }
+
+    this (Word token, InfoType info, Word tok2) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: La méthode '%s%s%s' ne surcharge personne",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);
+
+	if (info !is null) {
+	    buf.writefln ("%sNote%s: %s",
+			  Colors.BLUE.value, Colors.RESET.value,
+			  info.typeString);
+	    super.addLine (buf, tok2.locus);
+	}
+	
+	msg = buf.toString;
+    }    
+    
+}
+
+class OverrideNotPure : YmirException {
+    this (Word token) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: Impossible de surcharger un méthode impure '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);	
+	msg = buf.toString;
+    }
+
+    this (Word token, Word) {
+	auto buf = new OutBuffer;
+	auto loc = token.locus;
+	buf.writefln ("%sErreur%s: Impossible de surcharger avec une méthode impure '%s%s%s'",
+		      Colors.RED.value, Colors.RESET.value,
+		      Colors.YELLOW.value, token.str, Colors.RESET.value
+	);
+	
+	super.addLine (buf, loc);	
+	msg = buf.toString;
+    }    
+    
+}
