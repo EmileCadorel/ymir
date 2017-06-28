@@ -6,6 +6,8 @@ import syntax.Word, utils.YmirException, utils.exception;
 import semantic.pack.Symbol;
 import std.container;
 import ast.FuncPtr;
+import semantic.impl.ObjectInfo;
+import semantic.types.StructInfo;
 
 
 /**
@@ -42,14 +44,17 @@ class Cast : Expression {
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
 	if (!cast (Type) type && !cast (FuncPtr) type)
-	    throw new UseAsType (type.token);
+	    if (!cast (ObjectCstInfo) type.info.type && !cast(StructCstInfo) type.info.type)
+		throw new UseAsType (type.token);
 	
 	if (expr.info.type.isSame (type.info.type)) {
 	    return expr;
 	} else {
 	    auto info = expr.info.type.CastOp (type.info.type);
 	    if (info is null) {
-		throw new UndefinedOp (this._token, expr.info, type.info);
+		info = expr.info.type.CompOp (type.info.type);
+		if (info is null)
+		    throw new UndefinedOp (this._token, expr.info, type.info);
 	    } 
 	    auto aux = new Cast (this._token, type, expr);
 	    aux.info = new Symbol (this._token, info);

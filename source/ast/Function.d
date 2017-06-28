@@ -189,8 +189,10 @@ class Function : Declaration {
     /**
      Verifie que la fonction est une fonction pure ou non.     
      */
-    Frame verifyPure () {
-	auto space = Table.instance.namespace ();
+    Frame verifyPure (Namespace space = null) {
+	if (space is null)
+	    space = Table.instance.namespace ();
+	
 	if (this._tmps.length != 0) {
 	    auto isPure = verifyTemplates ();
 	    auto ret = new TemplateFrame (space, this);
@@ -253,8 +255,10 @@ class Function : Declaration {
     /**
      Verifie que la fonction est une fonction pure ou non.     
      */
-    Frame verifyPureAsExtern () {
-	auto space = Table.instance.namespace ();
+    Frame verifyPureAsExtern (Namespace space = null) {
+	if (space is null)
+	    space = Table.instance.namespace ();
+	
 	if (this._tmps.length != 0) {
 	    auto isPure = verifyTemplates ();
 	    auto ret = new TemplateFrame (space, this);

@@ -405,6 +405,9 @@ class StructInfo : InfoType {
     /** La structure a été importé */
     private bool _extern;
 
+    /++ Tout les appels se font de manière statique +/
+    private bool _simple;
+
     private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!FunctionInfo meth) {
 	this._namespace = space;
 	this._name = name;
@@ -556,6 +559,13 @@ class StructInfo : InfoType {
 	    auto other = this.clone ();
 	    other.lintInst = &StructUtils.InstAffectNull;
 	    return other;	    
+	} else if (_st) {
+	    if (_st.ancestor) {
+		if (auto type = _st.ancestor.CompOp (this)) {
+		    type.lintInst = &StructUtils.InstAffect;
+		    return type;
+		} 		    
+	    }
 	}
 	return null;
     }
@@ -569,6 +579,21 @@ class StructInfo : InfoType {
 	    auto other = this.clone ();
 	    other.lintInst = &ClassUtils.InstAffectRight;
 	    return other;
+	} else if (this._ancestor) {
+	    if (auto type = this._ancestor.CompOp (left.info.type)) {
+		type.lintInst = &ClassUtils.InstAffectRight;
+		return type;
+	    } else if (auto type = left.info.type.CompOp (this._ancestor)) {
+		type.lintInst = &ClassUtils.InstAffectRight;
+		return type;
+	    }
+	} else if (auto str = cast (StructInfo) left.info.type) {
+	    if (str._ancestor) {
+		if (auto type = str._ancestor.CompOp (this)) {
+		    type.lintInst = &ClassUtils.InstAffectRight;
+		    return type;
+		}
+	    }
 	}
 	return null;
     }    
@@ -638,12 +663,43 @@ class StructInfo : InfoType {
 		aux.lintInstS.insertBack (&StructUtils.InstAddr);
 		return aux;
 	    }
-	} else if (this._ancestor) {
-	    return this._ancestor.CompOp (other);
+	}
+	
+	if (this._ancestor) {
+	    if (auto type = this._ancestor.CompOp (other))
+		return type;
+	    else if (auto type = other.CompOp (this._ancestor))
+		return type;
+	    
 	}
 	return null;
     }
 
+    /**
+       Surcharge de l'operateur de cast       
+       Params:
+       other = le type vers lequel on veut caster
+     */
+    override InfoType CastOp (InfoType other) {
+	if (auto obj = cast (ObjectCstInfo) other) {
+	    auto str = obj.create ();
+	    if (this.isAncestor (str)) {
+		auto ret = str.clone ();
+		ret.lintInst = &StructUtils.InstAffect;
+		return ret;
+	    }
+	}
+	return null;
+    }        
+
+    private bool isAncestor (StructInfo str) {
+	if (this.isSame (str)) return true;
+	else if (str.ancestor) {
+	    return this.isAncestor (str.ancestor);
+	}
+	return false;
+    }    
+    
     /**
      Traitement à appliquer quand on passe le structure en paramètre.
      Returns: le type contenant le traitement.
@@ -702,10 +758,17 @@ class StructInfo : InfoType {
 
     private InfoType Super () {
 	if (this._ancestor) {
-	    auto ret = this._ancestor.clone ();
+	    auto ret = cast (StructInfo) this._ancestor.clone ();
 	    ret.lintInst = &StructUtils.InstGetSuper;
+	    ret.simplify ();
 	    return ret;
 	} else return null;
+    }
+
+    private void simplify () {
+	this._simple = true;
+	if (this._ancestor)
+	    this._ancestor.simplify ();
     }
     
     /**
@@ -757,18 +820,26 @@ class StructInfo : InfoType {
     private InfoType GetMethod (ulong nb) {
 	import semantic.types.PtrFuncInfo;
 	auto proto = this._methods [nb].frame.validate ();
-	auto ret = new PtrFuncInfo ();
-	Array!InfoType infos;
-	foreach (it ; proto.vars) infos.insertBack (it.info.type);
-	ret.params = infos;
-	ret.ret = proto.type.type;
-	ret.toGet = nb;
-	if (this._ancestor)
-	    ret.toGet += this._ancestor.getNbMethod ();
-	
-	ret.lintInst = &StructUtils.Method;
-	ret.leftTreatment = &StructUtils.GetMethod;
-	return ret;
+	if (!this._simple) {
+	    auto ret = new PtrFuncInfo ();
+	    Array!InfoType infos;
+	    foreach (it ; proto.vars) infos.insertBack (it.info.type);
+	    ret.params = infos;
+	    ret.ret = proto.type.type;
+	    ret.toGet = nb;
+	    if (this._ancestor)
+		ret.toGet += this._ancestor.getNbMethod ();
+	    
+	    ret.lintInst = &StructUtils.Method;
+	    ret.leftTreatment = &StructUtils.GetMethod;
+	    return ret;
+	} else {
+	    import semantic.impl.MethodInfo;
+	    auto fr = this._methods [nb].frame;
+	    auto ret = new MethodInfo (fr.namespace, fr.ident.str, fr);
+	    writeln (ret.typeString);
+	    return ret;
+	}
     }
 
     private ulong getNbMethod () {
@@ -821,6 +892,7 @@ class StructInfo : InfoType {
 	auto ret = cast (StructInfo) create (this._namespace, this._name, this._attribs, this._params, this._tmps, this._methods);
 	ret._statics = this._statics;
 	ret._ancestor = this._ancestor;
+	ret._simple = this._simple;
 	return ret;
     }
 

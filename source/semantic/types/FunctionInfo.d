@@ -97,7 +97,6 @@ class FunctionInfo : InfoType {
 	}
 	return alls;
     }
-
     
     /**
      Surcharge de l'operateur d'appel de la fonction (ici utilisé pour récupéré un pointeur sur fonction).
@@ -111,7 +110,7 @@ class FunctionInfo : InfoType {
 	ulong id = 0;
 	Array!ApplicationScore total;
 	try {
-	    Array!Frame frames = getFrames ();	    
+	    Array!Frame frames = getFrames ();
 	    foreach (it ; 0 .. frames.length)
 		total.insertBack (frames[it].isApplicable (params));
 	    
@@ -196,12 +195,12 @@ class FunctionInfo : InfoType {
 		    }
 		}
 	    }
-
+	    
 	    if (goods.length == 0) return null;
 	    else if (goods.length > 1) {
 		throw new TemplateSpecialisation (goods [0].ident, goods [1].ident);
 	    }
-
+	    
 	    Table.instance.addCall (func_token);
 	    FrameProto info;
 	    if (right.toValidate) {
@@ -285,19 +284,38 @@ class FunctionInfo : InfoType {
     override void quit (Namespace) {
     }
 
+
     /**
      Returns: le nom du type fonction
      */
     override string typeString () {
-	import std.format;
-	return format ("function <%s.%s>", this._namespace.toString, this._name);
+	import std.format, std.outbuffer;
+	auto frames = this.getFrames ();
+	writeln (frames.length);
+	if (frames.length == 1 && this._infos.func) {
+	    auto buf = new OutBuffer ();
+	    buf.writef ("%s.%s(", this._namespace.toString, this._name);
+	    foreach (it; 0 .. this._infos.func.params.length) {
+		buf.writef ("%s%s",
+			    this._infos.func.params [it].prettyPrint,
+			    it < this._infos.func.params.length - 1 ? ", " : "");
+	    }
+	    buf.writef (")");
+	    if (this._infos.func.type) 
+		buf.writef ("->%s", this._infos.func.type.prettyPrint);
+	    else
+		buf.writef ("-> undef");
+	    return buf.toString ();
+	} else {
+	    return format ("function <%s.%s>", this._namespace.toString, this._name);
+	}
     }    
 
     /**
      Returns: le nom simple du type.
      */
     override string simpleTypeString () {
-	return "f_";
+	return "F";
     }
 
     /**

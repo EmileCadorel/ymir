@@ -6,6 +6,7 @@ import ast.Var, utils.exception, semantic.types.UndefInfo;
 import semantic.pack.Symbol, std.container;
 import std.string, semantic.types.PtrFuncInfo;
 import ast.Par, ast.Instruction;
+import semantic.impl.MethodInfo;
 
 /**
  Classe généré à la syntaxe par.
@@ -53,7 +54,7 @@ class Dot : Expression {
 		if (cast (Type) call || cast (UndefInfo) call.info.type)
 		    throw new UndefinedAttribute (this._token, aux._left.info, var);
 		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();	    
-	    } else if (cast (PtrFuncInfo) type) {
+	    } else if (cast (PtrFuncInfo) type || cast (MethodInfo) type) {
 		auto call = new Var (var.token);
 		call.info = new Symbol (call.token, type, true);
 		return new DotCall (this._inside, this._right.token, call, aux._left).expression ();

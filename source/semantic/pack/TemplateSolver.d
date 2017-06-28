@@ -4,6 +4,7 @@ import std.container, std.stdio;
 import semantic.types.InfoType;
 import semantic.types.StructInfo;
 import semantic.types.FunctionInfo;
+import semantic.impl.ObjectInfo;
 import semantic.types.RefInfo;
 import utils.exception;
 import utils.Singleton;
@@ -405,7 +406,9 @@ class TemplateSolverS {
     private TemplateSolution solve (Var elem, TypedVar param, InfoType type) {
 	if (auto tv = cast (TypedVar) elem) return TemplateSolution (0, false);
 	else if (auto arr = cast (ArrayVar) elem) return TemplateSolution (0, false);
-	else if (cast (StructCstInfo) type || cast (FunctionInfo) type) return TemplateSolution (0, false);
+	else if (cast (ObjectCstInfo) type ||
+		 cast (StructCstInfo) type ||
+		 cast (FunctionInfo) type) return TemplateSolution (0, false);
 	
 	auto type_ = type.cloneForParam;
 	return TemplateSolution (__VAR__, true, type_, [elem.token.str : new Type (param.type.token, type_)]);
@@ -546,6 +549,9 @@ class TemplateSolverS {
 	import semantic.types.StructInfo;
 	auto type = right.info.type;
 	if (auto cst = cast (StructCstInfo) type) {
+	    auto clo = right.clone ();
+	    return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
+	} else if (auto cst = cast (ObjectCstInfo) type) {
 	    auto clo = right.clone ();
 	    return TemplateSolution (__VAR__, true, type, [left.token.str : clo]);
 	} else return TemplateSolution (0, false);

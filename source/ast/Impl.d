@@ -43,6 +43,8 @@ class Impl : Declaration {
 	    else
 		throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
 	} else if (auto str = cast (StructCstInfo) sym.type) {
+	    auto currSpace = Table.instance.namespace;
+	    auto space = new Namespace (currSpace, this._what.str);
 	    ObjectCstInfo ancestor;
 	    if (!this._who.isEof) {
 		auto trait = Table.instance.get (this._who.str);
@@ -51,14 +53,14 @@ class Impl : Declaration {
 		} else ancestor = cast (ObjectCstInfo) trait.type;
 	    }
 	    
-	    declareMethods (meth, stat);
+	    declareMethods (space, meth, stat);
 	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
 	    str.methods = meth;
 	    sym.type = obj;
 	    obj.setAncestor (ancestor);
-	    FrameTable.instance.insert (obj);	    
+	    FrameTable.instance.insert (obj);
 	} else
 	    throw new ImplementNotStruct (this._what, sym);
     }
@@ -69,7 +71,9 @@ class Impl : Declaration {
 	if (sym is null) {	    
 	    throw new ImplementUnknown (this._what, Table.instance.getAlike (this._what.str));
 	} else if (auto str = cast (StructCstInfo) sym.type) {
-	     ObjectCstInfo ancestor;
+	    auto currSpace = mod.space;
+	    auto space = new Namespace (currSpace, this._what.str);
+	    ObjectCstInfo ancestor;
 	    if (!this._who.isEof) {
 		auto trait = Table.instance.get (this._who.str);
 		if (trait is null || !(cast (ObjectCstInfo) trait.type)) {
@@ -77,8 +81,7 @@ class Impl : Declaration {
 		} else ancestor = cast (ObjectCstInfo) trait.type;
 	    }
 	    
-	    //auto trait = mod.get (this._who.str);
-	    declareMethods (meth, stat);
+	    declareMethods (space, meth, stat);
 	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
@@ -90,37 +93,67 @@ class Impl : Declaration {
     }
     
     
-    private void declareMethods (ref Array!FunctionInfo meth, ref Array!FunctionInfo stat) {
+    private void declareMethods (Namespace space, ref Array!FunctionInfo meth, ref Array!FunctionInfo stat) {
 	foreach (it ; this._methods) {
 	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
-		meth.insertBack (declareMeth (it));
+		meth.insertBack (declareMeth (space, it));
 	    } else {
-		stat.insertBack (declareStat (it));
+		stat.insertBack (declareStat (space, it));
 	    }
 	}
     }
 
-    private FunctionInfo declareMeth (Function fun) {
+    private void declareMethodsAsExtern (Namespace space, ref Array!FunctionInfo meth, ref Array!FunctionInfo stat) {
+	foreach (it ; this._methods) {
+	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
+		meth.insertBack (declareMethAsExtern (space, it));
+	    } else {
+		stat.insertBack (declareStatAsExtern (space, it));
+	    }
+	}
+    }
+    
+    private FunctionInfo declareMeth (Namespace space, Function fun) {
 	import semantic.pack.PureFrame;
 	auto name = Word (this._what.locus, this._what.str, false);
 	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
-	auto fr = cast (PureFrame) fun.verifyPure ();
+	auto fr = cast (PureFrame) fun.verifyPure (space);
 	if (fr is null)
 	    throw new ImplMethodNotPure (fun.ident);
-	auto space = Table.instance.namespace ();
 	auto retFun = new FunctionInfo (space, fun.ident.str);
 	retFun.alone = true;
 	retFun.set (fr);
 	return retFun;
     }
 
-    private FunctionInfo declareStat (Function fun) {
-	Frame fr = fun.verifyPure ();
-	auto space = Table.instance.namespace ();
+    private FunctionInfo declareStat (Namespace space, Function fun) {
+	Frame fr = fun.verifyPure (space);
 	auto retFun = new FunctionInfo (space, fun.ident.str);
 	retFun.alone = true;
 	retFun.set (fr);
 	return retFun;
     }
+
+    private FunctionInfo declareMethAsExtern (Namespace space, Function fun) {
+	import semantic.pack.PureFrame;
+	auto name = Word (this._what.locus, this._what.str, false);
+	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
+	auto fr = cast (PureFrame) fun.verifyPureAsExtern (space);
+	if (fr is null)
+	    throw new ImplMethodNotPure (fun.ident);
+	auto retFun = new FunctionInfo (space, fun.ident.str);
+	retFun.alone = true;
+	retFun.set (fr);
+	return retFun;
+    }
+
+    private FunctionInfo declareStatAsExtern (Namespace space, Function fun) {
+	Frame fr = fun.verifyPureAsExtern (space);
+	auto retFun = new FunctionInfo (space, fun.ident.str);
+	retFun.alone = true;
+	retFun.set (fr);
+	return retFun;
+    }
+
     
 }

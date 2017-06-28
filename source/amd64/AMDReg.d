@@ -405,7 +405,7 @@ class AMDReg : AMDObj {
 	if (this._isStd) return;
 	auto off = this._id in __offsets__;
 	long o;
-	if (off is null) {	    
+	if (off is null) {
 	    auto res = __globalOffset__ % this._size.size;
 	    if (res  != 0) {
 		res =  (this._size.size - res);

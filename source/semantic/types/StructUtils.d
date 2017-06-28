@@ -345,7 +345,6 @@ class StructUtils {
 	}
 	
 	auto toGet = nb < info.methods.length ? nb : info.methods.length;
-	std.stdio.writeln (toGet, ' ', nb);
 	foreach (it ; 0 .. toGet) nbUlong ++;	
 	if (toGet == nb && toGet < info.methods.length) {
 	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
@@ -381,7 +380,6 @@ class StructUtils {
 	auto type = cast (StructInfo) (left.info.type);
 	if (_ref) type = cast (StructInfo) _ref.content;
 	bool done = false; ulong nb = ret.toGet;
-	std.stdio.writeln (nb);	
 	return GetMethodFromAncestor (done, type, nb, ret.size);		
     }
 

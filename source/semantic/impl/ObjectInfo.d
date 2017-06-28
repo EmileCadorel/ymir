@@ -76,12 +76,15 @@ class ObjectCstInfo : InfoType {
 		str.setMethods = this._methods;
 		if (this._ancestor) {
 		    str.ancestor = this._ancestor.create;
-		    writeln (str.ancestor);
 		}
 	    }
 	    return ret;
 	} else
 	    return null;
+    }
+    
+    override InfoType CompOp (InfoType other) {
+	return this.create ().CompOp (other);
     }
 
     StructInfo create () {

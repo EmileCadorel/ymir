@@ -1,59 +1,56 @@
 import std.conv;
 
-struct Foo {
+struct Object { type : int }
+impl Object {
+    def self (self, a : int) {
+        self.type = a;
+    }
+}
+
+def castTo (T) (a : Object) {
+    if (T::id() == a.type) return cast:T (a);
+    else return null;
+}
+
+
+struct Test {
     a : int
 }
 
-impl Foo {
+impl Object for Test {
+    def new () {
+        let a = Test (0);
+        a.super.self (Test::id ());
+        return a;
+    }
 
-    def self (self, a : int) {
-        self.a = a;
+    def id () {
+        return 1;
     }
-        
-    def toString (self) {
-        return to!string (self.a);
-    }
-    
 }
 
-struct Foo2 {
+struct Michel {
     b : int
 }
 
-impl Foo for Foo2 {
-
-    def self (self, a : int, b : int) {
-        self.super.self (a);
-        self.b = b;
+impl Object for Michel {    
+    def new () {
+        let a = Michel (234);
+        a.super.self (Michel::id ());
+        return a;
     }
 
-    def toString (self) {
-        return self.super.toString () + ", " + to!string (self.b);
-    }
-    
+    def id () {
+        return 2;
+    }    
 }
 
-struct Foo3 {
-    c : int
-}
-
-impl Foo2 for Foo3 {
-
-    def new (a : int, b : int, c : int) {
-        let ret = Foo3 ();
-        ret.super.self (a, b);
-        ret.c = c;
-        return ret;
-    }
-
-    def toString (self) {
-        return self.super.toString () + ", " + to!string (self.c);
-    }
-    
-}
 
 
 def main () {
-    let a = Foo3::new (1, 2, 3);
-    println (a.toString);
+    let a = Object ();
+    a = Test::new ();    
+    println (a.castTo!Test);
+    a = Michel::new ();
+    let b = a.castTo!Test;
 }
