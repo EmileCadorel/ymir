@@ -21,6 +21,7 @@ void semanticTime (string file) {
     Visitor visitor = new Visitor (file);
     auto prog = visitor.visit ();
     Table.instance.purge ();
+    FrameTable.instance.purge ();
     prog.declare ();
     
     auto error = 0;
@@ -35,6 +36,7 @@ void semanticTime (string file) {
     
     foreach (it ; FrameTable.instance.objects) {
 	if (it.impl.needCreation) {
+	    writeln (it.impl.name, " ", file);
 	    auto type = cast (StructInfo) it.create ();
 	    StructUtils.createCstStruct (type);
 	}
@@ -52,7 +54,7 @@ void semanticTime (string file) {
 	    debug { throw occurs; }
 	}
     }
-      
+
     if (error > 0) throw new ErrorOccurs (error);    
 }
 

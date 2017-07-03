@@ -42,5 +42,9 @@ def foo (ref a) {
 def main () {
     let a = [Obj; 1U];
     a [0] = MyObj::new ();
+    for it in a
+        it.test ((1,));
+
+    
     foo (a [0]);
 }

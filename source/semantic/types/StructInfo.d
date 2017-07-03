@@ -851,7 +851,9 @@ class StructInfo : InfoType {
     private ulong computeMethPos (ulong nb) {
 	ulong ret = 0;
 	foreach (it ; 0 .. nb) {
-	    if (cast (PureFrame) this._methods [it].frame) ret ++;
+	    if (cast (PureFrame) this._methods [it].frame
+		&& !this._methods [it].isOverride
+	    ) ret ++;
 	}
 	return ret;
     }

@@ -164,6 +164,14 @@ class FrameTable {
     ref Array!FinalFrame templates () {
 	return this._finalTemplates;
     }
+
+    void purge () {
+	this._finals.clear ();
+	this._structs.clear ();
+	this._objects.clear ();
+	this._pures.clear ();
+    }
+
     
     mixin Singleton!FrameTable;    
 }

@@ -299,7 +299,7 @@ class StructUtils {
 	    size = new LConstDecimal(0, LSize.LONG);
 	}
 	
-	foreach (it ; info.methods) nbUlong ++;
+	foreach (it ; 0 .. info.nbMethods) nbUlong ++;		
 	auto toGet = nb < info.params.length ? nb : info.params.length;
 	foreach (it ; 0 .. toGet) {
 	    final switch (info.params [it].size.id) {
@@ -363,7 +363,7 @@ class StructUtils {
 	}
 	
 	auto toGet = nb < info.nbMethods ? nb : info.nbMethods;
-	foreach (it ; 0 .. toGet) nbUlong ++;	
+	foreach (it ; 0 .. toGet) nbUlong ++;       	
 	if (toGet == nb && toGet < info.nbMethods) {
 	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
 			       size, Tokens.PLUS);
