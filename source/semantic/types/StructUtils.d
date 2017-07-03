@@ -299,7 +299,7 @@ class StructUtils {
 	    size = new LConstDecimal(0, LSize.LONG);
 	}
 	
-	foreach (it ; 0 .. info.nbMethods) nbUlong ++;		
+	nbUlong += info.nbMethods;		
 	auto toGet = nb < info.params.length ? nb : info.params.length;
 	foreach (it ; 0 .. toGet) {
 	    final switch (info.params [it].size.id) {
@@ -363,7 +363,7 @@ class StructUtils {
 	}
 	
 	auto toGet = nb < info.nbMethods ? nb : info.nbMethods;
-	foreach (it ; 0 .. toGet) nbUlong ++;       	
+	nbUlong += toGet;       	
 	if (toGet == nb && toGet < info.nbMethods) {
 	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
 			       size, Tokens.PLUS);
@@ -443,7 +443,7 @@ class StructUtils {
 	
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 
-	foreach (it ; info.methods) nbUlong ++;
+	nbUlong += info.nbMethods;	
 	foreach (it ; 0 .. info.params.length) {
 	    final switch (info.params [it].size.id) {
 	    case LSize.LONG.id: nbLong ++; break;
@@ -472,7 +472,7 @@ class StructUtils {
 
 	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
 	LExp size;
-	foreach (it ; type.methods) nbUlong ++;
+	nbUlong += type.nbMethods;
 	if (type.ancestor) {
 	    auto aux = GetTupleOfFromAncestor (type.ancestor);
 	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),

@@ -36,7 +36,6 @@ void semanticTime (string file) {
     
     foreach (it ; FrameTable.instance.objects) {
 	if (it.impl.needCreation) {
-	    writeln (it.impl.name, " ", file);
 	    auto type = cast (StructInfo) it.create ();
 	    StructUtils.createCstStruct (type);
 	}
@@ -118,11 +117,7 @@ void main (string [] args) {
 	}
 	
 	string [] files;
-	foreach (file ; Options.instance.inputFiles) {	
-	    FrameTable.instance.pures.clear ();
-	    FrameTable.instance.finals.clear ();
-	    FrameTable.instance.structs.clear ();
-	    
+	foreach (file ; Options.instance.inputFiles) {		    
 	    semanticTime (file);
 	    auto list = lintTime ();
 	    
