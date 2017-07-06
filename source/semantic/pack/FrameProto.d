@@ -112,6 +112,10 @@ class FrameProto {
 	return false;
     }
 
+    override string toString () {
+	return this._namespace.toString ~ "." ~ this._name;
+    }
+    
     
 }
 

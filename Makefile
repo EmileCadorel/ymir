@@ -31,4 +31,7 @@ docs: FORCE
 	dub build --build=ddox
 	./docs/install.sh
 
+mv:     all
+	cp ymir ${HOME}/libs/ymir
+
 FORCE:

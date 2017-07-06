@@ -30,6 +30,8 @@ class Frame {
 
     /** le contexte de la frame */
     protected Namespace _namespace;
+
+    protected string _imutSpace;
     
     static long SAME = 10;
     static long AFF = 5;
@@ -129,6 +131,7 @@ class Frame {
 	    Table.instance.retInfo.info = ret;
 	
 	auto proto = new FrameProto (name.str, from, Table.instance.retInfo.info, finalParams, tmps);
+
 	if (!FrameTable.instance.existProto (proto)) {
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
@@ -203,7 +206,7 @@ class Frame {
 	    Table.instance.retInfo.info = this._function.type.asType ().info;	
 	
 	auto proto = new FrameProto (this._function.name, from, Table.instance.retInfo.info, finalParams, this._tempParams);
-	
+
 	if (!FrameTable.instance.existProto (proto)) {
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
@@ -363,6 +366,13 @@ class Frame {
      +/
     ref bool isPrivate () {
 	return this._isPrivate;
+    }
+
+    /++
+     Le namespace qui est imutable au module (utilise pour les methodes de classes).
+     +/
+    void setImutSpace (string space) {
+	this._imutSpace = space;
     }
     
     /**

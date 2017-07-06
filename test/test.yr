@@ -1,50 +1,81 @@
 import std.conv;
+import std.array;
 
-struct Obj {a : int}
-impl Obj {
-
-    def new () {
-        return Obj ();
-    }
-
-    def test (self, a : t!int) {
-        println ("Obj ", a.to!string);
-    }
-
-    def test2 (self, a : int, b : int) {
-        println (a * b);
-    } 
-    
+struct E {
+    name : string
 }
 
-struct MyObj {}
-impl Obj for MyObj {
+impl E {
 
-    def new () {
-        return MyObj ();
-    }
-    
-    over test (self, a : t!(int)) {
-        println ("MyObj ", a.to!string);
+    def cst (self, name : string) {
+        self.name = name;
     }
 
-    over test2 (self, a : int, b : int) {
-        println (a + b);
+    def toString (self, i : int) {
+        return "";
     }
     
 }
 
-def foo (ref a) {
-    a.test2 (1, 2);
+struct V {
 }
 
+impl E for V {
+
+    def new (name) {
+        let v = V ();
+        v.super.cst (name);
+        return v;
+    }
+
+    over toString (self, i : int) {
+        return self.to!string;
+    }
+    
+}
+
+struct Decl {
+    name : string
+}
+
+impl Decl {
+
+    def cst (self, name : string) {
+        self.name = name;
+    }
+    
+    def print (self) {
+    }
+    
+}
+
+struct F {
+    test : [V]
+}
+
+impl Decl for F {
+
+    def new (name) {
+        let f = F ([]);
+        f.super.cst (name);
+        return f;
+    }
+
+    def add (self, e : V) {
+        self.test.insertBack (e);
+    }
+
+    over print (self) {
+        println (self);
+    }
+}
 
 def main () {
-    let a = [Obj; 1U];
-    a [0] = MyObj::new ();
-    for it in a
-        it.test ((1,));
-
-    
-    foo (a [0]);
+    let a = F::new ("test");
+    for it in 0 .. 10 {
+        let i = it.to!string;
+        let c = V::new (i); 
+       // a.add (c);
+    }
+    a.print ();
 }

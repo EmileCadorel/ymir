@@ -22,13 +22,16 @@ class Namespace {
 	    this._names.insertBack (name);
 	} else {
 	    this._names.insertBack (Mangler.mangle!"file" (name));
-	}
-	
+	}	
     }
     
     override bool opEquals (Object other) {
 	if (auto name = cast (Namespace) other) {
-	    return this._names == name._names;
+	    if (this._names.length != name._names.length) return false;
+	    foreach (it ; 0 .. this._names.length) {
+		if (this._names [it] != name._names [it]) return false;
+	    }
+	    return true;
 	}
 	return false;
     }        

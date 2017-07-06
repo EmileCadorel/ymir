@@ -819,9 +819,8 @@ class LVisitor {
 		auto aux = new LReg (last.size);
 		list += new LWrite (aux, last);
 		exprs.insertBack (aux);
-	    } else	
-		exprs.insertBack (last);
-
+	    } else 
+		exprs.insertBack (last);	    
 	}	
 	return list;
     }
@@ -847,8 +846,8 @@ class LVisitor {
 	    if (par.score.dyn) {
 		if (par.dotCall) {
 		    auto leftTreat = par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
-
-		    auto left = visitExpression (par.dotCall.left);
+		    
+		    auto left = new LInstList (exprs [0]);
 		    if (par.dotCall.info.type.lintInstS.length > 0) {
 			for (long nb = par.dotCall.info.type.lintInstS.length - 1; nb >= 0; nb --) {
 			    left = par.dotCall.info.type.lintInst (left, nb);
@@ -868,7 +867,7 @@ class LVisitor {
 		    list += left;
 		    call = new LCall (left.getFirst (), exprs, par.score.ret.size, par.score.isVariadic);
 		}
-	    } else {		
+	    } else {
 		call = new LCall (par.score.name, exprs, par.score.ret.size, par.score.isVariadic);
 	    }
 	}

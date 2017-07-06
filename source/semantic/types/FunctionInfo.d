@@ -86,7 +86,7 @@ class FunctionInfo : InfoType {
      Récupère toutes les frames du même nom.
      +/
     Array!Frame getFrames () {
-	if (this._alone) return make!(Array!Frame) (this._infos);	    
+	if (this._alone) return make!(Array!Frame) (this._infos);	    	
 	if (this._fromTemplates.length != 0) return this._fromTemplates;
 	Array!Frame alls;
 	auto others = Table.instance.getAll (this._name);
@@ -176,8 +176,8 @@ class FunctionInfo : InfoType {
 	Array!ApplicationScore total;
 	try {
 	    auto frames = getFrames ();
-	    foreach (it ; 0 .. frames.length)
-		total.insertBack (frames [it].isApplicable (params));
+	    foreach (it ; 0 .. frames.length) 
+		total.insertBack (frames [it].isApplicable (params));	    
 
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
@@ -207,7 +207,9 @@ class FunctionInfo : InfoType {
 		info = right.toValidate.validate (right, right.treat);
 		right.name = Mangler.mangle!"functionv" (info.name, info);
 	    } else {
+		writeln (goods [0].namespace, ".", goods [0].func.name);
 		info = goods [0].validate (right, right.treat);
+		writeln (info.name);
 		right.name = Mangler.mangle!"function" (info.name, info);
 	    }
 	    
@@ -291,17 +293,17 @@ class FunctionInfo : InfoType {
     override string typeString () {
 	import std.format, std.outbuffer;
 	auto frames = this.getFrames ();
-	if (frames.length == 1 && this._infos.func) {
+	if (frames.length == 1 && frames [0].func) {
 	    auto buf = new OutBuffer ();
 	    buf.writef ("%s.%s(", this._namespace.toString, this._name);
-	    foreach (it; 0 .. this._infos.func.params.length) {
+	    foreach (it; 0 .. frames [0].func.params.length) {
 		buf.writef ("%s%s",
-			    this._infos.func.params [it].prettyPrint,
-			    it < this._infos.func.params.length - 1 ? ", " : "");
+			    frames [0].func.params [it].prettyPrint,
+			    it < frames [0].func.params.length - 1 ? ", " : "");
 	    }
 	    buf.writef (")");
-	    if (this._infos.func.type) 
-		buf.writef ("->%s", this._infos.func.type.prettyPrint);
+	    if (frames [0].func.type) 
+		buf.writef ("->%s", frames [0].func.type.prettyPrint);
 	    else
 		buf.writef ("-> undef");
 	    return buf.toString ();

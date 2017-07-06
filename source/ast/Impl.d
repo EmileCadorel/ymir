@@ -54,7 +54,7 @@ class Impl : Declaration {
 		} else ancestor = cast (ObjectCstInfo) trait.type;
 	    }
 	    
-	    declareMethods (space, meth, stat);
+	    declareMethods (space, meth, stat, this._what.str);
 	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
@@ -83,7 +83,7 @@ class Impl : Declaration {
 		} else ancestor = cast (ObjectCstInfo) trait.type;
 	    }
 	    
-	    declareMethods (space, meth, stat);
+	    declareMethods (space, meth, stat, this._what.str);
 	    auto obj = new ObjectCstInfo (this._what, str);
 	    obj.setStatic (stat);
 	    obj.setMethods (meth);
@@ -96,63 +96,67 @@ class Impl : Declaration {
     }
     
     
-    private void declareMethods (Namespace space, ref Array!MethodInfo meth, ref Array!FunctionInfo stat) {
+    private void declareMethods (Namespace space, ref Array!MethodInfo meth, ref Array!FunctionInfo stat, string imut) {
 	ulong i =  0;
 	foreach (it ; this._methods) {
 	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
-		auto m = declareMeth (space, it);
+		auto m = declareMeth (space, it, imut);
 		if (this._herit.length > i && this._herit [i] == true) m.isOverride = true;
 		meth.insertBack (m);
 	    } else {
-		stat.insertBack (declareStat (space, it));
+		stat.insertBack (declareStat (space, it, imut));
 	    }
 	    i++;
 	}
     }
 
-    private void declareMethodsAsExtern (Namespace space, ref Array!MethodInfo meth, ref Array!FunctionInfo stat) {
+    private void declareMethodsAsExtern (Namespace space, ref Array!MethodInfo meth, ref Array!FunctionInfo stat, string imut) {
 	foreach (it ; this._methods) {
 	    if (it.params.length >= 1 && it.params [0].token.str == Keys.SELF.descr) {
-		meth.insertBack (declareMethAsExtern (space, it));
+		meth.insertBack (declareMethAsExtern (space, it, imut));
 	    } else {
-		stat.insertBack (declareStatAsExtern (space, it));
+		stat.insertBack (declareStatAsExtern (space, it, imut));
 	    }
 	}
     }
     
-    private MethodInfo declareMeth (Namespace space, Function fun) {
+    private MethodInfo declareMeth (Namespace space, Function fun, string imut) {
 	import semantic.pack.PureFrame;
 	auto name = Word (this._what.locus, this._what.str, false);
 	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
 	auto fr = fun.verifyPure (space);
 	if (fr is null)
 	    throw new ImplMethodNotPure (fun.ident);
+	fr.setImutSpace = imut;
 	return new MethodInfo (space, fun.ident.str, fr);
     }
 
-    private FunctionInfo declareStat (Namespace space, Function fun) {
+    private FunctionInfo declareStat (Namespace space, Function fun, string imut) {
 	Frame fr = fun.verifyPure (space);
 	auto retFun = new FunctionInfo (space, fun.ident.str);
 	retFun.alone = true;
 	retFun.set (fr);
+	fr.setImutSpace = imut;
 	return retFun;
     }
 
-    private MethodInfo declareMethAsExtern (Namespace space, Function fun) {
+    private MethodInfo declareMethAsExtern (Namespace space, Function fun, string imut) {
 	import semantic.pack.PureFrame;
 	auto name = Word (this._what.locus, this._what.str, false);
 	fun.params [0] = new TypedVar (fun.params [0].token, new Var (name));
 	auto fr = fun.verifyPureAsExtern (space);
 	if (fr is null)
 	    throw new ImplMethodNotPure (fun.ident);
+	fr.setImutSpace = imut;
 	return new MethodInfo (space, fun.ident.str, fr);
     }
 
-    private FunctionInfo declareStatAsExtern (Namespace space, Function fun) {
+    private FunctionInfo declareStatAsExtern (Namespace space, Function fun, string imut) {
 	Frame fr = fun.verifyPureAsExtern (space);
 	auto retFun = new FunctionInfo (space, fun.ident.str);
 	retFun.alone = true;
 	retFun.set (fr);
+	fr.setImutSpace = imut;
 	return retFun;
     }
 

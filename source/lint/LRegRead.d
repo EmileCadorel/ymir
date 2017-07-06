@@ -38,8 +38,11 @@ class LRegRead : LExp {
     }
     
     override string toString () {
-	return this._data.toString () ~ "["
-	    ~ this._beginStatic.toString () ~ ":" ~ this._size.simple ~ "]";
+	import std.format;
+	if (this._data) 
+	    return format ("%s[%s:%s]", this._data.toString, this._beginStatic.toString, this._size.simple);
+	else
+	    return format ("null[%s:%s]", this._beginStatic.toString, this._size.simple);	
     }
     
 }

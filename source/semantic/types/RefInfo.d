@@ -119,10 +119,19 @@ class RefInfo : InfoType {
      var = l'attribut demandé.
      Returns: le type résultat ou null.
     */
-    override InfoType DotOp (Var var) {	
-	return addUnref (this._content.DotOp (var));
+    override InfoType DotOp (Var var) {
+	if (var.token.str == "data") {
+	    return Unref ();
+	} else 
+	    return addUnref (this._content.DotOp (var));
     }
 
+    private InfoType Unref () {
+	auto ret = addUnref (this._content.clone ());
+	ret.lintInst = &RefUtils.InstUnref;
+	return ret;
+    }
+    
     override InfoType DotExpOp (Expression elem) {
 	return addUnref (this._content.DotExpOp (elem));
     }
