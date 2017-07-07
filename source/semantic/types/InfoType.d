@@ -1,23 +1,18 @@
 module semantic.types.InfoType;
 import syntax.Word, ast.Expression, utils.YmirException;
 import std.outbuffer, utils.exception;
-import semantic.types.BoolInfo;
-import semantic.types.CharInfo, semantic.types.StringInfo;
-import semantic.types.FloatInfo, utils.exception;
-import lint.LInstList, std.container;
-import semantic.pack.UnPureFrame, ast.ParamList;
-import ast.Var, semantic.types.VoidInfo, semantic.types.PtrInfo;
-import semantic.types.PtrFuncInfo;
-import semantic.types.ArrayInfo, lint.LSize, semantic.types.RefInfo;
-import semantic.types.DecimalInfo, semantic.types.StructInfo;
-import semantic.types.RangeInfo;
-import semantic.types.TupleInfo;
+import utils.exception;
 import std.container;
-import semantic.pack.Symbol;
-import semantic.value.Value;
-public import semantic.value.all;
+import ast.ParamList;
+import ast.Var;
+import std.container;
+
+import semantic.pack._;
+import semantic.types._;
+import lint._;
+public import semantic.value._;
+
 public import semantic.pack.Namespace;
-import semantic.pack.Frame;
 
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
@@ -102,7 +97,6 @@ class InfoType {
 
     /** Liste des traitement unaire à appliquer à l'opérande de droite pour la transformer en lint*/
     private Array!(InstCompS) _lintInstSR;
-
     
     /** Fonction de transformation pour les opérateur multiple */
     private InstCompMult _lintInstMult = null;
@@ -439,22 +433,6 @@ class InfoType {
 	auto word = Word.eof;
 	word.str = name;
 	return this.DotOp (new Var (word));
-    }
-
-    /**
-     Surcharge de l'operateur de paramètre (traitement à appliquer quand on passe le type en paramètre).
-     Returns: le type résultat ou null.
-     */
-    InfoType ParamOp () {
-	return null;
-    }
-
-    /**
-     Surcharge de l'operateur de retour (traitement à appliquer quand on retourne le type).
-     Returns: le type résultat ou null.
-     */
-    InfoType ReturnOp () {
-	return null;
     }
 
     /**

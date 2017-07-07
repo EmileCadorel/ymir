@@ -33,7 +33,7 @@ def opBinary('+', T of [U], U) (a : T, b : T) : T {
     return c;        
 }
 
-def opAssign ("+=", T of [U], U) (ref a : T, b : T) : ref T {
+def opAssign ("+=", T of [U], U) (ref a : T, b : T) : ref T {   
     a = a + b;
     return a;
 }

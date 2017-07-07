@@ -1,5 +1,5 @@
 module semantic.value.CharValue;
-import semantic.value.all;
+import semantic.value._;
 import semantic.types.InfoType;
 import ast.Var;
 import ast.ParamList;

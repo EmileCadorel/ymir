@@ -1,4 +1,4 @@
-module semantic.value.all;
+module semantic.value._;
 
 public import semantic.value.Value;
 public import semantic.value.StringValue;

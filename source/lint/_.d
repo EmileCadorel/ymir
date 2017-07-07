@@ -1,4 +1,4 @@
-module lint.all;
+module lint._;
 
 public import lint.LAddr;
 public import lint.LAlloc;
@@ -29,3 +29,4 @@ public import lint.LUnop;
 public import lint.LUnref;
 public import lint.LVisitor;
 public import lint.LWrite;
+

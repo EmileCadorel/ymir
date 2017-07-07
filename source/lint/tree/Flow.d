@@ -1,6 +1,6 @@
 module lint.tree.Flow;
 import std.container;
-import lint.all;
+import lint._;
 import std.stdio;
 
 class Flow {

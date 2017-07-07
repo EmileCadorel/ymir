@@ -345,7 +345,7 @@ class StructUtils {
 	auto leftExp = left.getFirst ();
 	auto size = cast (LRegRead) sizeInst.getFirst ();
 	inst += left;	
-	inst += new LRegRead (leftExp, size.begin, size.size);
+	inst += new LBinop (leftExp, size.begin, Tokens.PLUS, size.size);
 	return inst;
     }
 

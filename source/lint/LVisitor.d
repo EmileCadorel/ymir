@@ -1,27 +1,15 @@
 module lint.LVisitor;
-import semantic.pack.FrameTable, semantic.pack.Frame;
-import lint.LFrame, lint.LInstList, lint.LLabel, lint.LReg;
-import semantic.types.VoidInfo, lint.LSize;
-import semantic.types.UndefInfo;
-import lint.LConst, lint.LRegRead, lint.LJump;
-import semantic.pack.Symbol, lint.LGoto, lint.LWrite, lint.LCall;
-import ast.all, std.container, std.conv, lint.LExp, lint.LSysCall;
-import semantic.types.StringUtils, lint.LLocus, semantic.types.ArrayInfo;
-import semantic.types.ArrayUtils, std.math, std.stdio, syntax.Keys;
-import lint.LBinop, syntax.Tokens, semantic.types.PtrFuncInfo;
-import semantic.types.InfoType;
-import lint.LAddr, syntax.Word;
-import semantic.types.RangeInfo, semantic.types.RangeUtils;
-import semantic.types.StructUtils, semantic.types.TupleInfo;
-import semantic.pack.FinalFrame;
-import lint.LInst;
+
+import lint._;
+import semantic.pack._;
+import semantic.types._;
+import semantic.value._;
+import syntax._;
+
+import ast.all, std.container, std.conv;
+import std.math, std.stdio;
 import std.array, std.typecons;
-import semantic.types.StructInfo;
-import semantic.types.ClassUtils;
-import semantic.value.all;
-import lint.LUnop, lint.LReserve;
 import utils.Mangler;
-import semantic.pack.Table;
 
 alias LPairLabel = Tuple! (LLabel, "vrai", LLabel, "faux");
 
@@ -128,14 +116,6 @@ class LVisitor {
 	foreach (it ; semFrame.vars) {
 	    auto ret = new LReg (it.info.id, it.info.type.size);
 	    args.insertBack (ret);
-	    auto compS = it.info.type.ParamOp ();
-	    if (compS) {
-		LInstList list;
-		if (compS.leftTreatment) {
-		    list = compS.leftTreatment (it.info.type, it, null);
-		} else list = new LInstList (ret);
-		entry.insts += compS.lintInst (list);
-	    }
 	}
 
 	if (semFrame.name == Keys.MAIN.descr)  {	    
@@ -439,17 +419,8 @@ class LVisitor {
     private LInstList visitReturn (ref LLabel end, ref LReg retReg, Return ret) {
 	LInstList list = new LInstList ();
 	if (ret.elem !is null) {
-	    LInstList rlist;
-	    if (ret.instComp !is null) {
-		if (ret.instComp.leftTreatment)
-		    rlist = ret.instComp.leftTreatment (ret.elem.info.type, ret.elem, null);
-		else rlist = visitExpression (ret.elem);
-		list += ret.instComp.lintInst (rlist);
-	    } else {
-		rlist = visitExpression (ret.elem);
-		list += rlist;
-	    }
-	    
+	    LInstList rlist = visitExpression (ret.elem);
+	    list += rlist;	    
 	    if (ret.instCast && !ret.instCast.isSame (ret.elem.info.type)) {		
 		for (long nb = ret.instCast.lintInstS.length - 1; nb >= 0; nb --) {
 		    list += ret.instCast.lintInst (list, nb);		
@@ -647,20 +618,38 @@ class LVisitor {
 	
 	auto left = visitExpression (crange.left);
 	auto right = visitExpression (crange.right);
-	
+
 	if (crange.lorr == 1) {
-	    left = crange.caster.lintInst (left);
-	} else if (crange.lorr == 2) {
-	    right = crange.caster.lintInst (right);
+	    for (long nb = crange.caster.lintInstS.length - 1 ; nb >= 0; nb --)
+		left = crange.caster.lintInst (left, nb);
+	    
+	    for (long nb = crange.caster.lintInstSR.length - 1 ; nb >= 0; nb --)
+		right = crange.caster.lintInstR (right, nb);
+	} else {
+	    for (long nb = crange.caster.lintInstS.length - 1 ; nb >= 0; nb --)
+		right = crange.caster.lintInst (right, nb);
+	    
+	    for (long nb = crange.caster.lintInstSR.length - 1 ; nb >= 0; nb --)
+		left = crange.caster.lintInstR (left, nb);	    
 	}
+
+	auto leftExp = left.getFirst ();
+	auto rightExp = right.getFirst ();
+	inst += left + right;
 	
-	auto regRead = new LRegRead (aux, new LConstDecimal (0, LSize.INT, LSize.LONG), type.content.size);
-	inst += crange.content.lintInst (new LInstList (regRead), left);
-	regRead = new LRegRead (aux, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
+	auto regReadL = new LRegRead (aux, new LConstDecimal (0, LSize.INT, LSize.LONG), type.content.size);
+
+	auto regReadR = new LRegRead (aux, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
 						 new LConstDecimal (1, LSize.INT, type.content.size), Tokens.PLUS),
 				type.content.size);
-	
-	inst += crange.content.lintInst (new LInstList (regRead), right);
+	if (crange.lorr == 1) {
+	    inst += new LWrite (regReadL, leftExp);
+	    inst += crange.caster.lintInst (new LInstList (regReadR), new LInstList (rightExp));
+	} else if (crange.lorr == 2) {
+	    inst += crange.caster.lintInst (new LInstList (regReadL), new LInstList (leftExp));
+	    inst += new LWrite (regReadR, rightExp);
+	}
+       
 	inst += aux;			      
 	return inst;
     }
@@ -845,15 +834,8 @@ class LVisitor {
 	    list += visitParamList (exprs, par.score.treat, par.paramList);
 	    if (par.score.dyn) {
 		if (par.dotCall) {
-		    auto leftTreat = par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
-		    
-		    auto left = new LInstList (exprs [0]);
-		    if (par.dotCall.info.type.lintInstS.length > 0) {
-			for (long nb = par.dotCall.info.type.lintInstS.length - 1; nb >= 0; nb --) {
-			    left = par.dotCall.info.type.lintInst (left, nb);
-			}
-		    }
-		    
+		    auto leftTreat = par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);		    
+		    auto left = new LInstList (exprs [0]);		    
 		    auto res = par.dotCall.info.type.lintInst (leftTreat, left);
 		    auto toCall = res.getFirst;
 		    list += res;
@@ -893,6 +875,9 @@ class LVisitor {
 
 	for (long nb = access.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = access.info.type.lintInst (left, nb); 
+
+	for (long nb = access.info.type.lintInstSR.length - 1; nb >= 0; nb --)
+	    exprs [0] = access.info.type.lintInstR (exprs [0], nb);
 	
 	inst += type.lintInst (left, exprs);
 	return inst;
@@ -912,8 +897,7 @@ class LVisitor {
 	    }
 	}
 
-	auto inst = dot.info.type.lintInst (exprs, left);
-	return inst;
+	return dot.info.type.lintInst (exprs, left);
     }
 
     private LInstList visitDColon (DColon dot) {

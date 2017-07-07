@@ -1,19 +1,13 @@
 module semantic.types.TupleUtils;
-import lint.LInstList, lint.LConst, lint.LRegRead;;
-import semantic.types.InfoType;
-import syntax.Word, lint.LReg;
-import syntax.Tokens, lint.LLabel, lint.LGoto, lint.LJump;
-import lint.LCast, lint.LSize;
-import lint.LCall, lint.LAddr, semantic.types.StructInfo;
-import semantic.types.TupleInfo;
-import semantic.types.ClassUtils;
-import semantic.types.StructUtils;
-import lint.LFrame, std.container;
-import lint.LWrite, lint.LExp;
-import semantic.pack.Namespace;
+import std.container;
+import syntax._;
+import lint._;
+import semantic.types._;
+import semantic.pack._;
+
 import ast.Expression, utils.Mangler;
-import ast.Constante, lint.LVisitor;
-import ast.Var, semantic.types.UndefInfo, lint.LSysCall;
+import ast.Constante;
+import ast.Var;
 
 class TupleUtils {
     
@@ -199,7 +193,7 @@ class TupleUtils {
 	auto leftExp = left.getFirst ();
 	auto size = cast (LRegRead) sizeInst.getFirst ();
 	inst += left;
-	inst += new LRegRead (leftExp, size.begin, size.size);
+	inst += new LBinop (leftExp, size.begin, Tokens.PLUS, size.size);
 	return inst;
     }
     

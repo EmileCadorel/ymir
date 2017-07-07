@@ -1,16 +1,13 @@
 module ast.Constante;
 import ast.Expression, std.stdio;
-import syntax.Word, semantic.pack.Symbol, syntax.Keys;
-import semantic.types.CharInfo, semantic.types.BoolInfo;
-import semantic.types.FloatInfo, semantic.types.StringInfo, semantic.types.PtrInfo;
+import syntax._;
+import semantic.types._;
+import semantic.value._;
+
 import std.stdio, std.string, utils.exception, std.conv;
-import std.math, std.container, semantic.types.InfoType;
-import semantic.types.ArrayInfo, semantic.types.VoidInfo;
-import semantic.types.DecimalInfo, semantic.types.UndefInfo;
+import std.math, std.container;
 import ast.Var;
-import semantic.types.NullInfo;
 import std.typecons;
-import semantic.value.all;
 
 struct DecType {
     string name;

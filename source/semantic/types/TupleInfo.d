@@ -1,13 +1,10 @@
 module semantic.types.TupleInfo;
-import semantic.types.InfoType, utils.exception;
+import utils.exception;
 import syntax.Word, ast.Expression, ast.Var;
-import semantic.types.VoidInfo;
-import semantic.types.UndefInfo, semantic.types.TupleUtils;
 import std.container;
 import syntax.Tokens;
-import semantic.types.StructUtils;
-import lint.LSize, semantic.types.ClassUtils;
-import semantic.types.StringInfo;
+import semantic.types._;
+import lint.LSize;
 import ast.ParamList;
 
 class TupleInfo : InfoType {
@@ -122,7 +119,7 @@ class TupleInfo : InfoType {
 	if (auto dec = cast (DecimalValue) right.info.value) {
 	    auto attr = dec.get!(ulong);
 	    if (attr < this._params.length) {
-		auto type = this._params [attr].clone ();
+		auto type = new RefInfo (this._params [attr].clone ());
 		type.toGet = attr;
 		type.lintInst = &TupleUtils.Attrib;
 		type.leftTreatment = &TupleUtils.GetAttrib;
@@ -172,17 +169,6 @@ class TupleInfo : InfoType {
 	return tu;
     }
 
-    override InfoType ParamOp () {
-	auto ret = this.clone ();
-	ret.lintInstS.insertBack (&ClassUtils.InstParam);
-	return ret;
-    }
-
-    override InfoType ReturnOp () {
-	auto ret = this.clone ();
-	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
-	return ret;
-    }    
 
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;

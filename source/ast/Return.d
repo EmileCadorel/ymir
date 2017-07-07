@@ -24,9 +24,6 @@ class Return : Instruction {
 
      /// L'information de cast du type à retourner (peut être null)
     private InfoType _instCast;
-
-    /// l'information de pre-traitement avant de retourner l'instruction (peut être null)
-    private InfoType _instComp; 
     
     this (Word word) {
 	super (word);
@@ -53,7 +50,7 @@ class Return : Instruction {
 	    aux._elem = this._elem.expression ();
 	    if (cast (VoidInfo) aux._elem.info.type)
 		throw new ReturnVoid (this._token, aux._elem.info);
-	    aux._instComp = aux._elem.info.type.ReturnOp ();
+
 	    if (cast(UndefInfo) (Table.instance.retInfo.info.type) !is null) {
 		Table.instance.retInfo.info.type = aux._elem.info.type.clone ();
 		if (!Table.instance.retInfo.changed) {		    
@@ -99,13 +96,6 @@ class Return : Instruction {
 	return this._elem;
     }
     
-    /**
-     Returns: le pre-traitement de l'instruction (peut-être null)
-     */
-    InfoType instComp () {
-	return this._instComp;
-    }
-
     /**
      Returns: le caster de l'expression (peut être null)
      */

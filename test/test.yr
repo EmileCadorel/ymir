@@ -1,81 +1,39 @@
 import std.conv;
 import std.array;
 
-struct E {
-    name : string
+struct Test {
+    a : Test2
 }
 
-impl E {
+impl Test {
 
-    def cst (self, name : string) {
-        self.name = name;
+    def new () {
+        return Test (Test2 ("salut"));
     }
+    
+    def test (self) {
+        self.a.foo ();
+        println ("def " + self.a.a);
+    }
+    
 
-    def toString (self, i : int) {
-        return "";
-    }
+}
+
+struct Test2 {
+    a : string
+}
+
+impl Test2 {
+
+    def foo (self) {
+        println (self.a);
+    }        
     
 }
 
-struct V {
-}
 
-impl E for V {
-
-    def new (name) {
-        let v = V ();
-        v.super.cst (name);
-        return v;
-    }
-
-    over toString (self, i : int) {
-        return self.to!string;
-    }
-    
-}
-
-struct Decl {
-    name : string
-}
-
-impl Decl {
-
-    def cst (self, name : string) {
-        self.name = name;
-    }
-    
-    def print (self) {
-    }
-    
-}
-
-struct F {
-    test : [V]
-}
-
-impl Decl for F {
-
-    def new (name) {
-        let f = F ([]);
-        f.super.cst (name);
-        return f;
-    }
-
-    def add (self, e : V) {
-        self.test.insertBack (e);
-    }
-
-    over print (self) {
-        println (self);
-    }
-}
 
 def main () {
-    let a = F::new ("test");
-    for it in 0 .. 10 {
-        let i = it.to!string;
-        let c = V::new (i); 
-       // a.add (c);
-    }
-    a.print ();
+    let t = Test::new ();
+    t.test ();
 }

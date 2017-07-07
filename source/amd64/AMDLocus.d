@@ -44,14 +44,16 @@ class AMDLocus : TInst {
     
     private Location _loc;
     private ulong _id;
+    private bool _valid;
 
     this (Location locus) {
 	this._loc = locus;
+	this._valid = false;
 	if (this._loc.file != "" && this._loc.file.extension == ".yr") {
-	    if ((locus.file in AMDFile.__locusFiles__) is null) 
-		auto fl = new AMDFile (locus.file);
-	    
-	    this._id = AMDFile.__locusFiles__ [locus.file];
+	    if ((locus.file in AMDFile.__locusFiles__) !is null) {
+		this._id = AMDFile.__locusFiles__ [locus.file];
+		this._valid = true;
+	    } 
 	}
     }
 
@@ -60,8 +62,8 @@ class AMDLocus : TInst {
     }
     
     override string toString () {
-	if (Options.instance.isOn (OptionEnum.DEBUG) && this._loc.file != "") {
-	    auto buf = new OutBuffer ();
+	if (Options.instance.isOn (OptionEnum.DEBUG) && this._valid) {
+	    auto buf = new OutBuffer ();	    
 	    buf.writef ("\t.loc\t%d %d %d", this._id, this._loc.line, 0);
 	    return buf.toString ();
 	}

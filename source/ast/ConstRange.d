@@ -81,23 +81,23 @@ class ConstRange : Expression {
 	auto aux = new ConstRange (this._token, this._left.expression, this._right.expression);
 	auto type = aux._left.info.type.CompOp (aux._right.info.type);
 	if (!cast (FloatInfo) type && !cast (DecimalInfo) type && !cast (CharInfo) type) {
-	    auto call = findOpRange (aux);
-	    if (!call)
-		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
-	    else {
-		//call.garbage ();
-		return call;
+	    type = aux._right.info.type.CompOp (aux._left.info.type);
+	    if (!cast (FloatInfo) type && !cast (DecimalInfo) type && !cast (CharInfo) type) {
+		auto call = findOpRange (aux);
+		if (!call)
+		    throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+		else {
+		    //call.garbage ();
+		    return call;
+		}
+	    } else {
+		aux._lorr = 2;
 	    }
-	}
-	
-	if (!type.isSame (aux._left.info.type)) {
+	} else {
 	    aux._lorr = 1;
-	    aux._caster = aux._left.info.type.CastTo (type);
-	} else if (!type.isSame (aux._right.info.type)) {
-	    aux._lorr = 2;
-	    aux._caster = aux._right.info.type.CastTo (type);
 	}
 	
+	aux._caster = type;		
 	aux._content = type;
 	aux._info = new Symbol (aux._token, new RangeInfo (type), true);
 	if (aux._left.info.isImmutable && aux._right.info.isImmutable) {
