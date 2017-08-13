@@ -703,6 +703,25 @@ class StructInfo : InfoType {
 	return false;
     }    
     
+    /**
+     Traitement à appliquer quand on passe le structure en paramètre.
+     Returns: le type contenant le traitement.
+     */
+    override InfoType ParamOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstParam);
+	return ret;
+    }
+
+    /**
+     Traitement à appliquer quand on retourne la structure
+     Returns: le type contenant le traitement.
+     */
+    override InfoType ReturnOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
+	return ret;
+    }    
 
     /**
      Valeur d'init d'une structure
@@ -784,7 +803,6 @@ class StructInfo : InfoType {
 	    type = _cst.create (word);
 	}
 
-	type = new RefInfo (type);
 	type.toGet = nb;
 	if (this._ancestor) {
 	    type.toGet += this._ancestor.getNbAttrib;

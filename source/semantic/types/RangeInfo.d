@@ -316,6 +316,24 @@ class RangeInfo : InfoType {
     }
 
     /**
+     Returns: le traitement à éffectuer en début de fonction pour le paramètre de type range.
+     */
+    override InfoType ParamOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstParam);
+	return ret;
+    }
+
+    /**
+     Returns: le traitment à éffectuer pour l'operateur de retour sur le type range.
+     */
+    override InfoType ReturnOp () {
+	auto ret = this.clone ();
+	ret.lintInstS.insertBack (&ClassUtils.InstReturn);
+	return ret;
+    }
+
+    /**
      Surcharge de l'operateur de cast automatique.
      Params:
      other = le type vers lequel on veut caster.

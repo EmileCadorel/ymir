@@ -298,6 +298,26 @@ class StringInfo : InfoType {
     }
 
     /**
+     Traitement à appliquer quand on passe le string en paramètre.
+     Returns: le type contenant le traitement.
+     */
+    override InfoType ParamOp () {
+	auto str = new StringInfo ();
+	str.lintInstS.insertBack (&ClassUtils.InstParam);
+	return str;
+    }
+
+    /**
+     Traitement à appliquer quand on retourne le string .
+     Returns: le type contenant le traitement.
+     */
+    override InfoType ReturnOp () {
+	auto str = new StringInfo ();
+	str.lintInstS.insertBack (&ClassUtils.InstReturn);
+	return str;
+    }
+
+    /**
      Le taille de la chaine.
      Returns: un type long.
      */

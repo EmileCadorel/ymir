@@ -1,21 +1,29 @@
 module semantic.pack.TemplateFrame;
-import ast.Function;
-import ast.ParamList;
+import semantic.types.InfoType;
+import ast.Function, semantic.pack.Table;
+import ast.ParamList, semantic.pack.Frame;
 import std.container, ast.Var, std.conv;
-
-import semantic.pack._;
-import semantic.types._;
-import syntax._;   
+import semantic.pack.Table, semantic.pack.Symbol;
+import semantic.types.UndefInfo, semantic.types.VoidInfo;
+import semantic.pack.FrameTable, syntax.Word, syntax.Keys;
+import semantic.pack.FrameProto;
+import semantic.pack.FinalFrame;
+import semantic.types.TupleInfo;
 import std.stdio, std.array;
-
+import semantic.types.FunctionInfo, semantic.types.StructInfo;
 import ast.Expression;
 import ast.FuncPtr;
 import ast.ConstArray;
-
+import semantic.types.RefInfo;
+import semantic.pack.UnPureFrame;
+import semantic.pack.PureFrame;
+import semantic.pack.ExternFrame;
+import semantic.pack.TemplateSolver;
 import ast.Constante;
 import ast.Binary;
 import utils.exception;
 import ast.OfVar;
+
 
 /**
  Cette classe est une instance de frame template
@@ -232,7 +240,7 @@ class TemplateFrame : Frame {
     }
 
     override Frame TempOp (Array!Expression params) {
-    	import semantic.value._;
+    	import semantic.value.all;
     	this._currentScore = 0;
     	if (params.length > this._function.tmps.length)
     	    return null;

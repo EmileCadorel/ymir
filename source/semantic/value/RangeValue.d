@@ -1,13 +1,20 @@
 module semantic.value.RangeValue;
-import ast.ConstRange;
+import semantic.value.Value;
+import semantic.types.InfoType;
+import semantic.types.RangeInfo;
 import ast.Var;
 import ast.ParamList;
 import syntax.Tokens;
-import lint._;
-import semantic.value._;
-import semantic.types._;
+import lint.LInstList;
+import semantic.value.all;
 import std.container;
 import std.conv, std.stdio;
+
+import lint.LConst, lint.LRegRead, lint.LCall;
+import lint.LFrame, lint.LWrite, ast.ConstRange;	
+import semantic.types.RangeUtils, lint.LExp;
+import lint.LBinop, ast.Binary;
+import lint.LReg, lint.LSize, lint.LVisitor;
 
 class RangeValue : Value {
 

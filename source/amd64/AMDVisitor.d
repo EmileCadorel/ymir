@@ -5,7 +5,6 @@ import amd64.AMDMove, amd64.AMDBinop;
 import syntax.Tokens, amd64.AMDSize, amd64.AMDFrame, std.conv;
 import amd64.AMDObj, amd64.AMDSysCall, amd64.AMDJumps;
 import amd64.AMDCast, amd64.AMDCall, amd64.AMDUnop, amd64.AMDLeaq;
-import amd64.AMDRodata;
 import std.math, amd64.AMDLocus, amd64.AMDCvtt;
 import std.stdio, lint.LSize, utils.exception;
 

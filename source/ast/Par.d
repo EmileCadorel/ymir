@@ -84,10 +84,17 @@ class Par : Expression {
 		    aux._dotCall = dcall;
 		}
 
+		writeln ("ICI ", aux._left.info.type.typeString);
 		auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
+
 		if (type is null) {		
 		    auto call = !dotCall && !this._opCall ? findOpCall (aux) : null;
-		    if (!call) {			
+		    if (!call) {
+			writeln ("[");
+			foreach (it ; aux._params.params []) 
+			    writeln ("\t", it.info.type.typeString, " ", it.prettyPrint);
+			writeln ("]");
+			
 			if (this._end.locus.line != this._token.locus.line || this._end.locus.column == this._token.locus.column)
 			    throw new UndefinedOp (this._token, aux._left.info, aux._params);
 			throw new UndefinedOp (this._token, this._end, aux._left.info, aux._params);

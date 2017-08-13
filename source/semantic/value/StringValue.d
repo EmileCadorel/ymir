@@ -1,10 +1,11 @@
 module semantic.value.StringValue;
-import semantic.value._;
+import semantic.value.Value;
 import semantic.types.InfoType;
 import ast.Var;
 import ast.ParamList;
 import syntax.Tokens;
 import lint.LInstList;
+import semantic.value.all;
 import std.container, std.bigint;
 import std.conv;
 

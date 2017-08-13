@@ -98,7 +98,7 @@ class RefInfo : InfoType {
 	if (aux !is null) {
 	    return addUnrefRight (aux);
 	} else {
-	    return addUnrefRight (left.info.type.BinaryOp (token, this._content));
+	    return addUnref (left.info.type.BinaryOp (token, this._content));
 	}
     }
 
@@ -207,7 +207,7 @@ class RefInfo : InfoType {
 
     
     
-    InfoType addUnref (InfoType aux) {
+    private InfoType addUnref (InfoType aux) {
 	if (aux !is null) {
 	    if (this._content.size == LSize.BYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
 	    else if (this._content.size == LSize.UBYTE)  aux.lintInstS.insertBack (&RefUtils.InstUnrefS!(LSize.UBYTE));
@@ -223,7 +223,7 @@ class RefInfo : InfoType {
 	return aux;
     }
 
-    InfoType addUnrefRight (InfoType aux) {
+    private InfoType addUnrefRight (InfoType aux) {
 	if (aux) {
 	    if (this._content.size == LSize.BYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
 	    else if (this._content.size == LSize.UBYTE)  aux.lintInstSR.insertBack (&RefUtils.InstUnrefS!(LSize.BYTE));
@@ -238,6 +238,7 @@ class RefInfo : InfoType {
 	}
 	return aux;	    
     }
+
     
     /**
      Returns: le nom du type.
