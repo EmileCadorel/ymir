@@ -6,7 +6,7 @@ __dummy.html
 *.o
 *.yb
 *.obj
-ymir
+ymrc
 *.s
 a.out
 genDoc/generate

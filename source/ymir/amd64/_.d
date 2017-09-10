@@ -1,0 +1,22 @@
+module ymir.amd64._;
+
+public import ymir.amd64.AMDBinop;
+public import ymir.amd64.AMDCall;
+public import ymir.amd64.AMDCast;
+public import ymir.amd64.AMDConst;
+public import ymir.amd64.AMDCvtt;
+public import ymir.amd64.AMDFrame;
+public import ymir.amd64.AMDJumps;
+public import ymir.amd64.AMDLabel;
+public import ymir.amd64.AMDLeaq;
+public import ymir.amd64.AMDLocus;
+public import ymir.amd64.AMDMove;
+public import ymir.amd64.AMDObj;
+public import ymir.amd64.AMDReg;
+public import ymir.amd64.AMDRodata;
+public import ymir.amd64.AMDSet;
+public import ymir.amd64.AMDSize;
+public import ymir.amd64.AMDStd;
+public import ymir.amd64.AMDSysCall;
+public import ymir.amd64.AMDUnop;
+public import ymir.amd64.AMDVisitor;

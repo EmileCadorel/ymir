@@ -1,19 +1,11 @@
-import std.stdio, utils.YmirException;
-import syntax.Visitor, semantic.pack.FrameTable;
-import target.TFrame;
-import std.outbuffer, lint.LVisitor, lint.LFrame;
-import std.container, amd64.AMDVisitor, std.path;
-import syntax.Lexer, target.TRodata, std.process;
-import std.algorithm, syntax.Word;
-import utils.Options, std.file, utils.Mangler;
-import semantic.pack.Table;
-import semantic.pack.Frame;
-import semantic.types.ArrayUtils;
-import semantic.types.StringUtils;
-import semantic.types.ClassUtils;
-import semantic.types.RangeUtils;
-import semantic.types.StructUtils;
-import semantic.types.StructInfo;
+import std.stdio;
+import ymir._;
+
+import std.outbuffer, std.file;
+import std.container, std.path;
+import std.algorithm;
+import std.process;
+
 
 void semanticTime (string file) {
     debug writeln ("COMPILING ", file);
@@ -63,7 +55,6 @@ Array!LFrame lintTime () {
 }
 
 Array!TFrame targetTime (Array!LFrame frames) {
-    import amd64.AMDLocus;
     AMDFile.reset ();
     return new AMDVisitor ().target (frames);    
 }
