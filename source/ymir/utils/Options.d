@@ -35,7 +35,8 @@ enum OptionEnum : Option {
 	/** Surcharge la variable d'envirronement YS_HOME */
     YS_PATH = Option ("ys_path", "--YS_PATH", "--YS_PATH", 1, "Spécifie l'emplacement de l'envirronnement de Ymir"),
 	/** On compile la std*/
-    STD_COMPILATION = Option ("std_compil", "--std", "--std", 0, "Ajoute les fonctions précompilé du langage à la solution")
+       STD_COMPILATION = Option ("std_compil", "--std", "--std", 0, "Ajoute les fonctions précompilé du langage à la solution"),
+       LINT = Option ("lint", "-l", "--lint", 1, "choisis le langage intermidiaire utilisé")
 }
 
 /**

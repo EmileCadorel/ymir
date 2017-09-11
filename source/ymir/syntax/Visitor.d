@@ -171,7 +171,7 @@ class Visitor {
 	Word what = Word.eof;
 	auto next = this._lex.next (Keys.FOR, Tokens.LACC);
 	
-	if (next == Keys.FOR) {
+	if (next == Keys.FROM) {
 	    what = visitIdentifiant ();	
 	    this._lex.next (Tokens.LACC);
 	}
@@ -195,7 +195,7 @@ class Visitor {
 	if (what.isEof) 
 	    return new Impl (ident, methods);
 	else
-	    return new Impl (ident, what, methods, herit);
+	    return new Impl (what, ident, methods, herit);
     }
 
     private Function visitFunctionImpl () {

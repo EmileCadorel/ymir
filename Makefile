@@ -19,7 +19,7 @@ clean:
 	rm test/*.s
 
 install: final
-	cp ymir ${HOME}/libs/ymir
+	cp ymrc ${HOME}/libs/ymir
 	./std/install.sh
 
 

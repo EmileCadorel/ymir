@@ -24,7 +24,6 @@ class LVisitor {
 	createAssert ();
     }
     
-
     static void createAssert () {
 	auto last = LReg.lastId;
 	LReg.lastId = 0;

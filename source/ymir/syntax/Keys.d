@@ -53,5 +53,6 @@ enum Keys  {
     TRAIT = Token ("trait", 58),
     IMPL = Token ("impl", 59),
     TUPLE = Token ("tuple", 60),
-    OVER = Token ("over", 61)
+    OVER = Token ("over", 61),
+    FROM = Token ("from", 62)
 }

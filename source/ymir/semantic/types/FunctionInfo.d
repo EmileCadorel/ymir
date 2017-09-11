@@ -205,9 +205,7 @@ class FunctionInfo : InfoType {
 		info = right.toValidate.validate (right, right.treat);
 		right.name = Mangler.mangle!"functionv" (info.name, info);
 	    } else {
-		writeln (goods [0].namespace, ".", goods [0].func.name);
 		info = goods [0].validate (right, right.treat);
-		writeln (info.name);
 		right.name = Mangler.mangle!"function" (info.name, info);
 	    }
 	    

@@ -6,6 +6,7 @@ import ymir.ast._;
 
 import std.outbuffer;
 import std.container;
+import std.format;
 
 /**
  La variable est de type indéfinis mais est utilisé.
@@ -1170,4 +1171,23 @@ class OverrideNotPure : YmirException {
 	msg = buf.toString;
     }    
     
+}
+
+
+class UnknownTarget : YmirException {
+    this (string op) {
+	msg = format ("%sErreur%s: %s n'est pas une cible valide",
+		      Colors.RED.value, Colors.RESET.value,
+		      op
+	);	
+    }   
+}
+
+class UnknownLint : YmirException {
+    this (string op) {
+	msg = format ("%sErreur%s: %s n'est pas un langage intermediaire valide",
+		      Colors.RED.value, Colors.RESET.value,
+		      op
+	);	
+    }   
 }

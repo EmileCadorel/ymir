@@ -6,6 +6,12 @@ import std.container;
 
 abstract class TVisitor {
 
+    public abstract void toFile (Array!TFrame frames, string filename);
+
+    public abstract void finalize (string [] files);
+
+    public abstract string extension ();
+    
     public final Array!TFrame target (Array!LFrame frames) {
 	Array!TFrame ret;
 	foreach (it ; frames) {

@@ -3,14 +3,72 @@ import ymir.target._;
 import ymir.amd64._;
 import ymir.lint._;
 import ymir.syntax._;
-import ymir.utils.exception;
+import ymir.utils._;
 import std.conv, std.stdio, std.math;
+
+import std.outbuffer, std.file;
+import std.container, std.path;
+import std.algorithm;
+import std.process;
 
 
 class AMDVisitor : TVisitor {
 
     private int max (int a, int b) {
 	return (abs (a) > abs (b)) ? a : b;
+    }
+
+    override public void toFile (Array!TFrame frames, string filename) {
+	    auto file = File (filename, "w");
+	    file.write ("\t.section .rodata\n");
+	    foreach (it ; TRodata.insts.inst) {
+		file.write (it);
+	    }
+    
+	    file.write ("\t.text\n");
+	    foreach (it ; frames) {
+		file.write (it.toString ());
+	    }
+
+	    file.write ("\t.data\n");
+	    foreach (it ; TData.insts.inst) {
+		file.write (it.toString ());
+	    }
+    }
+
+    override public void finalize (string [] outFiles) {
+	string [] options;
+	if (Options.instance.isOn (OptionEnum.DEBUG))
+	    options ~= ["-g"];
+	if (Options.instance.isOn (OptionEnum.ASSEMBLE))
+	    options ~= ["-c"];
+
+	if (Options.instance.isOn (OptionEnum.TARGET))
+	    options ~= ["-o", Options.instance.getOption (OptionEnum.TARGET)];
+	
+	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
+	    auto pid = spawnProcess (["gcc"] ~				     
+				     options ~
+				     outFiles ~
+				     Options.instance.libs ~
+				     ["-lm"] ~
+				     Options.instance.links
+				     
+	    );
+	    if (wait (pid) != 0) assert ("Compilation raté");	
+	}
+	
+	bool del = true;
+	if (!Options.instance.isOn (OptionEnum.COMPILE)) {
+	    debug del = false;
+	    if (del) {
+		foreach (it ; outFiles) std.file.remove (it);		
+	    }
+	}
+    }
+
+    override public string extension () {
+	return ".s";
     }
     
     override protected TFrame visit (LFrame frame) {
