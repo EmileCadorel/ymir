@@ -1,5 +1,6 @@
 module ymir.semantic.types.InfoType;
 import ymir.semantic._;
+import ymir.semantic.types.Creators;
 import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
@@ -89,7 +90,6 @@ class InfoType {
 
     /** Liste des traitement unaire à appliquer à l'opérande de droite pour la transformer en lint*/
     private Array!(InstCompS) _lintInstSR;
-
     
     /** Fonction de transformation pour les opérateur multiple */
     private InstCompMult _lintInstMult = null;
@@ -115,33 +115,8 @@ class InfoType {
     */
     protected Value _value;
     
-    /** La liste des types que l'on peut créé grâce à leurs nom */
-    static InfoType function (Word, Expression[]) [string] creators;
-
     static InfoType [string] alias_;
-    
-    static this () {
-	creators = ["int" : &DecimalInfo.create,
-		    "uint" : &DecimalInfo.create,
-		    "short" : &DecimalInfo.create,
-		    "ushort" : &DecimalInfo.create,
-		    "byte" : &DecimalInfo.create,
-		    "ubyte" : &DecimalInfo.create,
-		    "long" : &DecimalInfo.create,
-		    "ulong" : &DecimalInfo.create,
-		    "bool" : &BoolInfo.create,
-		    "string" : &StringInfo.create,
-		    "float" : &FloatInfo.create,
-		    "char" : &CharInfo.create,
-		    "void" : &VoidInfo.create,
-		    "p" : &PtrInfo.create,
-		    "array" : &ArrayInfo.create,
-		    "fn" : &PtrFuncInfo.create,
-		    "ref" : &RefInfo.create,
-		    "r" : &RangeInfo.create,
-		    "t" : &TupleInfo.create];
-    }    
-    
+        
     /**
      Créé une instance de type, en fonction de son nom et de ses templates.
      Params:
@@ -151,7 +126,7 @@ class InfoType {
      Throws: UndefinedType.
      */
     static InfoType factory (Word word, Expression [] templates) {
-	auto it = (word.str in creators);
+	auto it = (word.str in CREATORS.elems);
 	if (it !is null) {
 	    return (*it) (word, templates);
 	}
@@ -184,7 +159,7 @@ class InfoType {
      Throws: Assert, si le nom existe déjà.
      */
     static void addCreator (string name) {
-	creators [name] = &StructCstInfo.create;
+	CREATORS.elems [name] = &StructCstInfo.create;
     }
 
     /**
@@ -200,7 +175,7 @@ class InfoType {
      name = le nom du créateur.
      */
     static void removeCreator (string name) {
-	creators.remove (name);
+	CREATORS.elems.remove (name);
     }
 
     /**
@@ -211,15 +186,14 @@ class InfoType {
     static void removeAlias (string name) {
 	alias_.remove (name);
     }
-
     
     /**
      Params:
      name = un nom de type
      Returns: le type x existe ?
      */
-    static bool exist (string name) {	
-	return (name in creators) || (name in alias_);
+    static bool exist (string name) {
+	return (name in CREATORS.elems) || (name in alias_);
     }
     
    

@@ -3,6 +3,8 @@ import ymir.semantic._;
 import ymir.ast._;
 import ymir.syntax._;
 import ymir.lint._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.conv, std.stdio;
 
@@ -83,11 +85,17 @@ class CharValue : Value {
     override Value DotOp (Var attr){ return null; }
        
     override LInstList toLint (Symbol) {
-	return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
+	if (COMPILER.isToLint) 
+	    return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
+	else
+	    return new DChar (this._value);
     }       
 
     override LInstList toLint (Symbol, InfoType) {
-	return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
+	if (COMPILER.isToLint) 
+	    return new LInstList (new LConstDecimal (this._value.to!long, LSize.BYTE));
+	else
+	    return new DChar (this._value);
     }       
 
     

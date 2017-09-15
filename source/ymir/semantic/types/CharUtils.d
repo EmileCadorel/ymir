@@ -4,7 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
-
+import ymir.compiler.Compiler;
+import ymir.dtarget._;
 /**
  Cette classe regroupe toutes les fonctions nécéssaire à la transformation du type char en lint.
 */
@@ -18,11 +19,16 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LWrite (leftExp, rightExp));
-	return inst;
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LWrite (leftExp, rightExp));
+	    return inst;
+	} else {
+	    auto lexp = cast (DExpression) llist, rexp = cast (DExpression) rlist;
+	    return new DBinary (lexp, rexp, Tokens.EQUAL);
+	}
     }
 
     /**
@@ -34,11 +40,15 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstOp (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, rightExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, rightExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, op);
+	}
     }
 
     /**
@@ -50,11 +60,15 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstOpInt (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DCast (new DType (Dlang.CHAR), cast (DExpression) rlist), op);
+	}
     }
 
     /**
@@ -66,11 +80,15 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstOpIntRight (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, LSize.BYTE), rightExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (new LCast (leftExp, LSize.BYTE), rightExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (new DCast (new DType (Dlang.CHAR), cast (DExpression) llist),cast (DExpression) rlist, op);
+	}
     }
 
     
@@ -87,11 +105,17 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstOpAff (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, rightExp, leftExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, rightExp, leftExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist,
+				new DBinary (cast (DExpression) llist, cast (DExpression) rlist, op),
+				Tokens.EQUAL);
+	}
     }
 
 
@@ -108,11 +132,19 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList InstOpAffInt (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), leftExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, new LCast (rightExp, LSize.BYTE), leftExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist,
+				new DBinary (cast (DExpression) llist,
+					     new DCast (new DType (Dlang.CHAR), cast (DExpression) rlist)
+					     , op),
+				Tokens.EQUAL);
+	}
     }
 
 
@@ -125,11 +157,15 @@ class CharUtils {
      Returns: la liste d'instruction lint.     
      */
     static LInstList InstOpTest (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, rightExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, rightExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, op);
+	}
     }
 
     /**
@@ -141,11 +177,17 @@ class CharUtils {
      Returns: la liste d'instruction lint.     
      */
     static LInstList InstOpTestInt (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (new LCast (leftExp, LSize.INT), rightExp, op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (new LCast (leftExp, LSize.INT), rightExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist,
+				new DCast (new DType (Dlang.CHAR), cast (DExpression) rlist)
+				, op);
+	}
     }
     
     /**
@@ -157,11 +199,17 @@ class CharUtils {
      Returns: la liste d'instruction lint.     
      */
     static LInstList InstOpTestIntRight (Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LBinop (leftExp, new LCast (rightExp, LSize.INT), op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LBinop (leftExp, new LCast (rightExp, LSize.INT), op));
+	    return inst;
+	} else {
+	    return new DBinary (new DCast (new DType (Dlang.CHAR), cast (DExpression) llist)
+				, cast (DExpression) rlist
+				, op);
+	}
     }
 
     
@@ -170,9 +218,13 @@ class CharUtils {
      Returns: la liste d'instruction lint.
      */
     static LInstList CharInit (LInstList, LInstList) {
-	auto inst = new LInstList;
-	inst += new LConstDecimal (0, LSize.BYTE);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    inst += new LConstDecimal (0, LSize.BYTE);
+	    return inst;
+	} else {
+	    return new DChar ('\0');
+	}
     }
 
     /**
@@ -180,18 +232,26 @@ class CharUtils {
      Returns: la liste d'instruction lint.
     */    
     static LInstList CharSizeOf (LInstList, LInstList) {
-	auto inst = new LInstList;
-	inst += new LConstDecimal (1, LSize.UBYTE, CharInfo.sizeOf);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    inst += new LConstDecimal (1, LSize.UBYTE, CharInfo.sizeOf);
+	    return inst;
+	} else {
+	    return new DDecimal (LSize.UBYTE);
+	}
     }
     
 
     static LInstList InstCast (DecimalConst size) (LInstList llist) {
-	auto inst = new LInstList;
-	auto left = llist.getFirst;
-	inst += llist;
-	inst += new LCast (left, fromDecimalConst (size));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto left = llist.getFirst;
+	    inst += llist;
+	    inst += new LCast (left, fromDecimalConst (size));
+	    return inst;
+	} else {
+	    return new DCast (new DType (fromDecimalConst (size)), cast (DExpression) llist);
+	}
     }
     
 

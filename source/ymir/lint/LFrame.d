@@ -23,6 +23,8 @@ class LFrame {
 
     
     static LFrame[ulong] __table__;
+
+    protected this () {}
     
     this (ulong number, string name, string unmangle) {
 	this._name = name;

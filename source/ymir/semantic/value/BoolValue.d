@@ -3,8 +3,8 @@ import ymir.semantic._;
 import ymir.ast._;
 import ymir.syntax._;
 import ymir.lint._;
-
-
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 class BoolValue : Value {
 
@@ -45,9 +45,13 @@ class BoolValue : Value {
     override Value DotOp (Var attr){ return null; }
        
     override LInstList toLint (Symbol sym) {
-	if (this._value)
-	    return new LInstList (new LConstDecimal (true, LSize.BYTE));
-	else return new LInstList (new LConstDecimal (false, LSize.BYTE));
+	if (COMPILER.isToLint) {
+	    if (this._value)
+		return new LInstList (new LConstDecimal (true, LSize.BYTE));
+	    else return new LInstList (new LConstDecimal (false, LSize.BYTE));
+	} else {
+	    return new DBool (this._value);
+	}
     }       
 
     bool isTrue () {

@@ -29,6 +29,10 @@ class EnumCstInfo : InfoType {
 	this._type = type;
     }
 
+    string name () {
+	return this._name;
+    }
+    
     ref Array!Expression values () {
 	return this._values;
     }
@@ -129,6 +133,10 @@ class EnumInfo : InfoType {
 	this._content = content;
     }
 
+    string name () {
+	return this._name;
+    }    
+    
     override InfoType BinaryOp (Word token, Expression right) {
 	InfoType aux;
 	if (auto type = cast (EnumInfo) right.info.type) {

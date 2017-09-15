@@ -68,7 +68,6 @@ class Cast : Expression {
     override Expression clone () {
 	return new Cast (this._token, this._type.clone (), this._expr.clone ());
     }
-
     
     /**
      Returns: Le contenu de l'expression

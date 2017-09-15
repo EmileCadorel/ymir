@@ -2,6 +2,8 @@ module ymir.semantic.types.ArrayUtils;
 import ymir.semantic._;
 import ymir.syntax._;
 import ymir.lint._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 import ymir.utils._;
 import ymir.ast._;
 
@@ -19,12 +21,21 @@ class ArrayUtils {
      Affect un tableau (qui n'a pas encore été affecté) à null, .
      Returns: les instructions du lint.
      */
-    static LInstList InstAffectNullRight (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
-	return inst;
+    static LInstList InstAffectNullRight (LInstList llist, LInstList) {
+	LInstList InstAffectNullRightLint (LInstList llist) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
+	    return inst;
+	}
+
+	DExpression InstAffectNullRightD (DExpression left) {
+	    return new DBinary (left, new DNull (), Tokens.EQUAL);
+	}
+	
+	if (COMPILER.isToLint) return InstAffectNullRightLint (llist);
+	else return InstAffectNullRightD (cast (DExpression) llist);
     }
 
     /** 
@@ -34,10 +45,7 @@ class ArrayUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstDestruct (LInstList llist) {
-	auto expr = llist.getFirst ();
-	auto inst = new LInstList;
-	inst += llist;
-	return inst;
+	return llist;
     }
     
     /**
@@ -47,22 +55,41 @@ class ArrayUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstLength (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG);
-	return inst;
+	auto InstLengthLint (LInstList list) {
+	    auto inst = new LInstList;
+	    auto leftExp = list.getFirst ();
+	    inst += list;
+	    inst += new LRegRead (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG);
+	    return inst;
+	}
+
+	auto InstLengthD (DExpression expr) {
+	    return new DAccess (expr, new DDecimal (0));
+	}
+
+	if (COMPILER.isToLint) return InstLengthLint (list);
+	else return InstLengthD (cast (DExpression) list);
     }
 
     /**
      Returns: la liste d'instruction de récupération du ptr!char de la string.
      */
     static LInstList InstPtr (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG);
-	return inst;
+	auto InstPtrLint (LInstList list) {
+	    auto inst = new LInstList;
+	    auto leftExp = list.getFirst ();
+	    inst += list;
+	    inst += new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG);
+	    return inst;
+	}
+
+	auto InstPtrD (DExpression exp) {
+	    return new DAccess (exp, new DBinary (new DDecimal (1),
+						   new DDecimal (LSize.LONG), Tokens.STAR));
+	}
+
+	if (COMPILER.isToLint) return InstPtrLint (list);
+	else return InstPtrD (cast (DExpression) list);
     }
     
     
@@ -75,26 +102,37 @@ class ArrayUtils {
      Returns: les instructions lint.
      */
     static LInstList InstAccessS (LSize size) (LInstList llist, Array!LInstList rlists) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
-	inst += llist + rlists.back ();
-	auto elem = new LBinop (
-	    new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
-	    new LBinop (new LCast (rightExp, LSize.ULONG),
-			new LConstDecimal (1, LSize.LONG, size),
-			Tokens.STAR),
-	    Tokens.PLUS);
-	
-	inst += new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);	
-	return inst;
+	auto InstAccessLint (LInstList llist, Array!LInstList rlist) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlists.back ().getFirst ();
+	    inst += llist + rlists.back ();
+	    auto elem = new LBinop (
+		new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+		new LBinop (new LCast (rightExp, LSize.ULONG),
+			    new LConstDecimal (1, LSize.LONG, size),
+			    Tokens.STAR),
+		Tokens.PLUS);
+	    
+	    inst += new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);	
+	    return inst;
+	}
+
+	if (COMPILER.isToLint) return InstAccessLint (llist, rlists);
+	else assert (false);	
     }
 
     static LRegRead InstAccess (LExp left, LExp right, LSize size) {
-	auto elem = new LBinop (new LRegRead (left, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
-				right,
-				Tokens.PLUS);
+	auto InstAccessLint (LExp left, LExp right, LSize size) {
+	    auto elem = new LBinop (new LRegRead (left, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+				    right,
+				    Tokens.PLUS);
+	    
+	    return new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);
+	}
+
+	if (COMPILER.isToLint) return InstAccessLint (left, right, size);
+	else assert (false);
 	
-	return new LRegRead (elem, new LConstDecimal (0, LSize.INT), size);
     }
 
     

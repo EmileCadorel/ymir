@@ -1,6 +1,7 @@
 module ymir.ast.Constante;
-import ymir.ast._;
+import ymir.ast.Expression;
 import ymir.syntax._;
+import ymir.lint._;
 import ymir.semantic._;
 import ymir.utils._;
 
@@ -23,6 +24,20 @@ enum DecimalConst : DecType {
     UINT = DecType ("uint", "ui", 5),
     LONG = DecType ("long", "l", 6),
     ULONG = DecType ("ulong", "ul", 7)
+}
+
+
+LSize fromDecimalConst (DecimalConst size) {    
+    final switch (size.id) {
+    case DecimalConst.BYTE.id : return LSize.BYTE;
+    case DecimalConst.UBYTE.id : return LSize.UBYTE;
+    case DecimalConst.SHORT.id : return LSize.SHORT;
+    case DecimalConst.USHORT.id : return LSize.USHORT;
+    case DecimalConst.INT.id : return LSize.INT;
+    case DecimalConst.UINT.id : return LSize.UINT;
+    case DecimalConst.LONG.id : return LSize.LONG;
+    case DecimalConst.ULONG.id : return LSize.ULONG;
+    }
 }
 
 bool isSigned (DecimalConst dec) {

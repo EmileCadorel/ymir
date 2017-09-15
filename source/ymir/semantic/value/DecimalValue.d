@@ -4,6 +4,8 @@ import ymir.ast._;
 import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.bigint;
 import std.conv;
@@ -101,27 +103,36 @@ class DecimalValue : Value {
     override LInstList toLint (Symbol sym, InfoType type) {
 	auto info = cast (DecimalInfo) (type);
 	auto cst = info.type;
-	try {
-	    final switch (cst.id) {
-	    case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (this._value.to!byte, LSize.BYTE));
-	    case DecimalConst.UBYTE.id : return new LInstList (new LConstDecimal (this._value.to!ubyte, LSize.UBYTE));
-	    case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (this._value.to!short, LSize.SHORT));
-	    case DecimalConst.USHORT.id : return new LInstList (new LConstDecimal (this._value.to!ushort, LSize.USHORT));
-	    case DecimalConst.INT.id : return new LInstList (new LConstDecimal (this._value.to!int, LSize.INT));
-	    case DecimalConst.UINT.id : return new LInstList (new LConstDecimal (this._value.to!uint, LSize.UINT));
-	    case DecimalConst.LONG.id : return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
-	    case DecimalConst.ULONG.id : return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+	if (COMPILER.isToLint) {
+	    try {
+		final switch (cst.id) {
+		case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (this._value.to!byte, LSize.BYTE));
+		case DecimalConst.UBYTE.id : return new LInstList (new LConstDecimal (this._value.to!ubyte, LSize.UBYTE));
+		case DecimalConst.SHORT.id : return new LInstList (new LConstDecimal (this._value.to!short, LSize.SHORT));
+		case DecimalConst.USHORT.id : return new LInstList (new LConstDecimal (this._value.to!ushort, LSize.USHORT));
+		case DecimalConst.INT.id : return new LInstList (new LConstDecimal (this._value.to!int, LSize.INT));
+		case DecimalConst.UINT.id : return new LInstList (new LConstDecimal (this._value.to!uint, LSize.UINT));
+		case DecimalConst.LONG.id : return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
+		case DecimalConst.ULONG.id : return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+		}
+	    } catch (ConvOverflowException exp) {
+		throw new CapacityOverflow (sym, this._value.to!string);
 	    }
-	} catch (ConvOverflowException exp) {
-	    throw new CapacityOverflow (sym, this._value.to!string);
-	}	
+	} else {
+	    return new DCast (new DType (fromDecimalConst (cst)), new DDecimal (this._value));
+	}
     }
 
     override LInstList toLint (Symbol sym) {
-	if (sym) {
-	    return toLint (sym, sym.type);
+	if (COMPILER.isToLint) {
+	    if (sym) {
+		return toLint (sym, sym.type);
+	    } else {
+		return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+	    }
 	} else {
-	    return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+	    return new DCast (new DType (fromDecimalConst ((cast (DecimalInfo) sym.type).type)),
+			      new DDecimal (this._value)); 
 	}
     }
 

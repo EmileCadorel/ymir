@@ -1,19 +1,27 @@
 module ymir.compiler.Compiler;
-import ymir._;
+import ymir.target._;
+import ymir.lint._;
+import ymir.dtarget._;
+import ymir.amd64._;
+import ymir.syntax._;
+import ymir.semantic._;
+import ymir.utils._;
 
 import std.stdio;
 import std.outbuffer, std.file;
 import std.container, std.path;
-import std.algorithm;
+import std.algorithm, std.string;
 import std.process;
+
+alias COMPILER = Compiler.instance;
 
 class Compiler {
 
     private LVisitor _lintVisitor;
 
     private TVisitor _targetVisitor;    
-
-    this (string [] args) {
+    
+    void init (string [] args) {
 	Options.instance.init (args);
 	try {	
 	    if (Options.instance.inputFiles == []) {
@@ -29,7 +37,11 @@ class Compiler {
 	    debug { throw occurs; }
 	}
     }
-        
+
+    bool isToLint () {
+	return !cast (DVisitor) this._lintVisitor;
+    }
+    
     void compile () {
 	auto files = Options.instance.inputFiles;
 	string [] outFiles;
@@ -39,16 +51,24 @@ class Compiler {
 	    debug {
 		foreach (it ; list) writeln (it.toString);		
 	    }
-	    
-	    auto target = this.targetTime (list);
-	    auto _out = file ~ this._targetVisitor.extension;
-	    this.toFile (target, _out);
-	    outFiles ~= [_out];
+
+	    if (!cast (DVisitor) this._lintVisitor) {
+		auto target = this.targetTime (list);
+		auto _out = file [0 .. file.lastIndexOf (".")] ~ this._targetVisitor.extension;
+		this.toFile (target, _out);
+		outFiles ~= [_out];
+	    } else if (auto d = cast (DVisitor) this._lintVisitor) {
+		auto _out = file [0 .. file.lastIndexOf (".")] ~ d.extension;
+		d.toFile (list, _out);
+		outFiles ~= [_out];
+	    }
 	}
-	if (auto name = preCompiled ("__precompiled__" ~ this._targetVisitor.extension))
-	    outFiles ~= [name];
-	
-	this._targetVisitor.finalize (outFiles);
+	if (!cast (DVisitor) this._lintVisitor) {
+	    if (auto name = preCompiled ("__precompiled__" ~ this._targetVisitor.extension))
+		outFiles ~= [name];
+	    this._targetVisitor.finalize (outFiles);
+	} else if (auto d = cast (DVisitor) this._lintVisitor)
+	    d.finalize (outFiles);
     }
 
     private void chooseVisitor () {
@@ -60,9 +80,9 @@ class Compiler {
 	} else this._targetVisitor = new AMDVisitor ();
 
 	if (auto op = Options.instance.getOption (OptionEnum.LINT)) {
-	    switch (op) {
-	    case "d" : this._lintVisitor = new DVisitor (); break;
-	    case "l" : this._lintVisitor = new LVisitor (); break;
+	    switch (op.toUpper) {
+	    case "D" : this._lintVisitor = new DVisitor (); break;
+	    case "L" : this._lintVisitor = new LVisitor (); break;
 	    default : throw new UnknownLint (op);
 	    }
 	} else this._lintVisitor = new LVisitor ();
@@ -143,6 +163,6 @@ class Compiler {
     }
 
     
+    mixin Singleton;
     
-
 }

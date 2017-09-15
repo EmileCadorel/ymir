@@ -3,6 +3,6 @@ import ymir.compiler.Compiler;
 
 
 void main (string [] args) {
-    auto compiler = new Compiler (args);
-    compiler.compile ();
+    COMPILER.init (args);
+    COMPILER.compile ();
 }

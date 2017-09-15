@@ -40,6 +40,14 @@ class Break : Instruction {
 	return this._nbBlock;
     }
 
+    bool hasId () {
+	return !this._id.isEof;
+    }
+
+    string id () {
+	return this._id.str;
+    }
+    
     /**
      Vérification sémantique.
      Pour être juste l'instruction doit être dans une scope 'breakable'.

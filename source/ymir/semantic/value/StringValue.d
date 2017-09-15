@@ -4,6 +4,8 @@ import ymir.ast._;
 import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.stdio, std.format;
 import std.container, std.bigint;
@@ -74,13 +76,17 @@ class StringValue : Value {
     }
     
     override LInstList toLint (Symbol sym) {	
-	Array!LExp exps;
-	exps.insertBack (new LConstDecimal (this._value.length, LSize.LONG));
-	exps.insertBack (new LConstString (this._value));
-	auto inst = new LInstList;
-	
-	inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
-	return inst;
+	if (COMPILER.isToLint) {
+	    Array!LExp exps;
+	    exps.insertBack (new LConstDecimal (this._value.length, LSize.LONG));
+	    exps.insertBack (new LConstString (this._value));
+	    auto inst = new LInstList;
+	    
+	    inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
+	    return inst;
+	} else {
+	    return new DString (this._value);
+	}
     }
 
     override string toString () {
