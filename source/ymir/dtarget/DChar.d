@@ -1,7 +1,7 @@
 module ymir.dtarget.DChar;
 import ymir.dtarget._;
 
-import std.format;
+import std.format, std.conv;
 
 class DChar : DExpression {
 
@@ -12,7 +12,7 @@ class DChar : DExpression {
     }
 
     override string toString () {
-	return format ("'%c'", this._value);
+	return format ("cast (char) (%d)", this._value.to!ubyte);
     }
     
     

@@ -59,7 +59,7 @@ class StringUtils {
 	}
 	return inst;
     }
-    
+
     /**
      Returns: la liste d'instruction d'un operateur plus entre 2 string.
     */

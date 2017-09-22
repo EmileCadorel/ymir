@@ -241,8 +241,12 @@ class Frame {
 	return this._isInternal;
     }
 
-    ref bool isVariadic () {
+    bool isVariadic () {
 	return this._isVariadic;
+    }
+
+    void isVariadic (bool isVariadic) {
+	this._isVariadic = isVariadic;
     }
     
     /**

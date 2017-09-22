@@ -84,8 +84,7 @@ class ArrayUtils {
 	}
 
 	auto InstPtrD (DExpression exp) {
-	    return new DAccess (exp, new DBinary (new DDecimal (1),
-						   new DDecimal (LSize.LONG), Tokens.STAR));
+	    return new DDot (exp, new DVar ("ptr"));
 	}
 
 	if (COMPILER.isToLint) return InstPtrLint (list);

@@ -171,6 +171,7 @@ class Table {
 	this._globalScope.clear ();
 	this._frameTable.clear ();
 	this._staticInits.clear ();
+	ExternFrame.clear ();
     }
 
     /**

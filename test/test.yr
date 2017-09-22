@@ -1,6 +1,9 @@
+extern (C) printf (const a : p!char, ...);
 
+// def salut () {
+//     return 12;
+// }
 
 def main () {
-    let a = 12, b = 234L;
-    b += a;
+    printf ("Hello World !!\n".ptr);
 }

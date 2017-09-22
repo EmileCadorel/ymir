@@ -8,15 +8,15 @@ import std.outbuffer;
 
 class DFrame : LFrame {
 
-    private string _file;
+    protected string _file;
 
-    private string _name;
+    protected string _name;
 
     private DBlock _block;
 
-    private Namespace _namespace;    
+    protected Namespace _namespace;    
 
-    private Array!DTypeVar _params;
+    protected  Array!DTypeVar _params;
 
     private Array!Namespace _imports;
     
@@ -41,10 +41,18 @@ class DFrame : LFrame {
     ref Array!Namespace imports () {
 	return this._imports;
     }
+
+    ref Namespace space () {
+	return this._namespace;
+    }
+
+    override string name () {
+	return this._name;
+    }
     
     override string toString () {
 	auto buf = new OutBuffer ();
-	buf.writef ("%s %s (", this._type.toString, this._name);
+	buf.writef ("%s %s (", this._type.simpleString, this._name);
 	foreach (it ; this._params) {
 	    buf.writef ("%s%s", it, it is this._params [$ - 1] ? "" : ", ");
 	}

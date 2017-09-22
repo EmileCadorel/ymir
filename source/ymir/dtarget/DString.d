@@ -1,7 +1,7 @@
 module ymir.dtarget.DString;
 import ymir.dtarget._;
 
-import std.format;
+import std.format, std.outbuffer;
 
 class DString : DExpression {
 
@@ -12,7 +12,15 @@ class DString : DExpression {
     }
 
     override string toString () {
-	return format ("\"%s\"", this._value);
+	auto buf = new OutBuffer;
+	foreach (it ; this._value) {
+	    if (it == '\"') buf.write ("\\\"");
+	    else if (it == '\'') buf.write ("\\\'");
+	    else if (it == '\n') buf.write ("\\n");
+	    else buf.write (it);
+	}
+	buf.write ("\"");
+	return format ("\"%s", buf.toString);
     }
 
     

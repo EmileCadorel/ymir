@@ -23,6 +23,8 @@ class ExternFrame : Frame {
     /** Le protocole créé à la sémantique */
     private FrameProto _fr;
 
+    private static Array!ExternFrame __extFrames__;
+    
     /** 
      Params:
      namespace = le contexte du prototype
@@ -34,12 +36,14 @@ class ExternFrame : Frame {
 	this._name = func.ident.str;
 	this._from = from;
 	this._proto = func;
+	__extFrames__.insertBack (this);
     }
 
     this (Namespace namespace, Function func) {
 	super (namespace, func);
 	this._name = func.ident.str;
 	this._proto = null;
+	__extFrames__.insertBack (this);
     }
 
         
@@ -77,7 +81,6 @@ class ExternFrame : Frame {
 	
 	return ret;
     }
-
     
     /**
      Créée le prototype pour la génération de code intérmédiaire.
@@ -140,6 +143,14 @@ class ExternFrame : Frame {
 	return validate ();
     }
     
+    static Array!ExternFrame frames () {
+	return __extFrames__;
+    }
+
+    static void clear () {
+	__extFrames__ = make!(Array!ExternFrame) ();
+    }
+    
     /**
      Returns: l'identifiant du prototype
      */
@@ -147,7 +158,25 @@ class ExternFrame : Frame {
 	if (this._proto is null) return super.ident ();
 	return this._proto.ident;
     }
+    
+    bool isFromC () {
+	return this._from == "C";
+    }
 
+    FrameProto proto () {
+	return this._fr;
+    }
+
+    string name () {
+	return this._name;
+    }
+
+    override bool isVariadic () {
+	if (this._proto)
+	    return this._proto.isVariadic;
+	else return false;
+    }
+    
     override string protoString () {
 	import std.outbuffer;
 	if (this._function) return super.protoString ();

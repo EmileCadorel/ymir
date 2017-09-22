@@ -65,6 +65,10 @@ class FunctionInfo : InfoType {
     Frame frame () {
 	return this._infos;
     }
+
+    Namespace space () {
+	return this._namespace;
+    }
     
     /**
      Returns: `this`.

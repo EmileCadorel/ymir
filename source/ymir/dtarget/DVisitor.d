@@ -10,8 +10,16 @@ import std.format, std.process;
 
 class DVisitor : LVisitor {
 
+    private DFrame _currentFrame;
+    
     override Array!LFrame visit () {
 	Array!LFrame frames;
+
+	foreach (it ; ExternFrame.frames) {
+	    if (it.proto !is null && it.isFromC)
+		frames.insertBack (this.visit (it));
+	}
+
 	foreach (it ; FrameTable.instance.finals) {
 	    frames.insertBack (this.visit (it));
 	}
@@ -49,9 +57,24 @@ class DVisitor : LVisitor {
     string extension () {
 	return ".d";
     }
+
+    LFrame visit (ExternFrame extFrame) {
+	auto frame = new DProto (extFrame.name);
+	frame.space = extFrame.namespace;
+	this._currentFrame = frame;
+	frame.type = this.visitType (extFrame.proto.type.type);
+	foreach (it ; extFrame.proto.vars) {
+	    frame.addVar (this.visitParam (it));
+	}
+	
+	frame.isVariadic = extFrame.isVariadic;
+	return frame;
+    }
     
     override LFrame visit (FinalFrame semFrame) {
 	auto frame = new DFrame (semFrame.name);
+	frame.space = semFrame.namespace;
+	this._currentFrame = frame;
 	frame.type = this.visitType (semFrame.type.type);
 
 	foreach (it ; semFrame.vars) {
@@ -70,6 +93,19 @@ class DVisitor : LVisitor {
 	return bl;
     }
 
+    private void addImport (Namespace space) {
+	bool hasAlready = false;
+	if (space == this._currentFrame.space) hasAlready = true;
+	foreach (it ; this._currentFrame.imports) {
+	    if (it == space) {
+		hasAlready = true;
+		break;
+	    }
+	}
+	if (!hasAlready)
+	    this._currentFrame.imports.insertBack (space);
+    }
+    
     private DInstruction visit (Instruction inst) {
 	return inst.matchRet (
 	    (Assert ass) => visit (ass),
@@ -263,8 +299,22 @@ class DVisitor : LVisitor {
 	assert (false);
     }
 
-    private DExpression visit (Dot dt) {
-	assert (false);
+    private DExpression visit (Dot dot) {
+	DExpression exprs;
+	if (dot.info.value) return cast (DExpression) dot.info.value.toLint (dot.info);
+	if (dot.info.type.leftTreatment) {
+	    exprs = cast (DExpression) dot.info.type.leftTreatment (dot.info.type, dot.left, null);
+	}
+	
+	auto left = this.visit (dot.left);
+
+	if (dot.info.type.lintInstS.length > 0) {
+	    for (long nb = dot.info.type.lintInstS.length - 1 ; nb >= 0 ; nb --) {
+		left = cast (DExpression) dot.info.type.lintInst (left, nb);
+	    }
+	}
+
+	return cast (DExpression) dot.info.type.lintInst (exprs, left);
     }
 
 
@@ -272,12 +322,22 @@ class DVisitor : LVisitor {
 	return null;
     }
 
-    private DExpression visit (ParamList pm) {
-	return null;
+    private DParamList visit (ParamList pm) {
+	auto params = new DParamList;
+	foreach (it ; pm.params) {
+	    params.addParam (visit (it));
+	}
+	return params;
     }
 
-    private DExpression visit (Par p) {
-	return null;
+    private DExpression visit (Par p) {	
+	auto left = visit (p.left);
+	auto params = visit (p.paramList);
+	auto type = cast (FunctionInfo) p.left.info.type;
+	if (type !is null) {
+	    this.addImport (type.space);
+	}
+	return new DPar (left, params);
     }
 
     private DExpression visit (ConstTuple tp) {
@@ -308,25 +368,25 @@ class DVisitor : LVisitor {
     private DType visitType (InfoType type) {
 	if (auto dec = cast (DecimalInfo) type) {
 	    final switch (dec.type.id) {
-	    case DecimalConst.BYTE.id : return new DType ("byte");
-	    case DecimalConst.UBYTE.id : return new DType ("ubyte");
-	    case DecimalConst.SHORT.id : return new DType ("short");
-	    case DecimalConst.USHORT.id : return new DType ("ushort");
-	    case DecimalConst.INT.id : return new DType ("int");
-	    case DecimalConst.UINT.id : return new DType ("uint");
-	    case DecimalConst.LONG.id : return new DType ("long");
-	    case DecimalConst.ULONG.id : return new DType ("ulong");		
+	    case DecimalConst.BYTE.id : return new DType ("byte", type.isConst);
+	    case DecimalConst.UBYTE.id : return new DType ("ubyte", type.isConst);
+	    case DecimalConst.SHORT.id : return new DType ("short", type.isConst);
+	    case DecimalConst.USHORT.id : return new DType ("ushort", type.isConst);
+	    case DecimalConst.INT.id : return new DType ("int", type.isConst);
+	    case DecimalConst.UINT.id : return new DType ("uint", type.isConst);
+	    case DecimalConst.LONG.id : return new DType ("long", type.isConst);
+	    case DecimalConst.ULONG.id : return new DType ("ulong", type.isConst);		
 	    }
 	} else if (auto fl = cast (FloatInfo) type) {
-	    return new DType ("double");
+	    return new DType ("double", type.isConst);
 	} else if (auto arr = cast (ArrayInfo) type) {
-	    return new DType (visitType (arr.content).name ~ "[]");
+	    return new DType (visitType (arr.content).name ~ "[]", type.isConst);
 	} else if (cast (BoolInfo) type) {
-	    return new DType ("bool");
+	    return new DType ("bool", type.isConst);
 	} else if (cast (CharInfo) type) {
-	    return new DType ("char");
+	    return new DType ("char", type.isConst);
 	} else if (auto en = cast (EnumInfo) type) {
-	    return new DType (en.name);
+	    return new DType (en.name, type.isConst);
 	} else if (auto ptr = cast (PtrFuncInfo) type) {
 	    auto buf = new OutBuffer ();
 	    buf.writef ("%s function(", this.visitType (ptr.ret).name);
@@ -334,21 +394,21 @@ class DVisitor : LVisitor {
 		buf.writef ("%s%s", this.visitType (it).name, it is ptr.params [$ - 1] ? "" : ", ");
 	    }
 	    buf.writef (")");
-	    return new DType (buf.toString);
+	    return new DType (buf.toString, type.isConst);
 	} else if (auto ptr = cast (PtrInfo) type) {
-	    return new DType (this.visitType (ptr.content).name ~ "*");
+	    return new DType (this.visitType (ptr.content).name ~ "*", type.isConst);
 	} else if (auto range = cast (RangeInfo) type) {
-	    return new DType (format("range!(%s)", visitType (range.content).name));
+	    return new DType (format("range!(%s)", visitType (range.content).name), type.isConst);
 	} else if (auto _ref = cast (RefInfo) type) {
-	    return new DType (format("ref %s", this.visitType (_ref.content).name));
+	    return new DType (format("ref %s", this.visitType (_ref.content).name), type.isConst);
 	} else if (auto str = cast (StringInfo) type) {
-	    return new DType ("string");
+	    return new DType ("string", type.isConst);
 	} else if (auto tl = cast (TupleInfo) type) {
-	    return new DType (tl.typeString);
+	    return new DType (tl.typeString, type.isConst);
 	} else if (cast (VoidInfo) type) {
-	    return new DType ("void");	
+	    return new DType ("void", type.isConst);	
 	} else {
-	    assert (false, "TODO");
+	    assert (false, "TODO" ~ type.typeString);
 	}
     }
     
