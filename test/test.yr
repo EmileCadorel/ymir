@@ -1,9 +1,11 @@
-extern (C) printf (const a : p!char, ...);
 
-// def salut () {
-//     return 12;
-// }
+
+struct A {
+    a : int
+}
+
 
 def main () {
-    printf ("Hello World !!\n".ptr);
+    let a = A (10);
+    println (a.a);
 }

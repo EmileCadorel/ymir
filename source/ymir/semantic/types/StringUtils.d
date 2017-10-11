@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.container, std.stdio;
 
@@ -32,13 +34,17 @@ class StringUtils {
      Returns: la liste d'instruction d'un operateur d'affectation sur une string déjà affécté.
      */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
-
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
+	    
+	    inst += new LWrite (leftExp, rightExp);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
 
     private static LInstList computeLeftAndRight (ref LExp left, ref LExp right, LInstList llist, LInstList rlist) {
@@ -64,66 +70,90 @@ class StringUtils {
      Returns: la liste d'instruction d'un operateur plus entre 2 string.
     */
     static LInstList InstPlus (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	inst +=  new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
-	return inst;
+	if (COMPILER.isToLint) {
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    inst +=  new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE);
+	}
     }
 
     static LInstList InstPlusChar (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	inst += new LCall (__PlusStringChar__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
-	return inst;
+	if (COMPILER.isToLint) {
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    inst += new LCall (__PlusStringChar__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE);
+	}
     }
     
     /**
      Appel de la fonction "=="
      */
     static LInstList InstEqual (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
-	auto ret = new LReg (LSize.BYTE);
-	inst += new LWrite (ret, call);
-	return  inst;
+	if (COMPILER.isToLint) {
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
+	    auto ret = new LReg (LSize.BYTE);
+	    inst += new LWrite (ret, call);
+	    return  inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.DEQUAL);
+	}
     }
 
     /**
      Appel de la fonction !('==')
      */
     static LInstList InstNotEqual (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
-	auto ret = new LReg (LSize.BYTE);
-	inst += new LWrite (ret, call);
-	inst += new LBinop (ret, ret, Tokens.XOR);
-	return  inst;
+	if (COMPILER.isToLint) {
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    auto call = new LCall (__EqualString__, make!(Array!LExp) (leftExp, rightExp), LSize.BYTE);
+	    auto ret = new LReg (LSize.BYTE);
+	    inst += new LWrite (ret, call);
+	    inst += new LBinop (ret, ret, Tokens.XOR);
+	    return  inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.NOT_EQUAL);
+	}
     }
     
     /**
      Returns: la liste d'instruction d'un operateur += entre 2 string.
     */
     static LInstList InstPlusAffect (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	LExp res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);       	
-	inst += new LWrite (leftExp, res);
-	inst += leftExp;
-	return inst;
+	if (COMPILER.isToLint) {	    
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    LExp res = new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);       	
+	    inst += new LWrite (leftExp, res);
+	    inst += leftExp;
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE_EQUAL);
+	}
     }
 
     /**
      Returns: la liste d'instruction d'une affectation entre une string jamais affecté et une string.
-     */
+     */    
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
-	LExp leftExp, rightExp;
-	auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
-	if (auto cst = cast (LConstString) rightExp) return affectConstStringRight (inst, leftExp, cst);
-	inst += new LWrite (leftExp, rightExp);
-	inst += leftExp;
-	return inst;
+	if (COMPILER.isToLint) {	
+	    LExp leftExp, rightExp;
+	    auto inst = computeLeftAndRight (leftExp, rightExp, llist, rlist);
+	    if (auto cst = cast (LConstString) rightExp) return affectConstStringRight (inst, leftExp, cst);
+	    inst += new LWrite (leftExp, rightExp);
+	    inst += leftExp;
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE_EQUAL);
+	}
     }
 
     /**
@@ -154,34 +184,44 @@ class StringUtils {
      Returns: la liste d'instruction de la transformation d'une string en array (llist);
      */
     static LInstList InstCastArray (LInstList llist) {
-	return llist;
+	if (COMPILER.isToLint) 
+	    return llist;
+	else return new DCast (new DType ("const (char)[]"), cast (DExpression) llist);
     }
 
     /**
      Returns: La liste d'instruction de récupération de l'adresse du string.
      */
     static LInstList InstAddr (LInstList llist) {
-	auto inst = new LInstList ();
-	auto exp = llist.getFirst ();
-	inst += llist;
-	inst += new LAddr (exp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList ();
+	    auto exp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LAddr (exp);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.AND);
+	}
     }
 
     /**
      Returns: la liste d'instruction d'un cast automatique de la chaine vers une string.     
      */
     static LInstList InstComp (LInstList list) {
-	auto inst = new LInstList;
-	auto rightExp = list.getFirst ();
-	if (auto cst = (cast (LConstString) rightExp)) {
-	    inst += list;
-	    inst += new LCall (__CstName__, make!(Array!LExp) ([new LConstDecimal (cst.value.length, LSize.LONG), cst]), LSize.LONG);
-	    return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto rightExp = list.getFirst ();
+	    if (auto cst = (cast (LConstString) rightExp)) {
+		inst += list;
+		inst += new LCall (__CstName__, make!(Array!LExp) ([new LConstDecimal (cst.value.length, LSize.LONG), cst]), LSize.LONG);
+		return inst;
+	    } else {
+		inst += list;
+		inst += rightExp;
+		return inst;
+	    }
 	} else {
-	    inst += list;
-	    inst += rightExp;
-	    return inst;
+	    return list;
 	}
     }
 

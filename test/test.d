@@ -1,8 +1,21 @@
+module test.test;
+import core.stdio;
+import core.stdio;
 
 
 
-extern (C) void printf (const char* a, ...);
+void println (int i) {
+    print (i);
+    print (cast (char) (10));
+}
 
 void main () {
-    printf ("Hello World !!\n".ptr);
+    A * a = new A (cast (int) (10));
+
+    println (a.a);
 }
+
+struct A {
+int a; 
+}
+

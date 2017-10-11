@@ -20,7 +20,7 @@ class DString : DExpression {
 	    else buf.write (it);
 	}
 	buf.write ("\"");
-	return format ("\"%s", buf.toString);
+	return format ("(cast (char[]) \"%s[])", buf.toString);
     }
 
     

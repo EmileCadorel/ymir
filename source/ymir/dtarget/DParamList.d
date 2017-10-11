@@ -11,6 +11,10 @@ class DParamList : DExpression {
 	this._params.insertBack (param);
     }
 
+    Array!DExpression params () {
+	return this._params;
+    }
+    
     override string toString () {
 	auto buf = new OutBuffer ();
 	foreach (it ; this._params) {

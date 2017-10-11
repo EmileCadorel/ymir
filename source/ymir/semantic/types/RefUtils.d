@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.container, std.stdio;
 
@@ -20,11 +22,15 @@ class RefUtils {
      Returns: la liste d'instruction de l'affectation.
      */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LWrite (leftExp, rightExp));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LWrite (leftExp, rightExp));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
 
     /**
@@ -35,11 +41,15 @@ class RefUtils {
      Returns: la liste d'instruction de l'unref.
      */
     static LInstList InstUnrefS (LSize size) (LInstList llist) {
-	auto leftExp = llist.getFirst ();
-	auto inst = new LInstList;
-	inst += llist;
-	inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst ();
+	    auto inst = new LInstList;
+	    inst += llist;
+	    inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.STAR);
+	}
     }    
 
     static LInstList InstUnref (LInstList, LInstList llist) {

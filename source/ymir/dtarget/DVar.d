@@ -9,6 +9,10 @@ class DVar : DExpression {
 	this._name = name;
     }
 
+    string name () {
+	return this._name;
+    }
+    
     override string toString () {
 	return this._name;
     }    

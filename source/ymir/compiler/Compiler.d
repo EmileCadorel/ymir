@@ -42,6 +42,10 @@ class Compiler {
 	return !cast (DVisitor) this._lintVisitor;
     }
     
+    T getLVisitor (T : LVisitor) () {
+	return cast (T) this._lintVisitor;
+    }
+    
     void compile () {
 	auto files = Options.instance.inputFiles;
 	string [] outFiles;

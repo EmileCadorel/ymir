@@ -134,14 +134,14 @@ class RangeUtils {
      _right = une ParamList, qui contient les itérateurs à renseigner.
      Returns: une liste d'instruction qui contient un block temporaire que l'on va remplacer par le contenu de la boucle.
      */
-    static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {	
+    static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
 	auto inst = new LInstList;
 	auto type = cast (RangeInfo) _type;
 	if (type.value) return InstApplyPreTreatWithValue (type, _left, _right);
 	auto left = LVisitor.visitExpressionOutSide (_left);
 	for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 	    left = _left.info.type.lintInst (left, nb);
-
+	    
 	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
 	auto leftExp = left.getFirst (), rightExp = right.getFirst ();
 	inst += left + right;
@@ -176,7 +176,7 @@ class RangeUtils {
 	vrai.insts += faux2;
 	inst += vrai;
 	inst += faux;
-	return inst;
+	return inst;	
     }
 
     private static LInstList InstApplyPreTreatWithValue (RangeInfo info, Expression _left, Expression _right) {

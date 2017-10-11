@@ -13,6 +13,10 @@ class DTypeVar {
 	this._var = var;
 	this._type = type;
     }
+
+    DVar var () {
+	return this._var;
+    }
     
     override string toString () {
 	return format ("%s %s", this._type.toString, this._var.toString);

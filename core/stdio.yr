@@ -1,12 +1,16 @@
-extern (C) putchar (c : char);
-extern (C) printf (c : p!char, ...);
+extern (C) putchar (const c : char);
+extern (C) printf (const c : p!char, ...);
 
 def print (c : char) : void
     putchar (c);
 
 def print (s : string) : void {
-    if (s is null) print ('null');
-    else for (it in s) putchar (it);
+    if (s is null) {        
+        putchar ('n');
+        putchar ('u');
+        putchar ('l');
+        putchar ('l');
+    } else for (it in s) putchar (it);
 }
 
 def print (i : long) : void {
@@ -82,7 +86,6 @@ def println (I, T...) (i : I, next : T) {
     print (expand (next));
     print ('\n');
 }
-
 
 def print (I, T...) (i : I, nexts : T) {
     print (i);

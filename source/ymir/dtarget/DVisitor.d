@@ -4,13 +4,18 @@ import ymir.dtarget._;
 import ymir.semantic._;
 import ymir.ast._;
 import ymir.utils._;
+import ymir.syntax._;
 
 import std.stdio, std.container, std.outbuffer;
-import std.format, std.process;
+import std.format, std.process, std.string;
+import std.algorithm;
 
 class DVisitor : LVisitor {
 
     private DFrame _currentFrame;
+
+    private Array!StructInfo _structToCst;
+    
     
     override Array!LFrame visit () {
 	Array!LFrame frames;
@@ -27,22 +32,35 @@ class DVisitor : LVisitor {
 	return frames;
     }
 
+    void addStructToCst (StructInfo info) {
+	if (this._structToCst[].find!("a.namespace == b.namespace") (info).empty)
+	    this._structToCst.insertBack (info);
+    }
+    
     void toFile (Array!LFrame frames, string filename) {
 	auto file = File (filename, "w");
 	auto imports = new OutBuffer ();
 	auto funcs = new OutBuffer ();
-	
+
+	auto modName = new Namespace (filename [0 .. filename.lastIndexOf (".")]);
+
+	imports.writefln ("module %s;", modName.toString);	
 	foreach (it ; frames) {
 	    auto dframe = cast (DFrame) it;
 	    foreach (ip ; dframe.imports)
-		imports.writef ("import %s;", ip.toString);
+		imports.writefln ("import %s;", ip.toString);
 
 	    funcs.writef ("\n%s\n", dframe.toString);
 	}
 
+	foreach (it ; this._structToCst) {
+	    auto src = toDStruct (it);
+	    funcs.writef ("\n%s\n", src);
+	}
+	
 	file.writef ("%s\n\n%s", imports.toString, funcs.toString);	
     }
-
+    
     void finalize (string [] files) {
 	string [] options;
 	if (Options.instance.isOn (OptionEnum.TARGET))
@@ -58,6 +76,16 @@ class DVisitor : LVisitor {
 	return ".d";
     }
 
+    private string toDStruct (StructInfo info) {
+	auto buf = new OutBuffer ();
+	buf.writef ("struct %s {\n", info.name);
+	foreach (it ; 0 .. info.params.length) {
+	    buf.writefln ("%s %s; ", visitType (info.params [it]).name, info.attribs [it]);
+	}
+	buf.writef ("}\n");
+	return buf.toString;
+    }
+    
     LFrame visit (ExternFrame extFrame) {
 	auto frame = new DProto (extFrame.name);
 	frame.space = extFrame.namespace;
@@ -123,6 +151,11 @@ class DVisitor : LVisitor {
 	);
     }
 
+    static DExpression visitExpressionOutSide (Expression exp) {
+	auto dv = new DVisitor ();
+	return dv.visit (exp);
+    }
+    
     private DExpression visit (Expression exp) {
 	return exp.matchRet (
 	    (Access acc) => visit (acc),
@@ -168,12 +201,29 @@ class DVisitor : LVisitor {
     }
 
     private DInstruction visit (For _for) {
-	assert (false, "TODO " ~ typeid(_for).toString);
+	Array!Expression params;
+	foreach (it ; _for.vars) {
+	    it.info.value = null;
+	    params.insertBack (it);
+	}
+
+	_for.iter.info.type.lintInstS = _for.ret.lintInstS;
+	auto left = cast (DFor)_for.ret.leftTreatment (_for.ret, _for.iter,
+							       new ParamList (Word.eof, params));
+	auto bl = visitBlock (_for.block);	
+
+	foreach (it ; bl.instructions)
+	    left.block.addInst (it);
+	
+	return left;	
     }
 
+    private DExpression visit (Is i) {
+	assert (false);
+    }
+    
     private DIf visit (If i) {
 	auto test = visit (i.test);
-	writeln (i.test);
 	auto bl = visitBlock (i.block);
 	if (i.else_) return new DIf (test, bl, visit (i.else_));
 	else return new DIf (test, bl);
@@ -288,7 +338,18 @@ class DVisitor : LVisitor {
     }
 
     private DExpression visit (ConstArray cr) {
-	assert (false);
+	auto ca = new DConstArray ();
+	foreach (it ; 0 .. cr.params.length) {
+	    auto cster = cr.casters [it];
+	    DExpression ret = visit (cr.params [it]);
+	    if (cster) {
+		for (long nb = cster.lintInstS.length - 1; nb >= 0; nb --) {		
+		    ret = cast (DExpression) cster.lintInst (ret, nb);
+		}		
+	    }
+	    ca.addValue (ret);
+	}
+	return ca;
     }
 
     private DExpression visit (ConstRange cr) {
@@ -322,22 +383,61 @@ class DVisitor : LVisitor {
 	return null;
     }
 
-    private DParamList visit (ParamList pm) {
+    private DParamList visit (Array!InfoType treat, ParamList pm) {
 	auto params = new DParamList;
-	foreach (it ; pm.params) {
-	    params.addParam (visit (it));
+	foreach (it ; 0 .. pm.params.length) {
+	    auto exp = pm.params [it];	    
+	    auto elist = visit (exp);
+	    if (treat [it]) {
+		for (long nb = treat [it].lintInstS.length - 1 ; nb >= 0 ; nb --) {
+		    elist = cast (DExpression) treat [it].lintInst (elist, nb);
+		}
+	    }
+	    writeln (elist, " ", exp.info.type.typeString);
+	    params.addParam (elist);
 	}
 	return params;
     }
+        
+    private DExpression visit (Par par) {
+	auto params = visit (par.score.treat, par.paramList);
+	if (par.info.type.lintInstMult) {	    
+	    DExpression left;
 
-    private DExpression visit (Par p) {	
-	auto left = visit (p.left);
-	auto params = visit (p.paramList);
-	auto type = cast (FunctionInfo) p.left.info.type;
-	if (type !is null) {
-	    this.addImport (type.space);
+	    if (par.info.type.leftTreatment)
+		left = cast (DExpression) par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
+	    else left = visit (par.left);
+	    return cast (DExpression) par.info.type.lintInst (left, make!(Array!LInstList) (params));    
+	} else {
+	    if (par.score.dyn) {
+		if (par.dotCall) {
+		    auto leftTreat = cast (DExpression) par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
+		    auto left = params.params [0];
+		    if (par.dotCall.info.type.lintInstS.length > 0) {
+			for (long nb = par.dotCall.info.type.lintInstS.length - 1 ; nb >= 0 ; nb --)
+			    left = cast (DExpression) par.dotCall.info.type.lintInst (left, nb);
+		    }		    
+		
+		    auto res = cast (DExpression) par.dotCall.info.type.lintInst (leftTreat, left);
+		    return new DPar (res, params);
+		} else {
+		    auto left = visit (par.left);
+		    if (par.score.left) {
+			for (long nb = par.score.left.lintInstS.length - 1 ; nb >= 0 ; nb--) {
+			    left = cast (DExpression) par.score.left.lintInst (left, nb);
+			}
+		    }
+		    return new DPar (left, params);
+		}
+	    } else {
+		auto left = visit (par.left);
+		auto type = cast (FunctionInfo) par.left.info.type;
+		if (type !is null) {
+		    this.addImport (type.space);
+		}
+		return new DPar (left, params);
+	    }
 	}
-	return new DPar (left, params);
     }
 
     private DExpression visit (ConstTuple tp) {
@@ -365,7 +465,7 @@ class DVisitor : LVisitor {
 	return dvar;
     }    
 
-    private DType visitType (InfoType type) {
+    static DType visitType (InfoType type) {
 	if (auto dec = cast (DecimalInfo) type) {
 	    final switch (dec.type.id) {
 	    case DecimalConst.BYTE.id : return new DType ("byte", type.isConst);
@@ -386,27 +486,31 @@ class DVisitor : LVisitor {
 	} else if (cast (CharInfo) type) {
 	    return new DType ("char", type.isConst);
 	} else if (auto en = cast (EnumInfo) type) {
-	    return new DType (en.name, type.isConst);
+	    return new DType (visitType (en.content).name, type.isConst);
 	} else if (auto ptr = cast (PtrFuncInfo) type) {
 	    auto buf = new OutBuffer ();
-	    buf.writef ("%s function(", this.visitType (ptr.ret).name);
+	    buf.writef ("%s function(", visitType (ptr.ret).name);
 	    foreach (it ; ptr.params) {
-		buf.writef ("%s%s", this.visitType (it).name, it is ptr.params [$ - 1] ? "" : ", ");
+		buf.writef ("%s%s", visitType (it).name, it is ptr.params [$ - 1] ? "" : ", ");
 	    }
 	    buf.writef (")");
 	    return new DType (buf.toString, type.isConst);
 	} else if (auto ptr = cast (PtrInfo) type) {
-	    return new DType (this.visitType (ptr.content).name ~ "*", type.isConst);
+	    return new DType (visitType (ptr.content).name ~ "*", type.isConst);
 	} else if (auto range = cast (RangeInfo) type) {
 	    return new DType (format("range!(%s)", visitType (range.content).name), type.isConst);
 	} else if (auto _ref = cast (RefInfo) type) {
-	    return new DType (format("ref %s", this.visitType (_ref.content).name), type.isConst);
+	    return new DType (format("ref %s", visitType (_ref.content).name), type.isConst);
 	} else if (auto str = cast (StringInfo) type) {
-	    return new DType ("string", type.isConst);
+	    return new DType ("char[]", type.isConst);
 	} else if (auto tl = cast (TupleInfo) type) {
 	    return new DType (tl.typeString, type.isConst);
 	} else if (cast (VoidInfo) type) {
 	    return new DType ("void", type.isConst);	
+	} else if (auto str = cast (StructCstInfo) type) {
+	    return new DType (str.name ~ " *", type.isConst);
+	} else if (auto str = cast (StructInfo) type) {
+	    return new DType (str.name ~ " *", type.isConst);
 	} else {
 	    assert (false, "TODO" ~ type.typeString);
 	}

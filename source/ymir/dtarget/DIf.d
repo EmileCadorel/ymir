@@ -20,10 +20,14 @@ class DIf : DInstruction {
     override string toString () {
 	auto buf = new OutBuffer ();
 	this._bl.nbIndent = this._father.nbIndent + 4;
-	buf.writef ("if (%s)%s", this._test.toString, this._bl.toString);
-	if (this._delse) {
-	    this._delse._father = this._father;
-	    buf.writef ("else %s", this._delse.toString);
+	if (this._test) {
+	    buf.writef ("if (%s)%s", this._test.toString, this._bl.toString);
+	    if (this._delse) {
+		this._delse._father = this._father;
+		buf.writef (" else%s", this._delse.toString);
+	    }
+	} else {
+	    buf.writef ("%s", this._bl.toString);
 	}
 	return buf.toString;
     }          

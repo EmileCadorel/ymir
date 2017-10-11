@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.dtarget._;
+import ymir.compiler.Compiler;
 
 import std.container, std.stdio;
 
@@ -190,83 +192,115 @@ class StructUtils {
     }
     
     static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
-	auto type = cast (StructInfo) _type;
-	string name = Mangler.mangle!"struct" (type);
-	if (!_extern) {
-	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createCstStruct (type);
+	if (COMPILER.isToLint) {
+	    auto type = cast (StructInfo) _type;
+	    string name = Mangler.mangle!"struct" (type);
+	    if (!_extern) {
+		auto it = (__CstName__ ~ name) in LFrame.preCompiled;
+		if (it is null) createCstStruct (type);
+	    }
+	    auto inst = new LInstList ();
+	    inst += new LConstFunc (__CstName__ ~ name);
+	    return inst;
+	} else {
+	    auto type = cast (StructInfo) _type;
+	    COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
+	    return new DVar (type.name);
 	}
-	auto inst = new LInstList ();
-	inst += new LConstFunc (__CstName__ ~ name);
-	return inst;
     }
 
     static LInstList InstCreateCstEmpty (bool _extern) (InfoType _type, Expression, Expression) {
-	auto type = cast (StructInfo) _type;
-	string name = Mangler.mangle!"struct" (type);
-	if (!_extern) {
-	    auto it = (__CstName__ ~ name) in LFrame.preCompiled;
-	    if (it is null) createCstStruct (type);
+	if (COMPILER.isToLint) {
+	    auto type = cast (StructInfo) _type;
+	    string name = Mangler.mangle!"struct" (type);
+	    if (!_extern) {
+		auto it = (__CstName__ ~ name) in LFrame.preCompiled;
+		if (it is null) createCstStruct (type);
+	    }
+	    auto inst = new LInstList ();
+	    inst += new LConstFunc (__CstNameEmpty__ ~ name);
+	    return inst;
+	} else {
+	    auto type = cast (StructInfo) _type;
+	    COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
+	    return new DVar (type.name);	
 	}
-	auto inst = new LInstList ();
-	inst += new LConstFunc (__CstNameEmpty__ ~ name);
-	return inst;
     }
     
     static LInstList InstCall (LInstList llist, Array!LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	Array!LExp params;
-	inst += llist;
-	foreach (it ; rlist) {
-	    auto exp = it.getFirst ();
-	    inst += it;
-	    if (auto call = cast (LCall) exp) {
-		auto aux = new LReg (call.size);
-		inst += new LWrite (aux, call);
-		exp = aux;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    Array!LExp params;
+	    inst += llist;
+	    foreach (it ; rlist) {
+		auto exp = it.getFirst ();
+		inst += it;
+		if (auto call = cast (LCall) exp) {
+		    auto aux = new LReg (call.size);
+		    inst += new LWrite (aux, call);
+		    exp = aux;
+		}
+		params.insertBack (exp);
 	    }
-	    params.insertBack (exp);
-	}
 	    
-	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
-	return inst;
+	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
+	    return inst;
+	} else {
+	    return new DNew (new DPar (cast (DExpression) llist, cast (DParamList) rlist [0])); 
+	}
     }
 
     static LInstList InstCallEmpty (LInstList llist, Array!LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	Array!LExp params;
-	inst += llist;
-	inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    Array!LExp params;
+	    inst += llist;
+	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
+	    return inst;
+	} else {
+	    return new DNew (new DPar (cast (DExpression) llist, new DParamList));
+	}
     }    
 
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    
+	    inst += new LWrite (leftExp, rightExp);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }    
     
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    
+	    inst += new LWrite (leftExp, rightExp);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
 
     static LInstList InstAffectNull (LInstList llist, LInstList) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-
-	inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
-	return inst;
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    
+	    inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull, Tokens.EQUAL);
+	}
     }    
 
     
@@ -278,7 +312,11 @@ class StructUtils {
     }
     
     static LInstList Init (LInstList, LInstList) {
-	return new LInstList (new LConstDecimal (0, LSize.LONG));
+	if (COMPILER.isToLint) {
+	    return new LInstList (new LConstDecimal (0, LSize.LONG));
+	} else {
+	    return new DNull ();
+	}
     }
 
     static LInstList GetAttribFromAncestor (ref bool done, StructInfo info, ref ulong nb, LSize retSize) {
@@ -325,22 +363,32 @@ class StructUtils {
     }
     
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
-	auto _ref = cast (RefInfo) (left.info.type);
-	auto type = cast (StructInfo) (left.info.type);
-	if (_ref) {
-	    type = cast (StructInfo) _ref.content;
+	if (COMPILER.isToLint) {
+	    auto _ref = cast (RefInfo) (left.info.type);
+	    auto type = cast (StructInfo) (left.info.type);
+	    if (_ref) {
+		type = cast (StructInfo) _ref.content;
+	    }
+	    bool done = false; ulong nb = ret.toGet;
+	    return GetAttribFromAncestor (done, type, nb, ret.size);
+	} else {
+	    auto lexp = DVisitor.visitExpressionOutSide (left);
+	    auto attrib = (cast (StructInfo) left.info.type).attribs [ret.toGet];
+	    return new DDot (lexp, new DVar (attrib));
 	}
-	bool done = false; ulong nb = ret.toGet;
-	return GetAttribFromAncestor (done, type, nb, ret.size);
     }
     
     static LInstList Attrib (LInstList sizeInst, LInstList left) {
-	auto inst = new LInstList;
-	auto leftExp = left.getFirst ();
-	auto size = cast (LRegRead) sizeInst.getFirst ();
-	inst += left;	
-	inst += new LRegRead (leftExp, size.begin, size.size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = left.getFirst ();
+	    auto size = cast (LRegRead) sizeInst.getFirst ();
+	    inst += left;	
+	    inst += new LRegRead (leftExp, size.begin, size.size);
+	    return inst;
+	} else {
+	    return sizeInst;
+	}
     }
 
     static LInstList GetMethodFromAncestor (ref bool done, StructInfo info, ref ulong nb, LSize retSize) {	
@@ -404,25 +452,37 @@ class StructUtils {
     }
         
     static LInstList InstEqual (LInstList llist, LInstList rlist) {
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
-	auto inst = new LInstList;
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	    auto inst = new LInstList;
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.IS);
+	}
     }
     
     static LInstList InstNotEqual (LInstList llist, LInstList rlist) {
-	auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
-	auto inst = new LInstList;
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst, rightExp = rlist.getFirst;
+	    auto inst = new LInstList;
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.NOT_IS);
+	}	
     }
 
     static LInstList InstAddr (LInstList llist) {
-	auto leftExp = llist.getFirst ();
-	llist += new LAddr (leftExp);
-	return llist;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst ();
+	    llist += new LAddr (leftExp);
+	    return llist;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.AND);
+	}
     }
     
     static LInstList GetTupleOfFromAncestor (StructInfo info) {
@@ -485,11 +545,15 @@ class StructUtils {
     }
 
     static LInstList InstPtr (LInstList, LInstList list) {
-	auto inst = new LInstList;
-	auto leftExp = list.getFirst ();
-	inst += list;
-	inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), Tokens.PLUS);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = list.getFirst ();
+	    inst += list;
+	    inst += new LBinop (cast (LExp) leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), Tokens.PLUS);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) list, Tokens.AND);
+	}
     }
     
     static LInstList GetSizeOf (InfoType, Expression left, Expression) {

@@ -18,6 +18,14 @@ class DBinary : DExpression {
 	this._op = op;
     }
 
+    DExpression left () {
+	return this._left;
+    }
+
+    DExpression right () {
+	return this._right;
+    }
+    
     override string toString () {
 	string l, r;
 	if (cast (DBinary) this._left) l = format ("(%s)", this._left.toString);

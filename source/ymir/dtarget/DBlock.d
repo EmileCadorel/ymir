@@ -15,6 +15,10 @@ class DBlock : DInstruction {
 	if (inst) inst.father = this;
     }
 
+    Array!DInstruction instructions () {
+	return this._insts;
+    }
+    
     ref ulong nbIndent () {
 	return this._nbIndent;
     }

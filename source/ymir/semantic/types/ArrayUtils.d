@@ -8,7 +8,7 @@ import ymir.utils._;
 import ymir.ast._;
 
 import std.container;
-import std.traits;
+import std.traits, std.conv;
 
 /**
  Cette classe contient un ensemble de fonctions statique qui permettent la transformation d'un tableau en lint.
@@ -179,34 +179,48 @@ class ArrayUtils {
      Returns: la boucle (le label de fin est accessible avec (.back ())).
      */
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
-	auto inst = new LInstList;
-	auto type = cast (ArrayInfo) _type;
-	auto left = LVisitor.visitExpressionOutSide (_left);
-	for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
-	    left = _left.info.type.lintInst (left, nb);
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto type = cast (ArrayInfo) _type;
+	    auto left = LVisitor.visitExpressionOutSide (_left);
+	    for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
+		left = _left.info.type.lintInst (left, nb);
 	
-	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
 	
-	auto leftExp = left.getFirst(), rightExp = right.getFirst ();
-	inst += left + right;
-	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
-	auto faux = new LLabel;
-	auto index = new LReg (LSize.LONG);
-	auto test = new LBinop (index, new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
-	inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
-	inst += debut;
-	inst += new LJump (test, vrai);
-	inst += new LGoto (faux);
-	vrai.insts += new LWrite (rightExp, new LBinop (new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
-							new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
-							Tokens.PLUS)
-	);
-	vrai.insts += block;
-	vrai.insts += new LUnop (index, Tokens.DPLUS, true);
-	vrai.insts += new LGoto (debut);
-	inst += vrai;
-	inst += faux;
-	return inst;
+	    auto leftExp = left.getFirst(), rightExp = right.getFirst ();
+	    inst += left + right;
+	    auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
+	    auto faux = new LLabel;
+	    auto index = new LReg (LSize.LONG);
+	    auto test = new LBinop (index, new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), LSize.LONG), Tokens.INF);
+	    inst += new LWrite (index, new LConstDecimal (0, LSize.INT));
+	    inst += debut;
+	    inst += new LJump (test, vrai);
+	    inst += new LGoto (faux);
+	    vrai.insts += new LWrite (rightExp, new LBinop (new LRegRead (leftExp, new LConstDecimal (1, LSize.INT, LSize.LONG), LSize.ULONG),
+							    new LBinop (index, new LConstDecimal (1, LSize.LONG, type.content.size), Tokens.STAR),
+							    Tokens.PLUS)
+	    );
+	    vrai.insts += block;
+	    vrai.insts += new LUnop (index, Tokens.DPLUS, true);
+	    vrai.insts += new LGoto (debut);
+	    inst += vrai;
+	    inst += faux;
+	    return inst;
+	} else {
+	    auto var = new DVar ("__" ~ DFor.nb.to!string ~ "__");
+	    DFor.nb ++;
+	    auto leftExp = cast (DExpression) DVisitor.visitExpressionOutSide (_left);
+	    auto right = cast (DVar) DVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto type = DVisitor.visitType ((cast (ArrayInfo) _type).content);
+	    auto nVar = new DVarDecl ();
+	    nVar.addVar (new DTypeVar (new DType (type.name ~ "*"), right));
+	    nVar.addExpression (new DBinary (right,  new DBefUnary (new DAccess (leftExp, var), Tokens.AND), Tokens.EQUAL));
+	    auto bl = new DBlock ();
+	    bl.addInst (nVar);
+	    return new DFor (var, new DBinary (var, new DDot (leftExp, new DVar ("length")), Tokens.INF), new DBefUnary (var, Tokens.DPLUS), bl);	    
+	}
     }
 
     /**

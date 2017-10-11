@@ -1,6 +1,6 @@
 module ymir.dtarget.DPar;
 import ymir.dtarget._;
-import std.format;
+import std.format, std.stdio;
 
 class DPar : DExpression {
     
