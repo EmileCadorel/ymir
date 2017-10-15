@@ -33,17 +33,46 @@ class StringUtils {
     /**
      Returns: la liste d'instruction d'un operateur d'affectation sur une string déjà affécté.
      */
-    static LInstList InstAffect (LInstList llist, LInstList rlist) {
+    static LInstList InstAffect (LInstList llist, LInstList rlist) {	
 	if (COMPILER.isToLint) {
 	    LInstList inst = new LInstList;
 	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
 	    inst += llist + rlist;
-	    if (auto cst = cast (LConstString) rightExp) return affectConstString (inst, leftExp, cst);
-	    
 	    inst += new LWrite (leftExp, rightExp);
 	    return inst;
 	} else {
-	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	    if (auto str = cast (DString) rlist) {
+		auto len = str.value.length;
+		auto bl = DBlock.current ();
+		auto iter = new DAuxVar (), val = new DAuxVar (), res = new DAuxVar;
+		auto decl = new DVarDecl ();
+
+		decl.addVar (new DTypeVar (new DType ("ulong"), iter));
+		decl.addExpression (new DBinary (iter, new DDecimal (0), Tokens.EQUAL));
+		decl.addVar (new DTypeVar (new DType ("immutable(char)*"), val));
+		decl.addExpression (new DBinary (val, new DDot (str, new DVar ("ptr")), Tokens.EQUAL));
+		decl.addVar (new DTypeVar (new DType ("char*"), res));
+		decl.addExpression (new DBinary (res, new DNew (new DVar ("char*"), new DDecimal (len)), Tokens.EQUAL));
+		
+		bl.addInst (decl);
+		auto test = new DBinary (new DBefUnary (val, Tokens.STAR), new DDecimal (0), Tokens.NOT_EQUAL);
+
+		auto inside = DBlock.open ();		
+		inside.addInst (new DBinary (new DAccess (res, iter), new DBefUnary (val, Tokens.STAR), Tokens.EQUAL));
+		inside.addInst (new DBefUnary (val, Tokens.DPLUS));
+		inside.addInst (new DBefUnary (iter, Tokens.DPLUS));
+		inside.close ();
+
+		bl.addInst (new DWhile (test, inside));
+
+		auto paramList = new DParamList ();
+		paramList.addParam (new DCast (new DType ("ulong"), new DDecimal (len)));
+		paramList.addParam (res);
+		
+		return new DBinary (cast (DExpression) llist, new DPar (new DVar ("tuple"), paramList), Tokens.EQUAL);
+	    } else {
+		return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	    }
 	}
     }
 
@@ -221,7 +250,38 @@ class StringUtils {
 		return inst;
 	    }
 	} else {
-	    return list;
+	    if (auto str = cast (DString) list) {
+		auto len = str.value.length;
+		auto bl = DBlock.current ();
+		auto iter = new DAuxVar (), val = new DAuxVar (), res = new DAuxVar;
+		auto decl = new DVarDecl ();
+
+		decl.addVar (new DTypeVar (new DType ("ulong"), iter));
+		decl.addExpression (new DBinary (iter, new DDecimal (0), Tokens.EQUAL));
+		decl.addVar (new DTypeVar (new DType ("immutable(char)*"), val));
+		decl.addExpression (new DBinary (val, new DDot (str, new DVar ("ptr")), Tokens.EQUAL));
+		decl.addVar (new DTypeVar (new DType ("char*"), res));
+		decl.addExpression (new DBinary (res, new DNew (new DVar ("char*"), new DDecimal (len)), Tokens.EQUAL));
+		
+		bl.addInst (decl);
+		auto test = new DBinary (new DBefUnary (val, Tokens.STAR), new DDecimal (0), Tokens.NOT_EQUAL);
+
+		auto inside = DBlock.open ();		
+		inside.addInst (new DBinary (new DAccess (res, iter), new DBefUnary (val, Tokens.STAR), Tokens.EQUAL));
+		inside.addInst (new DBefUnary (val, Tokens.DPLUS));
+		inside.addInst (new DBefUnary (iter, Tokens.DPLUS));
+		inside.close ();
+
+		bl.addInst (new DWhile (test, inside));
+
+		auto paramList = new DParamList ();
+		paramList.addParam (new DCast (new DType ("ulong"), new DDecimal (len)));
+		paramList.addParam (res);
+		
+		return new DPar (new DVar ("tuple"), paramList);		
+	    } else {
+		return list;
+	    }
 	}
     }
 

@@ -11,6 +11,10 @@ class DString : DExpression {
 	this._value = value;
     }
 
+    string value () {
+	return this._value;
+    }
+    
     override string toString () {
 	auto buf = new OutBuffer;
 	foreach (it ; this._value) {
@@ -20,7 +24,7 @@ class DString : DExpression {
 	    else buf.write (it);
 	}
 	buf.write ("\"");
-	return format ("(cast (char[]) \"%s[])", buf.toString);
+	return format ("\"%s", buf.toString);
     }
 
     

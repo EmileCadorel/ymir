@@ -210,7 +210,9 @@ class EnumInfo : InfoType {
     }
 
     override InfoType clone () {
-	return new EnumInfo (this._name, this._content.clone ());
+	auto ret = new EnumInfo (this._name, this._content.clone ());
+	ret.isConst = this.isConst;
+	return ret;
     }
 
     override InfoType cloneForParam () {

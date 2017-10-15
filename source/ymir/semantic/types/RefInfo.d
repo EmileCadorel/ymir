@@ -154,7 +154,9 @@ class RefInfo : InfoType {
      Returns: une nouvelle instance de ref.
      */
     override InfoType clone () {
-	return new RefInfo (this._content.clone ());
+	auto ret = new RefInfo (this._content.clone ());
+	ret.isConst = this.isConst;
+	return ret;
     }
 
     /**

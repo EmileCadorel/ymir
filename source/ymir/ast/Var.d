@@ -210,17 +210,23 @@ class Var : Expression {
 		    if (temp.length != 0) throw new UseAsType (this._token);
 		    if (this._deco == Keys.REF) 
 			throw new CannotRefEnum (this._token);
+		    auto type = encst.create ();
+		    if (this._deco == Keys.CONST) type.isConst = true;
 		    else return new Type (this._token, encst.create ());	    
 		} else if (auto str = cast (StructCstInfo) en.type) {
 		    auto type = str.create (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
-			return new Type (this._token, new RefInfo (type));
-		    else return new Type (this._token, type);
+			type = new RefInfo (type);
+		    if (this._deco == Keys.CONST)
+			type.isConst = true;
+		    return new Type (this._token, type);
 		} else if (auto str = cast (ObjectCstInfo) en.type) {
-		    auto type = str.create (this._token, temp.array ());
+		    InfoType type = str.create (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
-			return new Type (this._token, new RefInfo (type));
-		    else return new Type (this._token, type);
+			type = new RefInfo (type);
+		    else if (this._deco == Keys.CONST)
+			type.isConst = true;
+		    return new Type (this._token, type);
 		}
 	    }
 	    throw new UseAsType (this._token);
@@ -228,6 +234,8 @@ class Var : Expression {
 	    auto t_info = InfoType.factory (this._token, temp.array ());
 	    if (this._deco == Keys.REF)
 		t_info = new RefInfo (t_info);
+	    if (this._deco == Keys.CONST) t_info.isConst = true;
+	    else t_info.isConst = false;
 	    return new Type (this._token, t_info);
 	}
     }
@@ -318,8 +326,9 @@ class ArrayVar : Var {
 	if (auto var = cast (Var) this._content) {
 	    auto content = var.asType ();
 	    auto tok = Word (this.token.locus, "", false);
+	    auto type = new ArrayInfo (content.info.type);
 	    tok.str = this.token.str ~ this._content.token.str ~ "]";
-	    return new Type (tok, new ArrayInfo (content.info.type));
+	    return new Type (tok, type);
 	} else {
 	    auto ptr = cast (FuncPtr) this._content.expression ();
 	    if (ptr) {
@@ -495,15 +504,21 @@ class TypedVar : Var {
 	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type) {  
 		if (cast (EnumInfo) type.info.type)
 		    throw new CannotRefEnum (this._deco);
-		return new RefInfo (type.info.type);
-	    } else return type.info.type;
+		return new RefInfo (type.info.type);		
+	    } else if (this._deco == Keys.CONST)
+		type.info.type.isConst = true;		
+	    else type.info.type.isConst = false;		
+	    return type.info.type;	    
 	} else {
 	    this._expType = this._expType.expression ();
 	    if (this._deco == Keys.REF && !cast (RefInfo) type.info.type) {
 		if (cast (EnumInfo) type.info.type)
 		    throw new CannotRefEnum (this._deco);
 		return new RefInfo (this._expType.info.type);
-	    } else return this._expType.info.type;
+	    } else if (this._deco == Keys.CONST) 
+		this._expType.info.type.isConst = true;
+	    else this._expType.info.type.isConst = false;
+	    return this._expType.info.type;
 	}
     }
 
@@ -536,7 +551,7 @@ class Type : Var {
     
     this (Word word, InfoType info) {
 	super (word);
-	this._info = new Symbol (word, info, true);
+	this._info = new Symbol (word, info, info.isConst);
     }
 
     override Type expression () {

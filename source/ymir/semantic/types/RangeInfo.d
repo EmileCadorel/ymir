@@ -38,6 +38,7 @@ class RangeInfo : InfoType {
     override InfoType clone () {
 	auto ret = new RangeInfo (this._content.clone ());
 	ret.value = this._value;
+	ret.isConst = this.isConst;
 	return ret;
     }
 

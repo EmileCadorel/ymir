@@ -21,6 +21,9 @@ class Cast : Expression {
     /// L'expression a caster
     private Expression _expr;
 
+    // Const ou non ?
+    private Token _deco;
+    
     this (Word begin, Expression type, Expression expr) {
 	super (begin);
 	this._type = type;
@@ -51,7 +54,11 @@ class Cast : Expression {
 		info = expr.info.type.CompOp (type.info.type);
 		if (info is null)
 		    throw new UndefinedOp (this._token, expr.info, type.info);
-	    } 
+	    }
+	    
+	    if (this._deco == Keys.CONST) info.isConst = true;
+	    else info.isConst = false;
+	    
 	    auto aux = new Cast (this._token, type, expr);
 	    aux.info = new Symbol (this._token, info);
 	    return aux;
@@ -74,6 +81,10 @@ class Cast : Expression {
      */
     Expression expr () {
 	return this._expr;
+    }
+
+    Expression type () {
+	return this._type;
     }
     
     override string prettyPrint () {

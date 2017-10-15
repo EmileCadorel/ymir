@@ -17,10 +17,35 @@ final class DVarDecl : DInstruction {
 	this._expr.insertBack (expr);
     }
 
-    override string toString () {
+    string inOneLine () {
 	auto buf = new OutBuffer ();
 	foreach (it ; this._types) {
 	    auto found = this._expr[].find!( (a, b) => (cast(DVar) (cast (DBinary)a).left).name == b.var.name) (it);
+	    if (!found.empty) {
+		buf.writef ("%s = %s", it.toString, (cast (DBinary) found [0]).right.toString);
+	    } else {		
+		buf.writef ("%s", it.toString);
+	    }
+	    if (it !is this._types [$ - 1]) buf.write (", ");	    
+	}
+	return buf.toString;
+    }
+    
+    override string toString () {
+	auto buf = new OutBuffer ();
+	foreach (it ; this._types) {
+	    auto found = this._expr[].find!( (a, b) {
+		    import std.stdio;
+		    auto bin = cast (DBinary) a;
+		    if (bin) {
+			auto var = cast (DVar) bin.left;
+			if (!var) writeln ("ICI : ", a);
+			return b.var.name == var.name;
+		    } else {
+			writeln ("ICI : ", a);
+		    }
+		    assert (false);
+		}) (it);
 	    if (!found.empty) {
 		if (it is this._types [0])
 		    buf.writefln ("%s = %s;", it.toString, (cast (DBinary) found [0]).right.toString);

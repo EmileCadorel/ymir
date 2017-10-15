@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.compiler._;
+import ymir.dtarget._;
 
 import std.container;
 
@@ -20,11 +22,15 @@ class PtrUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LWrite (leftExp, rightExp));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LWrite (leftExp, rightExp));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
     
     /**
@@ -34,11 +40,15 @@ class PtrUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstAffectNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Tokens.EQUAL);
+	}
     }
 
     /**
@@ -51,11 +61,15 @@ class PtrUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstOp (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.ULONG), op));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new  LBinop (leftExp, new LCast (rightExp, LSize.ULONG), op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, op);
+	}
     }
    
     /**
@@ -68,11 +82,15 @@ class PtrUtils {
      Returns: les instructions du lint.
      */
     static LInstList InstOpInv (LSize size, Tokens op) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new  LBinop (new LCast (rightExp, LSize.ULONG), leftExp, op));
-	return inst;
+	if (COMPILER.isToLint) {	
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new  LBinop (new LCast (rightExp, LSize.ULONG), leftExp, op));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) rlist, cast (DExpression) llist, op);
+	}
     }
 
     /**
@@ -83,11 +101,15 @@ class PtrUtils {
      Returns: les instructions de l'accés en lint.
      */
     static LInstList InstUnref (LSize size) (LInstList llist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.STAR);
+	}
     }
 
     /**
@@ -98,11 +120,15 @@ class PtrUtils {
      Returns: les instructions de l'accés en lint.     
      */
     static LInstList InstUnrefDot (LSize size) (LInstList, LInstList llist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT), size);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.STAR);
+	}
     }
 
     /**

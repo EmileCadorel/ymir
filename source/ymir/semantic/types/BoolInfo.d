@@ -246,6 +246,7 @@ class BoolInfo : InfoType {
     override InfoType clone () {
 	auto ret = new BoolInfo ();
 	ret.value = this._value;
+	ret.isConst = this.isConst;
 	return ret;
     }
 

@@ -3,6 +3,7 @@ import ymir.ast._;
 import ymir.semantic._;
 import ymir.syntax._;
 import ymir.utils._;
+import ymir.compiler._;
 
 import std.stdio, std.conv, std.container, std.outbuffer;
 
@@ -74,44 +75,57 @@ class PureFrame : Frame {
 		this._function.params [0] = new TypedVar (tok,
 							  new ArrayVar (tok, new Var (str)));		
 	    }
-
-	    auto finalParam = make!(Array!Var) (
-		new TypedVar (Word (tok.locus, "#argc", false),
-			      new Var (Word (tok.locus, "int", false))),
-		new TypedVar (Word (tok.locus, "#argv", false),
-			 new Var (Word (tok.locus, "p", false),
-				  make!(Array!Expression) (
-				      new Var (Word (tok.locus, "p", false),
-					       make!(Array!Expression) (
-						   new Var (Word(tok.locus, "char", false)))
-				      )
-				  )
-			 )
-		)
-	    );
 	    
-	    auto blk = this._function.block;
-	    blk.insts = make!(Array!Instruction) (
-		new VarDecl (tok,
-			     make!(Array!Word) (Word (tok.locus, "const", false)),
-			     make!(Array!Var) (new Var (tok)),
-			     make!(Array!Expression) (
-				 new Binary (Word (tok.locus, Tokens.EQUAL.descr, false),
-					     new Var (tok),
-					     new Par (tok, tok, new Var (Word (tok.locus, "getArgs", false)),
-						      new ParamList (tok,
-								     make!(Array!Expression) (
-									 new Var (Word (tok.locus, "#argc", false)),
-									 new Var (Word (tok.locus, "#argv", false))
-								     )
-						      )
-					     )
+	    if (COMPILER.isToLint) {
+		auto finalParam = make!(Array!Var) (
+		    new TypedVar (Word (tok.locus, "#argc", false),
+				  new Var (Word (tok.locus, "int", false))),
+		    new TypedVar (Word (tok.locus, "#argv", false),
+				  new Var (Word (tok.locus, "p", false),
+					   make!(Array!Expression) (
+					       new Var (Word (tok.locus, "p", false),
+							make!(Array!Expression) (
+							    new Var (Word(tok.locus, "char", false)))
+					       )
+					   )
+				  )
+		    )
+		);
+		
+		auto blk = this._function.block;
+		blk.insts = make!(Array!Instruction) (
+		    new VarDecl (tok,
+				 make!(Array!Word) (Word (tok.locus, "const", false)),
+				 make!(Array!Var) (new Var (tok)),
+				 make!(Array!Expression) (
+				     new Binary (Word (tok.locus, Tokens.EQUAL.descr, false),
+						 new Var (tok),
+						 new Par (tok, tok, new Var (Word (tok.locus, "getArgs", false)),
+							  new ParamList (tok,
+									 make!(Array!Expression) (
+									     new Var (Word (tok.locus, "#argc", false)),
+									     new Var (Word (tok.locus, "#argv", false))
+									 )
+							  )
+						 )
+				     )
 				 )
-			     )
-		)
-	    ) ~ blk.insts;
-	    		
-	    this._function.params = finalParam;
+		    )
+		) ~ blk.insts;
+		
+		this._function.params = finalParam;
+	    } else {
+		auto finalParam = make!(Array!Var) (
+		    new TypedVar (tok,
+				  new ArrayVar (tok,
+						new Var (Word (tok.locus, "string", false)
+						)						
+				  )
+		    )
+		);
+		this._function.params = finalParam;
+	    }
+	    
 	} else if (this._function.params.length != 0)
 	    throw new WrongTypeForMain (this._function.ident);
 	

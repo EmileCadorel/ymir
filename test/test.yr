@@ -1,11 +1,6 @@
 
-
-struct A {
-    a : int
-}
-
-
-def main () {
-    let a = A (10);
-    println (a.a);
+def main () {    
+    let a = "salut";
+    a [1] = 'r';
+    println (a);
 }

@@ -472,6 +472,7 @@ class FloatInfo : InfoType {
     override InfoType clone () {
 	auto ret = new FloatInfo ();
 	ret.value = this._value;
+	ret.isConst = this.isConst;
 	return ret;
     }
 

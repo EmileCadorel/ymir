@@ -1,6 +1,8 @@
 module ymir.dtarget.DVar;
 import ymir.dtarget._;
 
+import std.format;
+
 class DVar : DExpression {
 
     private string _name;
@@ -16,4 +18,18 @@ class DVar : DExpression {
     override string toString () {
 	return this._name;
     }    
+}
+
+class DAuxVar : DVar {
+
+    private static ulong __last__ = 0;
+
+    private ulong _id;
+    
+    this () {
+	super (format ("__%d__", __last__));
+	this._id = __last__;
+	__last__ ++;
+    }
+   
 }

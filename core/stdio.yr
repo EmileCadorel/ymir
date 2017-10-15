@@ -13,6 +13,16 @@ def print (s : string) : void {
     } else for (it in s) putchar (it);
 }
 
+def print (const s : string) : void {
+    if (s is null) {        
+        putchar ('n');
+        putchar ('u');
+        putchar ('l');
+        putchar ('l');
+    } else for (it in s) putchar (it);
+}
+
+
 def print (i : long) : void {
     printf (("%ld").ptr, i);
 }

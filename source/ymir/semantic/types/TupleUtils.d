@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.dtarget._;
+import ymir.compiler._;
 
 import std.container;
 
@@ -123,13 +125,16 @@ class TupleUtils {
      Returns: la liste des instructions du lint.
      */
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
-	LInstList inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
-
+	if (COMPILER.isToLint) {
+	    LInstList inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    
+	    inst += new LWrite (leftExp, rightExp);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }       
 
     static LInstList GetSizeOf (InfoType, Expression left, Expression) {
@@ -155,49 +160,60 @@ class TupleUtils {
     }
 
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
-	auto _ref = cast (RefInfo) (left.info.type);
-	auto type = cast (TupleInfo) (left.info.type);
-	if (_ref) {
-	    type = cast (TupleInfo) _ref.content;
-	}
-	auto inst = new LInstList;
+	if (COMPILER.isToLint) {
+	    auto _ref = cast (RefInfo) (left.info.type);
+	    auto type = cast (TupleInfo) (left.info.type);
+	    if (_ref) {
+		type = cast (TupleInfo) _ref.content;
+	    }
+	    auto inst = new LInstList;
 
-	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	foreach (it ; 0 .. ret.toGet) {
-	    final switch (type.params [it].size.id) {
-	    case LSize.LONG.id: nbLong ++; break;
-	    case LSize.ULONG.id: nbUlong ++; break;
-	    case LSize.INT.id: nbInt ++; break;
-	    case LSize.UINT.id: nbUint ++; break;
-	    case LSize.SHORT.id: nbShort ++; break;
-	    case LSize.USHORT.id: nbUshort ++; break;
-	    case LSize.BYTE.id: nbByte ++; break;
-	    case LSize.UBYTE.id: nbUbyte ++; break;
-	    case LSize.FLOAT.id: nbFloat ++; break;
-	    case LSize.DOUBLE.id: nbDouble ++; break;
-	    }	    
+	    ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	    foreach (it ; 0 .. ret.toGet) {
+		final switch (type.params [it].size.id) {
+		case LSize.LONG.id: nbLong ++; break;
+		case LSize.ULONG.id: nbUlong ++; break;
+		case LSize.INT.id: nbInt ++; break;
+		case LSize.UINT.id: nbUint ++; break;
+		case LSize.SHORT.id: nbShort ++; break;
+		case LSize.USHORT.id: nbUshort ++; break;
+		case LSize.BYTE.id: nbByte ++; break;
+		case LSize.UBYTE.id: nbUbyte ++; break;
+		case LSize.FLOAT.id: nbFloat ++; break;
+		case LSize.DOUBLE.id: nbDouble ++; break;
+		}	    
+	    }
+	    
+	    auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    
+	    inst += new LRegRead (null, size, ret.size);
+	    return inst;	    
+	} else {
+	    auto lexp = DVisitor.visitExpressionOutSide (left);
+	    auto param = new DParamList ();
+	    param.addParam (new DDecimal (ret.toGet));
+	    return new DAccess (lexp, param);
 	}
-
-	auto size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-	
-	inst += new LRegRead (null, size, ret.size);
-	return inst;
     }
 
     static LInstList Attrib (LInstList sizeInst, LInstList left) {
-	auto inst = new LInstList;
-	auto leftExp = left.getFirst ();
-	auto size = cast (LRegRead) sizeInst.getFirst ();
-	inst += left;
-	inst += new LRegRead (leftExp, size.begin, size.size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = left.getFirst ();
+	    auto size = cast (LRegRead) sizeInst.getFirst ();
+	    inst += left;
+	    inst += new LRegRead (leftExp, size.begin, size.size);
+	    return inst;
+	} else {
+	    return sizeInst;
+	}
     }
     
     static LInstList SizeOf (LInstList left, LInstList) {
 	return left;
     }
 
-    static LInstList InstCreateCstEmpty (InfoType _type, Expression _tuple, Expression) {	
+    static LInstList InstCreateCstEmpty (InfoType _type, Expression _tuple, Expression) {		
 	string tupleName = Mangler.mangle!"tuple" (new Namespace (_tuple.token.locus.file), _type.simpleTypeString ());
 	auto type = cast(TupleInfo) _type;
 	auto it = (StructUtils.__CstName__ ~ tupleName) in LFrame.preCompiled;

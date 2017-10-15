@@ -23,7 +23,21 @@ class StringInfo : InfoType {
      Returns: le type de retour ou null.
      */
     override InfoType CompOp (InfoType other) {
-	if (cast (StringInfo) other || cast (UndefInfo) other) {
+	if (cast (StringInfo) other) {
+	    if (this.isConst && !other.isConst) return null;
+	    else if (!this.isConst && other.isConst) {
+		auto ret = new StringInfo ();
+		ret.lintInstS.insertBack (&StringUtils.InstComp);
+		ret.lintInst = &ClassUtils.InstAffectRight;
+		ret.isConst = true;
+		return ret;
+	    } else {
+		auto ret = new StringInfo ();
+		ret.lintInstS.insertBack (&StringUtils.InstComp);
+		ret.lintInst = &ClassUtils.InstAffectRight;
+		return ret;
+	    }	    
+	} else if (cast (UndefInfo) other) {
 	    auto ret = new StringInfo ();
 	    ret.lintInstS.insertBack (&StringUtils.InstComp);
 	    ret.lintInst = &ClassUtils.InstAffectRight;
@@ -98,7 +112,7 @@ class StringInfo : InfoType {
     private InfoType Affect (Expression right) {
 	if (cast(StringInfo)right.info.type) {
 	    auto str = new StringInfo ();
-	    str.lintInst = &ClassUtils.InstAffect;
+	    str.lintInst = &StringUtils.InstAffect;
 	    return str;
 	} else if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new StringInfo ();
@@ -117,11 +131,11 @@ class StringInfo : InfoType {
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInst = &ClassUtils.InstIsNull;
+	    ret.lintInst = &ArrayUtils.InstIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInst = &ClassUtils.InstIs;
+	    ret.lintInst = &ArrayUtils.InstIs;
 	    return ret;
 	}
 	return null;
@@ -200,12 +214,14 @@ class StringInfo : InfoType {
 	if (auto t = cast (StringInfo) right.info.type) {
 	    auto str = new StringInfo ();
 	    str.lintInst = &StringUtils.InstPlus;
+	    str.isConst = true;
 	    if (this._value)
 		str.value = this._value.BinaryOp (Tokens.PLUS, t._value);
 	    return str;
 	} else if (auto t = cast (CharInfo) right.info.type) {
 	    auto str = new StringInfo ();
 	    str.lintInst = &StringUtils.InstPlusChar;
+	    str.isConst = true;
 	    if (this._value)
 		str.value = this._value.BinaryOp (Tokens.PLUS, t.value);
 	    return str;
@@ -222,7 +238,7 @@ class StringInfo : InfoType {
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
 	    auto str = new StringInfo ();
-	    str.lintInst = &ClassUtils.InstAffectRight;
+	    str.lintInst = &StringUtils.InstAffect;
 	    return str;
 	}
 	return null;
@@ -235,7 +251,7 @@ class StringInfo : InfoType {
      Returns: le type de retour ou null.
      */
     override InfoType CastOp (InfoType info) {
-	if (cast (StringInfo)info) return this;
+	if (cast (StringInfo) info) return this;
 	auto type = cast (ArrayInfo) info;
 	if (type && cast (CharInfo) type.content) {
 	    auto other = new ArrayInfo (new CharInfo);
@@ -253,11 +269,17 @@ class StringInfo : InfoType {
      */
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
-	vars [0].info.type = new RefInfo (new CharInfo ());
-	vars [0].info.type.isConst = this.isConst;
+	if (this.isConst) {
+	    vars [0].info.type = new CharInfo ();
+	    vars [0].info.type.isConst = this.isConst;
+	} else {
+	    vars [0].info.type = new RefInfo (new CharInfo ());
+	    vars [0].info.type.isConst = this.isConst;
+	}
 	auto ret = new ArrayInfo (new CharInfo ());
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
 	ret.lintInst = &ArrayUtils.InstApply;
+	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -378,6 +400,7 @@ class StringInfo : InfoType {
     override InfoType clone () {
 	auto ret = new StringInfo ();
 	ret.value = this._value;
+	ret.isConst = this.isConst;
 	return ret;
     }
 

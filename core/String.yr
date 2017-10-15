@@ -7,7 +7,7 @@ def opTest ('>') (a : int, b : string) : bool {
     return true;
 }
 
-def opEquals (a : string, b : string) : bool {
+def opEquals (const a : string, const b : string) : bool {
     if (a.length != b.length) return false;
     for (it in 0UL .. a.length)
 	if (a [it] != b [it]) return false;
@@ -22,7 +22,7 @@ def opIndex if (isDecimal!(T)) (T) (str : string, rng : r!(T)) {
     return cast:string (str[][rng]);
 }
 
-def opTest ('<') (a : string, b : string) : bool {
+def opTest ('<') (const a : string, const b : string) : bool {
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] > b [it]) return false;
 	else if (a [it] < b [it]) return true;
@@ -30,7 +30,7 @@ def opTest ('<') (a : string, b : string) : bool {
     return false;
 }    
 
-def opTest ('>') (a : string, b : string) : bool {
+def opTest ('>') (const a : string, const b : string) : bool {
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] < b [it]) return false;
 	else if (a [it] > b [it]) return true;

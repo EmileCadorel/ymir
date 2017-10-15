@@ -22,13 +22,13 @@ class DType {
 	return this._name;
     }
 
-    bool isConst () {
+    ref bool isConst () {
 	return this._isConst;
     }
     
     override string toString () {
-	if (this._isConst) {
-	    return format ("const %s", this._name);
+	if (this._isConst && this._name != "void") {
+	    return format ("const (%s)", this._name);
 	} else return this._name;
     }
 

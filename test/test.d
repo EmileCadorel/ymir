@@ -1,21 +1,27 @@
 module test.test;
+import std.typecons;
+import core.memory;
 import core.stdio;
-import core.stdio;
 
 
 
-void println (int i) {
-    print (i);
-    print (cast (char) (10));
+void _Y4test4test7printlnFsZv (Tuple!(ulong, char*) i) {
+    _Y4core5stdio5printFsZv (i);
+    _Y4core5stdio5printFaZv (cast (char) (10));
 }
 
 void main () {
-    A * a = new A (cast (int) (10));
+    ulong __0__ = 0;
+    immutable(char)* __1__ = "salut".ptr;
+    char* __2__ = (cast (char*) GC.malloc (5));
 
-    println (a.a);
+    while (*(__1__) != 0)  {
+        __2__ [__0__] = *(__1__);
+        ++(__1__);
+        ++(__0__);
+    }
+    Tuple!(ulong, char*) a = tuple (cast (ulong) (5), __2__);
+
+    a [1] [cast (int) (1)] = cast (char) (114);
+    _Y4test4test7printlnFsZv (a);
 }
-
-struct A {
-int a; 
-}
-

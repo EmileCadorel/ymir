@@ -5,7 +5,7 @@ import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
 
-import std.container;
+import std.container, std.format;
 
 /**
  Déclaration d'une information de tableau.
@@ -45,7 +45,8 @@ class ArrayInfo : InfoType {
     override bool isSame (InfoType other) {
 	auto arr = cast (ArrayInfo) other;
 	if (arr is null) return false;
-	if (this._content is arr._content) return true;
+	if (this.isConst != other.isConst) return false;
+	if (this._content is arr._content) return true;       
 	return arr._content.isSame (this._content);
     }
 
@@ -104,11 +105,16 @@ class ArrayInfo : InfoType {
      */
     override InfoType ApplyOp (Array!Var vars) {	
 	if (vars.length != 1) return null;
-	vars [0].info.type = new RefInfo (this._content.clone ());
-	vars [0].info.type.isConst = false;
+	if (this.isConst) {
+	    vars [0].info.type = this._content.clone ();
+	} else {
+	    vars [0].info.type = new RefInfo (this._content.clone ());
+	    vars [0].info.type.isConst = false;
+	}
 	auto ret = this.clone ();
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
 	ret.lintInst = &ArrayUtils.InstApply;
+	ret.isConst = this.isConst;
 	return ret;
     }
     
@@ -121,11 +127,11 @@ class ArrayInfo : InfoType {
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInst = &ClassUtils.InstIsNull;
+	    ret.lintInst = &ArrayUtils.InstIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
 	    auto ret = new BoolInfo ();
-	    ret.lintInst = &ClassUtils.InstIs;
+	    ret.lintInst = &ArrayUtils.InstIs;
 	    return ret;
 	}
 	return null;
@@ -312,6 +318,7 @@ class ArrayInfo : InfoType {
     override InfoType clone () {
 	auto ret = new ArrayInfo (this._content.clone ());
 	ret.value = this._value;
+	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -348,7 +355,19 @@ class ArrayInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
-	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
+	if ((type && type.content.isSame (this._content))) {
+	    if (this.isConst && !other.isConst) return null;
+	    else if (!this.isConst && other.isConst) {
+		auto ret = new ArrayInfo (this._content.clone ());
+		ret.lintInst = &ClassUtils.InstAffectRight;
+		ret.isConst = true;
+		return ret;
+	    } else {
+		auto ret = new ArrayInfo (this._content.clone ());
+		ret.lintInst = &ClassUtils.InstAffectRight;
+		return ret;
+	    }
+	} else if (cast (UndefInfo) other) {
 	    auto ret = new ArrayInfo (this._content.clone ());
 	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
@@ -374,14 +393,16 @@ class ArrayInfo : InfoType {
      Returns: Le type du tableau sous forme de chaine.
      */
     override string typeString () {
-	return "[" ~ this._content.typeString () ~ "]";
+	if (this.isConst) return format ("const ([%s])", this._content.typeString);
+	else return format ("[%s]", this._content.typeString);
     }
 
     /**
      Returns: le type du tableau sou forme de chaine simplifié.
      */    
     override string simpleTypeString () {
-	return "A" ~ this._content.simpleTypeString ();
+	if (this.isConst) return format ("cA%s", this._content.simpleTypeString);
+	else return format ("A%s", this._content.simpleTypeString);
     }
     
     /**

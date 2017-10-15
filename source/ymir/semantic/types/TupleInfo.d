@@ -153,6 +153,7 @@ class TupleInfo : InfoType {
 	}
 	tu.value = this._value;
 	tu._isType = this._isType;
+	tu.isConst = this.isConst;
 	return tu;
     }
 

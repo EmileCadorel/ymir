@@ -890,6 +890,7 @@ class StructInfo : InfoType {
 	ret._statics = this._statics;
 	ret._ancestor = this._ancestor;
 	ret._simple = this._simple;
+	ret.isConst = this.isConst;
 	return ret;
     }
 

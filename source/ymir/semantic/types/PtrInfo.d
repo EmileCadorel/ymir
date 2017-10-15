@@ -365,6 +365,7 @@ class PtrInfo : InfoType {
 	else {
 	    auto aux = new PtrInfo ();
 	    aux._content = this._content.clone ();
+	    aux.isConst = this.isConst;
 	    return aux;
 	}
     }

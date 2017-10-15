@@ -116,8 +116,12 @@ class ArrayUtils {
 	    return inst;
 	}
 
+	auto InstAccessD (DExpression left, Array!LInstList rights) {
+	    return new DAccess (new DAccess (left, new DDecimal (1)), cast (DParamList) rights[0]);
+	}
+	
 	if (COMPILER.isToLint) return InstAccessLint (llist, rlists);
-	else assert (false);	
+	else return InstAccessD (cast (DExpression) llist, rlists);
     }
 
     static LRegRead InstAccess (LExp left, LExp right, LSize size) {
@@ -133,6 +137,50 @@ class ArrayUtils {
 	else assert (false);
 	
     }
+
+    static LInstList InstIs (LInstList llist, LInstList rlist) {
+	if (COMPILER.isToLint) {
+	    return ClassUtils.InstIs (llist, rlist);
+	} else {
+	    return new DBinary (new DAccess (cast (DExpression) llist, new DDecimal (1)),
+				new DAccess (cast (DExpression) rlist, new DDecimal (1)),
+				Keys.IS
+	    );
+	}
+    }
+
+    static LInstList InstIsNull (LInstList llist, LInstList rlist) {
+	if (COMPILER.isToLint) {
+	    return ClassUtils.InstIsNull (llist, rlist);
+	} else {
+	    return new DBinary (new DAccess (cast (DExpression) llist, new DDecimal (1)),
+				new DNull (),
+				Keys.IS
+	    );					     
+	}
+    }        
+
+    static LInstList InstNotIs (LInstList llist, LInstList rlist) {
+	if (COMPILER.isToLint) {
+	    return ClassUtils.InstIs (llist, rlist);
+	} else {
+	    return new DBinary (new DAccess (cast (DExpression) llist, new DDecimal (1)),
+				new DAccess (cast (DExpression) rlist, new DDecimal (1)),
+				Keys.NOT_IS
+	    );
+	}
+    }
+
+    static LInstList InstNotIsNull (LInstList llist, LInstList rlist) {
+	if (COMPILER.isToLint) {
+	    return ClassUtils.InstIsNull (llist, rlist);
+	} else {
+	    return new DBinary (new DAccess (cast (DExpression) llist, new DDecimal (1)),
+				new DNull (),
+				Keys.NOT_IS
+	    );					     
+	}
+    }        
 
     
     /**
@@ -209,17 +257,46 @@ class ArrayUtils {
 	    inst += faux;
 	    return inst;
 	} else {
-	    auto var = new DVar ("__" ~ DFor.nb.to!string ~ "__");
-	    DFor.nb ++;
+	    auto var = new DAuxVar ();
+	    auto rvar = new DAuxVar ();
+	    auto arrayType = cast (ArrayInfo) _type;
+	    
 	    auto leftExp = cast (DExpression) DVisitor.visitExpressionOutSide (_left);
 	    auto right = cast (DVar) DVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
-	    auto type = DVisitor.visitType ((cast (ArrayInfo) _type).content);
-	    auto nVar = new DVarDecl ();
-	    nVar.addVar (new DTypeVar (new DType (type.name ~ "*"), right));
-	    nVar.addExpression (new DBinary (right,  new DBefUnary (new DAccess (leftExp, var), Tokens.AND), Tokens.EQUAL));
-	    auto bl = new DBlock ();
+	    
+	    auto type = DVisitor.visitType (arrayType.content);
+	    auto ptrType = new DType (type.name ~ "*");
+	    auto nVar = new DVarDecl (), inits = new DVarDecl ();
+	    
+	    if (!_type.isConst) type = new DType (type.name ~ "*");	    
+	    nVar.addVar (new DTypeVar (type, right));
+
+	    if (_type.isConst) 
+		nVar.addExpression (
+		    new DBinary (right,
+				 new DAccess (new DAccess (rvar, new DDecimal (1)), new DBinary (var, new DDecimal (arrayType.content.size), Tokens.STAR)),
+				 Tokens.EQUAL
+		    )		    
+		);	    
+	    else 
+		nVar.addExpression (
+		    new DBinary (right,
+				 new DBinary (new DAccess (rvar, new DDecimal (1)), new DBinary (var, new DDecimal (arrayType.content.size), Tokens.STAR), Tokens.PLUS),
+				 Tokens.EQUAL
+		    )		    
+		);	    
+
+	    inits.addVar (new DTypeVar (new DType ("ulong"), var));
+	    inits.addExpression (new DBinary (var, new DDecimal (0), Tokens.EQUAL));
+	    
+	    auto arrType = DVisitor.visitType (_left.info.type);
+	    inits.addVar (new DTypeVar (arrType, rvar));
+	    inits.addExpression (new DBinary (rvar, leftExp, Tokens.EQUAL));
+	    
+	    auto bl = DBlock.open ();
 	    bl.addInst (nVar);
-	    return new DFor (var, new DBinary (var, new DDot (leftExp, new DVar ("length")), Tokens.INF), new DBefUnary (var, Tokens.DPLUS), bl);	    
+	    bl.close ();
+	    return new DFor (inits, new DBinary (var, new DAccess (rvar, new DDecimal (0)), Tokens.INF), new DBefUnary (var, Tokens.DPLUS), bl);	    
 	}
     }
 

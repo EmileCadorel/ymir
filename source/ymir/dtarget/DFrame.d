@@ -45,14 +45,15 @@ class DFrame : LFrame {
     ref Namespace space () {
 	return this._namespace;
     }
-
+    
     override string name () {
 	return this._name;
     }
     
     override string toString () {
-	auto buf = new OutBuffer ();
-	buf.writef ("%s %s (", this._type.simpleString, this._name);
+	auto buf = new OutBuffer ();	
+	buf.writef ("%s %s (", this._type.toString, this._name);
+	
 	foreach (it ; this._params) {
 	    buf.writef ("%s%s", it, it is this._params [$ - 1] ? "" : ", ");
 	}

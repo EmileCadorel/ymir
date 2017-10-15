@@ -4,7 +4,10 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.compiler._;
+import ymir.dtarget._;
 
+import std.conv;
 import std.container;
 
 /**
@@ -135,48 +138,90 @@ class RangeUtils {
      Returns: une liste d'instruction qui contient un block temporaire que l'on va remplacer par le contenu de la boucle.
      */
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
-	auto inst = new LInstList;
-	auto type = cast (RangeInfo) _type;
-	if (type.value) return InstApplyPreTreatWithValue (type, _left, _right);
-	auto left = LVisitor.visitExpressionOutSide (_left);
-	for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
-	    left = _left.info.type.lintInst (left, nb);
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto type = cast (RangeInfo) _type;
+	    if (type.value) return InstApplyPreTreatWithValue (type, _left, _right);
+	    auto left = LVisitor.visitExpressionOutSide (_left);
+	    for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
+		left = _left.info.type.lintInst (left, nb);
 	    
-	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
-	auto leftExp = left.getFirst (), rightExp = right.getFirst ();
-	inst += left + right;
-	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
-	auto faux = new LLabel;
-	auto fst = new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), type.content.size);
-	inst += new LWrite (rightExp, fst);
-	auto scd = new LRegRead (leftExp, new LBinop (new LConstDecimal (0, LSize.LONG, LSize.LONG),
-						      new LConstDecimal (1, LSize.LONG, type.content.size),
-						      Tokens.PLUS), type.content.size);
+	    auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto leftExp = left.getFirst (), rightExp = right.getFirst ();
+	    inst += left + right;
+	    auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
+	    auto faux = new LLabel;
+	    auto fst = new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), type.content.size);
+	    inst += new LWrite (rightExp, fst);
+	    auto scd = new LRegRead (leftExp, new LBinop (new LConstDecimal (0, LSize.LONG, LSize.LONG),
+							  new LConstDecimal (1, LSize.LONG, type.content.size),
+							  Tokens.PLUS), type.content.size);
 	    
-	auto test = new LBinop (rightExp,  scd, Tokens.NOT_EQUAL);
-	inst += debut;
-	inst += new LJump (test, vrai);
-	inst += new LGoto (faux);
-	vrai.insts += block;
-	auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel (new LInstList);
-	vrai.insts += new LJump (new LBinop (fst, scd, Tokens.INF), vrai2);
-	vrai.insts += new LGoto (faux2);
-	if (type.content.size == LSize.FLOAT || type.content.size == LSize.DOUBLE) {
-	    vrai2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1), type.content.size), rightExp, Tokens.PLUS);
-	    vrai2.insts += new LGoto (debut);
-	    faux2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1.), type.content.size), rightExp, Tokens.MINUS);
-	    faux2.insts += new LGoto (debut);
+	    auto test = new LBinop (rightExp,  scd, Tokens.NOT_EQUAL);
+	    inst += debut;
+	    inst += new LJump (test, vrai);
+	    inst += new LGoto (faux);
+	    vrai.insts += block;
+	    auto vrai2 = new LLabel (new LInstList), faux2 = new LLabel (new LInstList);
+	    vrai.insts += new LJump (new LBinop (fst, scd, Tokens.INF), vrai2);
+	    vrai.insts += new LGoto (faux2);
+	    if (type.content.size == LSize.FLOAT || type.content.size == LSize.DOUBLE) {
+		vrai2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1), type.content.size), rightExp, Tokens.PLUS);
+		vrai2.insts += new LGoto (debut);
+		faux2.insts += new LBinop (rightExp, new LCast (new LConstDouble (1.), type.content.size), rightExp, Tokens.MINUS);
+		faux2.insts += new LGoto (debut);
+	    } else {
+		vrai2.insts += new LUnop (rightExp, Tokens.DPLUS, true);
+		vrai2.insts += new LGoto (debut);
+		faux2.insts += new LUnop (rightExp, Tokens.DMINUS, true);
+		faux2.insts += new LGoto (debut);
+	    }
+	    vrai.insts += vrai2;
+	    vrai.insts += faux2;
+	    inst += vrai;
+	    inst += faux;
+	    return inst;	
 	} else {
-	    vrai2.insts += new LUnop (rightExp, Tokens.DPLUS, true);
-	    vrai2.insts += new LGoto (debut);
-	    faux2.insts += new LUnop (rightExp, Tokens.DMINUS, true);
-	    faux2.insts += new LGoto (debut);
+	    auto var = new DVar ("__" ~ DFor.nb.to!string ~ "__");
+	    auto rvar = new DVar ("__" ~ DFor.nb.to!string ~ DFor.nb.to!string ~ "__");
+				  
+	    DFor.nb++;
+	    auto leftExp = cast (DExpression) DVisitor.visitExpressionOutSide (_left);
+	    auto right = cast (DVar) DVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto type = DVisitor.visitType ((cast (RangeInfo)_type).content);
+	    type.isConst = false;
+	    
+	    auto nVar = new DVarDecl (), inits = new DVarDecl ();
+	    nVar.addVar (new DTypeVar (type, right));
+	    nVar.addExpression (new DBinary (right, var, Tokens.EQUAL));
+
+	    inits.addVar (new DTypeVar (type, var));
+	    inits.addExpression (new DBinary (var, new DAccess (leftExp, new DDecimal (0)), Tokens.EQUAL));
+	    auto tupleType = DVisitor.visitType (_type);
+	    inits.addVar (new DTypeVar (tupleType, rvar));
+	    inits.addExpression (new DBinary (rvar, leftExp, Tokens.EQUAL));
+	    
+	    auto bl = DBlock.open ();
+	    bl.addInst (nVar);
+	    
+	    bl.close ();
+	    
+	    auto test = new DInsideIf (new DBinary (new DAccess (rvar, new DDecimal (0)),
+						    new DAccess (rvar, new DDecimal (1)),
+						    Tokens.INF),
+				       new DBinary (var, new DAccess (rvar, new DDecimal (1)), Tokens.INF),
+				       new DBinary (var, new DAccess (rvar, new DDecimal (1)), Tokens.SUP)
+	    );
+
+	    auto iter = new DInsideIf (new DBinary (new DAccess (rvar, new DDecimal (0)),
+						    new DAccess (rvar, new DDecimal (1)),
+						    Tokens.INF),				       
+				       new DBefUnary (var, Tokens.DPLUS),
+				       new DBefUnary (var, Tokens.DMINUS)
+	    );
+	
+	    return new DFor (inits, test, iter, bl);
 	}
-	vrai.insts += vrai2;
-	vrai.insts += faux2;
-	inst += vrai;
-	inst += faux;
-	return inst;	
     }
 
     private static LInstList InstApplyPreTreatWithValue (RangeInfo info, Expression _left, Expression _right) {

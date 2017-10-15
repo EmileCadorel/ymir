@@ -1,20 +1,20 @@
 module ymir.dtarget.DFor;
 import ymir.dtarget._;
 
-import std.outbuffer;
+import std.outbuffer, std.string;
 
 class DFor : DInstruction {
 
-    private DVar _var;
-
+    private DVarDecl _inits;
+    
     private DExpression _test;
-
+    
     private DExpression _iter;
     
     private DBlock _block;
 
-    this (DVar var, DExpression test, DExpression iter, DBlock bl) {
-	this._var = var;
+    this (DVarDecl var, DExpression test, DExpression iter, DBlock bl) {
+	this._inits = var;
 	this._test = test;
 	this._iter = iter;
 	this._block = bl;
@@ -32,8 +32,10 @@ class DFor : DInstruction {
     override string toString () {
 	auto buf = new OutBuffer ();
 	this._block.nbIndent = this._father.nbIndent + 4;
-	buf.writef ("for (ulong %s = 0 ; %s ; %s) %s",
-		    this._var.toString,
+	this._inits.father = this._father;	
+	buf.writef ("%s%sfor (; %s ; %s) %s",		    
+		    this._inits.toString,
+		    rightJustify ("", this._father.nbIndent, ' '),
 		    this._test.toString,
 		    this._iter.toString,
 		    this._block.toString);
