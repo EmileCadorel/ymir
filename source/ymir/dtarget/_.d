@@ -13,6 +13,7 @@ public import ymir.dtarget.DDecimal;
 public import ymir.dtarget.DDot;
 public import ymir.dtarget.DDouble;
 public import ymir.dtarget.DExpression;
+public import ymir.dtarget.DFloat;
 public import ymir.dtarget.DFor;
 public import ymir.dtarget.DFrame;
 public import ymir.dtarget.DIf;

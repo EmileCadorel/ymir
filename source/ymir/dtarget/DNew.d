@@ -25,3 +25,17 @@ class DNew : DExpression {
     
 }
 
+
+class DRealNew : DExpression {
+
+    private DExpression _what;
+    
+    this (DExpression what) {
+	this._what = what;
+    }
+
+    override string toString () {
+	return format ("new %s", this._what.toString);
+    }    
+    
+}

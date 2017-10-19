@@ -120,8 +120,11 @@ class Symbol {
      */
     string typeString () {
 	if (this._type.isConst) {
-	    return "const(" ~ this._type.typeString ~ ")";
-	} else return this._type.typeString;
+	    auto name = this._type.typeString;
+	    if (name.length < 6 || name [0 .. 6] != "const(")
+		return "const(" ~ this._type.typeString ~ ")";	    
+	}
+	return this._type.typeString;
 	    
     }
 

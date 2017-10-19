@@ -78,6 +78,7 @@ class TupleInfo : InfoType {
 	    auto ret = new TupleInfo ();
 	    foreach (it ; this._params) {
 		ret._params.insertBack (it.clone ());
+		ret._params.back ().value = null;
 	    }
 	    ret.lintInst = &TupleUtils.InstAffectRight;
 	    return ret;

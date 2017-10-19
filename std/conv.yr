@@ -24,6 +24,10 @@ def to (T of string) (elem : [char]) : string {
     return cast:string (elem);
 }
 
+def to (T of string) (const elem : [char]) : string {
+    return cast:string (elem);
+}
+
 def to if ((is (T2 : long) || is (T2 : int)))
     (T of string, T2) (elem : T2) : string {
 	import std.traits;

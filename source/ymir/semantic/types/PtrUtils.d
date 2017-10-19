@@ -139,11 +139,15 @@ class PtrUtils {
      Returns: la liste d'instruction du test en lint.
      */
     static LInstList InstIs (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.IS);
+	}
     }
 
     
@@ -155,11 +159,15 @@ class PtrUtils {
      Returns: la liste d'instruction du test en lint.
      */
     static LInstList InstNotIs (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.NOT_IS);
+	}
     }
 
     /**
@@ -169,11 +177,15 @@ class PtrUtils {
      Returns: la liste d'instruction du test en lint.
      */
     static LInstList InstNotIsNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Keys.NOT_IS);
+	}
     }
 
     /**
@@ -183,20 +195,28 @@ class PtrUtils {
      Returns: la liste d'instruction du test en lint.
     */
     static LInstList InstIsNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Keys.IS);
+	}
     }
 
     /**
      Returns: la liste d'instruction de la constante null.
      */
     static LInstList InstNull (LInstList, LInstList) {
-	auto inst = new LInstList;
-	inst += new LConstDecimal (0, LSize.LONG);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    inst += new LConstDecimal (0, LSize.LONG);
+	    return inst;
+	} else {
+	    return new DNull ();
+	}
     }
 
     /**

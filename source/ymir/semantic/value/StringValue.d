@@ -85,7 +85,7 @@ class StringValue : Value {
 	    inst += new LCall (StringUtils.__CstName__, exps, LSize.LONG);
 	    return inst;
 	} else {
-	    return new DString (this._value);
+	    return COMPILER.getLVisitor!(DVisitor).visit (new String (this._value));
 	}
     }
 

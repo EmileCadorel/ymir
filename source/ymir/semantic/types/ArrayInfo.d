@@ -45,7 +45,6 @@ class ArrayInfo : InfoType {
     override bool isSame (InfoType other) {
 	auto arr = cast (ArrayInfo) other;
 	if (arr is null) return false;
-	if (this.isConst != other.isConst) return false;
 	if (this._content is arr._content) return true;       
 	return arr._content.isSame (this._content);
     }
@@ -281,7 +280,7 @@ class ArrayInfo : InfoType {
 	    case LSize.DOUBLE.id: ch.lintInstMult = &ArrayUtils.InstAccessS! (LSize.DOUBLE); break;
 	    default : return null;
 	    }
-	    ch.isConst = false;
+	    ch.isConst = this.isConst;
 	    return ch;
 	}
 	return null;
@@ -355,21 +354,10 @@ class ArrayInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
-	if ((type && type.content.isSame (this._content))) {
-	    if (this.isConst && !other.isConst) return null;
-	    else if (!this.isConst && other.isConst) {
-		auto ret = new ArrayInfo (this._content.clone ());
-		ret.lintInst = &ClassUtils.InstAffectRight;
-		ret.isConst = true;
-		return ret;
-	    } else {
-		auto ret = new ArrayInfo (this._content.clone ());
-		ret.lintInst = &ClassUtils.InstAffectRight;
-		return ret;
-	    }
-	} else if (cast (UndefInfo) other) {
+	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
 	    auto ret = new ArrayInfo (this._content.clone ());
 	    ret.lintInst = &ClassUtils.InstAffectRight;
+	    ret.isConst = this.isConst;
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    auto ret = other.clone ();
@@ -387,6 +375,18 @@ class ArrayInfo : InfoType {
 	    return this.clone ();
 	}
 	return null;
+    }
+
+    /**
+       this -> other
+       Returns: On peut passer de l'un à l'autre sans casser la verification constante ?  
+    */
+    override InfoType ConstVerif (InfoType other) {
+	if (this.isConst && !other.isConst) return null;
+	else if (!this.isConst && other.isConst) {
+	    this.isConst = false;
+	}
+	return this;
     }
 
     /**

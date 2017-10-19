@@ -97,7 +97,7 @@ class RefInfo : InfoType {
 	if (aux !is null) {
 	    return addUnrefRight (aux);
 	} else {
-	    return addUnref (left.info.type.BinaryOp (token, this._content));
+	    return addUnrefRight (left.info.type.BinaryOp (token, this._content));
 	}
     }
 

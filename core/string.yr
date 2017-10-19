@@ -14,7 +14,7 @@ def opEquals (const a : string, const b : string) : bool {
     return true;
 }
 
-def opIndex (str : string) : [char] {
+def opIndex (const str : string) : [char] {
     return cast:[char] (str);
 }
 

@@ -20,8 +20,8 @@ class Program {
     
     this (Word token, Array!Declaration decls) {
 	__declareAtBegins__ = [
-			       Word (Location (0, 0, 0, "core/Int.yr"), "core/Int", false),
-			       Word (Location (0, 0, 0, "core/String.yr"), "core/String", false),
+			       Word (Location (0, 0, 0, "core/int.yr"), "core/int", false),
+			       Word (Location (0, 0, 0, "core/string.yr"), "core/string", false),
 			       Word (Location (0, 0, 0, "core/stdio.yr"), "core/stdio", false),
 			       Word (Location (0, 0, 0, "core/array.yr"), "core/array", false)
 	];

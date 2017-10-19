@@ -13,18 +13,14 @@ cp -r core/. ${HOME}/libs/ymir_std/core/
 
 cd ${HOME}/libs/ymir_std/
 
-ymir -c std/stdio/*.yr
-mv *.o libs/std/stdio/
+ymrc --lint D std/stdio/*.yr
 
-ymir -c std/algorithm/*.yr
-mv *.o libs/std/algorithm/
+ymrc --lint D std/algorithm/*.yr
 
-ymir --std -c std/*.yr
-gcc -c std/*/*.c
-mv *.o libs/std/
+ymrc --lint D std/*.yr
 
-ymir -c core/*.yr
-mv *.o libs/core/
+ymrc --lint D core/*.yr
 
-cp ~/gc/lib/libgc.a libs/libgc.a
+#dmd -c core/*.d std/algorithm/*.d std/*.d std/stdio/*.d
+#cp ~/gc/lib/libgc.a libs/libgc.a
 

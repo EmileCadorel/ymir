@@ -16,7 +16,7 @@ def clamp (val, lower, upper) {
     return max (lower, min (upper, val));
 }
 
-def isPermutation (T) (a : [T], b : [T]) : bool {
+def isPermutation (T) (const a : [T], const b : [T]) : bool {
     if (a.length != b.length) return false;
     for (it in 0UL .. a.length) {
 	if (count (a, a [it]) != count (b, a [it])) return false;
@@ -24,7 +24,7 @@ def isPermutation (T) (a : [T], b : [T]) : bool {
     return true;
 }
 
-def isPermutation  (a : string, b : string) : bool {
+def isPermutation  (const a : string, const b : string) : bool {
     return isPermutation (a [], b []);
 }
 

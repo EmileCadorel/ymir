@@ -247,7 +247,7 @@ class StructUtils {
 	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	    return inst;
 	} else {
-	    return new DNew (new DPar (cast (DExpression) llist, cast (DParamList) rlist [0])); 
+	    return new DRealNew (new DPar (cast (DExpression) llist, cast (DParamList) rlist [0])); 
 	}
     }
 

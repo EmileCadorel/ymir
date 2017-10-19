@@ -182,10 +182,9 @@ class RangeUtils {
 	    inst += faux;
 	    return inst;	
 	} else {
-	    auto var = new DVar ("__" ~ DFor.nb.to!string ~ "__");
-	    auto rvar = new DVar ("__" ~ DFor.nb.to!string ~ DFor.nb.to!string ~ "__");
+	    auto var = new DAuxVar ();
+	    auto rvar = new DAuxVar ();
 				  
-	    DFor.nb++;
 	    auto leftExp = cast (DExpression) DVisitor.visitExpressionOutSide (_left);
 	    auto right = cast (DVar) DVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
 	    auto type = DVisitor.visitType ((cast (RangeInfo)_type).content);

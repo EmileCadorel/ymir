@@ -62,8 +62,8 @@ class Compiler {
 		this.toFile (target, _out);
 		outFiles ~= [_out];
 	    } else if (auto d = cast (DVisitor) this._lintVisitor) {
-		auto _out = file [0 .. file.lastIndexOf (".")] ~ d.extension;
-		d.toFile (list, _out);
+		auto _out = file [0 .. file.lastIndexOf (".")];
+		_out = d.toFile (list, _out, d.extension);
 		outFiles ~= [_out];
 	    }
 	}
@@ -89,7 +89,7 @@ class Compiler {
 	    case "L" : this._lintVisitor = new LVisitor (); break;
 	    default : throw new UnknownLint (op);
 	    }
-	} else this._lintVisitor = new LVisitor ();
+	} else this._lintVisitor = new DVisitor ();
     }
     
     private string preCompiled (string name) {

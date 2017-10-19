@@ -4,6 +4,8 @@ import ymir.syntax._;
 import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
+import ymir.compiler._;
+import ymir.dtarget._;
 
 import std.container;
 
@@ -20,11 +22,15 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
      */
     static LInstList InstAffect (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += (new LWrite (leftExp, rightExp));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += (new LWrite (leftExp, rightExp));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
 
     /**
@@ -34,11 +40,15 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstAffectNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += (new LWrite (leftExp, new LConstDecimal (0, LSize.LONG)));
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Tokens.EQUAL);
+	}
     }
 
     /**
@@ -49,11 +59,15 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstIs (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.DEQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.IS);
+	}
     }
 
     /**
@@ -63,12 +77,17 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstIsNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.DEQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Keys.IS);
+	}
     }
+	
 
     /**
      Test d'inegalité entre un pointeur sur fonction et null.
@@ -77,11 +96,15 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstNotIsNull (LInstList llist, LInstList) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LBinop (leftExp, new LConstDecimal (0, LSize.LONG), Tokens.NOT_EQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, new DNull (), Keys.NOT_IS);
+	}
     }
 
     /**
@@ -92,11 +115,15 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstNotIs (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += new LBinop (leftExp, rightExp, Tokens.NOT_EQUAL);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Keys.NOT_IS);
+	}
     }
 
     /**
@@ -106,11 +133,16 @@ class PtrFuncUtils {
      Returns: la liste des instructions lint.
     */
     static LInstList InstConstFunc (InfoType type, Expression, Expression) {
-	auto inst = new LInstList;
-	auto ptr = cast (PtrFuncInfo) type;
-	auto leftExp = new LConstFunc (ptr.score.name);
-	inst += leftExp;
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto ptr = cast (PtrFuncInfo) type;
+	    auto leftExp = new LConstFunc (ptr.score.name);
+	    inst += leftExp;
+	    return inst;
+	} else {
+	    auto ptr = cast (PtrFuncInfo) type;
+	    return new DBefUnary (new DVar (ptr.score.name), Tokens.AND);
+	}
     }
     
 

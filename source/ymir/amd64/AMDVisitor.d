@@ -51,6 +51,7 @@ class AMDVisitor : TVisitor {
 				     options ~
 				     outFiles ~
 				     Options.instance.libs ~
+				     ["-lpthread"] ~
 				     ["-lm"] ~
 				     Options.instance.links
 				     

@@ -31,5 +31,9 @@ class DAuxVar : DVar {
 	this._id = __last__;
 	__last__ ++;
     }
-   
+
+    static void reset () {
+	__last__ = 0;
+    }
+    
 }

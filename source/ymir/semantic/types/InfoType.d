@@ -361,6 +361,14 @@ class InfoType {
     }
 
     /**
+       this -> other
+       Returns: On peut passer de l'un à l'autre sans casser la verification constante ?  
+     */
+    InfoType ConstVerif (InfoType other) {
+	return this;
+    }
+    
+    /**
      Returns: Une information de type avec les informations permettant le cast.
      */
     InfoType CastTo (InfoType) {

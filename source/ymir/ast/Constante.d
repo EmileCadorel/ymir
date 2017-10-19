@@ -257,6 +257,11 @@ class String : Expression {
 			    "\\\"" : '\"', "\\?": '\?'];   
     }
 
+    this (string content) {
+	super (Word.eof);
+	this._content = content;
+    }
+    
     /**
      Convertis un escapeChar hexadecimale en nombre
      */

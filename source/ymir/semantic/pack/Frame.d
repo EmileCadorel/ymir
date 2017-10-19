@@ -289,6 +289,8 @@ class Frame {
 		if (auto tvar = cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar) param).getType ().clone ();
 		    auto type = args [it].CompOp (info);
+		    if (type) type = type.ConstVerif (info);
+		    else return null;
 		    if (type && type.isSame (info)) {
 			if (!args [it].isConst && info.isConst) score.score += CONST_SAME;
 			else score.score += SAME;

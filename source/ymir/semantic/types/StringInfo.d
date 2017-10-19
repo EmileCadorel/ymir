@@ -23,24 +23,11 @@ class StringInfo : InfoType {
      Returns: le type de retour ou null.
      */
     override InfoType CompOp (InfoType other) {
-	if (cast (StringInfo) other) {
-	    if (this.isConst && !other.isConst) return null;
-	    else if (!this.isConst && other.isConst) {
-		auto ret = new StringInfo ();
-		ret.lintInstS.insertBack (&StringUtils.InstComp);
-		ret.lintInst = &ClassUtils.InstAffectRight;
-		ret.isConst = true;
-		return ret;
-	    } else {
-		auto ret = new StringInfo ();
-		ret.lintInstS.insertBack (&StringUtils.InstComp);
-		ret.lintInst = &ClassUtils.InstAffectRight;
-		return ret;
-	    }	    
-	} else if (cast (UndefInfo) other) {
+	if (cast (StringInfo) other || cast (UndefInfo) other) {
 	    auto ret = new StringInfo ();
 	    ret.lintInstS.insertBack (&StringUtils.InstComp);
 	    ret.lintInst = &ClassUtils.InstAffectRight;
+	    ret.isConst = this.isConst;
 	    return ret;
 	} else if (auto _ref = cast (RefInfo) other) {
 	    if (cast (StringInfo) _ref.content  && !this.isConst) {
@@ -52,6 +39,19 @@ class StringInfo : InfoType {
 	return null;
     }
 
+    /**
+       this -> other
+       Returns: On peut passer de l'un à l'autre sans casser la verification constante ?  
+    */
+    override InfoType ConstVerif (InfoType other) {
+	if (this.isConst && !other.isConst) return null;
+	else if (!this.isConst && other.isConst) {
+	    this.isConst = false;
+	}
+	return this;
+    }
+    
+    
     /**
      Returns : other est de type string ?
      */
@@ -383,6 +383,7 @@ class StringInfo : InfoType {
      Returns: le nom du type.
      */    
     override string typeString () {
+	if (this.isConst) return "const(string)";
 	return "string";
     }
     
@@ -390,6 +391,7 @@ class StringInfo : InfoType {
      Returns: le nom simple du type.
      */
     override string simpleTypeString () {
+	if (this.isConst) return "cs";
 	return "s";
     }
 

@@ -1,20 +1,20 @@
 import std.algorithm.comparaison, std.array;
 import std.conv;
 
-def all (T) (call : fn (T)->bool, b : [T]) {
+def all (T) (call : fn (T)->bool, const b : [T]) {
     for (it in b) {
 	if (!call (it)) return false;
     }
     return true;
 }
 
-def any (T) (call : fn (T)->bool, b : [T]) {
+def any (T) (call : fn (T)->bool, const b : [T]) {
     for (it in b)
 	if (call (it)) return true;
     return false;
 }
 
-def countUntil (T) (a : [T], b : [T]) {
+def countUntil (T) (const a : [T], const b : [T]) {
     for (it in 0UL .. (a.length - (b.length - 1UL))) {
 	let eq = true;
 	for (it_ in 0UL .. b.length) {
@@ -35,7 +35,7 @@ def countUntil (T) (a : [T], b : [T]) {
    b = le tableau à tester
    Returns: le nombre d'élément qui valide le prédicat
  */
-def count (T) (call : fn (T)->bool, b : [T]) {
+def count (T) (call : fn (T)->bool, const b : [T]) {
     let nb = ulong.init;
     for (it in b) {
 	if (call (it))
@@ -51,7 +51,7 @@ def count (T) (call : fn (T)->bool, b : [T]) {
    b = l'élément qui va être égale
    Returns: le nombre d'élément égale à b
  */
-def count (T) (a : [T], b : T) {
+def count (T) (const a : [T], const b : T) {
     let nb = ulong.init;
     for (it in a) {
 	if (it == b) nb ++;
@@ -62,7 +62,7 @@ def count (T) (a : [T], b : T) {
 /**
    On peut trouver b dans a
  */
-def canFind (T) (a : [T], b : [T]) {
+def canFind (T) (const a : [T], const b : [T]) {
     for (it in 0UL .. (a.length - (b.length - 1UL))) {
 	let eq = true;
 	for (it_ in 0UL .. b.length) {
@@ -77,7 +77,7 @@ def canFind (T) (a : [T], b : [T]) {
 }
 
 
-def commonPrefix (T) (a : [T], b : [T]) : [T] {
+def commonPrefix (T) (const a : [T], const b : [T]) : [T] {
     let nb = 0L;
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] != b [it]) {
@@ -87,11 +87,11 @@ def commonPrefix (T) (a : [T], b : [T]) : [T] {
     return a;
 }
 
-def commonPrefix (a : string, b : string) : string {
+def commonPrefix (const a : string, const b : string) : string {
     return commonPrefix (a [], b []).to!string;
 }
 
-def endsWith (T) (a : [T], b : [T]) : bool {
+def endsWith (T) (const a : [T], const b : [T]) : bool {
     if (b.length > a.length) return false;
     for (it in 0UL .. b.length) {
 	if (a [(a.length - b.length) + it] != b [it])
@@ -100,25 +100,25 @@ def endsWith (T) (a : [T], b : [T]) : bool {
     return true;    
 }
 
-def endsWith (a : string, b : string) : bool {
+def endsWith (const a : string, const b : string) : bool {
     return endsWith (a[], b[]);
 }
 
-def find (T) (a : [T], b : T) : long {
+def find (T) (const a : [T], b : T) : long {
     for (it in 0UL .. a.length) {
 	if (a [it] == b) return cast:long (it);
     }
     return -1;    
 }
 
-def find (T) (a : [T], b : T, call : fn (T, T)->bool) : long {
+def find (T) (const a : [T], b : T, call : fn (T, T)->bool) : long {
     for (it in 0UL .. a.length) {
 	if (call (a [it], b)) return cast:long (it);
     }
     return -1;    
 }
 
-def minCount (T) (a : [T]) : tuple!(T, int) {
+def minCount (T) (const a : [T]) : tuple!(T, int) {
     let nb = 0, min = T.max;
     for (it in 0UL .. a.length) {
 	if (a [it] < min) {
@@ -131,7 +131,7 @@ def minCount (T) (a : [T]) : tuple!(T, int) {
     return (min, nb);
 }
 
-def maxCount (T) (a : [T]) : tuple!(T, int) {
+def maxCount (T) (const a : [T]) : tuple!(T, int) {
     let nb = 0, max = T.min;
     for (it in 0UL .. a.length) {
 	if (a [it] > max) {
@@ -144,7 +144,7 @@ def maxCount (T) (a : [T]) : tuple!(T, int) {
     return (max, nb);    
 }
 
-def minElement (T) (a : [T]) : T {
+def minElement (T) (const a : [T]) : T {
     let min = T.max;
     for (it in 0UL .. a.length) {
 	if (a [it] < min) {
@@ -154,7 +154,7 @@ def minElement (T) (a : [T]) : T {
     return min;    
 }
 
-def minIndex (T) (a : [T]) : long {
+def minIndex (T) (const a : [T]) : long {
     let min = T.max, index = -1L;
     for (it in 0UL .. a.length) {
 	if (a [it] < min) {
@@ -165,7 +165,7 @@ def minIndex (T) (a : [T]) : long {
     return index;    
 }
 
-def maxElement (T) (a : [T]) : T {
+def maxElement (T) (const a : [T]) : T {
     let max = T.min;
     for (it in 0UL .. a.length) {
 	if (a [it] > max) {
@@ -175,7 +175,7 @@ def maxElement (T) (a : [T]) : T {
     return max;    
 }
 
-def maxIndex (T) (a : [T]) : long {
+def maxIndex (T) (const a : [T]) : long {
     let max = T.min, index = -1L;
     for (it in 0UL .. a.length) {
 	if (a [it] > max) {

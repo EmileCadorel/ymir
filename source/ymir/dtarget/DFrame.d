@@ -20,6 +20,8 @@ class DFrame : LFrame {
 
     private Array!Namespace _imports;
     
+    private Array!Namespace _importsD;
+    
     private DType _type;
     
     this (string name) {	
@@ -40,6 +42,10 @@ class DFrame : LFrame {
 
     ref Array!Namespace imports () {
 	return this._imports;
+    }
+    
+    ref Array!Namespace importsD () {
+	return this._importsD;
     }
 
     ref Namespace space () {

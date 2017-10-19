@@ -5,10 +5,12 @@ import ymir.semantic._;
 import ymir.ast._;
 import ymir.utils._;
 import ymir.syntax._;
+import ymir.compiler._;
+
 
 import std.stdio, std.container, std.outbuffer;
 import std.format, std.process, std.string;
-import std.algorithm;
+import std.algorithm, std.file, std.typecons;
 
 class DVisitor : LVisitor {
 
@@ -17,6 +19,8 @@ class DVisitor : LVisitor {
     private Array!StructInfo _structToCst;
 
     private TupleInfo[string] _tupleToCst;    
+
+    private LFrame [string] _preCompiled;
     
     override Array!LFrame visit () {
 	Array!LFrame frames;
@@ -30,6 +34,12 @@ class DVisitor : LVisitor {
 	    frames.insertBack (this.visit (it));
 	}
 
+	foreach (it ; this._preCompiled) {
+	    frames.insertBack (it);
+	}
+
+	this._preCompiled = null;
+	
 	return frames;
     }
 
@@ -45,12 +55,17 @@ class DVisitor : LVisitor {
 	return tupleName;
     }
     
-    void toFile (Array!LFrame frames, string filename) {
-	auto file = File (filename, "w");
+    Namespace toDNamespace (Namespace space) {
+	return space.addSuffix ("Ymir");
+    }
+    
+    string toFile (Array!LFrame frames, string filename, string extension) {
 	auto imports = new OutBuffer ();
 	auto funcs = new OutBuffer ();
-
-	auto modName = new Namespace (filename [0 .. filename.lastIndexOf (".")]);
+	auto modName = toDNamespace (new Namespace (filename));
+	
+	mkdirRecurse ("out/" ~ modName.directory);
+	auto file = File ("out/" ~ modName.asFile (extension), "w");
 	Array!string toImports;
 	
 	imports.writefln ("module %s;", modName.toString);
@@ -59,10 +74,19 @@ class DVisitor : LVisitor {
 	
 	foreach (it ; frames) {
 	    auto dframe = cast (DFrame) it;
-	    foreach (ip ; dframe.imports) {
-		if (toImports[].find (ip.toString).empty)
-		    toImports.insertBack (ip.toString);
+	    foreach (ip ; dframe.importsD) {
+		auto name = ip.toString ();
+		if (toImports[].find (name).empty) {
+		    toImports.insertBack (name);
+		}
 	    }
+
+	    foreach (ip ; dframe.imports) {
+		auto name = toDNamespace (ip).toString;
+		if (toImports[].find (name).empty)
+		    toImports.insertBack (name);
+	    }
+
 	    funcs.writef ("\n%s\n", dframe.toString);
 	}
 
@@ -75,18 +99,35 @@ class DVisitor : LVisitor {
 	    funcs.writef ("\n%s\n", src);
 	}
 	
-	file.writef ("%s\n\n%s", imports.toString, funcs.toString);	
+	file.writef ("%s\n\n%s", imports.toString, funcs.toString);
+	return modName.asFile (extension);
     }
     
     void finalize (string [] files) {
 	string [] options;
-	if (Options.instance.isOn (OptionEnum.TARGET))
-	    options = ["-of=" ~ Options.instance.getOption (OptionEnum.TARGET)];
-	else
-	    options = ["-of=a.out"];
+	if (Options.instance.isOn (OptionEnum.ASSEMBLE))
+	    options ~= ["-c"];
+	else {
+	    if (Options.instance.isOn (OptionEnum.OUTFILE))
+		options = ["-of=" ~ Options.instance.getOption (OptionEnum.OUTFILE)];
+	    else
+		return;
+	}
 	
+	options ~= ["-I=" ~ Options.instance.getPath ()] ~ Options.instance.libs;
+
+	if (Options.instance.isOn (OptionEnum.VERBOSE))
+	    writeln (["dmd"] ~ options ~ files);
+
+	chdir ("out/");
+
 	auto pid = spawnProcess (["dmd"] ~ options ~ files);
 	if (wait (pid) != 0) assert ("Compilation raté");
+
+	if (Options.instance.isOn (OptionEnum.OUTFILE)) {
+	    copy (Options.instance.getOption (OptionEnum.OUTFILE), "../" ~ Options.instance.getOption (OptionEnum.OUTFILE), Yes.preserveAttributes);
+	}
+	chdir ("../");
     }
 
     string extension () {
@@ -120,14 +161,15 @@ class DVisitor : LVisitor {
 	auto frame = new DFrame (Mangler.mangle!"function" (semFrame));
 	frame.space = semFrame.namespace;
 	this._currentFrame = frame;
-	
 	frame.type = this.visitType (semFrame.type.type);
 	
 	foreach (it ; semFrame.vars) {
 	    frame.addVar (this.visitParam (it));
 	}
+
+	DAuxVar.reset ();
 	
-	frame.block = this.visitBlock (semFrame.block);	
+	frame.block = this.visitBlock (semFrame.block);
 	return frame;
     }        
 
@@ -140,9 +182,15 @@ class DVisitor : LVisitor {
 	return bl;
     }
 
-    private void addImport (Namespace space) {
+    public void addDImport (Namespace space) {
+	if (this._currentFrame.importsD[].find (space).empty) {
+	    this._currentFrame.importsD.insertBack (space);
+	}
+    }
+    
+    public void addImport (Namespace space) {
 	bool hasAlready = false;
-	if (space == this._currentFrame.space) hasAlready = true;
+	if (this._currentFrame.space.isSubOf (space)) hasAlready = true;
 	foreach (it ; this._currentFrame.imports) {
 	    if (it == space) {
 		hasAlready = true;
@@ -150,7 +198,7 @@ class DVisitor : LVisitor {
 	    }
 	}
 	if (!hasAlready)
-	    this._currentFrame.imports.insertBack (space);
+	    this._currentFrame.imports.insertBack (space);	
     }
     
     private DInstruction visit (Instruction inst) {
@@ -171,7 +219,7 @@ class DVisitor : LVisitor {
     }
 
     static DExpression visitExpressionOutSide (Expression exp) {
-	auto dv = new DVisitor ();
+	auto dv = COMPILER.getLVisitor!(DVisitor);
 	return dv.visit (exp);
     }
     
@@ -316,7 +364,12 @@ class DVisitor : LVisitor {
     }
 
     private DExpression visit (ArrayAlloc all) {
-	return new DNew (visit (all.type), visit (all.size));
+	auto type = visitType (all.type.info.type);
+	auto param = new DParamList ();
+	auto size = visit (all.size);
+	param.addParam (size);
+	param.addParam (new DNew (new DVar (type.name ~ "*"), new DBinary (new DDot (new DVar (type.name), new DVar ("sizeof")), size, Tokens.STAR)));
+	return new DPar (new DVar ("tuple"), param);
     }
 
     private DExpression visit (Binary bin) {
@@ -365,8 +418,47 @@ class DVisitor : LVisitor {
 	return new DDouble (fl.totale);
     }
 
-    private DExpression visit (String st) {
-	return new DString (st.content);
+    public DExpression visit (String st) {
+	auto space = this._currentFrame.space;
+	auto name = Mangler.mangle!"function" (new Namespace (space, "0CstString"));
+	auto fr = name in this._preCompiled;
+	if (fr is null) {
+	    auto frame = new DFrame (name);
+	    auto ptr = new DVar ("ptr"), len = new DVar ("len");
+	    frame.type = new DType ("Tuple!(ulong, char*)");
+	    frame.addVar (new DTypeVar (new DType ("ulong"), len));
+	    frame.addVar (new DTypeVar (new DType ("const (char)*"), ptr));
+	    auto bl = DBlock.open ();
+	    auto iter = new DAuxVar (), res = new DAuxVar;
+	    auto decl = new DVarDecl ();
+	    
+	    decl.addVar (new DTypeVar (new DType ("ulong"), iter));
+	    decl.addExpression (new DBinary (iter, new DDecimal (0), Tokens.EQUAL));
+	    decl.addVar (new DTypeVar (new DType ("char*"), res));
+	    decl.addExpression (new DBinary (res, new DNew (new DVar ("char*"), len), Tokens.EQUAL));
+	    bl.addInst (decl);
+	    
+	    auto test = new DBinary (new DBefUnary (ptr, Tokens.STAR), new DDecimal (0), Tokens.NOT_EQUAL);
+	    auto inside = DBlock.open ();
+	    inside.addInst (new DBinary (new DAccess (res, iter), new DBefUnary (ptr, Tokens.STAR), Tokens.EQUAL));
+	    inside.addInst (new DBefUnary (ptr, Tokens.DPLUS));
+	    inside.addInst (new DBefUnary (iter, Tokens.DPLUS));
+	    inside.close ();
+	    
+	    bl.addInst (new DWhile (test, inside));
+	    auto paramList = new DParamList ();
+	    paramList.addParam (new DCast (new DType ("ulong"), iter));
+	    paramList.addParam (res);
+	    
+	    bl.addInst (new DReturn (new DPar (new DVar ("tuple"), paramList)));
+	    bl.close ();
+	    frame.block = bl;
+	    this._preCompiled [name] = frame;
+	}
+	auto paramList = new DParamList ();
+	paramList.addParam (new DDecimal (st.content.length));
+	paramList.addParam (new DDot (new DString (st.content), new DVar ("ptr")));
+	return new DPar (new DVar (name), paramList);
     }
 
     private DExpression visit (Bool bl) {
@@ -402,9 +494,8 @@ class DVisitor : LVisitor {
 		    ret = cast (DExpression) cster.lintInst (ret, nb);
 		}		
 	    }
-	    
-	    auto index = new DBinary (new DDecimal (it), new DDecimal (type.content.size), Tokens.STAR);
-	    bl.addInst (new DBinary (new DAccess (aux, index), ret, Tokens.EQUAL));
+	   
+	    bl.addInst (new DBinary (new DAccess (aux, new DDecimal (it)), ret, Tokens.EQUAL));
 	}
     
 	auto paramList = new DParamList ();
@@ -444,6 +535,10 @@ class DVisitor : LVisitor {
     }
 
 
+    private DExpression visit (LambdaFunc func) {
+	return new DBefUnary (new DVar (Mangler.mangle!"function" (func.proto.name, func.proto)), Tokens.AND);
+    }
+    
     private DExpression visit (Match mt) {
 	assert (false);
     }
@@ -608,7 +703,6 @@ class DVisitor : LVisitor {
 	    Tokens.EQUAL
 	].find (op) != [];
     }
-
     
 }
 

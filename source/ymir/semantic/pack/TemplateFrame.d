@@ -105,15 +105,20 @@ class TemplateFrame : Frame {
 		    if (!res.valid || !TemplateSolver.merge (score.score, tmps, res)) return null;
 		    
 		    info = res.type;
-		    if (tvar.deco == Keys.REF && !cast (RefInfo) info) info = new RefInfo (info);		    
+		    if (tvar.deco == Keys.REF && !cast (RefInfo) info) info = new RefInfo (info);
+		    if (tvar.deco == Keys.CONST) info.isConst = true;
+		    else info.isConst = false;
+		    
 		    auto type = args [it].CompOp (info);
+		    if (type) type = type.ConstVerif (info);
+		    else return null;
 		    if (type && type.isSame (info)) {
 			score.score += this._changed ? CHANGE : SAME;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {
 			score.score += AFF;
 			score.treat.insertBack (type);
-		    } else return null;		     
+		    } else return null;
 		} else {
 		    if (cast (FunctionInfo) args [it] || cast (StructCstInfo) args [it])
 			return null;

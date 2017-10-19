@@ -7,7 +7,7 @@ def cstArray (len : ulong, size : ubyte) : p!(void) {
     return (len, array).ptr;
 }
 
-def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : r!(I)) {    
+def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : r!(I)) : [U] {    
     if (rng.fst < rng.scd) {
         let len = rng.scd - rng.fst;
         let aux = a.tupleof;

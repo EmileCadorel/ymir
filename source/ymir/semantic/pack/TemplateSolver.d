@@ -153,7 +153,7 @@ class TemplateSolverS {
 			    if (auto of = cast (OfVar) var)
 				res = solve (tmps, of, typed, type);
 			    else 
-				res = solve (var, typed, type);
+				res = solve (var, typed, type);			    
 			    if (!res.valid || !merge (soluce.score, soluce.elements, res))
 				return TemplateSolution (0, false);
 			    else {
@@ -424,13 +424,21 @@ class TemplateSolverS {
      */
     private TemplateSolution solve (Array!Expression tmps, OfVar elem, Var param, InfoType type) {
 	Var typeVar;
-	if (auto t = cast (TypedVar) param) typeVar = t.type;
+	TypedVar typedParam = cast (TypedVar) param;
+	if (typedParam) typeVar = typedParam.type;
 	else typeVar = param;
 	
 	auto res = this.solveInside (tmps, elem.type, type);
-	if (!res.valid || !res.type.CompOp (type)) return TemplateSolution (0, false);
+	if (res.valid) {
+	    if (typedParam && typedParam.deco == Keys.CONST) res.type.isConst = true;
+	    else res.type.isConst = false;
+	}
+	
+	if (!res.valid || !type.CompOp (res.type)) return TemplateSolution (0, false);
 	else {
 	    res.type = type;
+	    if (typedParam && typedParam.deco == Keys.CONST) res.type.isConst = true;
+	    else res.type.isConst = false;
 	    if (!merge
 		(res.score,
 		 res.elements,

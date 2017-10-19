@@ -1,6 +1,7 @@
 
-def main () {    
-    let a = "salut";
-    a [1] = 'r';
-    println (a);
+def main () {
+    let a = (a : int, b : float) => a * b;
+
+    println (a (12, 4.3));
+    
 }
