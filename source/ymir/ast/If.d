@@ -81,11 +81,11 @@ class If : Instruction {
      */
     override Instruction instruction () {
 	auto expr = this._test.expression;
-	auto type = expr.info.type.CastOp (new BoolInfo ());
+	auto type = expr.info.type.CastOp (new BoolInfo (true));
 	auto word = this._token;
 	word.str = "cast";
 	if (type is null)
-	    throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo ()));
+	    throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo (true)));
 
 	bool pass = false;
 	if (this._isStatic) {
@@ -304,9 +304,9 @@ class ElseIf : Else {
      */
     override Instruction instruction () {
 	auto expr = this._test.expression;
-	auto type = expr.info.type.CastOp (new BoolInfo ());
+	auto type = expr.info.type.CastOp (new BoolInfo (true));
 	if (type is null)
-	    throw new IncompatibleTypes (expr.info, new BoolInfo ());
+	    throw new IncompatibleTypes (expr.info, new BoolInfo (true));
 
 	bool pass = false;
 	if (this._isStatic) {

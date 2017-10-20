@@ -4,7 +4,7 @@ import ymir.semantic._;
 import ymir.syntax._;
 import ymir.ast._;
 
-import std.container, std.format;
+import std.container, std.format, std.conv;
 import std.stdio, std.string, std.array;
 
 /**
@@ -80,9 +80,10 @@ class Par : Expression {
 		    aux._dotCall = dcall;
 		}
 
-		debug { writeln ("ICI ", aux._left.info.type.typeString); }
+		debug { writeln ("ICI ", aux._left.info.type.typeString); }		
 		auto type = aux._left.info.type.CallOp (aux._left.token, aux._params);
-
+		debug { writeln ("RET : ", type); }
+		
 		if (type is null) {		
 		    auto call = !dotCall && !this._opCall ? findOpCall (aux) : null;
 		    if (!call) {
@@ -133,7 +134,7 @@ class Par : Expression {
     private void tuplingParams (ApplicationScore score, ref Par par) {
 	ConstTuple ctuple;	
 	ctuple = new ConstTuple (par._token, par._end, make!(Array!Expression) (par._params.params [score.treat.length - 1 .. $]));	
-	auto retType = new TupleInfo ();	    
+	auto retType = new TupleInfo (true);	    
 	foreach (it ; ctuple.params) {
 	    auto type = it.info.type;
 	    retType.params.insertBack (type);

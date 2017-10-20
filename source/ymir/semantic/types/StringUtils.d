@@ -21,10 +21,10 @@ class StringUtils {
     static immutable string __DupString__ = "_Y4core6string3dupFsZs";
 
     /** Le nom de la fonction + de deux string */
-    static immutable string __PlusString__ = "_Y4core6string14opBinaryNG43GNFssZs";
+    static immutable string __PlusString__ = "_Y4core6string14opBinaryNG43GNFcscsZs";
 
     /** Le nom de la fonction + de deux string */
-    static immutable string __PlusStringChar__ = "_Y4core6string14opBinaryNG43GNFsaZs";
+    static immutable string __PlusStringChar__ = "_Y4core6string14opBinaryNG43GNFcsaZcs";
 
     /** Le nom de la fonction '==' de deux string */
     static immutable string __EqualString__ = "_Y4core6string8opEqualsFssZb";
@@ -74,6 +74,7 @@ class StringUtils {
 	    inst +=  new LCall (__PlusString__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	    return inst;
 	} else {
+	    COMPILER.getLVisitor!(DVisitor).addImport (new Namespace ("core.string"));
 	    auto paramList = new DParamList ();
 	    paramList.addParam (cast (DExpression) llist);
 	    paramList.addParam (cast (DExpression) rlist);
@@ -89,7 +90,12 @@ class StringUtils {
 	    inst += new LCall (__PlusStringChar__, make!(Array!LExp) (leftExp, rightExp), LSize.LONG);
 	    return inst;
 	} else {
-	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE);
+	    COMPILER.getLVisitor!(DVisitor).addImport (new Namespace ("core.string"));
+	    auto paramList = new DParamList ();
+	    paramList.addParam (cast (DExpression) llist);
+	    paramList.addParam (cast (DExpression) rlist);
+	    
+	    return new DPar (new DVar (__PlusStringChar__), paramList);
 	}
     }
     
@@ -105,7 +111,12 @@ class StringUtils {
 	    inst += new LWrite (ret, call);
 	    return  inst;
 	} else {
-	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.DEQUAL);
+	    COMPILER.getLVisitor!(DVisitor).addImport (new Namespace ("core.string"));
+	    auto paramList = new DParamList ();
+	    paramList.addParam (cast (DExpression) llist);
+	    paramList.addParam (cast (DExpression) rlist);
+	    
+	    return new DPar (new DVar (__EqualString__), paramList);
 	}
     }
 
@@ -122,7 +133,12 @@ class StringUtils {
 	    inst += new LBinop (ret, ret, Tokens.XOR);
 	    return  inst;
 	} else {
-	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.NOT_EQUAL);
+	    COMPILER.getLVisitor!(DVisitor).addImport (new Namespace ("core.string"));
+	    auto paramList = new DParamList ();
+	    paramList.addParam (cast (DExpression) llist);
+	    paramList.addParam (cast (DExpression) rlist);
+	    
+	    return new DBefUnary (new DPar (new DVar (__EqualString__), paramList), Tokens.NOT);
 	}
     }
     
@@ -138,7 +154,12 @@ class StringUtils {
 	    inst += leftExp;
 	    return inst;
 	} else {
-	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.TILDE_EQUAL);
+	    COMPILER.getLVisitor!(DVisitor).addImport (new Namespace ("core.string"));
+	    auto paramList = new DParamList ();
+	    paramList.addParam (cast (DExpression) llist);
+	    paramList.addParam (cast (DExpression) rlist);
+	    
+	    return new DBinary (cast (DExpression) llist, new DPar (new DVar (__PlusString__), paramList), Tokens.EQUAL);
 	}
     }
 

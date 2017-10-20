@@ -49,6 +49,7 @@ class StructCstInfo : InfoType {
     private Namespace _namespace;
     
     this (Namespace space, string name, Array!Expression tmps) {
+	super (true);
 	this._namespace = space;
 	this._name = name;
 	this._tmps = tmps;
@@ -317,7 +318,7 @@ class StructCstInfo : InfoType {
     /**
      Returns: le nom complet pour les informations d'erreur
      */
-    override string typeString () {
+    override string innerTypeString () {
 	auto name = "typeof " ~ this._name ~ "(";
 	if (this._types.empty) {	    
 	    foreach (it ; this._params) {
@@ -326,7 +327,7 @@ class StructCstInfo : InfoType {
 		else if (auto _st = cast (StructInfo) it.getType ())
 		name ~= _st.name ~ "(...)";
 		else
-		    name ~= it.getType ().typeString ();
+		    name ~= it.getType ().innerTypeString ();
 		if (it !is this._params [$ - 1]) name ~= ", ";
 	    }
 	} else {
@@ -336,7 +337,7 @@ class StructCstInfo : InfoType {
 		else if (auto _st = cast (StructInfo) it)
 		    name ~= _st.name ~ "(...)";
 		else
-		    name ~= it.typeString ();
+		    name ~= it.innerTypeString ();
 		if (it !is this._types [$ - 1]) name ~= ", ";
 	    }
 	}
@@ -397,7 +398,8 @@ class StructInfo : InfoType {
     /++ Tout les appels se font de manière statique +/
     private bool _simple;
 
-    private this (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!MethodInfo meth) {
+    private this (bool isConst, Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!MethodInfo meth) {
+	super (isConst);
 	this._namespace = space;
 	this._name = name;
 	this._attribs = names;
@@ -422,7 +424,7 @@ class StructInfo : InfoType {
      params = les types des attributs
      */
     static InfoType create (Namespace space, string name, Array!string names, Array!InfoType params, Array!InfoType olds, Array!MethodInfo meths) {
-	return new StructInfo (space, name, names, params, olds, meths);
+	return new StructInfo (false, space, name, names, params, olds, meths);
     }
 
     
@@ -495,16 +497,16 @@ class StructInfo : InfoType {
      */
     private InfoType Is (Expression right) {
 	if (this.isSame (right.info.type)) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    b.lintInst = &StructUtils.InstEqual;
 	    return b;
 	} else if (auto _cst = cast (StructCstInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstTrue;
 	    else b.lintInst = &BoolUtils.InstFalse;
 	    return b;
 	} else if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    b.lintInst = &StructUtils.InstEqual;
 	    return b;	    
 	}
@@ -518,16 +520,16 @@ class StructInfo : InfoType {
      */
     private InfoType NotIs (Expression right) {
 	if (this.isSame (right.info.type)) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    b.lintInst = &StructUtils.InstNotEqual;
 	    return b;
 	} else if (auto _cst = cast (StructCstInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    if (_cst.name == this._name) b.lintInst = &BoolUtils.InstFalse;
 	    else b.lintInst = &BoolUtils.InstTrue;
 	    return b;
 	} else if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    b.lintInst = &StructUtils.InstNotEqual;
 	    return b;
 	}
@@ -723,7 +725,7 @@ class StructInfo : InfoType {
 	Array!InfoType params;
 	foreach (it ; this._params)
 	    params.insertBack (it.clone ());
-	auto t = new TupleInfo ();
+	auto t = new TupleInfo (this.isConst);
 	t.params = params;
 	t.leftTreatment = &StructUtils.GetTupleOf;
 	t.lintInst = &StructUtils.InstTupleOf;
@@ -731,13 +733,13 @@ class StructInfo : InfoType {
     }
     
     private InfoType Ptr () {
-	auto ret = new PtrInfo (new VoidInfo);
+	auto ret = new PtrInfo (this.isConst, new VoidInfo);
 	ret.lintInst = &StructUtils.InstPtr;
 	return ret;
     }
 
     private InfoType SizeOf () {
-	auto ret = new DecimalInfo (DecimalConst.UBYTE);
+	auto ret = new DecimalInfo (true, DecimalConst.UBYTE);
 	ret.lintInst = &StructUtils.SizeOf;
 	ret.leftTreatment = &StructUtils.GetSizeOf;
 	return ret;
@@ -762,7 +764,7 @@ class StructInfo : InfoType {
      surcharge de la propriété typeid.
      */
     private InfoType StringOf () {
-	auto str = new StringInfo;
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this.typeString);
 	return str;
     }
@@ -771,7 +773,7 @@ class StructInfo : InfoType {
      surcharge de la propriété typeid.
      */
     private InfoType TypeName () {
-	auto str = new StringInfo;
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this._name);
 	return str;
     }
@@ -807,7 +809,7 @@ class StructInfo : InfoType {
     private InfoType GetMethod (ulong nb) {
 	if (!this._simple && cast (PureFrame) this._methods [nb].frame) {
 	    auto proto = this._methods [nb].frame.validate ();
-	    auto ret = new PtrFuncInfo ();
+	    auto ret = new PtrFuncInfo (true);
 	    Array!InfoType infos;
 	    foreach (it ; proto.vars) infos.insertBack (it.info.type);
 	    ret.params = infos;
@@ -860,7 +862,7 @@ class StructInfo : InfoType {
     /**
      Returns: le nom complet pour les informations d'erreur.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	auto name = this._name ~ "(";
 	foreach (it ; this._params) {
 	    if (auto _st = cast(StructCstInfo) it)
@@ -868,7 +870,7 @@ class StructInfo : InfoType {
 	    else if (auto _st = cast (StructInfo) it)
 		name ~= _st.name ~ "(...)";
 	    else
-		name ~= it.typeString ();
+		name ~= it.innerTypeString ();
 	    if (it !is this._params [$ - 1]) name ~= ", ";
 	}
 	name ~= ")";

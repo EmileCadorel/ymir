@@ -25,6 +25,7 @@ class EnumCstInfo : InfoType {
     private Array!Expression _values;
 
     this (string name, InfoType type) {
+	super (true);
 	this._name = name;
 	this._type = type;
     }
@@ -68,7 +69,7 @@ class EnumCstInfo : InfoType {
        
     override InfoType DotOp (Var var) {
 	if (var.token.str == "members") {
-	    auto info = new ArrayInfo (new EnumInfo (this._name, this._type.clone ()));
+	    auto info = new ArrayInfo (true, new EnumInfo (true, this._name, this._type.clone ()));
 	    info.lintInst = &EnumUtils.Members;
 	    info.leftTreatment = &EnumUtils.GetMembers;
 	    return info;
@@ -76,11 +77,11 @@ class EnumCstInfo : InfoType {
     }
     
     InfoType create () {
-	return new EnumInfo (this._name, this._type.cloneForParam ());
+	return new EnumInfo (false, this._name, this._type.cloneForParam ());
     }
     
     private InfoType GetAttrib (ulong nb) {
-	auto type = new EnumInfo (this._name, this._type.clone ());
+	auto type = new EnumInfo (true, this._name, this._type.clone ());
 	if (this._values [nb].info.value) {
 	    type._content.value = this._values [nb].info.value;
 	}
@@ -94,9 +95,9 @@ class EnumCstInfo : InfoType {
 	return format ("%d%s%s)", this._name.length, "E", this._name);
     }
 
-    override string typeString () {
+    override string innerTypeString () {
 	if (this._type !is null)
-	    return format ("%s(%s)", this._name, this._type.typeString ());
+	    return format ("%s(%s)", this._name, this._type.innerTypeString ());
 	else
 	    return format ("%s(...)", this._name);
     }
@@ -128,7 +129,8 @@ class EnumInfo : InfoType {
     private string _name;
     private InfoType _content;
 
-    this (string name, InfoType content) {
+    this (bool isConst, string name, InfoType content) {
+	super (isConst);
 	this._name = name;
 	this._content = content;
     }
@@ -155,7 +157,7 @@ class EnumInfo : InfoType {
 
     override InfoType DotOp (Var var) {
 	if (var.token.str == "typeid") {
-	    auto str = new StringInfo;
+	    auto str = new StringInfo (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
@@ -197,8 +199,8 @@ class EnumInfo : InfoType {
 	return format ("%d%s%s", this._name.length, "E", this._name);
     }
 
-    override string typeString () {
-	return format ("%s(%s)", this._name, this._content.typeString ());
+    override string innerTypeString () {
+	return format ("%s(%s)", this._name, this._content.innerTypeString ());
     }
     
     override bool isSame (InfoType other) {
@@ -210,13 +212,12 @@ class EnumInfo : InfoType {
     }
 
     override InfoType clone () {
-	auto ret = new EnumInfo (this._name, this._content.clone ());
-	ret.isConst = this.isConst;
+	auto ret = new EnumInfo (this.isConst, this._name, this._content.clone ());
 	return ret;
     }
 
     override InfoType cloneForParam () {
-	return new EnumInfo (this._name, this._content.cloneForParam ());
+	return new EnumInfo (this.isConst, this._name, this._content.cloneForParam ());
     }
 
     override LSize size () {

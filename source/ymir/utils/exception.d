@@ -1191,3 +1191,12 @@ class UnknownLint : YmirException {
 	);	
     }   
 }
+
+class NamespaceConflict : YmirException {
+    this (Namespace space) {
+	msg = format ("%sErreur%s : Utilisation d'un fichier comme sous paquet : %s",
+		      Colors.RED.value, Colors.RESET.value,
+		      space
+	);
+    }    
+}

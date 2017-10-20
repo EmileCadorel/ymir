@@ -1,17 +1,17 @@
 import std.conv;
 
-extern (C) fopen (name : p!char, mode : p!char) : p!void;
-extern (C) fread (buf : p!char, size : uint, len : ulong, file : p!void) : uint;
-extern (C) fwrite (buf : p!char, size : uint, len : ulong, file : p!void);
-extern (C) fclose (file : p!void);
-extern (C) fseek (file : p!void, int, int);
-extern (C) ftell (file : p!void) : ulong;
+extern (C) fopen (const name : p!char, const mode : p!char) : p!void;
+extern (C) fread (const buf : p!char, size : uint, len : ulong, const file : p!void) : uint;
+extern (C) fwrite (const buf : p!char, size : uint, len : ulong, const file : p!void);
+extern (C) fclose (const file : p!void);
+extern (C) fseek (const file : p!void, int, int);
+extern (C) ftell (const file : p!void) : ulong;
 
-extern (C) getenv (name : p!char) : p!char;
-extern (C) printf (str : p!char, ...); 
+extern (C) getenv (const name : p!char) : p!char;
+extern (C) printf (const str : p!char, ...); 
 extern (C) malloc (size : uint) : p!void;
-extern (C) free (a : p!void);
-extern (C) free (a : p!char);
+extern (C) free (const a : p!void);
+extern (C) free (const a : p!char);
 
 public enum File_Whence {
     SET : 0,

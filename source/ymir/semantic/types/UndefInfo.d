@@ -7,11 +7,15 @@ import ymir.ast._;
 
 class UndefInfo : InfoType {
 
+    this () {
+	super (true);
+    }
+    
     override bool isSame (InfoType) {
 	return false;
     }
     
-    override string typeString () {
+    override string innerTypeString () {
 	return "undef";
     }
 
@@ -26,7 +30,7 @@ class UndefInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
-	    auto str = new StringInfo;
+	    auto str = new StringInfo  (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}

@@ -103,8 +103,8 @@ class DecimalValue : Value {
     override LInstList toLint (Symbol sym, InfoType type) {
 	auto info = cast (DecimalInfo) (type);
 	auto cst = info.type;
-	if (COMPILER.isToLint) {
-	    try {
+	try {
+	    if (COMPILER.isToLint) {
 		final switch (cst.id) {
 		case DecimalConst.BYTE.id : return new LInstList (new LConstDecimal (this._value.to!byte, LSize.BYTE));
 		case DecimalConst.UBYTE.id : return new LInstList (new LConstDecimal (this._value.to!ubyte, LSize.UBYTE));
@@ -115,24 +115,29 @@ class DecimalValue : Value {
 		case DecimalConst.LONG.id : return new LInstList (new LConstDecimal (this._value.to!long, LSize.LONG));
 		case DecimalConst.ULONG.id : return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
 		}
-	    } catch (ConvOverflowException exp) {
-		throw new CapacityOverflow (sym, this._value.to!string);
+	    
+	    } else {
+		return new DCast (new DType (fromDecimalConst (cst)), new DDecimal (cst, this._value));
 	    }
-	} else {
-	    return new DCast (new DType (fromDecimalConst (cst)), new DDecimal (this._value));
+	} catch (ConvOverflowException exp) {
+	    throw new CapacityOverflow (sym, this._value.to!string);
 	}
     }
 
     override LInstList toLint (Symbol sym) {
-	if (COMPILER.isToLint) {
-	    if (sym) {
-		return toLint (sym, sym.type);
+	try {
+	    if (COMPILER.isToLint) {
+		if (sym) {
+		    return toLint (sym, sym.type);
+		} else {
+		    return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+		}
 	    } else {
-		return new LInstList (new LConstDecimal (this._value.to!ulong, LSize.ULONG));    
+		return new DCast (new DType (fromDecimalConst ((cast (DecimalInfo) sym.type).type)),
+				  new DDecimal ((cast (DecimalInfo) sym.type).type, this._value)); 
 	    }
-	} else {
-	    return new DCast (new DType (fromDecimalConst ((cast (DecimalInfo) sym.type).type)),
-			      new DDecimal (this._value)); 
+	} catch (ConvOverflowException exp) {
+	    throw new CapacityOverflow (sym, this._value.to!string);
 	}
     }
 

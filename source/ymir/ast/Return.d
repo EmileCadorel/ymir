@@ -64,7 +64,10 @@ class Return : Instruction {
 						 Table.instance.retInfo.info);
 		
 		else if (type.isSame (aux._elem.info.type)) {
-		    Table.instance.retInfo.info.type = type;
+		    if (!Table.instance.retInfo.isImmutable)
+			Table.instance.retInfo.info.type = type;
+		    else aux._instCast = type.CastTo (Table.instance.retInfo.info.type);
+		    
 		    if (!Table.instance.retInfo.changed)
 			Table.instance.retInfo.info.type.value = aux._elem.info.value;
 		    else Table.instance.retInfo.info.type.value = null;

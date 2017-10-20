@@ -22,7 +22,8 @@ class PtrFuncInfo : InfoType {
     /** Le score du pointeur (en cas d'appel, utile pour la génération de lint)*/
     private ApplicationScore _score;
     
-    this () {
+    this (bool isConst) {
+	super (isConst);
     }
 
     /**
@@ -56,7 +57,7 @@ class PtrFuncInfo : InfoType {
 	if (templates.length < 1)
 	    throw new UndefinedType (token, "prend au moins un type en template");
 	else {
-	    auto ptr = new PtrFuncInfo ();
+	    auto ptr = new PtrFuncInfo (false);
 	    ptr._ret = templates [0].info.type;
 	    if (templates.length > 1) {
 		foreach (it ; 1 .. templates.length) {
@@ -104,7 +105,7 @@ class PtrFuncInfo : InfoType {
      Bugs: impossible d'affecter un pointeur identique.
      */
     private InfoType Affect (Expression right) {
-	if (auto fun = cast (FunctionInfo) right.info.type) {
+	if (auto fun = cast (FunctionInfo) right.info.type) {	    
 	    auto score = fun.CallOp (right.token, this._params);
 	    if (score is null || !score.ret.isSame (this._ret)) return null;
 	    auto ret = cast (PtrFuncInfo) this.clone ();
@@ -132,7 +133,7 @@ class PtrFuncInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto ret = new PtrFuncInfo ();
+	    auto ret = new PtrFuncInfo (false);
 	    ret._ret = this._ret.clone ();
 	    foreach (it ; this._params)
 		ret._params.insertBack (it.clone ());
@@ -150,11 +151,11 @@ class PtrFuncInfo : InfoType {
      */
     private InfoType Is (Expression right) {
 	if (cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrFuncUtils.InstIs;
 	    return ret;
 	} else if (cast (PtrFuncInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrFuncUtils.InstIs;
 	    return ret;
 	}
@@ -170,11 +171,11 @@ class PtrFuncInfo : InfoType {
      */
     private InfoType NotIs (Expression right) {
 	if (cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrFuncUtils.InstNotIs;
 	    return ret;
 	} else if (cast (PtrFuncInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrFuncUtils.InstNotIs;
 	    return ret;
 	}
@@ -185,14 +186,13 @@ class PtrFuncInfo : InfoType {
      Returns: une nouvelle instance de ptr!function, l'information de score est conservé
      */
     override InfoType clone () {
-	auto aux = new PtrFuncInfo ();
+	auto aux = new PtrFuncInfo (this.isConst);
 	foreach (it ; this._params) {
 	    aux._params.insertBack (it.clone ());	    
 	}
 	aux._ret = this._ret.clone ();
 	aux._score = this._score;
 	aux._value = this._value;
-	aux.isConst = this.isConst;
 	return aux;
     }
 
@@ -200,7 +200,7 @@ class PtrFuncInfo : InfoType {
      Returns: une nouvelle instance de ptr!function, l'information de score est remise à zéro
      */
     override InfoType cloneForParam () {
-	auto aux = new PtrFuncInfo ();
+	auto aux = new PtrFuncInfo (this.isConst);
 	foreach (it ; this._params) {
 	    aux._params.insertBack (it.clone ());	    
 	}
@@ -280,7 +280,7 @@ class PtrFuncInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
-	    auto str = new StringInfo ();
+	    auto str = new StringInfo (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	} else if (var.token.str == "paramTuple") return ParamTuple ();
@@ -295,7 +295,7 @@ class PtrFuncInfo : InfoType {
 	else if (this._params.length == 1) {
 	    ret = this._params [0].clone ();
 	} else {
-	    auto aux = new TupleInfo ();
+	    auto aux = new TupleInfo (true);
 	    Array!InfoType params;
 	    foreach (it ; this._params) {
 		params.insertBack (it.clone ());
@@ -318,7 +318,7 @@ class PtrFuncInfo : InfoType {
     /**
      Returns: le nom du type.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	auto buf = new OutBuffer ();
 	buf.write ("fn(");
 	foreach (it ; this._params) {

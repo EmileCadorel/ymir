@@ -245,6 +245,9 @@ struct FrameReturnInfo {
     /** Le type de retour de la frame courante */
     Symbol info;
 
+    /** Le type est définis par l'utilisateur il ne peut pas changer */
+    bool _isImmutable = false;
+    
     /** Le nom block courant */
     private string _currentBlock;
 
@@ -274,6 +277,10 @@ struct FrameReturnInfo {
 
     ref bool changed () {
 	return this._changed;
+    }
+
+    ref bool isImmutable () {
+	return this._isImmutable;
     }
     
     /** 

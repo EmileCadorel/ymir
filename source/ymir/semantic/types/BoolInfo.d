@@ -10,6 +10,11 @@ import ymir.ast._;
  */
 class BoolInfo : InfoType {
 
+
+    this (bool isConst) {
+	super (isConst);
+    }
+    
     /**
      Créé une instance du type bool.
      Pour fonctionner templates doit être vide.
@@ -22,7 +27,7 @@ class BoolInfo : InfoType {
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
-	return new BoolInfo ();
+	return new BoolInfo (false);
     }
     
     /**
@@ -70,7 +75,7 @@ class BoolInfo : InfoType {
      */
     override InfoType UnaryOp (Word op) {
 	if (op == Tokens.NOT) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInstS.insertBack (&BoolUtils.InstXor);
 	    if (this._value)
 		ret.value = this._value.UnaryOp (op);
@@ -84,8 +89,8 @@ class BoolInfo : InfoType {
      Returns: le type ptr!bool
      */
     private InfoType toPtr () {
-	auto ptr = new PtrInfo ();
-	ptr.content = new BoolInfo ();
+	auto ptr = new PtrInfo (this.isConst);
+	ptr.content = new BoolInfo (this.isConst);
 	ptr.lintInstS.insertBack (&BoolUtils.InstAddr);
 	return ptr;
     }
@@ -98,7 +103,7 @@ class BoolInfo : InfoType {
      */
     private InfoType Affect (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (this.isConst);
 	    b.lintInst = &BoolUtils.InstAffect;
 	    return b;
 	}
@@ -113,7 +118,7 @@ class BoolInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (false);
 	    b.lintInst = &BoolUtils.InstAffect;
 	    return b;
 	}
@@ -129,7 +134,7 @@ class BoolInfo : InfoType {
      */
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast(BoolInfo) right.info.type) {
-	    auto b = new BoolInfo ();
+	    auto b = new BoolInfo (true);
 	    if (this._value)
 		b.value = this.value.BinaryOp(op, right.info.type.value);
 	    b.lintInst = &BoolUtils.InstOp !(op);
@@ -141,7 +146,7 @@ class BoolInfo : InfoType {
     /**
      Returns: le nom du type.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	return "bool";
     }
 
@@ -171,7 +176,7 @@ class BoolInfo : InfoType {
      Returns: un type bool.
      */
     private InfoType Init () {
-	auto _bl = new BoolInfo ();
+	auto _bl = new BoolInfo (true);
 	_bl.lintInst = &BoolUtils.BoolInit;
 	return _bl;
     }
@@ -181,7 +186,7 @@ class BoolInfo : InfoType {
      Returns: Un type int (TODO passer ça en type ubyte).
      */
     private InfoType SizeOf () {	
-	auto _int = new DecimalInfo (DecimalConst.UBYTE);
+	auto _int = new DecimalInfo (true, DecimalConst.UBYTE);
 	_int.lintInst = &BoolUtils.BoolSize;
 	return _int;
     }
@@ -191,7 +196,7 @@ class BoolInfo : InfoType {
      Returns: un type string.
      */
     private InfoType StringOf () {
-	auto str = new StringInfo ();
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this.typeString);
 	return str;
     }
@@ -205,7 +210,7 @@ class BoolInfo : InfoType {
     override InfoType CastOp (InfoType other) {
 	if (cast(BoolInfo)other) return this;
 	else if (cast (CharInfo) other) {
-	    auto aux = new CharInfo;
+	    auto aux = new CharInfo (this.isConst);
 	    aux.lintInstS.insertBack (&BoolUtils.InstCastChar);
 	    return aux;
 	} else if (auto ot = cast (DecimalInfo) other) {
@@ -233,7 +238,7 @@ class BoolInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	if (cast (BoolInfo) other || cast (UndefInfo) other) {
-	    auto bl = new BoolInfo;
+	    auto bl = new BoolInfo (this.isConst);
 	    bl.lintInst = &BoolUtils.InstAffect;
 	    return bl;
 	}
@@ -244,9 +249,8 @@ class BoolInfo : InfoType {
      Returns: une nouvelle instance du type bool.
      */
     override InfoType clone () {
-	auto ret = new BoolInfo ();
+	auto ret = new BoolInfo (this.isConst);
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -254,7 +258,7 @@ class BoolInfo : InfoType {
      Returns: une nouvelle instance du type bool.
      */
     override InfoType cloneForParam () {
-	return new BoolInfo ();
+	return new BoolInfo (this.isConst);
     }
 
     /**

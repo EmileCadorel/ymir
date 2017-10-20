@@ -28,8 +28,8 @@ class Mixin : Expression {
      */
     override Instruction instruction () {
 	auto msg = this._inside.expression ();
-	if (!msg.info.type.isSame (new StringInfo))
-	    throw new IncompatibleTypes (msg.info, new StringInfo);
+	if (!msg.info.type.isSame (new StringInfo (true)))
+	    throw new IncompatibleTypes (msg.info, new StringInfo (true));
 
 	if (msg.info.value is null)
 	    throw new NotImmutable (msg.info);
@@ -60,8 +60,8 @@ class Mixin : Expression {
      */
     override Expression expression () {
 	auto msg = this._inside.expression ();
-	if (!msg.info.type.isSame (new StringInfo))
-	    throw new IncompatibleTypes (msg.info, new StringInfo);
+	if (!msg.info.type.isSame (new StringInfo (true)))
+	    throw new IncompatibleTypes (msg.info, new StringInfo (true));
 
 	if (msg.info.value is null)
 	    throw new NotImmutable (msg.info);

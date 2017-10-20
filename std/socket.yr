@@ -1,19 +1,19 @@
 import std.conv;
-import std.stdio;
+import std.stdio._;
 
 public extern (C) socket (domain : int, type : int, protocol : int) : int;
-extern (C) perror (text : p!char);
+extern (C) perror (const text : p!char);
 
 extern (C) my_bind (sock : int, family : int, port : int, s_addr : int) : int;
 public extern (C) listen (sock : int, nb : int) : int;
-extern (C) my_accept (sock : int, addr : p!(p!char), port : p!int) : int;
-extern (C) printf (str : p!char, ...);
-extern (C) send (sock : int, msg : p!char, len : ulong, flags : int);
+extern (C) my_accept (sock : int, const addr : p!(p!char), const port : p!int) : int;
+extern (C) printf (const str : p!char, ...);
+extern (C) send (sock : int, const msg : p!char, len : ulong, flags : int);
 public extern (C) close (what : int);
 
-extern (C) recv (sock : int, buf : p!void, len : uint, flags : int) : uint;
+extern (C) recv (sock : int, const buf : p!void, len : uint, flags : int) : uint;
 extern (C) malloc (size : uint) : p!void;
-extern (C) free (a : p!void);
+extern (C) free (const a : p!void);
 
 struct
 | family : int

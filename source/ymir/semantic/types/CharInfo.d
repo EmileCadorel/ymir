@@ -10,6 +10,11 @@ import ymir.ast._;
  */
 class CharInfo : InfoType {
 
+
+    this (bool isConst) {
+	super (isConst);
+    }
+    
     /**
      Création du type char, à partir d'un variable de création.
      Pour fonctionner, templates doit être vide
@@ -22,7 +27,7 @@ class CharInfo : InfoType {
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
-	return new CharInfo ();
+	return new CharInfo (false);
     }
     
     /**
@@ -91,7 +96,7 @@ class CharInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto ch = new CharInfo ();
+	    auto ch = new CharInfo (false);
 	    ch.lintInst = &CharUtils.InstAffect;
 	    return ch;
 	}
@@ -106,7 +111,7 @@ class CharInfo : InfoType {
      */
     private InfoType Affect (Expression right) {
 	if (cast (CharInfo) right.info.type) {
-	    auto ch = new CharInfo ();
+	    auto ch = new CharInfo (false);
 	    ch.lintInst = &CharUtils.InstAffect;
 	    return ch;
 	}
@@ -122,14 +127,14 @@ class CharInfo : InfoType {
      */
     private InfoType opTest (Tokens op) (Expression right) {
 	if (cast (CharInfo) right.info.type) {
-	    auto ch = new BoolInfo ();
+	    auto ch = new BoolInfo (true);
 	    ch.lintInst = &CharUtils.InstOpTest !(op);
 	    if (this._value)
 		ch.value = this._value.BinaryOp (op, right.info.type.value);
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
-		auto ch = new BoolInfo ();
+		auto ch = new BoolInfo (true);
 		if (this._value)
 		    ch.value = this._value.BinaryOp (op, right.info.type.value);
 		ch.lintInst = &CharUtils.InstOpTest !(op);
@@ -149,7 +154,7 @@ class CharInfo : InfoType {
     private InfoType opTestRight (Tokens op) (Expression left) {
 	if (auto ot = cast (DecimalInfo) left.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
-		auto ch = new BoolInfo ();
+		auto ch = new BoolInfo (true);
 		if (this._value)
 		    ch.value = this._value.BinaryOpRight (op, left.info.type.value);
 		ch.lintInst = &CharUtils.InstOpTest !(op);
@@ -168,12 +173,12 @@ class CharInfo : InfoType {
      */
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast (CharInfo) right.info.type) {
-	    auto ch = new CharInfo ();
+	    auto ch = new CharInfo (false);
 	    ch.lintInst = &CharUtils.InstOpAff !(op);	    
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
-		auto ch = new CharInfo ();
+		auto ch = new CharInfo (false);
 		ch.lintInst = &CharUtils.InstOpAff !(op);
 		return ch;
 	    }
@@ -190,14 +195,14 @@ class CharInfo : InfoType {
      */
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast (CharInfo) right.info.type) {
-	    auto ch = new CharInfo ();
+	    auto ch = new CharInfo (true);
 	    ch.lintInst = &CharUtils.InstOp !(op);
 	    if (this._value)
 		ch.value = this._value.BinaryOp (op, right.info.type.value);
 	    return ch;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
-		auto ch = new CharInfo ();
+		auto ch = new CharInfo (true);
 		if (this._value)
 		    ch.value = this._value.BinaryOp (op, right.info.type.value);
 		ch.lintInst = &CharUtils.InstOp ! (op);
@@ -217,7 +222,7 @@ class CharInfo : InfoType {
     private InfoType opNormRight (Tokens op) (Expression left) {
 	if (auto ot = cast (DecimalInfo) left.info.type) {
 	    if (ot.type == DecimalConst.UBYTE) {
-		auto ch = new CharInfo ();
+		auto ch = new CharInfo (true);
 		if (this._value)
 		    ch.value = this._value.BinaryOpRight (op, left.info.type.value);
 		ch.lintInst = &CharUtils.InstOp ! (op);
@@ -235,7 +240,7 @@ class CharInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || cast (CharInfo) other) {
-	    auto ch = new CharInfo ();
+	    auto ch = new CharInfo (this.isConst);
 	    ch.lintInst = &CharUtils.InstAffect;
 	    return ch;
 	}
@@ -261,7 +266,7 @@ class CharInfo : InfoType {
      Returns: un type char.
      */
     private InfoType Init () {
-	CharInfo _ch = new CharInfo ();
+	CharInfo _ch = new CharInfo (true);
 	_ch.lintInst = &CharUtils.CharInit;
 	return _ch;
     }
@@ -271,7 +276,7 @@ class CharInfo : InfoType {
      Returns: un type int (TODO changer en ubyte).
      */
     private InfoType SizeOf () {
-	auto _int = new DecimalInfo (DecimalConst.UBYTE);
+	auto _int = new DecimalInfo (true, DecimalConst.UBYTE);
 	_int.lintInst = &CharUtils.CharSizeOf;
 	return _int;
     }
@@ -281,7 +286,7 @@ class CharInfo : InfoType {
      Returns: un type string.
      */
     private InfoType StringOf () {
-	auto _str = new StringInfo ();
+	auto _str = new StringInfo (true);
 	_str.value = new StringValue (this.typeString);
 	return _str;
     }
@@ -289,7 +294,7 @@ class CharInfo : InfoType {
     /**
      Returns: le nom du type char.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	return "char";
     }
 
@@ -304,9 +309,8 @@ class CharInfo : InfoType {
      Returns: un nouvelle instance du type char.
      */
     override InfoType clone () {
-	auto ret = new CharInfo ();
+	auto ret = new CharInfo (this.isConst);
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -314,7 +318,7 @@ class CharInfo : InfoType {
      Returns: une nouvelle instance du type char.
      */
     override InfoType cloneForParam () {
-	return new CharInfo ();
+	return new CharInfo (this.isConst);
     }
 
     /**

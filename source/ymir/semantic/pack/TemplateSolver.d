@@ -330,7 +330,7 @@ class TemplateSolverS {
 	if (!res.valid || !merge (soluce.score, soluce.elements, res))
 	    return TemplateSolution (0, false);
 
-	auto aux = new PtrFuncInfo ();
+	auto aux = new PtrFuncInfo (true);
 	aux.params = types;
 	aux.ret = res.type;
 
@@ -361,7 +361,7 @@ class TemplateSolverS {
 	auto res = this.solveInside (tmps, ptr.type, func.getTemplate (ptr.params.length + 1));
 	if (!res.valid || !merge (soluce.score, soluce.elements, res))
 	    return TemplateSolution (0, false);
-	auto aux = new PtrFuncInfo ();
+	auto aux = new PtrFuncInfo (true);
 	aux.params = types;
 	auto ret = res.type;
 	
@@ -639,10 +639,10 @@ class TemplateSolverS {
 	InfoType res;
 	
 	if (cast (CharInfo) right.info.type && cast (StringInfo) elem.info.type) {
-	    res = new BoolInfo ();
+	    res = new BoolInfo (true);
 	    res.value = new BoolValue ((cast (CharValue) right.info.type.value).value == (cast (StringValue) elem.info.type.value).value [0]);
 	} else if (cast (CharInfo) elem.info.type && cast (StringInfo) right.info.type) {
-	    res = new BoolInfo ();
+	    res = new BoolInfo (true);
 	    res.value = new BoolValue ((cast (CharValue) elem.info.type.value).value == (cast (StringValue) right.info.type.value).value [0]);
 	} else {	    
 	    auto op = Word.eof;
@@ -763,7 +763,7 @@ class TemplateSolverS {
 	foreach (it ; tmps) {
 	    if (auto var = cast (VariadicVar) it) {
 		if (type.token.str == var.token.str) {
-		    auto tuple = new TupleInfo ();
+		    auto tuple = new TupleInfo (true);
 		    Array!InfoType others;
 		    foreach (it_ ; types) others.insertBack (it_.cloneForParam ());
 		    tuple.params = others;

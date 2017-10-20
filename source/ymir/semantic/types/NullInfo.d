@@ -10,6 +10,10 @@ import ymir.ast._;
  */
 class NullInfo : InfoType {
 
+    this () {
+	super (true);
+    }
+    
     /**
      Params:
      other = le deuxieme type.
@@ -35,7 +39,7 @@ class NullInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
-	    auto str = new StringInfo;
+	    auto str = new StringInfo (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
@@ -53,23 +57,19 @@ class NullInfo : InfoType {
 	    auto ret = other.clone ();
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
-	} else if (cast (ArrayInfo) other) {
+	} else if (auto arr = cast (ArrayInfo) other) {
 	    auto ret = other.clone ();
-	    ret.lintInst = &PtrUtils.InstAffect;
+	    ret.leftTreatment = &ArrayUtils.InstCastFromNull;
 	    return ret;
 	} else if (cast (StringInfo) other) {
 	    auto ret = other.clone ();
-	    ret.lintInst = &PtrUtils.InstAffect;
+	    ret.leftTreatment = &ArrayUtils.InstCastFromNull;
 	    return ret;
 	} else if (cast (PtrInfo) other) {
 	    auto ret = other.clone ();
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
 	} else if (cast (PtrFuncInfo) other) {
-	    auto ret = other.clone ();
-	    ret.lintInst = &PtrUtils.InstAffect;
-	    return ret;
-	} else if (cast (RangeInfo) other) {
 	    auto ret = other.clone ();
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
@@ -89,7 +89,7 @@ class NullInfo : InfoType {
     /**
      Returns: le nom du type null.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	return "null";
     }
 

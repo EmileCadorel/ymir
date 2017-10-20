@@ -9,8 +9,9 @@ import ymir.compiler._;
 
 
 import std.stdio, std.container, std.outbuffer;
-import std.format, std.process, std.string;
+import std.format, std.process, std.string, std.path;
 import std.algorithm, std.file, std.typecons;
+
 
 class DVisitor : LVisitor {
 
@@ -44,7 +45,7 @@ class DVisitor : LVisitor {
     }
 
     void addStructToCst (StructInfo info) {
-	if (this._structToCst[].find!("a.namespace == b.namespace") (info).empty)
+	if (this._structToCst[].find!("a.name == b.name") (info).empty)
 	    this._structToCst.insertBack (info);
     }
 
@@ -58,6 +59,11 @@ class DVisitor : LVisitor {
     Namespace toDNamespace (Namespace space) {
 	return space.addSuffix ("Ymir");
     }
+
+    void clean () {
+	this._tupleToCst = null;
+	this._structToCst = make!(Array!StructInfo);
+    }
     
     string toFile (Array!LFrame frames, string filename, string extension) {
 	auto imports = new OutBuffer ();
@@ -70,7 +76,12 @@ class DVisitor : LVisitor {
 	
 	imports.writefln ("module %s;", modName.toString);
 	imports.writefln ("import std.typecons;");
-	imports.writefln ("import core.memory;");
+	imports.writefln ("import core.memory;");       
+
+	foreach (it ; this._structToCst) {
+	    auto src = toDStruct (it);
+	    funcs.writef ("\n%s\n", src);
+	}
 	
 	foreach (it ; frames) {
 	    auto dframe = cast (DFrame) it;
@@ -93,12 +104,7 @@ class DVisitor : LVisitor {
 	foreach (it ; toImports) {
 	    imports.writefln ("import %s;", it);
 	}
-	
-	foreach (it ; this._structToCst) {
-	    auto src = toDStruct (it);
-	    funcs.writef ("\n%s\n", src);
-	}
-	
+		
 	file.writef ("%s\n\n%s", imports.toString, funcs.toString);
 	return modName.asFile (extension);
     }
@@ -114,7 +120,7 @@ class DVisitor : LVisitor {
 		return;
 	}
 	
-	options ~= ["-I=" ~ Options.instance.getPath ()] ~ Options.instance.libs;
+	options ~= ["-I=" ~ buildPath (Options.instance.getPath (), "out/")] ~ Options.instance.libs ~ buildPath (Options.instance.getPath(), "liblibymir.a");
 
 	if (Options.instance.isOn (OptionEnum.VERBOSE))
 	    writeln (["dmd"] ~ options ~ files);
@@ -285,6 +291,16 @@ class DVisitor : LVisitor {
 	return left;	
     }
 
+    private DExpression visit (FuncPtr fptr) {
+	if (fptr.expr is null) {
+	    return new DNull ();
+	} else {
+	    auto ptr = cast (PtrFuncInfo) fptr.info.type;
+	    if (ptr.score) return new DBefUnary (new DVar (ptr.score.name), Tokens.AND);
+	    else return visit (fptr.expr);
+	}
+    }    
+    
     private DExpression visit (Is i) {
 	assert (false);
     }
@@ -309,10 +325,20 @@ class DVisitor : LVisitor {
     }
 
     private DInstruction visit (Return ret) {
+	DExpression expr;
 	if (ret.elem) {
-	    auto expr = visit (ret.elem);
-	    if (ret.instComp) 
+	    if (ret.instCast) {		
+		if (ret.instCast.leftTreatment) {
+		    expr = cast (DExpression) ret.instCast.leftTreatment (ret.instCast, ret.elem, null);
+		} else {
+		    expr = visit (ret.elem);
+		}
+		if (ret.instCast.lintInstS.length > 0)
+		    expr = cast (DExpression) ret.instCast.lintInst (expr);
+	    } else expr = visit (ret.elem);
+	    if (ret.instComp) {
 		expr = cast (DExpression) ret.instComp.lintInst (expr);
+	    }	    
 	    return new DReturn (expr);
 	} else return new DReturn ();
     }
@@ -407,7 +433,12 @@ class DVisitor : LVisitor {
     }
 
     private DExpression visit (Decimal dc) {
-	return new DCast (new DType (fromDecimalConst (cast (DecimalConst) dc.type)), new DDecimal (dc.value));
+	import std.bigint, std.conv;
+	try {
+	    return new DCast (new DType (fromDecimalConst (cast (DecimalConst) dc.type)), new DDecimal (cast (DecimalConst) dc.type, dc.value));	    
+	} catch (ConvOverflowException exp) {
+	    throw new CapacityOverflow (dc.info, dc.value.to!string);
+	}
     }
 
     private DExpression visit (Char c) {
@@ -426,13 +457,13 @@ class DVisitor : LVisitor {
 	    auto frame = new DFrame (name);
 	    auto ptr = new DVar ("ptr"), len = new DVar ("len");
 	    frame.type = new DType ("Tuple!(ulong, char*)");
-	    frame.addVar (new DTypeVar (new DType ("ulong"), len));
+	    frame.addVar (new DTypeVar (new DType (Dlang.ULONG), len));
 	    frame.addVar (new DTypeVar (new DType ("const (char)*"), ptr));
 	    auto bl = DBlock.open ();
 	    auto iter = new DAuxVar (), res = new DAuxVar;
 	    auto decl = new DVarDecl ();
 	    
-	    decl.addVar (new DTypeVar (new DType ("ulong"), iter));
+	    decl.addVar (new DTypeVar (new DType (Dlang.ULONG), iter));
 	    decl.addExpression (new DBinary (iter, new DDecimal (0), Tokens.EQUAL));
 	    decl.addVar (new DTypeVar (new DType ("char*"), res));
 	    decl.addExpression (new DBinary (res, new DNew (new DVar ("char*"), len), Tokens.EQUAL));
@@ -447,7 +478,7 @@ class DVisitor : LVisitor {
 	    
 	    bl.addInst (new DWhile (test, inside));
 	    auto paramList = new DParamList ();
-	    paramList.addParam (new DCast (new DType ("ulong"), iter));
+	    paramList.addParam (new DCast (new DType (Dlang.ULONG), iter));
 	    paramList.addParam (res);
 	    
 	    bl.addInst (new DReturn (new DPar (new DVar ("tuple"), paramList)));
@@ -499,7 +530,7 @@ class DVisitor : LVisitor {
 	}
     
 	auto paramList = new DParamList ();
-	paramList.addParam (new DDecimal (cr.params.length));
+	paramList.addParam (new DCast (new DType (Dlang.ULONG), new DDecimal (cr.params.length)));
 	paramList.addParam (aux);
 		
 	return new DPar (new DVar ("tuple"), paramList);
@@ -507,13 +538,34 @@ class DVisitor : LVisitor {
 
     private DExpression visit (ConstRange cr) {
 	auto params = new DParamList ();
-	params.addParam (visit (cr.left));
-	params.addParam (visit (cr.right));
+	if (cr.lorr == 1) {
+	    params.addParam (cast (DExpression) cr.caster.lintInst (visit (cr.left)));
+	    params.addParam (visit (cr.right));
+	} else if (cr.lorr == 2) {
+	    params.addParam (visit (cr.left));
+	    params.addParam (cast (DExpression) cr.caster.lintInst (visit (cr.right)));
+	} else {
+	    params.addParam (visit (cr.left));
+	    params.addParam (visit (cr.right));
+	}
 	return new DPar (new DVar ("tuple"), params);
     }
     
-    private DExpression visit (DColon dc) {
-	assert (false);
+    private DExpression visit (DColon dot) {
+	DExpression exprs;
+	if (dot.info.value) return cast (DExpression) dot.info.value.toLint (dot.info);
+	if (dot.info.type.leftTreatment) {
+	    exprs = cast (DExpression) dot.info.type.leftTreatment (dot.info.type, dot.left, null);
+	}
+
+	auto left = visit (dot.left);
+	if (dot.info.type.lintInstS.length > 0) {
+	    for (long nb = dot.info.type.lintInstS.length - 1 ; nb >= 0 ; nb --) {
+		left = cast (DExpression) dot.info.type.lintInst (left, nb);
+	    }
+	}
+
+	return cast (DExpression) dot.info.type.lintInst (exprs, left);	
     }
 
     private DExpression visit (Dot dot) {
@@ -640,14 +692,14 @@ class DVisitor : LVisitor {
     static DType visitType (InfoType type) {
 	if (auto dec = cast (DecimalInfo) type) {
 	    final switch (dec.type.id) {
-	    case DecimalConst.BYTE.id : return new DType ("byte", type.isConst);
-	    case DecimalConst.UBYTE.id : return new DType ("ubyte", type.isConst);
-	    case DecimalConst.SHORT.id : return new DType ("short", type.isConst);
-	    case DecimalConst.USHORT.id : return new DType ("ushort", type.isConst);
-	    case DecimalConst.INT.id : return new DType ("int", type.isConst);
-	    case DecimalConst.UINT.id : return new DType ("uint", type.isConst);
-	    case DecimalConst.LONG.id : return new DType ("long", type.isConst);
-	    case DecimalConst.ULONG.id : return new DType ("ulong", type.isConst);		
+	    case DecimalConst.BYTE.id : return new DType (Dlang.BYTE, type.isConst);
+	    case DecimalConst.UBYTE.id : return new DType (Dlang.UBYTE, type.isConst);
+	    case DecimalConst.SHORT.id : return new DType (Dlang.SHORT, type.isConst);
+	    case DecimalConst.USHORT.id : return new DType (Dlang.USHORT, type.isConst);
+	    case DecimalConst.INT.id : return new DType (Dlang.INT, type.isConst);
+	    case DecimalConst.UINT.id : return new DType (Dlang.UINT, type.isConst);
+	    case DecimalConst.LONG.id : return new DType (Dlang.LONG, type.isConst);
+	    case DecimalConst.ULONG.id : return new DType (Dlang.ULONG, type.isConst);		
 	    }
 	} else if (auto fl = cast (FloatInfo) type) {
 	    return new DType ("double", type.isConst);

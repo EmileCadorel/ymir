@@ -12,7 +12,8 @@ class DecimalInfo : InfoType {
 
     private DecimalConst _type;
     
-    this (DecimalConst type) {
+    this (bool isConst, DecimalConst type) {
+	super (isConst);
 	this._type = type;
     }
 
@@ -41,14 +42,14 @@ class DecimalInfo : InfoType {
 	    throw new NotATemplate (token);
 	
 	switch (token.str) {
-	case "byte" : return new DecimalInfo (DecimalConst.BYTE);
-	case "ubyte" : return new DecimalInfo (DecimalConst.UBYTE);
-	case "short" : return new DecimalInfo (DecimalConst.SHORT);
-	case "ushort" : return new DecimalInfo (DecimalConst.USHORT);
-	case "int" : return new DecimalInfo (DecimalConst.INT);
-	case "uint" : return new DecimalInfo (DecimalConst.UINT);
-	case "long" : return new DecimalInfo (DecimalConst.LONG);
-	case "ulong" : return new DecimalInfo (DecimalConst.ULONG);
+	case "byte" : return new DecimalInfo (false, DecimalConst.BYTE);
+	case "ubyte" : return new DecimalInfo (false, DecimalConst.UBYTE);
+	case "short" : return new DecimalInfo (false, DecimalConst.SHORT);
+	case "ushort" : return new DecimalInfo (false, DecimalConst.USHORT);
+	case "int" : return new DecimalInfo (false, DecimalConst.INT);
+	case "uint" : return new DecimalInfo (false, DecimalConst.UINT);
+	case "long" : return new DecimalInfo (false, DecimalConst.LONG);
+	case "ulong" : return new DecimalInfo (false, DecimalConst.ULONG);
 	default : assert (false);
 	}
     }
@@ -121,7 +122,7 @@ class DecimalInfo : InfoType {
     override InfoType UnaryOp (Word op) {
 	InfoType ret;
 	if (op == Tokens.MINUS) {
-	    ret = new DecimalInfo (this._type);
+	    ret = new DecimalInfo (true, this._type);
 	    ret.lintInstS.insertBack (&DecimalUtils.InstUnop !(Tokens.MINUS));
 	    if (this._value)
 		ret.value = this._value.UnaryOp (op);
@@ -141,19 +142,19 @@ class DecimalInfo : InfoType {
     override InfoType CastOp (InfoType other) {
 	if (this.isSame (other)) return this;
 	else if (cast(BoolInfo) other !is null) {
-	    auto aux = new BoolInfo;
+	    auto aux = new BoolInfo (true);
 	    aux.lintInstS.insertBack (&DecimalUtils.InstCastBool);
 	    return aux;
 	} else if (cast (CharInfo) other !is null) {
-	    auto aux = new CharInfo;
+	    auto aux = new CharInfo (true);
 	    aux.lintInstS.insertBack (&DecimalUtils.InstCastChar);
 	    return aux;
 	} else if (cast (FloatInfo) other !is null) {
-	    auto aux = new FloatInfo;
+	    auto aux = new FloatInfo (true);
 	    aux.lintInstS.insertBack (&DecimalUtils.InstCastFloat);
 	    return aux;
 	} else if (auto ot = cast (DecimalInfo) other) {
-	    auto ret = new DecimalInfo (ot.type);
+	    auto ret = new DecimalInfo (true, ot.type);
 	    final switch (ot.type.id) {
 	    case DecimalConst.BYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
 	    case DecimalConst.UBYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
@@ -177,7 +178,7 @@ class DecimalInfo : InfoType {
     */
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || this.isSame (other)) {
-	    auto ret = new DecimalInfo (this._type);
+	    auto ret = new DecimalInfo (this.isConst, this._type);
 	    ret.lintInst = &DecimalUtils.InstAffect;
 	    return ret;
 	} else if (auto _ref = cast (RefInfo) other) {
@@ -215,7 +216,7 @@ class DecimalInfo : InfoType {
 
     override InfoType CastTo (InfoType other) {
 	if (auto ot = cast (DecimalInfo) other) {
-	    auto ret = new DecimalInfo (ot.type);
+	    auto ret = new DecimalInfo (true, ot.type);
 	    final switch (ot.type.id) {
 	    case DecimalConst.BYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
 	    case DecimalConst.UBYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
@@ -236,8 +237,8 @@ class DecimalInfo : InfoType {
      Returns: un pointeur sur int.     
     */
     private InfoType toPtr () {
-	auto other = new PtrInfo ();
-	other.content = new DecimalInfo (this._type);
+	auto other = new PtrInfo (this.isConst);
+	other.content = new DecimalInfo (this.isConst, this._type);
 	other.lintInstS.insertBack (&DecimalUtils.InstAddr);
 	return other;
     }
@@ -247,7 +248,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
     */    
     private InfoType pplus () {
-	auto other = new DecimalInfo (this._type);
+	auto other = new DecimalInfo (this.isConst, this._type);
 	other.lintInstS.insertBack (&DecimalUtils.InstPplus);
 	return other;
     }
@@ -257,7 +258,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
      */
     private InfoType ssub () {
-	auto other = new DecimalInfo (this._type);
+	auto other = new DecimalInfo (this.isConst, this._type);
 	other.lintInstS.insertBack (&DecimalUtils.InstSsub);
 	return other;
     }
@@ -307,7 +308,7 @@ class DecimalInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast(UndefInfo) left.info.type !is null) {
-	    auto i = new DecimalInfo (this._type);
+	    auto i = new DecimalInfo (false, this._type);
 	    i.lintInst = &DecimalUtils.InstAffect;
 	    return i;
 	}
@@ -362,14 +363,14 @@ class DecimalInfo : InfoType {
     private InfoType opTest (Tokens op) (Expression right) {
 	if (auto ot = cast (DecimalInfo) right.info.type) {
 	    if (this._type == ot.type) {
-		auto ret = new BoolInfo ();
+		auto ret = new BoolInfo (true);
 		if (this._value)
 		    ret.value = this.value.BinaryOp (op, right.info.type.value);
 		ret.lintInst = &DecimalUtils.InstOpTest! (op);
 		return ret;
 	    } else if (this._type.isSigned && ot.type.isSigned) {
 		if (this._type.id > ot.type.id) {
-		    auto ret = new BoolInfo ();
+		    auto ret = new BoolInfo (true);
 		    final switch (this._type.id) {
 		    case DecimalConst.BYTE.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
 		    case DecimalConst.SHORT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.SHORT)); break;
@@ -381,7 +382,7 @@ class DecimalInfo : InfoType {
 			ret.value = this.value.BinaryOp (op, ot.value);
 		    return ret;
 		} else {
-		    auto ret = new BoolInfo ();
+		    auto ret = new BoolInfo (true);
 		    final switch (ot._type.id) {
 		    case DecimalConst.BYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.BYTE)); break;
 		    case DecimalConst.SHORT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.SHORT)); break;
@@ -395,7 +396,7 @@ class DecimalInfo : InfoType {
 		}
 	    } else if (!this._type.isSigned && !ot.type.isSigned) {
 		if (this._type.id > ot.type.id) {
-		    auto ret = new BoolInfo ();
+		    auto ret = new BoolInfo (true);
 		    final switch (this._type.id) {
 		    case DecimalConst.UBYTE.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
 		    case DecimalConst.USHORT.id : ret.lintInstSR.insertBack (&DecimalUtils.InstCast! (DecimalConst.USHORT)); break;
@@ -407,7 +408,7 @@ class DecimalInfo : InfoType {
 			ret.value = this.value.BinaryOp (op, ot.value);
 		    return ret;
 		} else {
-		    auto ret = new BoolInfo ();
+		    auto ret = new BoolInfo (true);
 		    final switch (ot._type.id) {
 		    case DecimalConst.UBYTE.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.UBYTE)); break;
 		    case DecimalConst.USHORT.id : ret.lintInstS.insertBack (&DecimalUtils.InstCast! (DecimalConst.USHORT)); break;
@@ -422,7 +423,7 @@ class DecimalInfo : InfoType {
 	    }
 	} else if (auto ot = cast (CharInfo) right.info.type) {
 	    if (this._type == DecimalConst.UBYTE) {
-		auto ret = new BoolInfo ();
+		auto ret = new BoolInfo (true);
 		if (this._value)
 		    ret.value = this.value.BinaryOp (op, ot.value);
 		ret.lintInst = &DecimalUtils.InstOpTest ! (op);
@@ -514,7 +515,7 @@ class DecimalInfo : InfoType {
      */
     private InfoType dxorAffOp (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto i = new DecimalInfo (this._type);
+	    auto i = new DecimalInfo (this.isConst, this._type);
 	    i.value = this._value.BinaryOp (Tokens.DXOR, right.info.type.value);
 	    i.lintInst = &DecimalUtils.InstDXorAff;
 	    return i;
@@ -530,7 +531,7 @@ class DecimalInfo : InfoType {
      */
     private InfoType dxorOp (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto i = new DecimalInfo (this._type);
+	    auto i = new DecimalInfo (true, this._type);
 	    i.value = this._value.BinaryOp (Tokens.DXOR, right.info.type.value);
 	    i.lintInst = &DecimalUtils.InstDXor;
 	    return i;
@@ -560,7 +561,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
      */
     private InfoType Init () {
-	auto _int = new DecimalInfo (this._type);
+	auto _int = new DecimalInfo (true, this._type);
 	final switch (this._type.id) {
 	case DecimalConst.BYTE.id :  _int.lintInst = &DecimalUtils.Init!(DecimalConst.BYTE); break;
 	case DecimalConst.UBYTE.id :  _int.lintInst = &DecimalUtils.Init!(DecimalConst.UBYTE); break;
@@ -579,7 +580,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
      */
     private InfoType Max () {
-	auto _int = new DecimalInfo (this._type);
+	auto _int = new DecimalInfo (true, this._type);
 	final switch (this._type.id) {
 	case DecimalConst.BYTE.id :  _int.lintInst = &DecimalUtils.Max!(DecimalConst.BYTE); break;
 	case DecimalConst.UBYTE.id :  _int.lintInst = &DecimalUtils.Max!(DecimalConst.UBYTE); break;
@@ -598,7 +599,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
      */
     private InfoType Min () {
-	auto _int = new DecimalInfo (this._type);
+	auto _int = new DecimalInfo (true, this._type);
 	final switch (this._type.id) {
 	case DecimalConst.BYTE.id :  _int.lintInst = &DecimalUtils.Min!(DecimalConst.BYTE); break;
 	case DecimalConst.UBYTE.id :  _int.lintInst = &DecimalUtils.Min!(DecimalConst.UBYTE); break;
@@ -617,7 +618,7 @@ class DecimalInfo : InfoType {
      Returns: un int.
      */
     private InfoType SizeOf () {
-	auto _int = new DecimalInfo (DecimalConst.UBYTE);
+	auto _int = new DecimalInfo (true, DecimalConst.UBYTE);
 	final switch (this._type.id) {
 	case DecimalConst.BYTE.id :  _int.lintInst = &DecimalUtils.SizeOf!(DecimalConst.BYTE); break;
 	case DecimalConst.UBYTE.id :  _int.lintInst = &DecimalUtils.SizeOf!(DecimalConst.UBYTE); break;
@@ -636,7 +637,7 @@ class DecimalInfo : InfoType {
      Returns: un string.
      */
     private InfoType StringOf () {
-	auto _str = new StringInfo ();
+	auto _str = new StringInfo (true);
 	_str.value = new StringValue (this.typeString);
 	return _str;
     }
@@ -644,7 +645,7 @@ class DecimalInfo : InfoType {
     /**
      Returns: le nom du type int.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	return this._type.name;
     }
 
@@ -659,9 +660,8 @@ class DecimalInfo : InfoType {
      Returns: une nouvelle instance de int.
      */
     override InfoType clone () {
-	auto ret = new DecimalInfo (this._type);
+	auto ret = new DecimalInfo (this.isConst, this._type);
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -669,7 +669,7 @@ class DecimalInfo : InfoType {
      Returns: une nouvelle instance de int.
     */
     override InfoType cloneForParam () {
-	return new DecimalInfo (this._type);
+	return new DecimalInfo (this.isConst, this._type);
     }
 
     /**

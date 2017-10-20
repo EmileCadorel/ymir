@@ -33,11 +33,13 @@ class FunctionInfo : InfoType {
      name = le nom des surcharges de fonctions
      */
     this (Namespace namespace, string name) {
+	super (true);
 	this._name = name;
 	this._namespace = namespace;
     }
 
     this (Namespace namespace, string name, Array!Frame infos) {
+	super (true);
 	this._name = name;
 	this._namespace = namespace;
 	this._fromTemplates = infos;
@@ -149,6 +151,9 @@ class FunctionInfo : InfoType {
 
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
+	    if (right.ret.value) {
+		std.stdio.writeln (right.ret, " ", right.ret.value);
+	    }
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;
@@ -253,8 +258,7 @@ class FunctionInfo : InfoType {
 		params.insertBack (it.info.type);
 	    }
 	    auto ret = proto.type.type;
-	    auto ptr = new PtrFuncInfo ();
-	    ptr.isConst = true;
+	    auto ptr = new PtrFuncInfo (true);
 	    ptr.params = params;
 	    ptr.ret = ret;	    
 	    ptr.score = this.CallOp (fr.ident, params);
@@ -285,11 +289,10 @@ class FunctionInfo : InfoType {
     override void quit (Namespace) {
     }
 
-
     /**
      Returns: le nom du type fonction
      */
-    override string typeString () {
+    override string innerTypeString () {
 	auto frames = this.getFrames ();
 	if (frames.length == 1 && frames [0].func) {
 	    auto buf = new OutBuffer ();

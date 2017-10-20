@@ -65,8 +65,7 @@ class Decimal : Expression {
      */
     override Expression expression () {
 	auto aux = new Decimal (this._token, this._type);
-	aux.info = new Symbol (this._token, new DecimalInfo (this._type));
-	aux.info.isConst = true;
+	aux.info = new Symbol (this._token, new DecimalInfo (true, this._type));
 	aux.info.value = new DecimalValue (this._token.str);
 	return aux;
     }
@@ -122,8 +121,7 @@ class Char : Expression {
      */
     override Expression expression () {
 	auto aux = new Char (this._token, this._code);
-	aux.info = new Symbol (this._token, new CharInfo (), true);
-	aux.info.isConst = true;
+	aux.info = new Symbol (this._token, new CharInfo (true), true);
 	aux.info.value = new CharValue (this._code);
 	return aux;
     }
@@ -193,7 +191,7 @@ class Float : Expression {
      */
     override Expression expression () {
 	auto aux = new Float (this._totale, this._token);
-	aux.info = new Symbol (this._token, new FloatInfo (), true);
+	aux.info = new Symbol (this._token, new FloatInfo (true), true);
 	return aux;
     }
 
@@ -386,7 +384,7 @@ class String : Expression {
 	    __last__ ++;
 	} else aux._label = *it;
 	
-	aux.info = new Symbol (this._token, new StringInfo (), true);
+	aux.info = new Symbol (this._token, new StringInfo (true), true);
 	aux.info.value = new StringValue (this._content);
 	return aux;       
     }
@@ -441,7 +439,7 @@ class Bool : Expression {
      */
     override Expression expression () {
 	auto aux = new Bool (this._token);
-	aux.info = new Symbol (this._token, new BoolInfo (), true);
+	aux.info = new Symbol (this._token, new BoolInfo (true), true);
 	aux.info.value = new BoolValue (this._token == Keys.TRUE ? true : false);
 	return aux;
     }

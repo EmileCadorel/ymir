@@ -149,26 +149,30 @@ class StructUtils {
     
     
     static void createCstStruct (StructInfo info) {
-	string name = Mangler.mangle!"struct" (info);
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	Array!LReg regs;
-	auto retReg = new LReg (LSize.LONG);
-	auto entry = new LLabel (new LInstList), end = new LLabel;
-
-	
-	auto interne = AssocBlock (info, retReg, regs);
-	auto bin = cast (LBinop) interne.getFirst ();
-	auto size = bin.right;
-	
-	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
-	entry.insts += interne;
-	
-	auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
-	fr.isStd = false;
-	LFrame.preCompiled [__CstName__ ~ name] = fr;	
-	LReg.lastId = last;
-	createSimpleCstStruct (info, name);
+	if (COMPILER.isToLint) {
+	    string name = Mangler.mangle!"struct" (info);
+	    auto last = LReg.lastId;
+	    LReg.lastId = 0;
+	    Array!LReg regs;
+	    auto retReg = new LReg (LSize.LONG);
+	    auto entry = new LLabel (new LInstList), end = new LLabel;
+	    
+	    
+	    auto interne = AssocBlock (info, retReg, regs);
+	    auto bin = cast (LBinop) interne.getFirst ();
+	    auto size = bin.right;
+	    
+	    entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);
+	    entry.insts += interne;
+	    
+	    auto fr = new LFrame (__CstName__ ~ name, entry, end, retReg, regs);
+	    fr.isStd = false;
+	    LFrame.preCompiled [__CstName__ ~ name] = fr;	
+	    LReg.lastId = last;
+	    createSimpleCstStruct (info, name);
+	} else {
+	    COMPILER.getLVisitor!(DVisitor).addStructToCst (info);
+	}
     }
     
     static void createSimpleCstStruct (StructInfo info, string name) {

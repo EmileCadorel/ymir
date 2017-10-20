@@ -52,7 +52,7 @@ class ConstArray : Expression  {
     override Expression expression () {
 	auto aux = new ConstArray (this._token, make!(Array!Expression));
 	if (this._params.length == 0) {
-	    aux.info = new Symbol (aux._token, new ArrayInfo (new VoidInfo), true);
+	    aux.info = new Symbol (aux._token, new ArrayInfo (true, new VoidInfo), true);
 	} else {
 	    InfoType last = null;
 	    for (ulong i = 0; i < this._params.length; i++) {
@@ -69,7 +69,7 @@ class ConstArray : Expression  {
 				     this.token.str,
 				     false);
 		    tok.str = this.token.str ~ type.token.str ~ "]";
-		    return new Type (tok, new ArrayInfo (type.info.type));
+		    return new Type (tok, new ArrayInfo (true, type.info.type));
 		}
 	    }
 	    
@@ -86,7 +86,7 @@ class ConstArray : Expression  {
 		if (fst == 0)
 		    begin.type = cmp;
 	    }
-	    aux._info = new Symbol (aux._token, new ArrayInfo (begin.type.clone ()), true);
+	    aux._info = new Symbol (aux._token, new ArrayInfo (true, begin.type.clone ()), true);
 	}
 	return aux;
     }

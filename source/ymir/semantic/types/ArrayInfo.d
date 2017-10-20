@@ -18,7 +18,8 @@ class ArrayInfo : InfoType {
     /**
      Initialise le tableau en [void].
      */
-    this () {
+    this (bool isConst) {
+	super (isConst);
 	this._content = new VoidInfo ();
     }
 
@@ -26,8 +27,10 @@ class ArrayInfo : InfoType {
      Params:
      content = le type contenu dans le tableau
      */
-    this (InfoType content) {
+    this (bool isConst, InfoType content) {
+	super (isConst);
 	this._content = content;
+	this._content.isConst = this.isConst;
     }
 
     /**
@@ -61,11 +64,11 @@ class ArrayInfo : InfoType {
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 1 || !(cast (Type) templates [0])) {
 	    if (auto _cst = cast (StructCstInfo) templates [0].info.type) {
-		return new ArrayInfo (_cst.create (templates [0].token, []));
+		return new ArrayInfo (false, _cst.create (templates [0].token, []));
 	    } else
 		throw new UndefinedType (token, "prend un type en template");
 	} else {
-	    auto arr = new ArrayInfo (templates [0].info.type);
+	    auto arr = new ArrayInfo (false, templates [0].info.type);
 	    return arr;
 	}
     }
@@ -125,11 +128,11 @@ class ArrayInfo : InfoType {
     */
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ArrayUtils.InstIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ArrayUtils.InstIs;
 	    return ret;
 	}
@@ -144,11 +147,11 @@ class ArrayInfo : InfoType {
     */
     private InfoType NotIs (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIs;
 	    return ret;
 	}
@@ -163,7 +166,7 @@ class ArrayInfo : InfoType {
     */
     protected InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto arr = new ArrayInfo (this._content.clone ());
+	    auto arr = new ArrayInfo (false, this._content.clone ());
 	    arr.lintInst = &ClassUtils.InstAffectRight;
 	    return arr;
 	}
@@ -175,7 +178,7 @@ class ArrayInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType ParamOp () {
-	auto str = new ArrayInfo (this._content.clone);
+	auto str = new ArrayInfo (this.isConst, this._content.clone);
 	str.lintInstS.insertBack (&ClassUtils.InstParam);
 	return str;
     }
@@ -185,7 +188,7 @@ class ArrayInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType ReturnOp () {
-	auto str = new ArrayInfo (this._content.clone);
+	auto str = new ArrayInfo (this.isConst, this._content.clone);
 	str.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return str;
     }
@@ -223,7 +226,7 @@ class ArrayInfo : InfoType {
      Returns: un type ptr!char
      */
     private InfoType toPtr () {
-	auto ret = new PtrInfo (this._content.clone ());
+	auto ret = new PtrInfo (this.isConst, this._content.clone ());
 	ret.lintInst = &ArrayUtils.InstPtr;
 	return ret;
     }
@@ -233,7 +236,7 @@ class ArrayInfo : InfoType {
      */
     protected InfoType Length () {
 	if (cast (VoidInfo) this._content) return null; 
-	auto elem = new DecimalInfo (DecimalConst.ULONG);
+	auto elem = new DecimalInfo (true, DecimalConst.ULONG);
 	elem.lintInst = &ArrayUtils.InstLength;
 	return elem;
     }
@@ -242,7 +245,7 @@ class ArrayInfo : InfoType {
      Returns: Le type résultat de 'array.typeid'
      */
     private InfoType StringOf () {
-	auto _str = new StringInfo;
+	auto _str = new StringInfo (true);
 	_str.value = new StringValue (this.typeString);
 	return _str;
     }
@@ -251,9 +254,9 @@ class ArrayInfo : InfoType {
      [].tupleof;
      +/
     private InfoType TupleOf () {
-	auto t = new TupleInfo ();
-	t.params = make!(Array!InfoType) ([new DecimalInfo (DecimalConst.ULONG),
-					  new PtrInfo (new VoidInfo)]);
+	auto t = new TupleInfo (false);
+	t.params = make!(Array!InfoType) ([new DecimalInfo (false, DecimalConst.ULONG),
+					   new PtrInfo (false, new VoidInfo)]);
 	t.lintInst = &ArrayUtils.InstCastTuple;
 	return t;
     }
@@ -295,17 +298,17 @@ class ArrayInfo : InfoType {
     private InfoType Affect (Expression left) {
 	auto type = cast (ArrayInfo) left.info.type;
 	if (type  && type._content.isSame (this._content)) {
-	    auto ret = new ArrayInfo (this._content.clone ());
+	    auto ret = new ArrayInfo (this.isConst, this._content.clone ());
 	    ret.lintInst = &ClassUtils.InstAffect;
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    this._content = type._content.clone ();
-	    auto ret = new ArrayInfo (this._content.clone ());
+	    auto ret = new ArrayInfo (this.isConst, this._content.clone ());
 	    ret.lintInst = &ClassUtils.InstAffect;
 	    return ret;
 	} else if (cast (NullInfo) left.info.type) {
 	    auto ret = this.clone ();
-	    ret.lintInst = &ClassUtils.InstAffectNull;
+	    ret.lintInst = &ArrayUtils.InstAffectNull;
 	    return ret;	    
 	}
 	return null;
@@ -315,9 +318,8 @@ class ArrayInfo : InfoType {
      Returns: Clone du type. Les informations de déstruction sont conservées.
      */
     override InfoType clone () {
-	auto ret = new ArrayInfo (this._content.clone ());
+	auto ret = new ArrayInfo (this.isConst, this._content.clone ());
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -325,7 +327,7 @@ class ArrayInfo : InfoType {
      Returns: Clone du type. Les informations de déstruction sont remisent à zéro.
      */
     override InfoType cloneForParam () {
-	return new ArrayInfo (this._content.clone ());
+	return new ArrayInfo (this.isConst, this._content.clone ());
     }
 
     /**
@@ -339,7 +341,7 @@ class ArrayInfo : InfoType {
 	if (type && type.content.isSame (this._content)) {
 	    return this;
 	} else if (cast(StringInfo) other && cast(CharInfo) this._content) {
-	    auto _other = new StringInfo ();
+	    auto _other = new StringInfo (this.isConst);
 	    _other.lintInstS.insertBack (&ArrayUtils.InstCastString);
 	    return _other;
 	}
@@ -355,7 +357,7 @@ class ArrayInfo : InfoType {
     override InfoType CompOp (InfoType other) {
 	auto type = cast (ArrayInfo) other;
 	if ((type && type.content.isSame (this._content)) || cast (UndefInfo) other) {
-	    auto ret = new ArrayInfo (this._content.clone ());
+	    auto ret = new ArrayInfo (this.isConst, this._content.clone ());
 	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    ret.isConst = this.isConst;
 	    return ret;
@@ -372,6 +374,7 @@ class ArrayInfo : InfoType {
 		}
 	    }
 	} else if (cast (NullInfo) other) {
+	    auto ret = new ArrayInfo (true, this._content.clone ());
 	    return this.clone ();
 	}
 	return null;
@@ -392,9 +395,8 @@ class ArrayInfo : InfoType {
     /**
      Returns: Le type du tableau sous forme de chaine.
      */
-    override string typeString () {
-	if (this.isConst) return format ("const ([%s])", this._content.typeString);
-	else return format ("[%s]", this._content.typeString);
+    override string innerTypeString () {
+	return format ("[%s]", this._content.innerTypeString);
     }
 
     /**

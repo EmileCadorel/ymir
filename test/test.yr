@@ -1,7 +1,13 @@
 
-def main () {
-    let a = (a : int, b : float) => a * b;
+extern (C) printf (const a : p!char, ...);
 
-    println (a (12, 4.3));
-    
+
+def foo (op : string) (a : int, b : int) {
+    return mixin ("a" + op + "b");
+}
+
+def main () {
+
+    println (foo!"+" (1, 2));
+        
 }

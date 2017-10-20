@@ -160,13 +160,13 @@ class DecimalUtils {
 	} else {
 	    final switch (size.id) {
 	    case DecimalConst.BYTE.id :  return new DCast (new DType (Dlang.BYTE),  new DDecimal (byte.max));
-	    case DecimalConst.UBYTE.id :  return new DCast (new DType (Dlang.UBYTE),  new DDecimal (ubyte.max));
+	    case DecimalConst.UBYTE.id :  return new DCast (new DType (Dlang.UBYTE),  new DDecimal (false, ubyte.max));
 	    case DecimalConst.SHORT.id :  return new DCast (new DType (Dlang.SHORT),  new DDecimal (short.max));
-	    case DecimalConst.USHORT.id :  return new DCast (new DType (Dlang.USHORT),  new DDecimal (ushort.max));
+	    case DecimalConst.USHORT.id :  return new DCast (new DType (Dlang.USHORT),  new DDecimal (false, ushort.max));
 	    case DecimalConst.INT.id :  return new DCast (new DType (Dlang.INT),  new DDecimal (int.max));
-	    case DecimalConst.UINT.id :  return new DCast (new DType (Dlang.UINT),  new DDecimal (uint.max));
+	    case DecimalConst.UINT.id :  return new DCast (new DType (Dlang.UINT),  new DDecimal (false, uint.max));
 	    case DecimalConst.LONG.id :  return new DCast (new DType (Dlang.LONG),  new DDecimal (long.max));
-	    case DecimalConst.ULONG.id :  return new DCast (new DType (Dlang.ULONG),  new DDecimal (ulong.max));
+	    case DecimalConst.ULONG.id :  return new DCast (new DType (Dlang.ULONG),  new DDecimal (false, cast (ulong) -1));
 	    }	
 	}
     }
@@ -193,13 +193,13 @@ class DecimalUtils {
 
 	    final switch (size.id) {
 	    case DecimalConst.BYTE.id :  return new DCast (new DType (Dlang.BYTE),  new DDecimal (byte.min));
-	    case DecimalConst.UBYTE.id :  return new DCast (new DType (Dlang.UBYTE),  new DDecimal (ubyte.min));
+	    case DecimalConst.UBYTE.id :  return new DCast (new DType (Dlang.UBYTE),  new DDecimal (false, ubyte.min));
 	    case DecimalConst.SHORT.id :  return new DCast (new DType (Dlang.SHORT),  new DDecimal (short.min));
-	    case DecimalConst.USHORT.id :  return new DCast (new DType (Dlang.USHORT),  new DDecimal (ushort.min));
+	    case DecimalConst.USHORT.id :  return new DCast (new DType (Dlang.USHORT),  new DDecimal (false, ushort.min));
 	    case DecimalConst.INT.id :  return new DCast (new DType (Dlang.INT),  new DDecimal (int.min));
-	    case DecimalConst.UINT.id :  return new DCast (new DType (Dlang.UINT),  new DDecimal (uint.min));
+	    case DecimalConst.UINT.id :  return new DCast (new DType (Dlang.UINT),  new DDecimal (false, uint.min));
 	    case DecimalConst.LONG.id :  return new DCast (new DType (Dlang.LONG),  new DDecimal (long.min));
-	    case DecimalConst.ULONG.id :  return new DCast (new DType (Dlang.ULONG),  new DDecimal (ulong.min));
+	    case DecimalConst.ULONG.id :  return new DCast (new DType (Dlang.ULONG),  new DDecimal (false, ulong.min));
 	    }	
 	}
     }

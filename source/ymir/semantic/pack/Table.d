@@ -353,8 +353,14 @@ class Table {
      name = le namespace du module
      +/
     void addForeignModule (Namespace space) {
-	if (!this.moduleExists (space))
-	    this._foreigns.insertBack (space);
+	foreach (it ; this._foreigns) {
+	    if (space.isSubOf (it)) {
+		throw new NamespaceConflict (space);
+	    } else if (it.isSubOf (space)) {
+		throw new NamespaceConflict (it);
+	    }
+	}	
+	this._foreigns.insertBack (space);
     }
     
     /++

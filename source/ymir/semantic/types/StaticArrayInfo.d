@@ -14,12 +14,12 @@ class StaticArrayInfo : ArrayInfo {
     private ulong _length;
     
     this (InfoType content, Value length) {
-	super (content);
+	super (true, content);
 	this._length = (cast (DecimalValue) length).value.to!ulong;
     }
     
     this (InfoType content, ulong length) {
-	super (content);
+	super (true, content);
 	this._length = length;
     }
     
@@ -33,8 +33,12 @@ class StaticArrayInfo : ArrayInfo {
 	return null;
     }
 
+    override string innerTypeString () {
+	return "";
+    }
+    
     override protected InfoType Length () {	
-	auto elem = new DecimalInfo (DecimalConst.ULONG);
+	auto elem = new DecimalInfo (true, DecimalConst.ULONG);
 	elem.value = new DecimalValue (BigInt (this._length));
 	return elem;
     }

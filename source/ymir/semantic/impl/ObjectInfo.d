@@ -27,6 +27,7 @@ class ObjectCstInfo : InfoType {
     private Word _locus;
 
     this (Word locus, StructCstInfo impl) {
+	super (true);
 	this._locus = locus;
 	this._impl = impl;	
     }
@@ -149,9 +150,9 @@ class ObjectCstInfo : InfoType {
 	return format ("IM%s", this._impl.simpleTypeString);
     }
 
-    override string typeString () {
+    override string innerTypeString () {
 	import std.format;
-	return format("impl %s", this._impl.typeString);
+	return format("impl %s", this._impl.innerTypeString);
     }
     
     override InfoType clone () {

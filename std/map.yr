@@ -1,4 +1,4 @@
-import std.stdio;
+import std.stdio._;
 public import std.traits;
 
 struct (K, V)

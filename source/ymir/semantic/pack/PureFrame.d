@@ -68,7 +68,7 @@ class PureFrame : Frame {
 	    auto tok = this._function.params [0].token;
 	    if (auto a = cast (TypedVar) this._function.params [0]) {
 		auto type = a.getType ();
-		if (!type.isSame (new ArrayInfo (new StringInfo))) 
+		if (!type.isSame (new ArrayInfo (true, new StringInfo (true)))) 
 		    throw new WrongTypeForMain (this._function.ident);
 	    } else {
 		auto str = Word (tok.locus, "string", false);

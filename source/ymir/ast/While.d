@@ -61,10 +61,10 @@ class While : Instruction {
      */
     override Instruction instruction () {
 	auto expr = this._test.expression;
-	auto type = expr.info.type.CastOp (new BoolInfo ());
+	auto type = expr.info.type.CastOp (new BoolInfo (true));
 	auto word = this._token;
 	word.str = "cast";
-	if (type is null) throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo ()));
+	if (type is null) throw new IncompatibleTypes (expr.info, new Symbol (word, new BoolInfo (true)));
 	if (!this._name.isEof ())
 	    this._block.setIdent (this._name);
 	Table.instance.retInfo.currentBlock = "while";

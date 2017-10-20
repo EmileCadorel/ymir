@@ -17,7 +17,7 @@ import trait = ymir.ast.Trait;
  + }
  + ---------
  +
-+/
+ +/
 class TraitObj : InfoType {
 
     private Word _locus;
@@ -32,6 +32,7 @@ class TraitObj : InfoType {
     private string _name;
 
     this (Word locus, Namespace space, Array!(trait.TraitProto) meth) {
+	super (true);
 	this._locus = locus;
 	this._name = locus.str;
 	this._space = space;
@@ -60,6 +61,10 @@ class TraitObj : InfoType {
 
     override InfoType cloneForParam () {
 	return this;
+    }
+
+    override string innerTypeString () {
+	return "";
     }
     
     override string simpleTypeString () {

@@ -1,0 +1,9 @@
+{
+    "name": "libymir",
+    "sourcePath" : "out",
+    "authors": [
+	"Emile Cadorel"
+    ],
+    "buildRequirements" : ["allowWarnings"],
+    "license": "GPL-3.0"
+}

@@ -173,7 +173,7 @@ class TemplateFrame : Frame {
 	auto func = this._function.templateReplace (score.tmps);
 	
 	Array!Var finalParams = Frame.computeParams (func.params, params);
-
+	
 	Symbol ret = func.type !is null ? func.type.asType ().info : null;
 	auto proto = Frame.validate (this._function.ident, this._namespace, Table.instance.globalNamespace, ret, finalParams, func.block, make!(Array!Expression) (score.tmps.values), this._isVariadic);
 	return proto;

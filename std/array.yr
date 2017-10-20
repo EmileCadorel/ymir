@@ -1,4 +1,4 @@
-import std.stdio;
+import std.stdio._;
 import std.math;
 import std.traits;
 
@@ -88,15 +88,6 @@ def slice (T) (const a : [T], fst : long, scd : long) : [T] {
     }
     return (ret);
 }
-
-def opIndex if (isDecimal!(T2)())
-    (T, T2) (a : [T], ind : range!T2) : [T] {
-	import std.array;
-	static if (is (T2 : long)) 
-	    return slice (a, ind.fst, (ind.scd));
-	else
-	    return slice (a, cast:long (ind.fst), (ind.scd));
-    }
 
 def opIndex if (isDecimal!(T2)())
     (T, T2) (a : [T], ind : T2, left : T2) : [T] {

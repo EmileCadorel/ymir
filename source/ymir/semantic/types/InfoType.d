@@ -6,7 +6,8 @@ import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
 
-import std.outbuffer, std.container;
+import std.outbuffer, std.container, std.format;
+import std.conv;
 
 /** Pointeur sur fonction qui transforme un operateur binaire en lint */
 alias LInstList function (LInstList, LInstList) InstComp;
@@ -67,6 +68,21 @@ class ApplicationScore {
 
     /++ La frame a valider si le score est correct (utilisé uniquement dans les variadics templates) +/
     Frame toValidate;
+
+
+    override string toString () {
+	auto buf = new OutBuffer ();
+	buf.writef ("[score : %d, name : %s, isDyn : %s, type : %s, treat : [",
+		    this.score, this.name, this.dyn.to!string, ret ? ret.typeString : "null");
+	foreach (it ; this.treat) {
+	    buf.writef ("%s%s", it ? it.typeString : "null", it is this.treat[$ - 1] ? "" : ", ");
+	    
+	}
+	
+	buf.writef ("], isVariadic : %s, isTemplate : %s]",
+		    this.isVariadic.to!string, this.isTemplate.to!string);
+	return buf.toString;
+    }
     
 }
 
@@ -116,7 +132,11 @@ class InfoType {
     protected Value _value;
     
     static InfoType [string] alias_;
-        
+
+    this (bool isConst) {
+	this._isConst = isConst;
+    }
+    
     /**
      Créé une instance de type, en fonction de son nom et de ses templates.
      Params:
@@ -251,10 +271,15 @@ class InfoType {
     /**
      Returns: le nom du type
      */
-    string typeString () {
-	return "";
+    final string typeString () {
+	if (this.isConst) {
+	    return "const(" ~ this.innerTypeString ~ ")";
+	} else 
+	    return this.innerTypeString;
     }
 
+    abstract string innerTypeString ();	
+    
     /**
      Returns: le nom simplifié du type
      */

@@ -31,13 +31,32 @@ class ArrayUtils {
 	}
 
 	DExpression InstAffectNullRightD (DExpression left) {
-	    return new DBinary (left, new DNull (), Tokens.EQUAL);
+	    auto params = new DParamList;
+	    params.addParam (new DCast (new DType (Dlang.ULONG), new DDecimal (0)));
+	    params.addParam (new DNull ());
+	    return new DBinary (left, new DPar (new DVar ("tuple"), params), Tokens.EQUAL);
 	}
 	
 	if (COMPILER.isToLint) return InstAffectNullRightLint (llist);
 	else return InstAffectNullRightD (cast (DExpression) llist);
     }
 
+    static LInstList InstAffectNull (LInstList llist, LInstList) {
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LWrite (leftExp, new LConstDecimal (0, LSize.LONG));
+	    return inst;
+	} else {
+	    auto left = cast (DExpression) llist;
+	    auto params = new DParamList;
+	    params.addParam (new DCast (new DType (Dlang.ULONG), new DDecimal (0)));
+	    params.addParam (new DNull ());
+	    return new DBinary (left, new DPar (new DVar ("tuple"), params), Tokens.EQUAL);
+	}
+    }    
+    
     /** 
      Destruit un tableau.
      Params:
@@ -192,6 +211,20 @@ class ArrayUtils {
     static LInstList InstCastString (LInstList llist) {
 	return llist;
     }
+    
+    static LInstList InstCastFromNull(InfoType array, Expression left, Expression) {
+	if (COMPILER.isToLint) {
+	    return LVisitor.visitExpressionOutSide (left);
+	} else {
+	    string type;
+	    if (auto arr = cast (ArrayInfo) array) type = arr.content.typeString;    
+	    else type = "char";
+	    auto params = new DParamList ();
+	    params.addParam (new DCast (new DType (Dlang.ULONG), new DDecimal (0)));
+	    params.addParam (new DNull ());
+	    return new DPar (new DVar ("Tuple!(ulong, " ~ type ~ "*)"), params);
+	}
+    }    
 
     /**
      Transforme le tableau en tuple.
@@ -274,19 +307,19 @@ class ArrayUtils {
 	    if (_type.isConst) 
 		nVar.addExpression (
 		    new DBinary (right,
-				 new DAccess (new DAccess (rvar, new DDecimal (1)), new DBinary (var, new DDecimal (arrayType.content.size), Tokens.STAR)),
+				 new DAccess (new DAccess (rvar, new DDecimal (1)), var),
 				 Tokens.EQUAL
 		    )		    
 		);	    
 	    else 
 		nVar.addExpression (
 		    new DBinary (right,
-				 new DBinary (new DAccess (rvar, new DDecimal (1)), new DBinary (var, new DDecimal (arrayType.content.size), Tokens.STAR), Tokens.PLUS),
+				 new DAccess (new DAccess (rvar, new DDecimal (1)), var),
 				 Tokens.EQUAL
 		    )		    
 		);	    
 
-	    inits.addVar (new DTypeVar (new DType ("ulong"), var));
+	    inits.addVar (new DTypeVar (new DType (Dlang.ULONG), var));
 	    inits.addExpression (new DBinary (var, new DDecimal (0), Tokens.EQUAL));
 	    
 	    auto arrType = DVisitor.visitType (_left.info.type);

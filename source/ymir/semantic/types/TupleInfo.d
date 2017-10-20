@@ -12,7 +12,9 @@ class TupleInfo : InfoType {
     /** Les paramètres du tuple */
     private Array!InfoType _params;    
 
-    this () {}
+    this (bool isConst) {
+	super (isConst);
+    }
     
     /** Returns: les paramètres du tuple */
     ref Array!InfoType params () {
@@ -46,7 +48,7 @@ class TupleInfo : InfoType {
      Throws: UndefinedType
     */
     static InfoType create (Word token, Expression [] templates) {
-	auto tuple = new TupleInfo ();
+	auto tuple = new TupleInfo (false);
 	foreach (it ; 0 .. templates.length) {
 	    tuple._params.insertBack (templates [it].info.type);
 	}
@@ -75,7 +77,7 @@ class TupleInfo : InfoType {
     private InfoType AffectRight (Expression left) {
 	if (this._isType) return null;
 	if (cast (UndefInfo) left.info.type) {
-	    auto ret = new TupleInfo ();
+	    auto ret = new TupleInfo (false);
 	    foreach (it ; this._params) {
 		ret._params.insertBack (it.clone ());
 		ret._params.back ().value = null;
@@ -126,13 +128,13 @@ class TupleInfo : InfoType {
 	} else return null;
     }
     
-    override string typeString () {
+    override string innerTypeString () {
 	auto name = "tuple(";
 	if (this._isType) name = "tuple!(";
 	foreach (it ; this._params) {
 	    if (auto _st = cast (TupleInfo) it) {
 		name ~= "tuple(...)";
-	    } else name ~= it.typeString ();
+	    } else name ~= it.innerTypeString ();
 	    if (it !is this._params [$ - 1]) name ~= ", ";	    
 	}
 	name ~= ")";
@@ -148,18 +150,17 @@ class TupleInfo : InfoType {
     }
     
     override TupleInfo clone () {
-	auto tu = new TupleInfo ();
+	auto tu = new TupleInfo (this.isConst);
 	foreach (it; this._params) {
 	    tu._params .insertBack (it.clone ());
 	}
 	tu.value = this._value;
 	tu._isType = this._isType;
-	tu.isConst = this.isConst;
 	return tu;
     }
 
     override InfoType cloneForParam () {
-	auto tu = new TupleInfo ();
+	auto tu = new TupleInfo (this.isConst);
 	foreach (it; this._params) {
 	    tu._params.insertBack (it.clone ());
 	}
@@ -192,20 +193,20 @@ class TupleInfo : InfoType {
      Returns: un type string.
      */
     private InfoType StringOf () {
-	auto str = new StringInfo ();
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this.typeString);
 	return str;
     }
 
     private InfoType Ptr () {
-	auto ret = new PtrInfo (new VoidInfo);
+	auto ret = new PtrInfo (this.isConst, new VoidInfo);
 	ret.lintInst = &StructUtils.InstPtr;
 	return ret;
     }
 
     
     private InfoType SizeOf () {
-	auto ret = new DecimalInfo (DecimalConst.UBYTE);
+	auto ret = new DecimalInfo (true, DecimalConst.UBYTE);
 	ret.lintInst = &TupleUtils.SizeOf;
 	ret.leftTreatment = &TupleUtils.GetSizeOf;
 	return ret;

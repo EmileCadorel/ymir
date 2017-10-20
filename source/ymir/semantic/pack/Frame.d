@@ -126,12 +126,15 @@ class Frame {
 	auto proto = new FrameProto (name.str, from, Table.instance.retInfo.info, finalParams, tmps);
 
 	if (!FrameTable.instance.existProto (proto)) {
+	    if ((cast (UndefInfo) Table.instance.retInfo.info.type) is null)
+		Table.instance.retInfo.isImmutable = true;
+	    
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
 	    block = block.block ();
 	    if (cast (UndefInfo) (Table.instance.retInfo.info.type) !is null)
 		Table.instance.retInfo.info.type = new VoidInfo ();
-	    
+
 	    auto finFrame = new FinalFrame (Table.instance.retInfo.info,
 					    from, name.str,
 					    finalParams, block, tmps);
@@ -161,6 +164,9 @@ class Frame {
 	auto proto = new FrameProto (this._function.name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
 	
 	if (!FrameTable.instance.existProto (proto)) {
+	    if ((cast (UndefInfo) Table.instance.retInfo.info.type) is null)
+		Table.instance.retInfo.isImmutable = true;
+	    
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
 	    auto block = this._function.block.block ();
@@ -201,6 +207,9 @@ class Frame {
 	auto proto = new FrameProto (this._function.name, from, Table.instance.retInfo.info, finalParams, this._tempParams);
 
 	if (!FrameTable.instance.existProto (proto)) {
+	    if ((cast (UndefInfo) Table.instance.retInfo.info.type) is null)
+		Table.instance.retInfo.isImmutable = true;
+	    
 	    FrameTable.instance.insert (proto);
 	    Table.instance.retInfo.currentBlock = "true";
 	    auto block = this._function.block.block ();

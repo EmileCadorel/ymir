@@ -58,9 +58,13 @@ class RangeUtils {
      Returns: les instructions lint de l'accès.
      */
     static LInstList InstFst (LSize size) (LInstList, LInstList llist) {
-	auto leftExp = llist.getFirst ();
-	llist += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), size);
-	return llist;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst ();
+	    llist += new LRegRead (leftExp, new LConstDecimal (0, LSize.INT, LSize.LONG), size);
+	    return llist;
+	} else {
+	    return new DAccess (cast (DExpression) llist, new DDecimal (0));
+	}
     }
     
     /**
@@ -71,12 +75,16 @@ class RangeUtils {
      Returns: les instructions lint de l'accès.
      */
     static LInstList InstScd (LSize size) (LInstList, LInstList llist) {
-	auto leftExp = llist.getFirst ();
-	llist += new LRegRead (leftExp, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
-						    new LConstDecimal (1, LSize.INT, size),
-						    Tokens.PLUS),
-			       size);
-	return llist;
+	if (COMPILER.isToLint) {
+	    auto leftExp = llist.getFirst ();
+	    llist += new LRegRead (leftExp, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
+							new LConstDecimal (1, LSize.INT, size),
+							Tokens.PLUS),
+				   size);
+	    return llist;
+	} else {
+	    return new DAccess (cast (DExpression) llist, new DDecimal (1));
+	}
     }
 
     /**
@@ -87,11 +95,15 @@ class RangeUtils {
      Returns: les instructions du lint de l'affectation.
      */
     static LInstList InstAffectRight (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	inst += new LWrite (leftExp, rightExp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    inst += new LWrite (leftExp, rightExp);
+	    return inst;
+	} else {
+	    return new DBinary (cast (DExpression) llist, cast (DExpression) rlist, Tokens.EQUAL);
+	}
     }
 
     /**
@@ -116,16 +128,30 @@ class RangeUtils {
      Returns: la liste d'instruction du test.
      */
     static LInstList InstIn (LSize size) (LInstList llist, LInstList rlist) {
-	auto inst = new LInstList;
-	auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
-	inst += llist + rlist;
-	auto scd = new LRegRead (rightExp, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
-						       new LConstDecimal (1, LSize.INT, size),
-						       Tokens.PLUS),
-				 size);
-	auto fst = new LRegRead (rightExp, new LConstDecimal (0, LSize.INT, LSize.LONG), size);
-	inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF), Tokens.DAND);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = llist.getFirst (), rightExp = rlist.getFirst ();
+	    inst += llist + rlist;
+	    auto scd = new LRegRead (rightExp, new LBinop (new LConstDecimal (0, LSize.INT, LSize.LONG),
+							   new LConstDecimal (1, LSize.INT, size),
+							   Tokens.PLUS),
+				     size);
+	    auto fst = new LRegRead (rightExp, new LConstDecimal (0, LSize.INT, LSize.LONG), size);
+	    inst += new LBinop (new LBinop (leftExp, fst, Tokens.SUP_EQUAL), new LBinop (leftExp, scd, Tokens.INF), Tokens.DAND);
+	    return inst;
+	} else {
+	    auto fst = new DAccess (cast (DExpression) rlist, new DDecimal (0));
+	    auto scd = new DAccess (cast (DExpression) rlist, new DDecimal (1));
+	    auto left = cast (DExpression) llist;
+	    return new DInsideIf (new DBinary (fst, scd, Tokens.INF),
+				  new DBinary (new DBinary (fst, left, Tokens.SUP_EQUAL),
+					       new DBinary (scd, left, Tokens.INF),
+					       Tokens.AND),
+				  new DBinary (new DBinary (fst, left, Tokens.INF_EQUAL),
+					       new DBinary (scd, left, Tokens.SUP),
+					       Tokens.AND)
+	    );
+	}
     }
 
     
@@ -138,10 +164,11 @@ class RangeUtils {
      Returns: une liste d'instruction qui contient un block temporaire que l'on va remplacer par le contenu de la boucle.
      */
     static LInstList InstApplyPreTreat (InfoType _type, Expression _left, Expression _right) {
+	auto rng = cast (RangeInfo) _type;
+	if (rng.value) return InstApplyPreTreatWithValue (rng, _left, _right);
 	if (COMPILER.isToLint) {
 	    auto inst = new LInstList;
 	    auto type = cast (RangeInfo) _type;
-	    if (type.value) return InstApplyPreTreatWithValue (type, _left, _right);
 	    auto left = LVisitor.visitExpressionOutSide (_left);
 	    for (long nb = _left.info.type.lintInstS.length - 1; nb >= 0; nb --) 
 		left = _left.info.type.lintInst (left, nb);
@@ -224,38 +251,65 @@ class RangeUtils {
     }
 
     private static LInstList InstApplyPreTreatWithValue (RangeInfo info, Expression _left, Expression _right) {
-	auto inst = new LInstList;
-	auto val = cast (RangeValue) info.value;
-	auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
-	auto rightExp = right.getFirst ();
-	auto fstL = val.left.toLint (_left.info, info.content), scdL = val.right.toLint (_left.info, info.content);
-	auto fst = fstL.getFirst (), scd = scdL.getFirst;
-	inst += fstL + scdL + right;
-	auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
-	auto faux = new LLabel;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto val = cast (RangeValue) info.value;
+	    auto right = LVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto rightExp = right.getFirst ();
+	    auto fstL = val.left.toLint (_left.info, info.content), scdL = val.right.toLint (_left.info, info.content);
+	    auto fst = fstL.getFirst (), scd = scdL.getFirst;
+	    inst += fstL + scdL + right;
+	    auto debut = new LLabel, vrai = new LLabel (new LInstList), block = new LLabel ("tmp_block");
+	    auto faux = new LLabel;
 	
-	inst += new LWrite (rightExp, fst);
-	auto test = new LBinop (rightExp, scd, Tokens.NOT_EQUAL);
-	inst += debut;
-	inst += new LJump (test, vrai);
-	inst += new LGoto (faux);
-	vrai.insts += block;
-	if ((cast (BoolValue) val.left.BinaryOp (Tokens.INF, val.right)).isTrue) {
-	    if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
-		vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.PLUS);
-	    else 
-		vrai.insts += new LUnop (rightExp, Tokens.DPLUS, true);
+	    inst += new LWrite (rightExp, fst);
+	    auto test = new LBinop (rightExp, scd, Tokens.NOT_EQUAL);
+	    inst += debut;
+	    inst += new LJump (test, vrai);
+	    inst += new LGoto (faux);
+	    vrai.insts += block;
+	    if ((cast (BoolValue) val.left.BinaryOp (Tokens.INF, val.right)).isTrue) {
+		if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
+		    vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.PLUS);
+		else 
+		    vrai.insts += new LUnop (rightExp, Tokens.DPLUS, true);
+	    } else {
+		if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
+		    vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.MINUS);
+		else 
+		    vrai.insts += new LUnop (rightExp, Tokens.DMINUS, true);
+	    }
+	
+	    vrai.insts += new LGoto (debut);
+	    inst += vrai;
+	    inst += faux;
+	    return inst;
 	} else {
-	    if (rightExp.size == LSize.FLOAT || rightExp.size == LSize.DOUBLE)
-		vrai.insts += new LBinop (rightExp, new LCast (new LConstDouble(1), rightExp.size), rightExp, Tokens.MINUS);
-	    else 
-		vrai.insts += new LUnop (rightExp, Tokens.DMINUS, true);
+	    auto val = cast (RangeValue) info.value;
+	    auto fstL = cast (DExpression) val.left.toLint (_left.info, info.content);
+	    auto scdL = cast (DExpression) val.right.toLint (_left.info, info.content);
+
+	    auto right = cast (DVar) DVisitor.visitExpressionOutSide ((cast (ParamList) _right).params [0]);
+	    auto type = DVisitor.visitType ((cast (RangeInfo)info).content);
+	    type.isConst = false;
+
+	    auto nVar = new DVarDecl ();
+	    nVar.addVar (new DTypeVar (type, right));
+	    nVar.addExpression (new DBinary (right, fstL, Tokens.EQUAL));
+
+	    DExpression test, iter;
+	    if ((cast (BoolValue) val.left.BinaryOp (Tokens.INF, val.right)).isTrue) {
+		test = new DBinary (right, scdL, Tokens.INF);
+		iter = new DBefUnary (right, Tokens.DPLUS);
+	    } else {
+		test = new DBinary (right, scdL, Tokens.SUP);
+		iter = new DBefUnary (right, Tokens.DMINUS);
+	    }
+
+	    auto bl = DBlock.open ();
+	    bl.close ();
+	    return new DFor (nVar, test, iter, bl);
 	}
-	
-	vrai.insts += new LGoto (debut);
-	inst += vrai;
-	inst += faux;
-	return inst;
     }
     
 

@@ -10,17 +10,12 @@ mkdir ${HOME}/libs/ymir_std/libs/std/algorithm
 
 cp -r std/. ${HOME}/libs/ymir_std/std/
 cp -r core/. ${HOME}/libs/ymir_std/core/
+cp std/dub.json ${HOME}/libs/ymir_std/
 
 cd ${HOME}/libs/ymir_std/
 
-ymrc --lint D std/stdio/*.yr
+ymir --lint D std/stdio/*.yr std/algorithm/*.yr std/*.yr core/*.yr
+dub 
 
-ymrc --lint D std/algorithm/*.yr
-
-ymrc --lint D std/*.yr
-
-ymrc --lint D core/*.yr
-
-#dmd -c core/*.d std/algorithm/*.d std/*.d std/stdio/*.d
 #cp ~/gc/lib/libgc.a libs/libgc.a
 

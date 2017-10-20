@@ -36,6 +36,7 @@ class Implementer : InfoType {
     private Array!FunctionInfo _statics;
     
     this (StructCstInfo str, Array!FunctionInfo statics, Array!FunctionInfo funcs)  {
+	super (true);
 	this._str = str;
 	this._methods = funcs;
 	this._statics = statics;

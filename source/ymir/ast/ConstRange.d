@@ -93,7 +93,7 @@ class ConstRange : Expression {
 	}
 	
 	aux._content = type;
-	aux._info = new Symbol (aux._token, new RangeInfo (type), true);
+	aux._info = new Symbol (aux._token, new RangeInfo (true, type), true);
 	if (aux._left.info.isImmutable && aux._right.info.isImmutable) {
 	    aux.info.value = new RangeValue (aux._left.info.value, aux._right.info.value);
 	}

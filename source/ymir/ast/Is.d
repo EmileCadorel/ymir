@@ -52,14 +52,14 @@ class Is : Expression {
 	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
 	    
 	    auto res = aux._left.info.type.isSame (aux._type.info.type);
-	    auto type = new BoolInfo ();
+	    auto type = new BoolInfo (true);
 	    aux._info = new Symbol (this._token, type, true);
 	    aux._info.value = new BoolValue (res);
 	    return aux;	    
 	} else {
 	    auto aux = new Is (this._token, this._left.expression, this._expType);
 	    if (cast (UndefInfo) aux._left.info.type) throw new UninitVar (aux._left.token);
-	    auto type = new BoolInfo ();
+	    auto type = new BoolInfo (true);
 	    aux._info = new Symbol (this._token, type, true);
 	    if (this._expType == Keys.FUNCTION) {
 		aux._info.value = new BoolValue (

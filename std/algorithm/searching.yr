@@ -1,5 +1,6 @@
 import std.algorithm.comparaison, std.array;
 import std.conv;
+import core.array;
 
 def all (T) (call : fn (T)->bool, const b : [T]) {
     for (it in b) {
@@ -76,12 +77,11 @@ def canFind (T) (const a : [T], const b : [T]) {
     return false;
 }
 
-
-def commonPrefix (T) (const a : [T], const b : [T]) : [T] {
+def commonPrefix (T of [U], U) (a : T, b : T) : T {
     let nb = 0L;
     for (it in 0UL .. min (a.length, b.length)) {
 	if (a [it] != b [it]) {
-	    return a.slice (0L, nb);
+	    return a [0L .. nb];
 	} else nb ++;
     }
     return a;

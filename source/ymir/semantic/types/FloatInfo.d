@@ -12,6 +12,10 @@ import std.conv;
  */
 class FloatInfo : InfoType {
 
+    this (bool isConst) {
+	super (isConst);
+    }
+    
     /**
      Créé un instance de type float à partir d'un instancation de type.
      Pour fonctionner, templates doit être vide.
@@ -24,7 +28,7 @@ class FloatInfo : InfoType {
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
-	return new FloatInfo ();
+	return new FloatInfo (false);
     }
 
     
@@ -101,11 +105,11 @@ class FloatInfo : InfoType {
      */
     private InfoType Affect (Expression right) {
 	if (cast(FloatInfo)right.info.type) {
-	    auto f = new FloatInfo ();
+	    auto f = new FloatInfo (false);
 	    f.lintInst = &FloatUtils.InstAffect;
 	    return f;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
-	    auto f = new FloatInfo ();
+	    auto f = new FloatInfo (false);
 	    f.lintInst = &FloatUtils.InstAffect;
 	    f.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
 	    return f;
@@ -121,7 +125,7 @@ class FloatInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (false);
 	    fl.lintInst = &FloatUtils.InstAffect;
 	    return fl;
 	}
@@ -162,7 +166,7 @@ class FloatInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	if (cast (UndefInfo) other || cast (FloatInfo) other) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (this.isConst);
 	    fl.lintInst = &FloatUtils.InstAffect;
 	    return fl;
 	} else if (auto _ref = cast (RefInfo) other) {
@@ -227,7 +231,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
      */
     private InfoType Init () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.FloatInit;
 	return fl;
     }
@@ -237,7 +241,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType Max () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Max;
 	return fl;
     }
@@ -247,7 +251,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
      */
     private InfoType Min () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Min;
 	return fl;
     }
@@ -257,7 +261,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
      */
     private InfoType Nan () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Nan;
 	return fl;
     }
@@ -267,7 +271,7 @@ class FloatInfo : InfoType {
      Returns: un type int.
      */
     private InfoType Dig () {
-	auto fl = new DecimalInfo (DecimalConst.UINT);
+	auto fl = new DecimalInfo (true, DecimalConst.UINT);
 	fl.lintInst = &FloatUtils.Dig;
 	return fl;
     }
@@ -277,7 +281,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
      */
     private InfoType Epsilon () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Epsilon;
 	return fl;
     }
@@ -287,7 +291,7 @@ class FloatInfo : InfoType {
      Returns: un type int.
      */
     private InfoType MantDig () {
-	auto fl = new DecimalInfo (DecimalConst.UINT);
+	auto fl = new DecimalInfo (true, DecimalConst.UINT);
 	fl.lintInst = &FloatUtils.MantDig;
 	return fl;
     }
@@ -297,7 +301,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType Max10Exp () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Max10Exp;
 	return fl;
     }
@@ -307,7 +311,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType MaxExp () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.MaxExp;
 	return fl;
     }
@@ -317,7 +321,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType MinExp () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.MinExp;
 	return fl;
     }
@@ -327,7 +331,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType Min10Exp () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Min10Exp;
 	return fl;
     }
@@ -337,7 +341,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType Inf () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Inf;
 	return fl;
     }
@@ -347,7 +351,7 @@ class FloatInfo : InfoType {
      Returns: un type float.
     */
     private InfoType Sqrt () {
-	auto fl = new FloatInfo ();
+	auto fl = new FloatInfo (true);
 	fl.lintInst = &FloatUtils.Sqrt;
 	return fl;
     }
@@ -357,7 +361,7 @@ class FloatInfo : InfoType {
      Returns: un type string.
     */
     private InfoType StringOf () {
-	auto str = new StringInfo ();
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this.typeString);
 	return str;
     }
@@ -371,7 +375,7 @@ class FloatInfo : InfoType {
     */
     private InfoType opAff (Tokens op) (Expression right) {
 	if (cast (FloatInfo) right.info.type) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (false);
 	    fl.lintInst = &FloatUtils.InstOpAff ! (op);
 	    return fl;
 	}
@@ -387,11 +391,11 @@ class FloatInfo : InfoType {
     */
     private InfoType opNorm (Tokens op) (Expression right) {
 	if (cast (FloatInfo) right.info.type) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (true);
 	    fl.lintInst = &FloatUtils.InstOp ! (op);
 	    return fl;
 	} else if (auto ot = cast (DecimalInfo) right.info.type) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (true);
 	    fl.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
 	    fl.lintInst = &FloatUtils.InstOp ! (op);
 	}
@@ -407,11 +411,11 @@ class FloatInfo : InfoType {
     */
     private InfoType opTest (Tokens op) (Expression right) {
 	if (cast (FloatInfo) right.info.type) {
-	    auto bl = new BoolInfo ();
+	    auto bl = new BoolInfo (true);
 	    bl.lintInst = &FloatUtils.InstOpTest ! (op);
 	    return bl;
 	} else if (cast (DecimalInfo) right.info.type) {
-	    auto bl = new FloatInfo ();
+	    auto bl = new BoolInfo (true);
 	    bl.lintInst = &FloatUtils.InstOpTest !(op);
 	    bl.lintInstSR.insertBack (&FloatUtils.InstCastFloat);
 	}
@@ -427,7 +431,7 @@ class FloatInfo : InfoType {
     */
     private InfoType opNormRight (Tokens op) (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto fl = new FloatInfo ();
+	    auto fl = new FloatInfo (true);
 	    fl.lintInst = &FloatUtils.InstOp !(op);
 	    fl.lintInstS.insertBack (&FloatUtils.InstCastFloat);
 	    return fl;
@@ -444,7 +448,7 @@ class FloatInfo : InfoType {
     */
     private InfoType opTestRight (Tokens op) (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto bl = new BoolInfo ();
+	    auto bl = new BoolInfo (true);
 	    bl.lintInstS.insertBack (&FloatUtils.InstCastFloat);
 	    bl.lintInst = &FloatUtils.InstOpTest !(op);
 	    return bl;
@@ -455,7 +459,7 @@ class FloatInfo : InfoType {
     /**
      Returns: le nom du type float
      */
-    override string typeString () {
+    override string innerTypeString () {
 	return "float";
     }
 
@@ -470,9 +474,8 @@ class FloatInfo : InfoType {
      Returns: une nouvelle instance de float
      */
     override InfoType clone () {
-	auto ret = new FloatInfo ();
+	auto ret = new FloatInfo (this.isConst);
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -480,7 +483,7 @@ class FloatInfo : InfoType {
      Returns: une nouvelle instance de float
     */
     override InfoType cloneForParam () {
-	return new FloatInfo ();
+	return new FloatInfo (this.isConst);
     }
 
     /**

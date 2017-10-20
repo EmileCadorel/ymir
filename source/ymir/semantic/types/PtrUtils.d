@@ -235,11 +235,15 @@ class PtrUtils {
      Returns: une liste d'instruction du lint.
      */
     static LInstList InstAddr (LInstList llist) {
-	auto inst = new LInstList;
-	auto exp = llist.getFirst ();
-	inst += llist;
-	inst += new LAddr (exp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto exp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LAddr (exp);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.AND);
+	}
     }
 
 

@@ -5,7 +5,7 @@ all:
 	dub build
 
 std: all
-	cp ymir ${HOME}/libs/ymir
+	cp ymrc ${HOME}/libs/ymir
 	./std/install.sh
 
 final:
@@ -32,6 +32,6 @@ docs: FORCE
 	./docs/install.sh
 
 mv:     all
-	cp ymir ${HOME}/libs/ymir
+	cp ymrc ${HOME}/libs/ymir
 
 FORCE:

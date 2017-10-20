@@ -51,14 +51,14 @@ class Assert : Instruction {
      */
     override Instruction instruction () {
 	auto expr = this._expr.expression;
-	if (!expr.info.type.isSame (new BoolInfo))       
-	    throw new IncompatibleTypes (expr.info, new BoolInfo ());
+	if (!expr.info.type.isSame (new BoolInfo (true)))       
+	    throw new IncompatibleTypes (expr.info, new BoolInfo (true));
 
 	Expression msg;
 	if (this._msg) {
 	    msg = this._msg.expression;
-	    if (!msg.info.type.isSame (new StringInfo))
-		throw new IncompatibleTypes (msg.info, new StringInfo ());	   
+	    if (!msg.info.type.isSame (new StringInfo (true)))
+		throw new IncompatibleTypes (msg.info, new StringInfo (true));	   
 	}
 	
 	if (this._isStatic) {

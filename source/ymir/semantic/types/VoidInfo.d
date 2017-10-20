@@ -6,7 +6,11 @@ import ymir.utils._;
 import ymir.ast._;
 
 class VoidInfo : InfoType {
-			        
+
+    this () {
+	super (true);
+    }
+    
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0) 
 	    throw new NotATemplate (token);
@@ -24,7 +28,7 @@ class VoidInfo : InfoType {
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {
-	    auto str = new StringInfo;
+	    auto str = new StringInfo (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
@@ -35,7 +39,7 @@ class VoidInfo : InfoType {
 	return new VoidInfo ();
     }
     
-    override string typeString () {
+    override string innerTypeString () {
 	return "void";
     }
 

@@ -398,8 +398,7 @@ class FloatUtils {
 	    inst += new LBinop (new LConstDouble (0), leftExp, Tokens.MINUS);
 	    return inst;
 	} else {
-	    COMPILER.getLVisitor!(DVisitor).addDImport (new Namespace ("std.math"));
-	    return new DDot (cast (DExpression) llist, new DVar ("sqrt"));
+	    return new DBefUnary (cast (DExpression) llist, Tokens.MINUS);
 	}
     }
 
@@ -410,11 +409,16 @@ class FloatUtils {
      Returns: la liste d'instruction du lint.
      */
     static LInstList Sqrt (LInstList, LInstList llist) {
-	auto inst = new LInstList;
-	auto left = llist.getFirst ();
-	inst += llist;
-	inst += new LUnop (left, Tokens.SQRT);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto left = llist.getFirst ();
+	    inst += llist;
+	    inst += new LUnop (left, Tokens.SQRT);
+	    return inst;
+	} else {
+	    COMPILER.getLVisitor!(DVisitor).addDImport (new Namespace ("std.math"));
+	    return new DDot (cast (DExpression) llist, new DVar ("sqrt"));
+	}
     }
 
     

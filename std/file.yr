@@ -31,7 +31,7 @@ enum : byte
 | Dir : 1B
 -> FileType;
 
-extern (C) access (a : p!char, int) : int;
+extern (C) access (const a : p!char, int) : int;
 
 def exists (name : string) : bool {
     if (access (name.toStringz.ptr, cast:int(FilePermission::F_OK)) != -1) return true;
@@ -50,19 +50,19 @@ def isDir (name : string) : bool {
     } else return false;
 }
 
-extern (C) fopen (a:p!char, b:p!char) : p!void;
-extern (C) fclose (a:p!void);
+extern (C) fopen (const a:p!char, const b:p!char) : p!void;
+extern (C) fclose (const a:p!void);
 
 def isFile (name : string) : bool {
     let name_ = name.toStringz.ptr;
-    let file = fopen (name_, "r\0".ptr);
+    let file = fopen (name_, "r".toStringz.ptr);
     if (file !is null) {
 	fclose (file);
 	return true;
     } else return false;    
 }
 
-extern (C) rename (a:p!char, b:p!char) : int;
+extern (C) rename (const a:p!char, const b:p!char) : int;
 
 def rename (old : string, new_ : string) : bool {
     if (rename (old.toStringz.ptr, new_.toStringz.ptr) == 0)
@@ -70,7 +70,7 @@ def rename (old : string, new_ : string) : bool {
     else return false;	
 }
 
-extern (C) getcwd (a:p!char, size:int) : int;
+extern (C) getcwd (const a:p!char, size:int) : int;
 
 def getcwd () : string {
     let buf = cast:string ([char ; 1024UL]);
@@ -78,7 +78,7 @@ def getcwd () : string {
     return (buf).substr (0, buf[].find ('\0'));
 }
 
-extern (C) chdir (a : p!char) : int;
+extern (C) chdir (const a : p!char) : int;
 
 def chdir (path : string) : bool {
     if (chdir (path.toStringz.ptr)) {
@@ -94,7 +94,7 @@ def chdir (path : string) : bool {
 //     char           d_name[256]; /* nom du fichier */
 // };
 
-extern (C) readdir (a : p!void) : p!byte;
+extern (C) readdir (const a : p!void) : p!byte;
 def dirEntries (T of string) (path : T) : [string] {
     import std.conv, std.stdio;
     let dir = opendir (path.toStringz.ptr);
@@ -110,7 +110,7 @@ def dirEntries (T of string) (path : T) : [string] {
     return res;
 }
 
-extern (C) mkdir (a : p!char, mode : int) : int;
+extern (C) mkdir (const a : p!char, mode : int) : int;
 
 def mkdir (name : string, mode : int) : bool {
     let ret = mkdir (name.toStringz.ptr, mode);
@@ -136,7 +136,7 @@ def mkdirRecurse (name : string) : bool {
     return true;
 }
 
-extern (C) rmdir (name : p!char);
+extern (C) rmdir (const name : p!char);
 
 def rmdir (name : string) {
     rmdir (name.toStringz.ptr);

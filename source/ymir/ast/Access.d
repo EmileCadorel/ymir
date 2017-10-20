@@ -76,7 +76,7 @@ class Access : Expression {
 
 	    auto call = new Par (this._token, this._token, var, params, true);
 	    return call.expression;
-	} catch (YmirException tm) {
+	} catch (YmirException tm) {	    
 	    return null;
 	}
     }

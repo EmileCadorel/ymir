@@ -64,6 +64,7 @@ class Compiler {
 	    } else if (auto d = cast (DVisitor) this._lintVisitor) {
 		auto _out = file [0 .. file.lastIndexOf (".")];
 		_out = d.toFile (list, _out, d.extension);
+		d.clean ();
 		outFiles ~= [_out];
 	    }
 	}

@@ -326,13 +326,13 @@ class ArrayVar : Var {
 	if (auto var = cast (Var) this._content) {
 	    auto content = var.asType ();
 	    auto tok = Word (this.token.locus, "", false);
-	    auto type = new ArrayInfo (content.info.type);
+	    auto type = new ArrayInfo (false, content.info.type);
 	    tok.str = this.token.str ~ this._content.token.str ~ "]";
 	    return new Type (tok, type);
 	} else {
 	    auto ptr = cast (FuncPtr) this._content.expression ();
 	    if (ptr) {
-		auto aux = new Type (this._token, new ArrayInfo (ptr.info.type));
+		auto aux = new Type (this._token, new ArrayInfo (false, ptr.info.type));
 		return aux;
 	    } else assert (false);
 	}
@@ -348,7 +348,7 @@ class ArrayVar : Var {
     override Var templateExpReplace (Expression [string] values) {
 	auto cont = this._content.templateExpReplace (values);
 	if (auto vvar = cast (VariadicSoluce) cont) {
-	    auto tu = new TupleInfo ();
+	    auto tu = new TupleInfo (true);
 	    tu.params = make!(Array!InfoType) (vvar.types);
 	    cont = new Type (cont.token, tu);
 	}

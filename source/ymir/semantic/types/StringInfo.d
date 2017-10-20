@@ -13,7 +13,8 @@ import std.container;
  */
 class StringInfo : InfoType {
 
-    this () {
+    this (bool isConst) {
+	super (isConst);
     }
 
     /**
@@ -24,7 +25,7 @@ class StringInfo : InfoType {
      */
     override InfoType CompOp (InfoType other) {
 	if (cast (StringInfo) other || cast (UndefInfo) other) {
-	    auto ret = new StringInfo ();
+	    auto ret = new StringInfo (this.isConst);
 	    ret.lintInstS.insertBack (&StringUtils.InstComp);
 	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    ret.isConst = this.isConst;
@@ -70,7 +71,7 @@ class StringInfo : InfoType {
     static InfoType create (Word token, Expression [] templates) {
 	if (templates.length != 0)
 	    throw new NotATemplate (token);
-	return new StringInfo ();
+	return new StringInfo (false);
     } 
    
     /**
@@ -111,12 +112,12 @@ class StringInfo : InfoType {
      */
     private InfoType Affect (Expression right) {
 	if (cast(StringInfo)right.info.type) {
-	    auto str = new StringInfo ();
+	    auto str = new StringInfo (false);
 	    str.lintInst = &StringUtils.InstAffect;
 	    return str;
 	} else if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new StringInfo ();
-	    ret.lintInst = &ClassUtils.InstAffectNull;
+	    auto ret = new StringInfo (false);
+	    ret.lintInst = &ArrayUtils.InstAffectNull;
 	    return ret;	    
 	}
 	return null;
@@ -130,11 +131,11 @@ class StringInfo : InfoType {
      */
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ArrayUtils.InstIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ArrayUtils.InstIs;
 	    return ret;
 	}
@@ -149,11 +150,11 @@ class StringInfo : InfoType {
      */
     private InfoType NotIs (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIs;
 	    return ret;
 	}
@@ -169,7 +170,7 @@ class StringInfo : InfoType {
      */
     private InfoType Equal (Expression right) {
 	if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &StringUtils.InstEqual;
 	    if (this._value)
 		ret.value = this._value.BinaryOp (Tokens.DEQUAL, right.info.type.value);
@@ -180,7 +181,7 @@ class StringInfo : InfoType {
 
     private InfoType NotEqual (Expression right) {
 	if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &StringUtils.InstNotEqual;
 	    if (this._value)
 		ret.value = this._value.BinaryOp (Tokens.NOT_EQUAL, right.info.type.value);
@@ -197,7 +198,7 @@ class StringInfo : InfoType {
      */
     private InfoType PlusAff (Expression right) {
 	if (auto t = cast (StringInfo) right.info.type) {
-	    auto str = new StringInfo ;
+	    auto str = new StringInfo (false);
 	    str.lintInst = &StringUtils.InstPlusAffect;
 	    return str;
 	}
@@ -212,14 +213,14 @@ class StringInfo : InfoType {
      */
     private InfoType Plus (Expression right) {
 	if (auto t = cast (StringInfo) right.info.type) {
-	    auto str = new StringInfo ();
+	    auto str = new StringInfo (true);
 	    str.lintInst = &StringUtils.InstPlus;
 	    str.isConst = true;
 	    if (this._value)
 		str.value = this._value.BinaryOp (Tokens.PLUS, t._value);
 	    return str;
 	} else if (auto t = cast (CharInfo) right.info.type) {
-	    auto str = new StringInfo ();
+	    auto str = new StringInfo (true);
 	    str.lintInst = &StringUtils.InstPlusChar;
 	    str.isConst = true;
 	    if (this._value)
@@ -237,7 +238,7 @@ class StringInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto str = new StringInfo ();
+	    auto str = new StringInfo (true);
 	    str.lintInst = &StringUtils.InstAffect;
 	    return str;
 	}
@@ -254,7 +255,7 @@ class StringInfo : InfoType {
 	if (cast (StringInfo) info) return this;
 	auto type = cast (ArrayInfo) info;
 	if (type && cast (CharInfo) type.content) {
-	    auto other = new ArrayInfo (new CharInfo);
+	    auto other = new ArrayInfo (this.isConst, new CharInfo (this.isConst));
 	    other.lintInstS.insertBack (&StringUtils.InstCastArray);
 	    return other;
 	}
@@ -270,13 +271,13 @@ class StringInfo : InfoType {
     override InfoType ApplyOp (Array!Var vars) {
 	if (vars.length != 1) return null;
 	if (this.isConst) {
-	    vars [0].info.type = new CharInfo ();
+	    vars [0].info.type = new CharInfo (this.isConst);
 	    vars [0].info.type.isConst = this.isConst;
 	} else {
-	    vars [0].info.type = new RefInfo (new CharInfo ());
+	    vars [0].info.type = new RefInfo (new CharInfo (false));
 	    vars [0].info.type.isConst = this.isConst;
 	}
-	auto ret = new ArrayInfo (new CharInfo ());
+	auto ret = new ArrayInfo (this.isConst, new CharInfo (this.isConst));
 	ret.leftTreatment = &ArrayUtils.InstApplyPreTreat;
 	ret.lintInst = &ArrayUtils.InstApply;
 	ret.isConst = this.isConst;
@@ -318,7 +319,7 @@ class StringInfo : InfoType {
      Returns: le type contenant le traitement.
      */
     override InfoType ParamOp () {
-	auto str = new StringInfo ();
+	auto str = new StringInfo (this.isConst);
 	str.lintInstS.insertBack (&ClassUtils.InstParam);
 	return str;
     }
@@ -328,7 +329,7 @@ class StringInfo : InfoType {
      Returns: le type contenant le traitement.
      */
     override InfoType ReturnOp () {
-	auto str = new StringInfo ();
+	auto str = new StringInfo (this.isConst);
 	str.lintInstS.insertBack (&ClassUtils.InstReturn);
 	return str;
     }
@@ -338,7 +339,7 @@ class StringInfo : InfoType {
      Returns: un type long.
      */
     private InfoType Length () {
-	auto _int = new DecimalInfo (DecimalConst.ULONG);
+	auto _int = new DecimalInfo (true, DecimalConst.ULONG);
 	_int.lintInst = &ArrayUtils.InstLength ;
 	return _int;
     }
@@ -348,7 +349,7 @@ class StringInfo : InfoType {
      Returns: un type ptr!char
      */
     private InfoType Ptr () {
-	auto ret = new PtrInfo (new CharInfo);
+	auto ret = new PtrInfo (this.isConst, new CharInfo (this.isConst));
 	ret.lintInst = &ArrayUtils.InstPtr;
 	return ret;
     }
@@ -358,7 +359,7 @@ class StringInfo : InfoType {
      Returns: un type string.
      */
     private InfoType StringOf () {
-	auto str = new StringInfo;
+	auto str = new StringInfo (true);
 	str.value = new StringValue (this.typeString);
 	return str;
     }
@@ -369,9 +370,8 @@ class StringInfo : InfoType {
      */
     private InfoType Access (Expression expr) {
 	if (cast(DecimalInfo) expr.info.type) {
-	    auto ch = new CharInfo;
+	    auto ch = new CharInfo (this.isConst);
 	    ch.lintInstMult = &ArrayUtils.InstAccessS!(LSize.UBYTE);
-	    ch.isConst = false;
 	    if (this._value)
 		ch.value = this._value.AccessOp (expr);
 	    return ch;
@@ -382,8 +382,7 @@ class StringInfo : InfoType {
     /**
      Returns: le nom du type.
      */    
-    override string typeString () {
-	if (this.isConst) return "const(string)";
+    override string innerTypeString () {
 	return "string";
     }
     
@@ -400,9 +399,8 @@ class StringInfo : InfoType {
      Returns: un type string.
      */
     override InfoType clone () {
-	auto ret = new StringInfo ();
+	auto ret = new StringInfo (this.isConst);
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -411,7 +409,7 @@ class StringInfo : InfoType {
      Returns: un type string.
      */
     override InfoType cloneForParam () {
-	return new StringInfo ();
+	return new StringInfo (this.isConst);
     }
 
     /**

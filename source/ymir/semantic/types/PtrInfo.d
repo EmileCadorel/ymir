@@ -13,7 +13,8 @@ class PtrInfo : InfoType {
     /** le type contenu dans le pointeur */
     private InfoType _content = null;
 
-    this () {
+    this (bool isConst) {
+	super (isConst);
 	this._content = new VoidInfo ();
     }
 
@@ -21,7 +22,8 @@ class PtrInfo : InfoType {
      Params:
     content = le type à mettre dans le ptr.
     */
-    this (InfoType content) {
+    this (bool isConst, InfoType content) {
+	super (isConst);
 	this._content = content;
     }   
 
@@ -38,6 +40,17 @@ class PtrInfo : InfoType {
     }
 
     /**
+       this => other
+       Returns: On peut passer de l'un à l'autre sans casser la verification constante ?  
+     */
+    override InfoType ConstVerif (InfoType other) {
+	if (this.isConst && !other.isConst) return null;
+	else if (!this.isConst && other.isConst)
+	    this.isConst = false;
+	return this;
+    }
+    
+    /**
      Créé une instance de ptr en fonction des paramètre templates.
      Params:
      token = l'identificateur de construction.
@@ -49,7 +62,7 @@ class PtrInfo : InfoType {
 	if (templates.length != 1 || !(cast(Type)templates[0]))
 	    throw new UndefinedType (token, "prend un type en template");
 	else {
-	    auto ptr = new PtrInfo (templates [0].info.type);
+	    auto ptr = new PtrInfo (false, templates [0].info.type);
 	    return ptr;
 	}	
     }
@@ -106,16 +119,16 @@ class PtrInfo : InfoType {
     private InfoType Affect (Expression right) {
 	auto type = cast (PtrInfo) right.info.type;
 	if (type !is null && type.content.isSame (this._content)) {
-	    auto ret = new PtrInfo (this._content.clone ());
+	    auto ret = new PtrInfo (false, this._content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect ;
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    this._content = type.content.clone ();
-	    auto ret = new PtrInfo (this._content.clone ());
+	    auto ret = new PtrInfo (false, this._content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
 	} else if (type && cast (VoidInfo) type.content) {
-	    auto ret = new PtrInfo (type.content.clone ());
+	    auto ret = new PtrInfo (false, type.content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
 	} else if (cast (NullInfo) right.info.type) {
@@ -134,7 +147,7 @@ class PtrInfo : InfoType {
      */
     private InfoType AffectRight (Expression left) {
 	if (cast (UndefInfo) left.info.type) {
-	    auto ret = new PtrInfo (this._content.clone ());
+	    auto ret = new PtrInfo (false, this._content.clone ());
 	    ret.lintInst = &PtrUtils.InstAffect;
 	    return ret;
 	}
@@ -150,7 +163,7 @@ class PtrInfo : InfoType {
      */
     private InfoType Plus (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto ptr = new PtrInfo (this._content.clone ());
+	    auto ptr = new PtrInfo (this.isConst, this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.BYTE, Tokens.PLUS);
 	    else if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UBYTE, Tokens.PLUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.SHORT, Tokens.PLUS);
@@ -176,7 +189,7 @@ class PtrInfo : InfoType {
      */
     private InfoType Sub (Expression right) {
 	if (cast (DecimalInfo) right.info.type) {
-	    auto ptr = new PtrInfo (this._content.clone ());
+	    auto ptr = new PtrInfo (this.isConst, this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.BYTE, Tokens.MINUS);
 	    else if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOp !(LSize.UBYTE, Tokens.MINUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOp !(LSize.SHORT, Tokens.MINUS);
@@ -202,7 +215,7 @@ class PtrInfo : InfoType {
      */
     private InfoType PlusRight (Expression left) {
 	if (cast (DecimalInfo) left.info.type) {
-	    auto ptr = new PtrInfo (this._content.clone ());
+	    auto ptr = new PtrInfo (this.isConst, this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.BYTE, Tokens.PLUS);
 	    if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UBYTE, Tokens.PLUS);
 	    else if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.SHORT, Tokens.PLUS);
@@ -228,7 +241,7 @@ class PtrInfo : InfoType {
      */
     private InfoType SubRight (Expression left) {
 	if (cast (DecimalInfo) left.info.type) {
-	    auto ptr = new PtrInfo (this._content.clone ());
+	    auto ptr = new PtrInfo (this.isConst, this._content.clone ());
 	    if (this._content.size == LSize.BYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.BYTE, Tokens.MINUS);
 	    if (this._content.size == LSize.UBYTE)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.UBYTE, Tokens.MINUS);
 	    if (this._content.size == LSize.SHORT)  ptr.lintInst = &PtrUtils.InstOpInv !(LSize.SHORT, Tokens.MINUS);
@@ -252,11 +265,11 @@ class PtrInfo : InfoType {
      */
     private InfoType Is (Expression right) {
 	if (cast (PtrInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrUtils.InstIs;
 	    return ret;
 	} else if (cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrUtils.InstIsNull;
 	    return ret;
 	}
@@ -271,11 +284,11 @@ class PtrInfo : InfoType {
      */
     private InfoType NotIs (Expression right) {
 	if (cast (PtrInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrUtils.InstNotIs;
 	    return ret;
 	} else if (cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &PtrUtils.InstNotIsNull;
 	    return ret;
 	}
@@ -301,13 +314,13 @@ class PtrInfo : InfoType {
 	else if (this._content.size == LSize.FLOAT)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.FLOAT));
 	else if (this._content.size == LSize.DOUBLE)  ret.lintInstS.insertBack (&PtrUtils.InstUnref!(LSize.DOUBLE));
 	else return null;
-	ret.isConst = false;
+	ret.isConst = this.isConst;
 	return ret;
     }
 
 
     private InfoType toPtr () {
-	auto other = new PtrInfo ();
+	auto other = new PtrInfo (this.isConst);
 	other.content = this.clone ();
 	other.lintInstS.insertBack (&PtrUtils.InstAddr);
 	return other;
@@ -342,7 +355,7 @@ class PtrInfo : InfoType {
 	    type.lintInst = &PtrUtils.InstNull;
 	    return type;
 	} else if (var.token.str == "typeid") {
-	    auto str = new StringInfo;
+	    auto str = new StringInfo (true);
 	    str.value = new StringValue (this.typeString);
 	    return str;
 	}
@@ -360,14 +373,10 @@ class PtrInfo : InfoType {
      Returns une nouvelle instance de ptr
      */
     override InfoType clone () {
-	if (this._content is null)
-	    return new PtrInfo ();
-	else {
-	    auto aux = new PtrInfo ();
-	    aux._content = this._content.clone ();
-	    aux.isConst = this.isConst;
-	    return aux;
-	}
+	auto ret = new PtrInfo (this.isConst);
+	if (this._content !is null)
+	    ret._content = this._content.clone ();
+	return ret;
     }
 
     /**
@@ -388,7 +397,7 @@ class PtrInfo : InfoType {
 	if (type && type.content.isSame (this._content)) {
 	    return this;
 	} else if (type) {
-	    auto ptr = new PtrInfo (type.content.clone ());
+	    auto ptr = new PtrInfo (this.isConst, type.content.clone ());
 	    ptr.lintInstS.insertBack (&PtrUtils.InstCast);
 	    return ptr;
 	} else if (auto tu = cast (TupleInfo) other) {
@@ -423,10 +432,10 @@ class PtrInfo : InfoType {
     /**
      Returns: le nom du type.
      */
-    override string typeString () {
+    override string innerTypeString () {
 	if (this._content is null) {
 	    return "ptr!void";
-	} else return "ptr!" ~ this._content.typeString ();
+	} else return "ptr!" ~ this._content.innerTypeString ();	
     }
 
     /**

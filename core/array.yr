@@ -2,9 +2,9 @@ import std.traits;
 
 extern (C) GC_malloc (ulong) : p!(void);
 
-def cstArray (len : ulong, size : ubyte) : p!(void) {
+def cstArray (len : ulong, size : ubyte) : t!(ulong, p!(void)) {
     let array = GC_malloc (len * size);
-    return (len, array).ptr;
+    return (len, array);
 }
 
 def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : r!(I)) : [U] {    
@@ -12,8 +12,8 @@ def opIndex if (isDecimal!(I)) (T of [U], U, I) (a : T, rng : r!(I)) : [U] {
         let len = rng.scd - rng.fst;
         let aux = a.tupleof;
         let ret = (cast:ulong (len),
-                   cast:p!(ubyte) (aux.1)
-                       + (cast:ulong (rng.fst) * U.sizeof));
+                   cast:p!(U) (aux.1)
+                   + (cast:ulong (rng.fst) * U.sizeof));
         
         return cast:[U] (ret);
     } else if (rng.fst == rng.scd) {

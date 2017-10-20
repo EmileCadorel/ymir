@@ -16,6 +16,7 @@ class RefInfo : InfoType {
     private InfoType _content = null;
     
     this () {
+	super (false);
 	this._content = new VoidInfo ();
     }
 
@@ -24,7 +25,8 @@ class RefInfo : InfoType {
      content = le type contenu dans la référence.
      */
     this (InfoType content) {
-	this._content = content;
+	super (false);
+       this._content = content;
     }
 
     /**
@@ -244,8 +246,8 @@ class RefInfo : InfoType {
     /**
      Returns: le nom du type.
      */
-    override string typeString () {
-	return "ref(" ~ this._content.typeString () ~ ")";
+    override string innerTypeString () {
+	return "ref(" ~ this._content.innerTypeString () ~ ")";
     }
 
     /**

@@ -276,7 +276,7 @@ def strip (str : string) : string {
 }
 
 
-def toStringz (str : string) : string {
+def toStringz (const str : string) : string {
     let res = [char; str.length + 1UL];
     for (it in 0UL .. str.length)
 	res [it] = str [it];

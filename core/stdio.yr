@@ -86,18 +86,18 @@ def print if (is (T : struct)) (T) (a : T) {
     print (a.to!string);
 }
 
-def println (T) (i : T) {
+def println (T) (const i : T) {
     print (i);
     print ('\n');
 }
 
-def println (I, T...) (i : I, next : T) {
+def println (I, T...) (const i : I, next : T) {
     print (i);
     print (expand (next));
     print ('\n');
 }
 
-def print (I, T...) (i : I, nexts : T) {
+def print (I, T...) (const i : I, nexts : T) {
     print (i);
     print (expand (nexts));
 }

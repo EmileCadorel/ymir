@@ -52,12 +52,12 @@ class ArrayAlloc : Expression {
 	    aux._type.info.type = type.CallOp (aux._type.token, new ParamList (this._token, make!(Array!Expression))).ret;
 	} 
 		
-	auto ul = new Symbol (this._token, new DecimalInfo (DecimalConst.ULONG));
+	auto ul = new Symbol (this._token, new DecimalInfo (true, DecimalConst.ULONG));
 	auto cmp = aux._size.info.type.CompOp (ul.type);
 	if (cmp is null) throw new IncompatibleTypes (ul, aux._size.info);
 	aux._cster = cmp;
 	
-	aux.info = new Symbol (this._token, new ArrayInfo (aux._type.info.type.clone));
+	aux.info = new Symbol (this._token, new ArrayInfo (false, aux._type.info.type.clone));
 	return aux;	
     }
 

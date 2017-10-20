@@ -15,13 +15,16 @@ class RangeInfo : InfoType {
     /** Le type contenu dans le type range  */
     private InfoType _content;
     
-    this () {}
+    this (bool isConst) {
+	super (isConst);
+    }
 
     /**
      Params:
      content = le type contenu dans le type range.
      */
-    this (InfoType content) {
+    this (bool isConst, InfoType content) {
+	super (isConst);
 	this._content = content;
     }
 
@@ -36,9 +39,8 @@ class RangeInfo : InfoType {
      Returns: Une nouvelle instance de range (les informations de destruction sont consérvées).
      */
     override InfoType clone () {
-	auto ret = new RangeInfo (this._content.clone ());
+	auto ret = new RangeInfo (this.isConst, this._content.clone ());
 	ret.value = this._value;
-	ret.isConst = this.isConst;
 	return ret;
     }
 
@@ -46,7 +48,7 @@ class RangeInfo : InfoType {
      Returns: une nouvelle instance de range (les informations de destruction sont remisent à zéro).
      */
     override InfoType cloneForParam () {
-	return new RangeInfo (this._content.clone ());
+	return new RangeInfo (this.isConst, this._content.clone ());
     }
 
     /**
@@ -76,7 +78,7 @@ class RangeInfo : InfoType {
 	    auto type = templates [0].info.type;
 	    if (!(cast (FloatInfo)  type)  && !(cast (CharInfo) type) && !(cast (DecimalInfo) type))
 		throw new UndefinedType (token, "prend un type primitif en template");
-	    auto arr = new RangeInfo (templates [0].info.type);
+	    auto arr = new RangeInfo (false, templates [0].info.type);
 	    return arr;
 	}
     }
@@ -154,11 +156,11 @@ class RangeInfo : InfoType {
      */
     private InfoType Is (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstIs;
 	    return ret;
 	}
@@ -173,11 +175,11 @@ class RangeInfo : InfoType {
     */
     private InfoType NotIs (Expression right) {
 	if (auto _ptr = cast (NullInfo) right.info.type) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIsNull;
 	    return ret;	    
 	} else if (this.isSame (right.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    ret.lintInst = &ClassUtils.InstNotIs;
 	    return ret;
 	}
@@ -192,7 +194,7 @@ class RangeInfo : InfoType {
      */
     private InfoType In (Expression left) {
 	if (this._content.isSame (left.info.type)) {
-	    auto ret = new BoolInfo ();
+	    auto ret = new BoolInfo (true);
 	    final switch (this._content.size.id) {
 	    case LSize.BYTE.id: ret.lintInst =  (&RangeUtils.InstIn!(LSize.BYTE)); break;
 	    case LSize.UBYTE.id: ret.lintInst =  (&RangeUtils.InstIn!(LSize.UBYTE)); break;
@@ -231,6 +233,7 @@ class RangeInfo : InfoType {
      */
     private InfoType Fst () {
 	auto cst = this._content.clone ();
+	cst.isConst = this.isConst;
 	final switch (cst.size.id) {
 	case LSize.BYTE.id: cst.lintInst =  (&RangeUtils.InstFst!(LSize.BYTE)); break;
 	case LSize.UBYTE.id: cst.lintInst =  (&RangeUtils.InstFst!(LSize.UBYTE)); break;
@@ -253,6 +256,7 @@ class RangeInfo : InfoType {
      */
     private InfoType Scd () {
 	auto cst = this._content.clone ();
+	cst.isConst = this.isConst;
 	final switch (cst.size.id) {
 	case LSize.BYTE.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.BYTE)); break;
 	case LSize.UBYTE.id: cst.lintInst = (&RangeUtils.InstScd!(LSize.UBYTE)); break;
@@ -287,8 +291,8 @@ class RangeInfo : InfoType {
     /**
      Returns: le nom du type.
      */
-    override string typeString () {
-	return "range!" ~ this._content.typeString;
+    override string innerTypeString () {
+	return "range!" ~ this._content.innerTypeString;
     }
 
     /**

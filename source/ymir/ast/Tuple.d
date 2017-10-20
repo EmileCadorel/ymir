@@ -36,7 +36,7 @@ class ConstTuple : Expression {
      */
     override Expression expression () {
 	Array!Expression params;
-	auto retType = new TupleInfo ();
+	auto retType = new TupleInfo (true);
 	foreach (it ; this._params) {
 	    auto expr = it.expression;
 	    if (auto par = cast (ParamList) expr) {
