@@ -30,6 +30,10 @@ class NullInfo : InfoType {
 	return new NullInfo ();
     }
 
+    override Expression toYmir () {
+	return null;
+    }
+    
     /**
      Operateur d'accés au attribut.
      Params:

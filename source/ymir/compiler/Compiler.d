@@ -49,13 +49,14 @@ class Compiler {
     void compile () {
 	auto files = Options.instance.inputFiles;
 	string [] outFiles;
+	if (auto d = cast (DVisitor) this._lintVisitor) d.initOutDir ();
 	foreach (file ; files) {
 	    this.semanticTime (file);
 	    auto list = this.lintTime ();
 	    debug {
 		foreach (it ; list) writeln (it.toString);		
 	    }
-
+	    
 	    if (!cast (DVisitor) this._lintVisitor) {
 		auto target = this.targetTime (list);
 		auto _out = file [0 .. file.lastIndexOf (".")] ~ this._targetVisitor.extension;
@@ -71,6 +72,7 @@ class Compiler {
 	if (!cast (DVisitor) this._lintVisitor) {
 	    if (auto name = preCompiled ("__precompiled__" ~ this._targetVisitor.extension))
 		outFiles ~= [name];
+	    
 	    this._targetVisitor.finalize (outFiles);
 	} else if (auto d = cast (DVisitor) this._lintVisitor)
 	    d.finalize (outFiles);
@@ -134,23 +136,7 @@ class Compiler {
 	FrameTable.instance.purge ();
 	prog.declare ();
 
-	auto error = 0;
-	foreach (it ; FrameTable.instance.structs) {
-	    auto name = Word.eof;
-	    name.str = it.name;
-	    if (it.needCreation) {
-		auto type = cast (StructInfo) it.create (name, []);
-		StructUtils.createCstStruct (type);
-	    }
-	}
-    
-	foreach (it ; FrameTable.instance.objects) {
-	    if (it.impl.needCreation) {
-		auto type = cast (StructInfo) it.create ();
-		StructUtils.createCstStruct (type);
-	    }
-	}
-    
+	auto error = 0;    
 	foreach (it ; FrameTable.instance.pures) {		
 	    try {
 		it.validate ();		
@@ -163,8 +149,26 @@ class Compiler {
 		debug { throw occurs; }
 	    }
 	}
+	
+	if (error > 0) throw new ErrorOccurs (error);
 
-	if (error > 0) throw new ErrorOccurs (error);    
+	foreach (it ; FrameTable.instance.structs) {
+	    auto name = Word.eof;
+	    name.str = it.name;
+	    if (it.needCreation) {
+		auto type = cast (StructInfo) it.create (name);
+		StructUtils.createCstStruct (type);
+	    }
+	}
+    
+	foreach (it ; FrameTable.instance.objects) {
+	    if (it.impl.needCreation) {
+		auto type = cast (StructInfo) it.create ();
+		StructUtils.createCstStruct (type);
+	    }
+	}
+
+	
     }
 
     

@@ -54,6 +54,15 @@ class BoolValue : Value {
 	}
     }       
 
+    override Expression toYmir (Symbol sym) {
+	import std.conv;	
+	auto w = Word.eof ();
+	w.str = this._value.to!string;
+	auto ret = new Bool (w);
+	ret.info = sym;
+	return ret;
+    }
+    
     bool isTrue () {
 	return this._value;
     }

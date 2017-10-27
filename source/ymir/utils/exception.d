@@ -21,7 +21,7 @@ class UninitVar : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writefln ("%sErreur%s: Variable non initialisé '%s%s%s' :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -43,7 +43,7 @@ class UndefinedAttribute : YmirException {
 	buf.writefln ("%sErreur%s: Attribut '%s%s%s' non définis pour le type '%s%s%s' :", Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, right.token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
-	super.addLine (buf, right.token.locus);
+	super.addLine (buf, right.token);
 	msg = buf.toString();        
     }    
 
@@ -67,7 +67,7 @@ class NoReturnStmt : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
 }
@@ -79,7 +79,7 @@ class ReturnVoid : YmirException {
 	buf.writefln ("%sErreur%s : Retour d'un élément de type '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
 }
@@ -101,7 +101,7 @@ class UndefinedEscapeChar : YmirException {
 		      Colors.YELLOW.value, elem, Colors.RESET.value);
 	
 	//token.locus.column += index;
-	super.addLine (buf, token.locus, index, elem.length);
+	super.addLine (buf, token, index, elem.length);
 	msg = buf.toString();        
     }
     
@@ -124,7 +124,7 @@ class UndefinedOp : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -141,7 +141,7 @@ class UndefinedOp : YmirException {
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -158,7 +158,7 @@ class UndefinedOp : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -184,14 +184,14 @@ class UndefinedOp : YmirException {
 
 	if (auto fun = cast(FunctionInfo) left.type) {
 	    buf.writefln ("): ");
-	    super.addLine (buf, token.locus);
+	    super.addLine (buf, token);
 	    foreach (key, value ; fun.candidates) {
 		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
-		super.addLine (buf, key.locus);
+		super.addLine (buf, key);
 	    }
 	} else {	
 	    buf.writefln ("):");
-	    super.addLine (buf, token.locus);
+	    super.addLine (buf, token);
 	}
 	msg = buf.toString();        
     }
@@ -218,14 +218,14 @@ class UndefinedOp : YmirException {
 	
 	if (auto fun = cast(FunctionInfo) left.type) {
 	    buf.writefln ("): ");
-	    super.addLine (buf, token.locus, token2.locus);
+	    super.addLine (buf, token, token2);
 	    foreach (key, value ; fun.candidates) {
 		buf.writefln ("%sNote%s : %s", Colors.BLUE.value, Colors.RESET.value, value);
-		super.addLine (buf, key.locus);
+		super.addLine (buf, key);
 	    }
 	} else {	
 	    buf.writefln ("):");
-	    super.addLine (buf, token.locus);
+	    super.addLine (buf, token);
 	}
 
 	msg = buf.toString();        
@@ -250,10 +250,10 @@ class IncompatibleTypes : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
-	super.addLine (buf, left.sym.locus);
+	super.addLine (buf, left.sym);
 	if (!right.sym.isEof) {
 	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
-	    super.addLine (buf, right.sym.locus);
+	    super.addLine (buf, right.sym);
 	}
 	msg = buf.toString ();
     }    
@@ -263,20 +263,20 @@ class IncompatibleTypes : YmirException {
      left = le premier type
      right = le second type
      */
-    this (Location locus, Symbol left, Symbol right) {
-	auto buf = new OutBuffer;
-	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
-		      Colors.RED.value, Colors.RESET.value,
-		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
-		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
-	super.addLine (buf, left.sym.locus);
-	if (!right.sym.isEof) {
-	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);	    
-	    super.addLine (buf, right.sym.locus);
-	}
-	buf.writefln ("%sNote%s : Pour l'instruction : ", Colors.BLUE.value, Colors.RESET.value);
-	super.addLine (buf, locus);
-	msg = buf.toString ();
+    this (Word locus, Symbol left, Symbol right) {
+    	auto buf = new OutBuffer;
+    	buf.writefln ("%sErreur%s: Les types '%s%s%s' et '%s%s%s' sont incompatible",
+    		      Colors.RED.value, Colors.RESET.value,
+    		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
+    		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
+    	super.addLine (buf, left.sym);
+    	if (!right.sym.isEof) {
+    	    buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);	    
+    	    super.addLine (buf, right.sym);
+    	}
+    	buf.writefln ("%sNote%s : Pour l'instruction : ", Colors.BLUE.value, Colors.RESET.value);
+    	super.addLine (buf, locus);
+    	msg = buf.toString ();
     }    
    
     this (Symbol left, InfoType right) {
@@ -285,7 +285,7 @@ class IncompatibleTypes : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, left.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, right.typeString (), Colors.RESET.value);
-	super.addLine (buf, left.sym.locus);
+	super.addLine (buf, left.sym);
 	msg = buf.toString ();	
     }
     
@@ -308,7 +308,7 @@ class NotLValue : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString (), Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
     
@@ -327,7 +327,7 @@ class UnreachableStmt : YmirException {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : L'instruction '%s%s%s' n'est pas atteignable ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
 
     }
@@ -353,7 +353,7 @@ class UndefinedVar : YmirException {
 	}
 	buf.writefln (" :");
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
     
@@ -371,7 +371,7 @@ class UseAsType : YmirException {
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas un type ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 }
@@ -390,7 +390,7 @@ class UseAsVar : YmirException {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : '%s%s%s' est un type : '%s%s%s'", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value,
 		      Colors.YELLOW.value, info.typeString, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
     
@@ -401,7 +401,7 @@ class UseAsExp : YmirException {
     this (Word token) {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : '%s%s%s' n'est pas une rvalue ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -417,11 +417,11 @@ class UseAsTemplateType : YmirException {
     this (Word token, Word token2) {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : '%s%s%s' est une variable template", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 
 	buf.writefln ("%sNote%s : Définis ici : ", Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, token2.locus);
+	super.addLine (buf, token2);
 	
 	msg = buf.toString ();
     }
@@ -443,9 +443,9 @@ class ShadowingVar : YmirException {
     this (Word token, Word token2) {
 	OutBuffer buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : '%s%s%s' est déjâ definis ", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);	
+	super.addLine (buf, token);	
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
-	super.addLine (buf, token2.locus);
+	super.addLine (buf, token2);
 	msg = buf.toString();        
     }
 }
@@ -464,11 +464,11 @@ class MultipleLoopName : YmirException {
 	auto buf = new OutBuffer;
 	buf.writefln ("%sErreur%s : l'identifiant de boucle '%s%s%s' est déjâ definis ",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	
 	buf.writefln ("%sNote%s : Première définition : ", Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, token2.locus);
+	super.addLine (buf, token2);
 	msg = buf.toString();        
     }
 }
@@ -486,7 +486,7 @@ class NotATemplate : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writefln ("%sErreur%s: L'élément %s'%s'%s n'est pas un template :", Colors.RED.value,
 		      Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
 
     }   
@@ -504,7 +504,7 @@ class NotATemplate : YmirException {
 			Colors.RESET.value, 
 			it !is tmps [$ - 1] ? ", " : ") :\n");
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
 
     }   
@@ -523,7 +523,7 @@ class UndefinedType : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' n'existe pas :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value);
 
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	this.msg = buf.toString();        
     }
 
@@ -536,7 +536,7 @@ class UndefinedType : YmirException {
 	OutBuffer buf = new OutBuffer();
 	buf.writefln ("%sErreur%s: Le type '%s%s%s' %s :", Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, token.str, Colors.RESET.value, msg);
 
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	this.msg = buf.toString();        
     }
     
@@ -558,7 +558,7 @@ class NoValueNonVoidFunction : YmirException {
 		    Colors.RESET.value);
 
 
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
 }
@@ -578,10 +578,10 @@ class TemplateSpecialisation : YmirException {
 	buf.writefln ("%sErreur%s : la specialisation de template fonctionne avec '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, first.str, Colors.RESET.value);
 
-	super.addLine (buf, first.locus);
+	super.addLine (buf, first);
 	buf.writefln ("%sErreur%s : et '%s%s%s'",
 		      Colors.RED.value, Colors.RESET.value, Colors.YELLOW.value, second.str, Colors.RESET.value);
-	super.addLine (buf, second.locus);
+	super.addLine (buf, second);
 	msg = buf.toString ();
     }
     
@@ -597,7 +597,7 @@ class NotImmutable : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s : La valeur ne peut être connu à la compilation",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.sym.locus);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString ();
     }
     
@@ -609,7 +609,7 @@ class ImmutableWithoutValue : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s : Déclaration d'une variable immutable sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString ();
     }
 }
@@ -621,7 +621,7 @@ class ConstWithoutValue : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s : Déclaration d'une variable constante sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString ();
     }
 }
@@ -633,7 +633,7 @@ class StaticWithoutValue : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s : Déclaration d'une variable static sans valeur",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString ();
     }
 }
@@ -648,7 +648,7 @@ class StaticAssertFailure : YmirException {
 		    Colors.RED.value, Colors.RESET.value);
 	
 	buf.writefln (" %s", msg);	
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	super.msg = buf.toString ();
     }
     
@@ -669,7 +669,7 @@ class TemplateCreation : YmirException {
 	OutBuffer buf = new OutBuffer ();
 	buf.writefln ("%sNote%s : Création de template : ", Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
 
     }
@@ -690,7 +690,7 @@ class MixinCreation : YmirException {
 	OutBuffer buf = new OutBuffer ();
 	buf.writefln ("%sNote%s : Création de mixin : ", Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString();        
     }
 
@@ -717,12 +717,12 @@ class TemplateInferType : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sError%s : Reference vers un type de retour deduis pour l'appel : ",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 
 	buf.writefln ("%sNote%s : type deduis de la fonction :",
 		      Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, func.locus);	
+	super.addLine (buf, func);	
 	msg = buf.toString ();
     }
 }
@@ -741,7 +741,7 @@ class NeedAllType : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sError%s : Tous les types sont requis dans une prototype de %s : ",
 		      Colors.RED.value, Colors.RESET.value, type);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	
 	msg = buf.toString ();
     }
@@ -760,7 +760,7 @@ class OnlyTypeNeeded : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sError%s : Pas d'indentifiant de variable requis dans une prototype de ptr!function : ",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	
 	msg = buf.toString ();
     }
@@ -780,7 +780,7 @@ class BreakOutSideBreakable : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sError%s : Break en dehors d'un scope breakable",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
 }
@@ -801,7 +801,7 @@ class BreakRefUndefined : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, name, Colors.RESET.value);
 	
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString ();
     }
 }
@@ -837,7 +837,7 @@ class ImportError : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, locus.str, Colors.RESET.value);
 	
-	super.addLine (buf, locus.locus);
+	super.addLine (buf, locus);
 	msg = buf.toString ();
     }
     
@@ -860,7 +860,7 @@ class ExpandNonTuple : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, type.typeString, Colors.RESET.value);
 
-	super.addLine (buf, locus.locus);
+	super.addLine (buf, locus);
 	msg = buf.toString ();
     }
     
@@ -874,7 +874,7 @@ class OutOfRange : YmirException {
 	buf.writefln ("%sErreur%s: Index %d en dehors du range [0 .. %d]",
 		      Colors.RED.value, Colors.RESET.value,
 		      id, length);
-	super.addLine (buf, sym.sym.locus);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString ();
     }    
 }
@@ -888,7 +888,7 @@ class CapacityOverflow : YmirException {
 		      Colors.YELLOW.value, sym.typeString (), Colors.RESET.value,
 		      Colors.YELLOW.value, val, Colors.RESET.value
 	);
-	super.addLine (buf, sym.sym.locus);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString ();
     }
     
@@ -900,7 +900,7 @@ class WrongTypeForMain : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s: La fonction main doit être main ([string]) ou main ()",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString ();
     }
 
@@ -913,7 +913,7 @@ class RecursiveExpansion : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s: Nombre d'expansion récursive statique atteinte",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString ();	
     }
 
@@ -926,7 +926,7 @@ class NoValueMatch : YmirException {
 	auto buf = new OutBuffer ();
 	buf.writefln ("%sErreur%s: Le block n'est pas une expression ",
 		      Colors.RED.value, Colors.RESET.value);
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString;
     }
 
@@ -941,7 +941,7 @@ class NotDefaultMatch : YmirException {
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
 	
-	super.addLine (buf, sym.locus);
+	super.addLine (buf, sym);
 	msg = buf.toString;
     }       
 
@@ -958,7 +958,7 @@ class DestOfNonTuple : YmirException {
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
 
-	super.addLine (buf, loc);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString;
     }
 
@@ -971,7 +971,7 @@ class DestOfNonTuple : YmirException {
 		      Colors.YELLOW.value, len2, Colors.RESET.value
 	);
 
-	super.addLine (buf, loc);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString;
     }
 
@@ -989,7 +989,7 @@ class CannotRefEnum : YmirException {
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
 
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 	msg = buf.toString;
     }
 }
@@ -1003,7 +1003,7 @@ class RecursiveCreation : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 	msg = buf.toString;
     }
     
@@ -1021,7 +1021,7 @@ class ImplementUnknown : YmirException {
 	    buf.writef (", peut être : '%s%s%s'", Colors.YELLOW.value, alike.sym.str, Colors.RESET.value);
 	
 	buf.writefln ("");		
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 	msg = buf.toString;
     }    
 }
@@ -1035,7 +1035,7 @@ class ImplMethodNotPure : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 	msg = buf.toString;
     }    
 }
@@ -1049,10 +1049,10 @@ class ImplementNotLocal : YmirException {
 		      Colors.RED.value, Colors.RESET.value,
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 	
 	buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
-	super.addLine (buf, sym.sym.locus);
+	super.addLine (buf, sym.sym);
 	msg = buf.toString;	
     }
 }
@@ -1066,10 +1066,10 @@ class ImplementNotStruct : YmirException {
 		    Colors.RED.value, Colors.RESET.value,
 		    Colors.YELLOW.value, sym.sym.str, Colors.RESET.value
 	);
-	super.addLine (buf, loc);
+	super.addLine (buf, sym.sym);
 	
 	buf.writefln ("%sNote%s :", Colors.BLUE.value, Colors.RESET.value);
-	super.addLine (buf, token.locus);
+	super.addLine (buf, token);
 	msg = buf.toString;
     }
 }
@@ -1085,7 +1085,7 @@ class InHeritError : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);	
+	super.addLine (buf, token);	
 	msg = buf.toString;
     }
 }
@@ -1101,11 +1101,11 @@ class ImplicitOverride : YmirException {
 		      Colors.YELLOW.value, Colors.RESET.value,
 		      Colors.YELLOW.value, Colors.RESET.value
 	);
-	super.addLine (buf, loc);	
+	super.addLine (buf, token);	
 	buf.writefln ("%sNote%s: ",
 		      Colors.BLUE.value, Colors.RESET.value);
 	
-	super.addLine (buf, token2.locus);	
+	super.addLine (buf, token2);	
 	msg = buf.toString;
     }    
 }
@@ -1120,7 +1120,7 @@ class NoOverride : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);	
+	super.addLine (buf, token);	
 	msg = buf.toString;
     }
 
@@ -1132,13 +1132,13 @@ class NoOverride : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);
+	super.addLine (buf, token);
 
 	if (info !is null) {
 	    buf.writefln ("%sNote%s: %s",
 			  Colors.BLUE.value, Colors.RESET.value,
 			  info.typeString);
-	    super.addLine (buf, tok2.locus);
+	    super.addLine (buf, tok2);
 	}
 	
 	msg = buf.toString;
@@ -1155,7 +1155,7 @@ class OverrideNotPure : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);	
+	super.addLine (buf, token);	
 	msg = buf.toString;
     }
 
@@ -1167,7 +1167,7 @@ class OverrideNotPure : YmirException {
 		      Colors.YELLOW.value, token.str, Colors.RESET.value
 	);
 	
-	super.addLine (buf, loc);	
+	super.addLine (buf, token);	
 	msg = buf.toString;
     }    
     

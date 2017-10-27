@@ -19,7 +19,7 @@ class SyntaxError : YmirException {
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
 	} else if (word.locus.file != "") {
-	    super.addLine (buf, word.locus);
+	    super.addLine (buf, word);
 	}
 	msg = buf.toString();
 	this._sym = word;
@@ -42,7 +42,7 @@ class SyntaxError : YmirException {
 	if (word.isEof ()) {
 	    buf.write ("Fin de fichier inattendue\n");
 	} else if (word.locus.file != "") {
-	    super.addLine (buf, word.locus);
+	    super.addLine (buf, word);
 	}
 	msg = buf.toString();
 	this._sym = word;

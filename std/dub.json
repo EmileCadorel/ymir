@@ -1,5 +1,6 @@
 {
     "name": "libymir",
+    "targetName" : "ymir",
     "sourcePath" : "out",
     "authors": [
 	"Emile Cadorel"

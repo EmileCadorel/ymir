@@ -59,7 +59,7 @@ class Return : Instruction {
 		auto type = aux._elem.info.type.CompOp (Table.instance.retInfo.info.type);
 		aux._instCast = type;
 		if (!type) 
-		    throw new IncompatibleTypes (this._token.locus,
+		    throw new IncompatibleTypes (this._token,
 						 aux._elem.info,
 						 Table.instance.retInfo.info);
 		

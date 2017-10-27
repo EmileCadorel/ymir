@@ -51,4 +51,8 @@ class EnumValue : Value {
 
     override LInstList toLint (Expression e) { assert (false); }
 
+    override Expression toYmir (Symbol sym) {
+	return this._inner.toYmir (sym);
+    }
+    
 }

@@ -404,6 +404,14 @@ class StringInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	Word w = Word.eof;
+	w.str = "string";
+	auto ret = new Var (w);
+	ret.info = new Symbol (w, this.clone ());
+	return ret;
+    }
+
     /**
      Retourne une copie du type (remet les informations de destruction à zero).
      Returns: un type string.

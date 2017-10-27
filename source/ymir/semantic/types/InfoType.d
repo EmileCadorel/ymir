@@ -466,6 +466,11 @@ class InfoType {
     abstract InfoType clone ();
 
     /**
+       Transforme le type en élement d'ast
+     */
+    abstract Expression toYmir ();
+    
+    /**
      Créée un clone du type, les informations de destruction sont remise à zéro, ainsi que les informations de valeur.
      Returns: une instance de type.
      */

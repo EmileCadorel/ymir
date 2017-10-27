@@ -1,7 +1,7 @@
 import sdl, input;
 import signal;
 import std.map, std.conv;
-import std.array, std.stdio;
+import std.array;
 
 static END = false;
 
@@ -9,24 +9,25 @@ def Quit (a : t) {
     END = true;
 }
 
-def end (a : t!(short, byte)) {
+def end (a : t!(int, ubyte)) {
     println (a);
     END = true;
 }
 
-def test (a : t!(byte, int, int, byte)) : void {
+def test (a : t!(ubyte, int, int, ubyte)) : void {
     let x = cast:long (a.1);
     let y = cast:long (a.2);
     println (x, ' ', y);
 }
 
 
-
 def main () {       
     keyboard (SDL_Keycode::SDLK_ESCAPE).connect (&end);
+    
     mouse (SDL_Button::LEFT).connect (&test);
     mouse (SDL_Button::RIGHT).connect (&test);
     quit ().connect (&Quit);
+
     
     let win = initSDL ("Test", 800, 600);
     while (!END && !poll ()) {

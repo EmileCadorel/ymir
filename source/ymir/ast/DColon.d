@@ -57,7 +57,7 @@ class DColon : Expression {
 	return this._right;
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new DColon (this._token, this._left.clone, this._right.clone ());
     }
 

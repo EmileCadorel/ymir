@@ -31,6 +31,8 @@ class StructCstInfo : InfoType {
     /++ Les méthodes implémenté par un impl +/
     private Array!MethodInfo _methods;
     
+    private static StructInfo [string] __doings__;
+    
     /** Le nom des parametres*/
     private Array!string _names;
     
@@ -83,7 +85,7 @@ class StructCstInfo : InfoType {
     }
     
     bool needCreation () {
-	return this._tmps.length == 0;
+	return this._tmps.length == 0 && !this._extern;
     }
     
     /**
@@ -106,13 +108,9 @@ class StructCstInfo : InfoType {
      Returns: une instance de StructInfo
      */
     static InfoType create (Word name, Expression [] templates) {
-	if (name.str in __creations__)
-	    throw new RecursiveCreation (name);
 	auto info = Table.instance.get (name.str).type;
 	auto cst = cast(StructCstInfo) (info);
-	__creations__ [name.str] = cst;
-	scope (exit) __creations__.remove (name.str);
-	
+		
 	if (cst is null) {
 	    cst = (cast (ObjectCstInfo) info).impl;
 	}
@@ -124,8 +122,14 @@ class StructCstInfo : InfoType {
 	    if (ret is null) throw new NotATemplate (name, make!(Array!Expression) (templates));
 	    return ret.emptyCall (name).ret;
 	}
+
+	auto mangledName = Mangler.mangle!"struct" (cst);	
+	if (auto it = mangledName in __doings__) return *it;
+
+	auto ret = cast (StructInfo) StructInfo.create (cst._namespace, cst._name, cst._names, cst._types, cst._oldTmps, cst.methods);
+	__doings__ [mangledName] = ret;
 	
-	if (cst._types.empty) {	    	    
+	if (ret._params.empty) {	    	    
 	    foreach (it ; cst._params) {
 		auto printed = false;
 		Symbol sym;
@@ -135,31 +139,53 @@ class StructCstInfo : InfoType {
 		} else if (auto array = cast (ArrayAlloc) it.expType) {
 		    assert (false, "TODO");
 		} else {
-		    sym = Table.instance.get (it.type.token.str);
-		    if (sym is null) it.type.asType ();
+		    it.type.asType ();
 		}
 		if (sym) {
 		    auto _st = cast (StructCstInfo) (sym.type);
 		    if (_st) {
-			cst._types.insertBack (_st);
-			cst._names.insertBack (it.token.str);
+			ret._params.insertBack (_st);
+			ret._attribs.insertBack (it.token.str);
 			printed = true;			
 		    }		    
 		}
 		if (!printed) {
-		    cst._types.insertBack (it.getType ());
-		    cst._names.insertBack (it.token.str);
+		    ret._params.insertBack (it.getType ());
+		    ret._attribs.insertBack (it.token.str);
 		}		
 	    }
 	}
-	
-	auto ret = cast (StructInfo) StructInfo.create (cst._namespace, cst._name, cst._names, cst._types, cst._oldTmps, cst.methods);
+
 	ret.isExtern = cst._extern;
 	return ret;
     }
 
-    InfoType create (Word name) {
-	if (this._types.empty) {	    	    
+
+    /**
+     Instancie un objet crée a partir d'un patron de structure
+     Params:
+     name = le nom de la structure à créer
+     templates = les paramètre templates passé au constructeur
+     Throws: NotATemplate
+     Returns: une instance de StructInfo
+     */
+    InfoType createStr (Word name, Expression [] templates) {
+	if (this._tmps.length == 0 && templates.length != 0)
+	    throw new NotATemplate (name);
+
+	if (this._tmps.length != 0) {
+	    auto ret = this.TempOp (make!(Array!Expression) (templates));
+	    if (ret is null) throw new NotATemplate (name, make!(Array!Expression) (templates));
+	    return ret.emptyCall (name).ret;
+	}
+
+	auto mangledName = Mangler.mangle!"struct" (this);	
+	if (auto it = mangledName in __doings__) return *it;
+
+	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps, this.methods);
+	__doings__ [mangledName] = ret;
+	
+	if (ret._params.empty) {	    	    
 	    foreach (it ; this._params) {
 		auto printed = false;
 		Symbol sym;
@@ -169,26 +195,64 @@ class StructCstInfo : InfoType {
 		} else if (auto array = cast (ArrayAlloc) it.expType) {
 		    assert (false, "TODO");
 		} else {
-		    sym = Table.instance.get (it.type.token.str);
-		    if (sym is null) it.type.asType ();
+		    it.type.asType ();
 		}
 		if (sym) {
 		    auto _st = cast (StructCstInfo) (sym.type);
 		    if (_st) {
-			this._types.insertBack (_st);
-			this._names.insertBack (it.token.str);
+			ret._params.insertBack (_st);
+			ret._attribs.insertBack (it.token.str);
 			printed = true;			
 		    }		    
 		}
 		if (!printed) {
-		    this._types.insertBack (it.getType ());
-		    this._names.insertBack (it.token.str);
+		    ret._params.insertBack (it.getType ());
+		    ret._attribs.insertBack (it.token.str);
+		}		
+	    }
+	}
+
+	ret.isExtern = this._extern;
+	return ret;
+    }
+
+    
+    InfoType create (Word name) {
+	auto mangledName = Mangler.mangle!"struct" (this);
+	if (auto it = mangledName in __doings__) return *it;
+	
+	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps, this._methods);
+	__doings__ [mangledName] = ret;
+	ret.isExtern = this._extern;
+	
+	if (ret._params.empty) {	    
+	    foreach (it ; this._params) {
+		auto printed = false;
+		Symbol sym;
+		if (auto fn = cast (FuncPtr) it.expType) {
+		    auto type = fn.expression;
+		    sym = type.info;
+		} else if (auto array = cast (ArrayAlloc) it.expType) {
+		    assert (false, "TODO");
+		} else {
+		    sym = it.type.asType ().info;
+		}
+		if (sym) {
+		    auto _st = cast (StructCstInfo) (sym.type);		    
+		    if (_st) {
+			ret._params.insertBack (_st);
+			ret._attribs.insertBack (it.token.str);
+			printed = true;			
+		    }		    
+		}
+		if (!printed) {
+		    ret._params.insertBack (it.getType ());
+		    ret._attribs.insertBack (it.token.str);
 		}		
 	    }
 	}
        
-	auto ret = cast (StructInfo) StructInfo.create (this._namespace, this._name, this._names, this._types, this._oldTmps, this._methods);
-	ret.isExtern = this._extern;
+
 	return ret;
     }    
 
@@ -197,7 +261,7 @@ class StructCstInfo : InfoType {
 
 	auto res = TemplateSolver.solve (this._tmps, templates);
 	if (!res.valid) return null;
-	
+
 	string name = this._name;
 	name ~= "!(";
 	uint it = 0;
@@ -213,17 +277,20 @@ class StructCstInfo : InfoType {
 	    }
 	}
 	
-	name ~= ")";
+	name ~= ")";		
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
-	auto ret = new StructCstInfo (Table.instance.globalNamespace, name, make!(Array!Expression));
+	writeln ("TEMPOP : ", Table.instance.globalNamespace);
+	auto ret = new StructCstInfo (Table.instance.programNamespace, name, make!(Array!Expression));
 	ret._oldTmps = types;
 	ret._isPublic = this._isPublic;
 	
 	foreach (it_ ; this._params) {
 	    ret.addAttrib (cast (TypedVar) it_.templateExpReplace (res.elements));
 	}
+	
+	FrameTable.instance.insert (ret);
 	return ret;
     }
     
@@ -242,6 +309,10 @@ class StructCstInfo : InfoType {
      */
     override InfoType clone () {
 	return this;
+    }
+
+    override Expression toYmir () {
+	assert (false);
     }
 
     /**
@@ -319,7 +390,7 @@ class StructCstInfo : InfoType {
      Returns: le nom complet pour les informations d'erreur
      */
     override string innerTypeString () {
-	auto name = "typeof " ~ this._name ~ "(";
+	auto name = "typeof " ~ this._namespace.toString ~ "." ~ this._name ~ "(";
 	if (this._types.empty) {	    
 	    foreach (it ; this._params) {
 		if (auto _st = cast(StructCstInfo) it.getType ())
@@ -863,7 +934,7 @@ class StructInfo : InfoType {
      Returns: le nom complet pour les informations d'erreur.
      */
     override string innerTypeString () {
-	auto name = this._name ~ "(";
+	auto name = this._namespace.toString ~ "." ~ this._name ~ "(";
 	foreach (it ; this._params) {
 	    if (auto _st = cast(StructCstInfo) it)
 		name ~= _st.name ~ "(...)";
@@ -894,6 +965,12 @@ class StructInfo : InfoType {
 	ret._simple = this._simple;
 	ret.isConst = this.isConst;
 	return ret;
+    }
+
+    override Expression toYmir () {
+	Word w = Word.eof ();
+	w.str = this._name;
+	return new Type (w, this.clone ());
     }
 
     /**

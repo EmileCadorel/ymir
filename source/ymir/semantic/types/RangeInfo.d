@@ -44,6 +44,14 @@ class RangeInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	Word w = Word.eof;
+	w.str = "r";
+	auto ret = new Var (w, make!(Array!Expression) (this._content.toYmir ()));
+	ret.info = new Symbol (w, this.clone ());
+	return ret;
+    }
+
     /**
      Returns: une nouvelle instance de range (les informations de destruction sont remisent à zéro).
      */

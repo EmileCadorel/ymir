@@ -71,7 +71,7 @@ class Struct : Declaration {
 	auto exist = mod.get (this._ident.str);
 	if (exist) {
 	    throw new ShadowingVar (this._ident, exist.sym);
-	} else {
+	} else {	    
 	    auto str = new StructCstInfo (mod.space, this._ident.str, this._tmps);
 	    str.isExtern = this._tmps.length == 0;
 	    str.isPublic = this._isPublic;

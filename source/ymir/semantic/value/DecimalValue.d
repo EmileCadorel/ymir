@@ -141,6 +141,15 @@ class DecimalValue : Value {
 	}
     }
 
+    override Expression toYmir (Symbol sym) {
+	auto word = Word.eof ;
+	word.str = this._value.to!string;
+	auto dec = cast (DecimalInfo) sym.type;
+	auto ret = new Decimal (word, dec.type);
+	ret.info = sym;
+	return ret;
+    }
+    
     override string toString () {
 	return this._value.to!string;
     }

@@ -39,6 +39,7 @@ class TupleDest : Instruction {
     
     override Instruction instruction () {
 	auto right = this._right.expression ();
+	writeln (this._right);
 	if (!cast (TupleInfo) right.info.type) throw new DestOfNonTuple (right.info);
 	auto tupleType = cast (TupleInfo) right.info.type;
 	auto aff = Word (this._token.locus, Tokens.EQUAL.descr, true);
@@ -48,7 +49,7 @@ class TupleDest : Instruction {
 	else if (this._isVariadic && this._decls.length > tupleType.params.length - 1)
 	    throw new DestOfNonTuple (this._decls.length, tupleType.params.length, right.info);
 
-	ulong i = 0;
+	ulong i = 0, expandId = Expand.lastId ();
 	foreach (it ; this._decls []) {
 	    auto aux = new Var (it.token);
 	    auto info = Table.instance.get (it.token.str);		
@@ -58,7 +59,7 @@ class TupleDest : Instruction {
 	    if (i == this._decls.length - 1 && this._isVariadic) {
 		Array!Expression last;	    
 		foreach (it_ ; this._decls.length - 1 .. tupleType.params.length) {
-		    auto exp = new Expand (right.token, right, it_);
+		    auto exp = new Expand (right.token, right, it_, expandId);
 		    exp.info = new Symbol (exp.token, tupleType.params [it_].clone);
 		    last.insertBack (exp);
 		}
@@ -66,7 +67,7 @@ class TupleDest : Instruction {
 		auto ctuple = new ConstTuple (right.token, right.token, last);
 		insts.insertBack (new Binary (aff, new Var (this._decls [$ - 1].token), ctuple).expression);
 	    } else {		
-		auto exp = new Expand (right.token, right, i);
+		auto exp = new Expand (right.token, right, i, expandId);
 		exp.info = new Symbol (exp.token, tupleType.params [i].clone);
 		    
 		insts.insertBack (new Binary (aff, new Var (it.token), exp).expression);

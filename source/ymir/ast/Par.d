@@ -109,7 +109,7 @@ class Par : Expression {
 		if (cast (UndefInfo) type.ret && this._inside) {
 		    throw new TemplateInferType (aux._left.token, aux._score.token);
 		}
-
+		writeln ("LA : ", aux._info.type);
 		if (!aux.info.value) Table.instance.retInfo.changed = true;
 		return aux;
 	    } catch (YmirException exp) {
@@ -166,7 +166,7 @@ class Par : Expression {
 	return new Par (this._token, this._end, left, params);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	auto ret = new Par (this._token, this._end, this._left.clone(), cast (ParamList) this._params.clone ());
 	ret.info = this._info;
 	return ret;

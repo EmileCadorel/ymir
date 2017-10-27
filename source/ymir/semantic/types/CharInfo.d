@@ -314,6 +314,12 @@ class CharInfo : InfoType {
 	return ret;
     }
 
+
+    override Expression toYmir () {
+	auto w = Word.eof;
+	w.str = "char";
+	return new Type (w, this.clone ());	
+    }
     /**
      Returns: une nouvelle instance du type char.
      */

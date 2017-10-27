@@ -227,7 +227,19 @@ class PtrUtils {
     static LInstList InstCast (LInstList llist) {
 	return llist;
     }
-
+   
+    static LInstList InstCastTuple (InfoType ret, Expression left, Expression) {
+	auto current = 0;
+	auto info = cast (TupleInfo) ret;
+	auto elem = new DCast (new DType ("byte*"), DVisitor.visitExpressionOutSide (left));
+	DParamList params = new DParamList ();
+	foreach (it ; info.params) {
+	    params.addParam (new DBefUnary (new DCast (new DType (DVisitor.visitType (it).name ~ "*"), new DBinary (elem, new DDecimal (current), Tokens.PLUS)), Tokens.STAR));
+	    current += new DDecimal (it.size).value!ulong;	    
+	}
+	return new DPar (new DVar (DVisitor.visitType (ret).name), params);
+    }
+    
     /**
      L'instruction de récuperation de l'addresse d'un ptr.
      Params:

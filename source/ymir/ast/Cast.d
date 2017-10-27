@@ -39,13 +39,17 @@ class Cast : Expression {
      Throws: UseAsVar, si le contenu est un type, UndefinedOp.
      */
     override Expression expression () {
-	auto type = this._type.expression ();
+	Expression type;
+	if (auto v = cast (Var) this._type) {
+	    type = v.asType ();
+	} else type = this._type.expression ();
+	
 	auto expr = this._expr.expression ();
 	if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
 	if (!cast (Type) type && !cast (FuncPtr) type)
 	    if (!cast (ObjectCstInfo) type.info.type && !cast(StructCstInfo) type.info.type)
 		throw new UseAsType (type.token);
-	
+		
 	if (expr.info.type.isSame (type.info.type)) {
 	    return expr;
 	} else {
@@ -55,12 +59,11 @@ class Cast : Expression {
 		if (info is null)
 		    throw new UndefinedOp (this._token, expr.info, type.info);
 	    }
-	    
-	    if (this._deco == Keys.CONST) info.isConst = true;
-	    else info.isConst = false;
-	    
+
+	    type.info.isConst = expr.info.isConst;	    
 	    auto aux = new Cast (this._token, type, expr);
 	    aux.info = new Symbol (this._token, info);
+	    aux.info.isConst = expr.info.isConst;
 	    return aux;
 	}
     }
@@ -72,7 +75,7 @@ class Cast : Expression {
 	return new Cast (this._token, type, expr);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Cast (this._token, this._type.clone (), this._expr.clone ());
     }
     

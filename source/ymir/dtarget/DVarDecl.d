@@ -32,6 +32,7 @@ final class DVarDecl : DInstruction {
     }
     
     override string toString () {
+	auto nbIndent = this._father ? this._father.nbIndent : 0;
 	auto buf = new OutBuffer ();
 	foreach (it ; this._types) {
 	    auto found = this._expr[].find!( (a, b) {
@@ -51,7 +52,7 @@ final class DVarDecl : DInstruction {
 		    buf.writefln ("%s = %s;", it.toString, (cast (DBinary) found [0]).right.toString);
 		else
 		    buf.writefln ("%s%s = %s;",
-				  rightJustify ("", this._father.nbIndent, ' '),
+				  rightJustify ("", nbIndent, ' '),
 				  it.toString,
 				  (cast (DBinary) found [0]).right.toString
 		    );
@@ -60,7 +61,7 @@ final class DVarDecl : DInstruction {
 		    buf.writefln ("%s;", it.toString);
 		else
 		    buf.writefln ("%s%s;",
-				  rightJustify ("", this._father.nbIndent, ' '),
+				  rightJustify ("", nbIndent, ' '),
 				  it.toString);
 	    }
 	}	

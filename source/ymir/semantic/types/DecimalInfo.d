@@ -665,6 +665,22 @@ class DecimalInfo : InfoType {
 	return ret;
     }
 
+
+    override Expression toYmir () {
+	auto w = Word.eof;
+	final switch (this._type.id) {
+	case DecimalConst.BYTE.id : w.str = "byte"; break;
+	case DecimalConst.UBYTE.id : w.str = "ubyte"; break;
+	case DecimalConst.SHORT.id : w.str = "short"; break;
+	case DecimalConst.USHORT.id : w.str = "ushort"; break;
+	case DecimalConst.INT.id : w.str = "int"; break;
+	case DecimalConst.UINT.id : w.str = "uint"; break;
+	case DecimalConst.LONG.id : w.str = "long"; break;
+	case DecimalConst.ULONG.id : w.str = "ulong"; break;
+	}
+	return new Type (w, this.clone ());	
+    }
+    
     /**
      Returns: une nouvelle instance de int.
     */

@@ -59,6 +59,10 @@ class TraitObj : InfoType {
 	return this;
     }
 
+    override Expression toYmir () {
+	assert (false);
+    }
+    
     override InfoType cloneForParam () {
 	return this;
     }

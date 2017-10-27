@@ -17,11 +17,13 @@ class DVisitor : LVisitor {
 
     private DFrame _currentFrame;
 
-    private Array!StructInfo _structToCst;
+    private StructInfo [string] _structToCst;
 
     private TupleInfo[string] _tupleToCst;    
 
     private LFrame [string] _preCompiled;
+
+    private DVarDecl _globalVars = new DVarDecl ();
     
     override Array!LFrame visit () {
 	Array!LFrame frames;
@@ -35,6 +37,14 @@ class DVisitor : LVisitor {
 	    frames.insertBack (this.visit (it));
 	}
 
+	if (Table.instance.globalNamespace !is null) {
+	    frames.insertBack (computeStaticInit ());
+	}
+
+	foreach (it ; Table.instance.globalVars) {
+	    this._globalVars.addVar (visit (it));
+	}
+	
 	foreach (it ; this._preCompiled) {
 	    frames.insertBack (it);
 	}
@@ -45,8 +55,11 @@ class DVisitor : LVisitor {
     }
 
     void addStructToCst (StructInfo info) {
-	if (this._structToCst[].find!("a.name == b.name") (info).empty)
-	    this._structToCst.insertBack (info);
+	auto name = Mangler.mangle!"struct" (info);
+	if (name !in this._structToCst) {
+	    if (Table.instance.globalNamespace !is null && Table.instance.globalNamespace.isSubOf (info.namespace))
+		this._structToCst [name] = info;
+	}
     }
 
     string addTupleToCst (string file, TupleInfo info) {
@@ -62,7 +75,13 @@ class DVisitor : LVisitor {
 
     void clean () {
 	this._tupleToCst = null;
-	this._structToCst = make!(Array!StructInfo);
+	this._structToCst = null;
+	this._globalVars = new DVarDecl ();
+    }
+
+    void initOutDir () {
+	if (exists ("out/"))
+	    rmdirRecurse ("out/");	
     }
     
     string toFile (Array!LFrame frames, string filename, string extension) {
@@ -78,8 +97,8 @@ class DVisitor : LVisitor {
 	imports.writefln ("import std.typecons;");
 	imports.writefln ("import core.memory;");       
 
-	foreach (it ; this._structToCst) {
-	    auto src = toDStruct (it);
+	foreach (name, it ; this._structToCst) {
+	    auto src = toDStruct (name, it);
 	    funcs.writef ("\n%s\n", src);
 	}
 	
@@ -105,7 +124,7 @@ class DVisitor : LVisitor {
 	    imports.writefln ("import %s;", it);
 	}
 		
-	file.writef ("%s\n\n%s", imports.toString, funcs.toString);
+	file.writef ("%s\n\n%s\n\n%s", imports.toString, this._globalVars, funcs.toString);
 	return modName.asFile (extension);
     }
     
@@ -120,8 +139,12 @@ class DVisitor : LVisitor {
 		return;
 	}
 	
-	options ~= ["-I=" ~ buildPath (Options.instance.getPath (), "out/")] ~ Options.instance.libs ~ buildPath (Options.instance.getPath(), "liblibymir.a");
+	options ~= ["-I=" ~ buildPath (Options.instance.getPath (), "out/")] ~ Options.instance.libs ~ buildPath (Options.instance.getPath(), "libymir.a");
 
+	foreach (it ; Options.instance.links) {
+	    options ~= ["-L=" ~ it];
+	}
+	
 	if (Options.instance.isOn (OptionEnum.VERBOSE))
 	    writeln (["dmd"] ~ options ~ files);
 
@@ -140,15 +163,70 @@ class DVisitor : LVisitor {
 	return ".d";
     }
 
-    private string toDStruct (StructInfo info) {
-	auto buf = new OutBuffer ();
-	buf.writef ("struct %s {\n", info.name);
-	foreach (it ; 0 .. info.params.length) {
-	    buf.writefln ("%s %s; ", visitType (info.params [it]).name, info.attribs [it]);
+    ulong createMethod (ref DExpression [ulong] meth, StructInfo info) {
+	ulong nb = 0;
+	if (info.ancestor) {
+	    nb = createMethod (meth, info.ancestor);
 	}
+
+	foreach (fr ; info.methods) {
+	    if (cast (PureFrame) fr.frame) {
+		auto proto = fr.frame.validate ();
+		auto buf = new OutBuffer ();
+		buf.writef ("%s function(", visitType (proto.type.type));
+		foreach (it ; proto.vars) {
+		    buf.writef ("%s%s", visitType (it.info.type), it
+				is proto.vars [$ - 1] ? "" : ", ");
+		}
+		
+		buf.writef (")");
+		if (fr.isOverride) {
+		    auto nbAnc = info.ancestor.DotOp (new Var (fr.frame.ident));
+		    buf.writef (" __%d__", nbAnc.toGet);
+		    meth [nbAnc.toGet] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
+		} else {
+		    buf.writef (" __%d__", nb);
+		    nb ++;
+		    meth [nb] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
+		}
+		
+	    }
+	}
+	
+	return nb;	
+    }
+    
+    private string toDStruct (string name, StructInfo info) {
+	auto buf = new OutBuffer ();
+	buf.writef ("struct %s {\n", name);
+	foreach (it ; 0 .. info.params.length) {
+	    buf.writefln ("\t%s %s; ", visitType (info.params [it]).name, info.attribs [it]);
+	}
+
+	DExpression [ulong] methods;
+	createMethod (methods, info);
+
+	foreach (value ; methods) {
+	    buf.writefln ("\t%s;", value.toString ());
+	}
+	
 	buf.writef ("}\n");
 	return buf.toString;
     }
+
+    override LFrame computeStaticInit () {
+	auto name = new Namespace (Table.instance.globalNamespace, "self");
+	auto frame = new DFrame (Mangler.mangle!"function" (name));
+	this._currentFrame = frame;
+	frame.type = new DType ("void");
+	DAuxVar.reset ();
+	frame.block = DBlock.open ();
+	foreach (it ; Table.instance.staticInits) {
+	    frame.block.addInst (visit (it));
+	}
+	return frame;
+    }
+
     
     LFrame visit (ExternFrame extFrame) {
 	auto frame = new DProto (extFrame.name);
@@ -164,7 +242,11 @@ class DVisitor : LVisitor {
     }
     
     override LFrame visit (FinalFrame semFrame) {
-	auto frame = new DFrame (Mangler.mangle!"function" (semFrame));
+	string name;
+	if (semFrame.isVariadic) name = Mangler.mangle!"functionv" (semFrame);
+	else name = Mangler.mangle!"function" (semFrame);
+		 
+	auto frame = new DFrame (name);
 	frame.space = semFrame.namespace;
 	this._currentFrame = frame;
 	frame.type = this.visitType (semFrame.type.type);
@@ -176,6 +258,20 @@ class DVisitor : LVisitor {
 	DAuxVar.reset ();
 	
 	frame.block = this.visitBlock (semFrame.block);
+	
+	if (semFrame.name == Keys.MAIN.descr) {
+	    auto bl = DBlock.open ();
+	    foreach (it ; Table.instance.modulesAndForeigns) {
+		addImport (it);
+		auto namespace = new Namespace (it, "self");
+		bl.addInst (new DPar (new DVar (Mangler.mangle!"function" (namespace)), new DParamList ()));
+	    }
+	    foreach (it ; frame.block.instructions) {
+		bl.addInst (it);
+	    }
+	    frame.block = bl;
+	}
+	
 	return frame;
     }        
 
@@ -206,12 +302,17 @@ class DVisitor : LVisitor {
 	if (!hasAlready)
 	    this._currentFrame.imports.insertBack (space);	
     }
+
+    private DTypeVar visit (Global gl) {
+	return new DTypeVar (visitType (gl.type), new DVar (gl.name));
+    }
     
     private DInstruction visit (Instruction inst) {
 	return inst.matchRet (
 	    (Assert ass) => visit (ass),
 	    (Block bl) => visitBlock (bl),
 	    (Break br) => visit (br),
+	    (Match mt) => visitInstMatch (mt),
 	    (Expression ex) => visit (ex),
 	    (For fo) => visit (fo),
 	    (If i) => visit (i),
@@ -261,10 +362,17 @@ class DVisitor : LVisitor {
     }
     
     private DInstruction visit (Assert ass) {
-	if (ass.msg)
-	    return new DAssert (visit (ass.expr), visit (ass.msg));	
-	else
+	if (ass.msg) {
+	    auto aux = new DAuxVar ();
+	    auto vdecl = new DVarDecl ();
+	    vdecl.addVar (new DTypeVar (new DType ("Tuple!(ulong, char*)"), aux));
+	    vdecl.addExpression (new DBinary (aux, visit (ass.msg), Tokens.EQUAL));
+	    DBlock.current.addInst (vdecl);
+	    return new DAssert (visit (ass.expr),
+				new DAccess (new DAccess (aux, new DDecimal (1)), new DDecimal (0), new DAccess (aux, new DDecimal (0))));	
+	} else {
 	    return new DAssert (visit (ass.expr), null);
+	}
     }
 
     private DInstruction visit (Break br) {
@@ -287,6 +395,8 @@ class DVisitor : LVisitor {
 	
 	foreach (it ; bl.instructions)
 	    left.block.addInst (it);
+
+	if (!(_for.name.isEof())) left.name = _for.name.str;
 	
 	return left;	
     }
@@ -344,7 +454,16 @@ class DVisitor : LVisitor {
     }
 
     private DInstruction visit (TupleDest tp) {
-	assert (false);
+	auto inst = visit (tp.expr);
+	auto varDecl = new DVarDecl ();
+	foreach (it ; tp.insts) {
+	    auto bin = cast (Binary) it;
+	    auto expand = visit (bin.right);
+	    auto var = cast (DVar) visit (bin.left);
+	    varDecl.addVar (new DTypeVar (visitType (bin.info.type), var));
+	    varDecl.addExpression (new DBinary (var, expand, Tokens.EQUAL)); 
+	}
+	return varDecl;
     }
 
     private DInstruction visit (VarDecl vd) {
@@ -352,7 +471,9 @@ class DVisitor : LVisitor {
 	foreach (it ; vd.decls) {
 	    if (!cast (UndefInfo) it.info.type)
 		vdecl.addVar (new DTypeVar (visitType (it.info.type),
-					    new DVar (it.token.str))
+					    new DVar (it.token.str),
+					    it.info.isStatic
+		)
 		);			
 	}
 	
@@ -367,7 +488,10 @@ class DVisitor : LVisitor {
     private DInstruction visit (While wh) {
 	auto test = visit (wh.test);
 	auto bl = visitBlock (wh.block);
-	return new DWhile (test, bl);
+	auto ret = new DWhile (test, bl);
+	if (!(wh.name.isEof ()))
+	    ret.name = wh.name.str;
+	return ret;
     }
 
     private DExpression visit (Access acc) {
@@ -428,7 +552,14 @@ class DVisitor : LVisitor {
 
     private DExpression visit (Cast cs) {
 	auto type = visitType (cs.type.info.type);
-	auto value = visit (cs.expr);
+	DExpression value;
+	if (cs.info.type.leftTreatment) {
+	    value = cast (DExpression) cs.info.type.leftTreatment (cs.info.type, cs.expr, null);
+	} else value = visit (cs.expr);
+	
+	for (long nb = cs.info.type.lintInstS.length - 1 ; nb >= 0; nb --) 
+	    value = cast (DExpression) cs.info.type.lintInst (value, nb);
+	
 	return new DCast (type, value);
     }
 
@@ -586,17 +717,100 @@ class DVisitor : LVisitor {
 	return cast (DExpression) dot.info.type.lintInst (exprs, left);
     }
 
+    private DExpression visit (Expand expand) {	
+	static DExpression [ulong] done;
+	DExpression inside;
+	if (auto expr = expand.id in done) {
+	    inside = *expr;
+	} else {
+	    inside = visit (expand.expr);
+	    auto decl = new DVarDecl ();
+	    auto var = new DAuxVar ();
+	    decl.addVar (new DTypeVar (visitType (expand.expr.info.type), var));
+	    decl.addExpression (new DBinary (var, inside, Tokens.EQUAL));
+	    DBlock.current.addInst (decl);
+	    done [expand.id] = var;
+	    inside = var;
+	}
 
+	return new DAccess (inside, new DDecimal (expand.index));	
+    }
+    
     private DExpression visit (LambdaFunc func) {
 	return new DBefUnary (new DVar (Mangler.mangle!"function" (func.proto.name, func.proto)), Tokens.AND);
     }
     
     private DExpression visit (Match mt) {
-	assert (false);
+	auto expr = visit (mt.expr);
+	DInstruction inst = null;
+	auto ret = new DAuxVar ();
+	auto decl = new DVarDecl ();
+	mt.info.type.isConst = false; // Const affect ? ^^
+	decl.addVar (new DTypeVar (visitType (mt.info.type), ret));	
+	DBlock.current ().addInst (decl);
+
+	if (mt.defaultResult) {
+	    auto bl = DBlock.open ();
+	    auto result = visit (mt.defaultResult);
+	    if (!mt.cstr [$ - 1].isSame (mt.defaultResult.info.type))
+		result = cast (DExpression) mt.cstr [$ - 1].lintInst (result);
+		    
+	    bl.addInst (new DBinary (ret, result, Tokens.EQUAL));
+	    bl.close ();
+	    inst = new DIf (null, bl, null);		   
+	}
+	
+	foreach_reverse (it ; 0 .. mt.values.length) {
+	    if (auto bl = cast (BoolValue) mt.values[it].info.value) {
+		if (bl.isTrue ()) inst = null;
+		else continue;
+	    }
+	    
+	    auto bl = DBlock.open ();
+	    auto val = visit (mt.values [it]);
+	    auto result = visit (mt.results [it]);
+	    if (!mt.cstr [$ - 1].isSame (mt.defaultResult.info.type))
+		result = cast (DExpression) mt.cstr [$ - 1].lintInst (result);
+	    
+	    bl.addInst (new DBinary (ret, result, Tokens.EQUAL));
+	    bl.close ();
+	    inst = new DIf (val, bl, cast (DIf) inst);			    
+	}
+	
+	DBlock.current ().addInst (inst);	
+	return ret;
     }
 
+    private DInstruction visitInstMatch (Match mt) {
+	auto expr = visit (mt.expr);
+	DInstruction inst = null;
+	if (mt.defaultBlock) {
+	    auto bl = visitBlock (mt.defaultBlock);
+	    inst = new DIf (null, bl, null);
+	}
+	
+	foreach_reverse (it ; 0 .. mt.values.length) {
+	    if (auto bl = cast (BoolValue) mt.values [it].info.value) {
+		if (bl.isTrue ()) inst = null;
+		else continue;
+	    }
+	    
+	    auto bl = visitBlock (mt.blocks [it]);
+	    auto val = visit (mt.values [it]);
+	    inst = new DIf (val, bl, cast (DIf) inst);
+	}
+
+	if (inst is null) {
+	    auto bl = DBlock.open ();
+	    bl.close ();
+	    return bl;
+	}
+	return inst;
+    }
+    
     private DParamList visit (Array!InfoType treat, ParamList pm) {
 	auto params = new DParamList;
+	
 	foreach (it ; 0 .. pm.params.length) {
 	    auto exp = pm.params [it];	    
 	    auto elist = visit (exp);
@@ -607,15 +821,14 @@ class DVisitor : LVisitor {
 	    }
 
 	    params.addParam (elist);
-	}
+	}	
 	return params;
     }
         
     private DExpression visit (Par par) {
 	auto params = visit (par.score.treat, par.paramList);
-	if (par.info.type.lintInstMult) {	    
+	if (par.info.type.lintInstMult) {
 	    DExpression left;
-
 	    if (par.info.type.leftTreatment)
 		left = cast (DExpression) par.info.type.leftTreatment (par.info.type, par.left, par.paramList);
 	    else left = visit (par.left);
@@ -642,7 +855,6 @@ class DVisitor : LVisitor {
 		    return new DPar (left, params);
 		}
 	    } else {
-		auto left = visit (par.left);
 		auto type = cast (FunctionInfo) par.left.info.type;
 		if (type !is null) {
 		    this.addImport (type.space);
@@ -657,7 +869,7 @@ class DVisitor : LVisitor {
 	foreach (it ; tp.params) {
 	    params.addParam (this.visit (it));
 	}
-	return new DPar (new DVar ("tuple"), params);
+	return new DPar (new DVar (visitType (tp.info.type).toString), params);
     }
 
     private DExpression visit (TypeOf tp) {
@@ -677,7 +889,11 @@ class DVisitor : LVisitor {
     }
 
     private DExpression visit (AfUnary af) {
-	assert (false);
+	auto ret = visit (af.elem);
+	for (long nb = af.info.type.lintInstS.length - 1 ; nb >= 0; nb --) {
+	    ret = cast (DExpression) af.info.type.lintInst (ret, nb);
+	}
+	return ret;
     }
 
     private DExpression visit (Var var) {
@@ -704,7 +920,7 @@ class DVisitor : LVisitor {
 	} else if (auto fl = cast (FloatInfo) type) {
 	    return new DType ("double", type.isConst);
 	} else if (auto arr = cast (ArrayInfo) type) {
-	    return new DType (format ("Tuple!(ulong, %s*)", visitType (arr.content).name), type.isConst);
+	    return new DType (format ("Tuple!(ulong, %s*)", visitType (arr.content)), type.isConst);
 	} else if (cast (BoolInfo) type) {
 	    return new DType ("bool", type.isConst);
 	} else if (cast (CharInfo) type) {
@@ -713,26 +929,26 @@ class DVisitor : LVisitor {
 	    return new DType (visitType (en.content).name, type.isConst);
 	} else if (auto ptr = cast (PtrFuncInfo) type) {
 	    auto buf = new OutBuffer ();
-	    buf.writef ("%s function(", visitType (ptr.ret).name);
+	    buf.writef ("%s function(", visitType (ptr.ret));
 	    foreach (it ; ptr.params) {
-		buf.writef ("%s%s", visitType (it).name, it is ptr.params [$ - 1] ? "" : ", ");
+		buf.writef ("%s%s", visitType (it), it is ptr.params [$ - 1] ? "" : ", ");
 	    }
 	    buf.writef (")");
 	    return new DType (buf.toString, type.isConst);
 	} else if (auto ptr = cast (PtrInfo) type) {
-	    return new DType (visitType (ptr.content).name ~ "*", type.isConst);
+	    return new DType (format ("%s*", visitType (ptr.content)), type.isConst);
 	} else if (auto range = cast (RangeInfo) type) {
-	    auto t = visitType (range.content).name;
+	    auto t = visitType (range.content);
 	    return new DType (format("Tuple!(%s, %s)", t, t), type.isConst);
 	} else if (auto _ref = cast (RefInfo) type) {
-	    return new DType (format("%s*", visitType (_ref.content).name), type.isConst);
+	    return new DType (format("%s*", visitType (_ref.content)), type.isConst);
 	} else if (auto str = cast (StringInfo) type) {
 	    return new DType ("Tuple!(ulong, char*)", type.isConst);
 	} else if (auto tl = cast (TupleInfo) type) {
 	    auto name = new OutBuffer ();
 	    name.write ("Tuple!(");
 	    foreach (it; tl.params) {
-		name.write (visitType (it).name);
+		name.write (format ("%s", visitType (it)));
 		if (it !is tl.params[$ - 1]) name.write(", ");
 	    }
 	    name.write (")");
@@ -740,9 +956,10 @@ class DVisitor : LVisitor {
 	} else if (cast (VoidInfo) type) {
 	    return new DType ("void", type.isConst);	
 	} else if (auto str = cast (StructCstInfo) type) {
-	    return new DType (str.name ~ " *", type.isConst);
+	    auto info = cast (StructInfo) str.create (Word.eof);
+	    return new DType (Mangler.mangle!"struct" (info) ~ " *", type.isConst);
 	} else if (auto str = cast (StructInfo) type) {
-	    return new DType (str.name ~ " *", type.isConst);
+	    return new DType (Mangler.mangle!"struct" (str) ~ " *", type.isConst);
 	} else {
 	    assert (false, "TODO" ~ type.typeString);
 	}

@@ -15,9 +15,9 @@ class DAssert : DInstruction {
     }
     
     override string toString () {
-	if (this._msg)
+	if (this._msg) {
 	    return format ("assert (%s, %s);", this._val.toString, this._msg.toString);
-	else return format ("assert (%s);", this._val.toString);
+	} else return format ("assert (%s);", this._val.toString);
     }
     
 }

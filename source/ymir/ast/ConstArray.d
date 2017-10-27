@@ -98,7 +98,7 @@ class ConstArray : Expression  {
 	return new ConstArray (this._token, params);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Expression params;
 	foreach (it ; this._params) 
 	    params.insertBack (it.clone ());

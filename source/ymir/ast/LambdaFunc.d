@@ -164,7 +164,7 @@ class LambdaFunc : Expression {
 	return new LambdaFunc (this._token, var, ret, block);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Var var;
 	var.length = this._params.length;
 	foreach (it ; 0 .. var.length)

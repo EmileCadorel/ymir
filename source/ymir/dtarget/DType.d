@@ -27,9 +27,10 @@ class DType {
     }
     
     override string toString () {
-	if (this._isConst && this._name != "void") {
-	    return format ("const (%s)", this._name);
-	} else return this._name;
+	// if (this._isConst && this._name != "void") {
+	//     return format ("const (%s)", this._name);
+	// } else 
+	return this._name;
     }
 
     string simpleString () {

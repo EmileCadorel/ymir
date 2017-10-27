@@ -1,13 +1,9 @@
+import test.signal;
 
-extern (C) printf (const a : p!char, ...);
+static A : Signal!(t!(int));
 
-
-def foo (op : string) (a : int, b : int) {
-    return mixin ("a" + op + "b");
-}
-
-def main () {
-
-    println (foo!"+" (1, 2));
-        
+def main () {    
+    A = Signal!(t!(int));
+    let b = 12;
+    let c = 13;
 }

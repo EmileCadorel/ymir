@@ -121,7 +121,7 @@ class TupleInfo : InfoType {
 		type.toGet = attr;
 		type.lintInst = &TupleUtils.Attrib;
 		type.leftTreatment = &TupleUtils.GetAttrib;
-		type.isConst = false;
+		type.isConst = this.isConst;
 		return type;
 	    }
 	    return null;
@@ -159,6 +159,18 @@ class TupleInfo : InfoType {
 	return tu;
     }
 
+    override Expression toYmir () {
+	Array!Expression params;
+	foreach (it ; this._params) {
+	    params.insertBack (it.toYmir ());
+	}
+	Word w = Word.eof;
+	w.str = "t";
+	auto ret = new Var (w, params);
+	ret.info = new Symbol (w, this.clone ());
+	return ret;
+    }
+    
     override InfoType cloneForParam () {
 	auto tu = new TupleInfo (this.isConst);
 	foreach (it; this._params) {

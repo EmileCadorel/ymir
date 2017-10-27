@@ -117,7 +117,7 @@ class FuncPtr : Expression {
 	return new FuncPtr (this._token, params, cast (Var) ret);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Var params;
 	params.length = this._params.length;
 	foreach (it ; 0 .. params.length)

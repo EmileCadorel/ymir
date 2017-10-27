@@ -5,6 +5,8 @@ import ymir.lint._;
 import ymir.utils._;
 import ymir.ast._;
 
+import std.container;
+
 /**
  Classe contenant les informations sur un type pointeur.
  */
@@ -379,6 +381,15 @@ class PtrInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	Array!Expression templates = make!(Array!Expression) (this._content.toYmir ());
+	Word w = Word.eof;
+	w.str = "p";
+	auto ret = new Var (w, templates);
+	ret.info = new Symbol (w, this.clone ());
+	return ret;
+    }
+    
     /**
      Returns: une nouvelle instance de ptr
      */
@@ -402,6 +413,11 @@ class PtrInfo : InfoType {
 	    return ptr;
 	} else if (auto tu = cast (TupleInfo) other) {
 	    auto ot = tu.cloneForParam ();
+	    ot.leftTreatment = &PtrUtils.InstCastTuple;
+	    ot.lintInstS.insertBack (&PtrUtils.InstCast);
+	    return ot;
+	} else if (auto st = cast (StructInfo) other) {
+	    auto ot = st.cloneForParam ();
 	    ot.lintInstS.insertBack (&PtrUtils.InstCast);
 	    return ot;
 	} else if (auto ul = cast (DecimalInfo) other) {

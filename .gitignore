@@ -16,3 +16,4 @@ genDoc/gendoc
 *.toc
 *.out
 out/*
+*/out/*

@@ -155,7 +155,7 @@ class Match : Expression {
 	    return new Match (this._token, expr, auxValues, auxBlock, null);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	auto expr = this._expr.clone;
 	Array!Expression auxValues;
 	Array!Block auxBlock;

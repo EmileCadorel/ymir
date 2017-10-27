@@ -16,7 +16,7 @@ class DDot : DExpression {
     }
 
     override string toString () {
-	return format ("%s.%s", this._who.toString, this._where.toString);
+	return format ("(%s).%s", this._who.toString, this._where.toString);
     }
     
 }

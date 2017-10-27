@@ -254,6 +254,12 @@ class BoolInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	auto w = Word.eof;
+	w.str = "bool";
+	return new Type (w, this.clone ());	
+    }
+    
     /**
      Returns: une nouvelle instance du type bool.
      */

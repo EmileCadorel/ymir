@@ -1,15 +1,16 @@
+.PHONY: install final dostd 
+
 dmd: 
 	dub build
 
 all:
 	dub build
 
-std: all
-	cp ymrc ${HOME}/libs/ymir
-	./std/install.sh
+std: mv dostd
 
 final:
 	dub build --build=release --parallel
+	cp ymrc ${HOME}/libs/ymir
 
 clean:
 	dub clean
@@ -18,10 +19,10 @@ clean:
 	rm *.s
 	rm test/*.s
 
-install: final
-	cp ymrc ${HOME}/libs/ymir
-	./std/install.sh
+install: final dostd
 
+dostd:
+	./std/install.sh
 
 uninstall:
 	rm ${HOME}/libs/ymir
@@ -34,4 +35,5 @@ docs: FORCE
 mv:     all
 	cp ymrc ${HOME}/libs/ymir
 
-FORCE:
+.PHONY: install
+

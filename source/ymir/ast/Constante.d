@@ -74,7 +74,7 @@ class Decimal : Expression {
 	return new Decimal (this._token, this._type);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Decimal (this._token, this._type);
     }
 
@@ -130,7 +130,7 @@ class Char : Expression {
 	return this.clone ();
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Char (this._token, this._code);
     }
     
@@ -199,7 +199,7 @@ class Float : Expression {
 	return this.clone ();
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Float (this._totale, this._token);
     }
     
@@ -246,7 +246,7 @@ class String : Expression {
     private static ulong [string] __labels__;
     private static ulong __last__;
     
-    this (Word word, string  content) {
+    this (Word word, string content) {
 	super (word);
 	this._content = content;
 	this._escape = ["\\a": '\a', "\\b" : '\b', "\\f" : '\f',
@@ -393,7 +393,7 @@ class String : Expression {
 	return this._label;
     }
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new String (this._token, this._content);
     }
     
@@ -455,7 +455,7 @@ class Bool : Expression {
 	return this.clone ();
     }
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Bool (this._token);
     }
 
@@ -500,7 +500,7 @@ class Null : Expression {
 	return this.clone ();
     }
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Null (this._token);
     }
 

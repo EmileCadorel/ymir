@@ -36,7 +36,9 @@ class Program {
 	string name = this._locus.locus.file;
 	if (name.extension == ".yr")
 	    name = name [0 .. name.lastIndexOf (".")];
+
 	Table.instance.setCurrentSpace (null, Mangler.mangle!"file" (name));
+	Table.instance.programNamespace = Table.instance.globalNamespace;
 	Table.instance.addForeignModule (Table.instance.globalNamespace);	
 	    
 	foreach (it ; __declareAtBegins__) {
@@ -64,7 +66,7 @@ class Program {
 		_imp.declare ();
 	    }
 	}
-		
+	
 	foreach (it ; this._decls) {
 	    it.declareAsExtern (mod);
 	}

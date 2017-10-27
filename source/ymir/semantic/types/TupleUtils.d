@@ -205,7 +205,8 @@ class TupleUtils {
 	    inst += new LRegRead (leftExp, size.begin, size.size);
 	    return inst;
 	} else {
-	    return sizeInst;
+	    auto elem = cast (DAccess) sizeInst;	    
+	    return new DAccess (cast (DExpression) left, elem.where);
 	}
     }
     

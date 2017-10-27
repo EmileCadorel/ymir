@@ -78,6 +78,10 @@ class For : Instruction {
 	return this._block;
     }
 
+    Word name () {
+	return this._id;
+    }
+    
     /**
      Vérification sémantique.
      Pour être juste l'iterable doit avoir surcharger l'operateur (ApplyOp) avec les itérateur.

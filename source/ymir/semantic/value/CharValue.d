@@ -97,10 +97,15 @@ class CharValue : Value {
 	else
 	    return new DChar (this._value);
     }       
-
-    
+        
     char value () {
 	return this._value;
+    }
+
+    override Expression toYmir (Symbol sym) {
+	auto ret = new Char (Word.eof, this._value.to!ubyte);
+	ret.info = sym;
+	return ret;
     }
     
     override string toString () {

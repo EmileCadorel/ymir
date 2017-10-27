@@ -87,7 +87,7 @@ class Var : Expression {
 		    tmps.insertBack (it.expression ());
 		}
 		
-		auto type = aux.info.type.TempOp (tmps);
+		auto type = aux.info.type.TempOp (tmps);		
 		if (type is null)
 		    throw new NotATemplate (this._token, tmps);
 		
@@ -214,7 +214,7 @@ class Var : Expression {
 		    if (this._deco == Keys.CONST) type.isConst = true;
 		    else return new Type (this._token, encst.create ());	    
 		} else if (auto str = cast (StructCstInfo) en.type) {
-		    auto type = str.create (this._token, temp.array ());
+		    auto type = str.createStr (this._token, temp.array ());
 		    if (this._deco == Keys.REF)
 			type = new RefInfo (type);
 		    if (this._deco == Keys.CONST)
@@ -258,7 +258,7 @@ class Var : Expression {
 	return this._deco;
     }
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Expression tmps;
 	foreach (it; this._templates)
 	    tmps.insertBack (it.clone ());
@@ -368,7 +368,7 @@ class ArrayVar : Var {
 	return this._content;
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new ArrayVar (this._token, this._content.clone ());
     }
     
@@ -484,7 +484,7 @@ class TypedVar : Var {
 	return this._type;
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	if (this._type)
 	    return new TypedVar (this._token, cast (Var) this._type.clone (), this._deco);
 	else
@@ -555,21 +555,21 @@ class Type : Var {
     }
 
     override Type expression () {
-	return this.clone ();
+	return cast (Type) this.clone ();
     }
 
     /++
      alias expression ();
      +/
     override Type var () {
-	return this.clone ();
+	return cast (Type) this.clone ();
     }
 
     override Var templateExpReplace (Expression [string]) {
-	return this.clone ();
+	return cast (Type) this.clone ();
     }
 
-    override Type clone () {
+    override protected Type onClone () {
 	auto ret = new Type (this._token, this._info.type.clone ());
 	ret.deco = this._deco;
 	return ret;

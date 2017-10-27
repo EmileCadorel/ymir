@@ -25,6 +25,8 @@ class Value {
     Value CastTo (InfoType type) { return null; }
 
     Value DotOp (Var attr) { return null; }
+
+    abstract Expression toYmir (Symbol);
     
     LInstList toLint (Symbol) { assert (false); }
     

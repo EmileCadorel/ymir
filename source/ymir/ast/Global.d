@@ -11,6 +11,8 @@ class Global : Declaration {
     private Expression _expr;
 
     private Expression _type;
+
+    private InfoType _infoType;
     
     this (Word ident, Expression expr, Expression type = null) {
 	this._ident = ident;
@@ -27,8 +29,9 @@ class Global : Declaration {
 	if (this._type is null) {
 	    auto expr = this._expr.expression ();
 	    if (cast (Type) expr) throw new UseAsVar (expr.token, expr.info);
-	    
 	    auto sym = new Symbol (this._ident, expr.info.type.cloneForParam (), false);
+
+	    this._infoType = sym.type;
 	    sym.isStatic = true;
 	    Table.instance.insert (sym);
 	    Table.instance.addStaticInit (new Binary (op, new Var (this._ident), expr).expression);
@@ -38,11 +41,20 @@ class Global : Declaration {
 	    else type = this._type.expression ();
 	    
 	    auto sym = new Symbol (this._ident, type.info.type.clone, false);
+	    this._infoType = sym.type;
 	    sym.isStatic = true;
 	    Table.instance.insert (sym);
 	}
+	Table.instance.addGlobal (this);
     }
 
+    InfoType type () {
+	return this._infoType;
+    }
+
+    string name () {
+	return this._ident.str;
+    }
     
     override void declareAsExtern (Module mod) {}
 

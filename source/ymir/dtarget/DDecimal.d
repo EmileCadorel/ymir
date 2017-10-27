@@ -50,6 +50,10 @@ class DDecimal : DExpression {
 	case LSize.NONE.id : this._value = 0; break;
 	}
     }
+
+    T value (T) () {
+	return this._value.to!T;
+    }
     
     override string toString () {
 	if (this._isSigned)

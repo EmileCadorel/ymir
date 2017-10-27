@@ -53,7 +53,11 @@ class RefUtils {
     }    
 
     static LInstList InstUnref (LInstList, LInstList llist) {
-	return llist;
+	if (COMPILER.isToLint) {
+	    return llist;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.STAR);
+	}
     }
     
     

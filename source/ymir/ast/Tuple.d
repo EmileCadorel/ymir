@@ -65,7 +65,7 @@ class ConstTuple : Expression {
 	return new ConstTuple (this._token, this._end, exprs);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Expression exprs;
 	exprs.length = this._params.length;
 	foreach (it ; 0 .. this._params.length)

@@ -95,7 +95,6 @@ class ObjectCstInfo : InfoType {
     }
     
     override InfoType DColonOp (Var var) {
-	writeln (this._impl.name, " ", var.token.str);
 	foreach (it ; this._statics) {
 	    if (it.name == var.token.str) {
 		return it;
@@ -157,6 +156,10 @@ class ObjectCstInfo : InfoType {
     
     override InfoType clone () {
 	return this;	
+    }
+
+    override Expression toYmir () {
+	assert (false);
     }
 
     override InfoType cloneForParam () {

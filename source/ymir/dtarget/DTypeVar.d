@@ -9,9 +9,12 @@ class DTypeVar {
 
     private DType _type;
 
-    this (DType type, DVar var) {
+    private bool _isStatic;
+
+    this (DType type, DVar var, bool isStatic = false) {
 	this._var = var;
 	this._type = type;
+	this._isStatic = isStatic;
     }
 
     DVar var () {
@@ -19,7 +22,8 @@ class DTypeVar {
     }
     
     override string toString () {
-	return format ("%s %s", this._type.toString, this._var.toString);
+	return format ("%s %s %s", this._isStatic ? "static" : "",
+		       this._type.toString, this._var.toString);
     }
     
 }

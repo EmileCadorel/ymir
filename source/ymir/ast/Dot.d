@@ -70,7 +70,7 @@ class Dot : Expression {
 	}
     }    
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Dot (this._token, this._left.clone, cast (Var) this._right.clone ());
     }
     
@@ -183,7 +183,7 @@ class DotCall : Expression {
 	return this._firstPar;
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new DotCall (this._inside, this._token, this._call.clone (), this._firstPar.clone ());
     }
 

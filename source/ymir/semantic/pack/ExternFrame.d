@@ -88,9 +88,11 @@ class ExternFrame : Frame {
      */
     override FrameProto validate () {
 	if (this._proto is null) return validateFunc ();
+	auto ancpSpace = Table.instance.programNamespace;
 	Table.instance.enterFrame (this._namespace, this._name, this._proto.params.length, this._isInternal);
 	Array!Var finalParams = Frame.computeParams (this._proto.params);	
 	Table.instance.setCurrentSpace (this._namespace, this._name);
+	Table.instance.programNamespace = this._namespace;
 	
 	if (this._proto.type is null) {
 	    Table.instance.retInfo.info = new Symbol (Word.eof (), new VoidInfo ());
@@ -101,6 +103,7 @@ class ExternFrame : Frame {
 	this._fr = new FrameProto (this._name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
 	if (this._from == "C") this._fr.externC = true;
 	Table.instance.quitFrame ();
+	Table.instance.programNamespace = ancpSpace;
 	return this._fr;
     }
 
@@ -111,8 +114,10 @@ class ExternFrame : Frame {
      */
     FrameProto validateFunc () {	
 	Table.instance.enterFrame (this._namespace, this._name, this._function.params.length, this._isInternal);
-	Array!Var finalParams = Frame.computeParams (this._function.params);       
+	Array!Var finalParams = Frame.computeParams (this._function.params);
+	auto ancpSpace = Table.instance.programNamespace;
 	Table.instance.setCurrentSpace (this._namespace, this._name);
+	Table.instance.programNamespace = this._namespace;
 	
 	if (this._function.type is null) {
 	    Table.instance.retInfo.info = new Symbol (Word.eof, new VoidInfo ());
@@ -124,6 +129,7 @@ class ExternFrame : Frame {
 	
 	if (this._from == "C") this._fr.externC = true;
 	Table.instance.quitFrame ();
+	Table.instance.programNamespace = ancpSpace;
 	return this._fr;
     }
     

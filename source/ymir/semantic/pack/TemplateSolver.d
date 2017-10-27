@@ -612,7 +612,7 @@ class TemplateSolverS {
     private TemplateSolution solveInside (Array!Expression tmps, TypedVar left, Expression right) {
 	auto type = right.info.type;
 	if (!right.info.isImmutable) throw new NotImmutable (right.info);
-	
+
 	auto res = this.solveInside (tmps, left.type, type);
 	if (!res.valid) return TemplateSolution (0, false);
 

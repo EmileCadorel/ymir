@@ -57,6 +57,10 @@ class TemplateFrame : Frame {
 	    auto res = TemplateSolver.getVariadic (this._function.tmps, tvar.type, others);
 	    if (!res.valid) return null;
 	    else {
+		foreach (ref expr ; res.elements) {
+		    if (expr.info.isImmutable ()) expr = expr.info.value.toYmir (expr.info);
+		}
+		    
 		auto func = this._function.templateReplace (res.elements);
 		Frame tmps;
 		if (!TemplateSolver.isSolved (this._function.tmps, res)) {
@@ -134,6 +138,13 @@ class TemplateFrame : Frame {
 	    }
 	    
 	    if (!TemplateSolver.isSolved (this._function.tmps, tmps)) return null;
+	    else {
+		foreach (ref exp ; tmps) {
+		    if (exp.info.isImmutable ()) {
+			exp = exp.info.value.toYmir (exp.info);
+		    }
+		}
+	    }
 	    
 	    if (this._function.test) {		
 		auto valid = func.test.templateExpReplace (tmps) .expression ();
@@ -261,7 +272,11 @@ class TemplateFrame : Frame {
     	    if (it != params [$ - 1]) namespace ~= ",";
     	    else namespace ~= ")";
     	}
-		
+	
+	foreach (name, ref expr ; res.elements) {
+	    if (expr.info.isImmutable ()) expr = expr.info.value.toYmir (expr.info);
+	}
+	
     	auto func = this._function.templateReplace (res.elements);	
 	
     	func.name = func.name ~ namespace;

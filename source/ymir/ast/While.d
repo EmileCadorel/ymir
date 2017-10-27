@@ -70,7 +70,7 @@ class While : Instruction {
 	Table.instance.retInfo.currentBlock = "while";
 	Table.instance.retInfo.changed = true;
 	auto bl = this._block.block;
-	auto _while = new While (this._token, expr, bl);
+	auto _while = new While (this._token, this._name, expr, bl);
 	_while._info = type;
 	return _while;
     }
@@ -81,6 +81,10 @@ class While : Instruction {
 	return new While (this._token, test, block);
     }
     
+    Word name () {
+	return this._name;
+    }
+
     /**
      Returns: le test de la boucle
      */

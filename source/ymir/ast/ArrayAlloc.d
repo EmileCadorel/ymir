@@ -67,7 +67,7 @@ class ArrayAlloc : Expression {
 	return new ArrayAlloc (this._token, type, size);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new ArrayAlloc (this._token, this._type.clone, this._size.clone ());
     }
     

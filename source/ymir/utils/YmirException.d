@@ -81,7 +81,7 @@ class YmirException : Exception {
      locus = l'emplacement de la ligne
      Returns retourne la ligne x d'un fichier
      */
-    private string getLine (Location locus) {
+    private string getLine (Location locus) {	
 	import std.path, std.string;
 	if (locus.file.extension == ".yr") {
 	    auto file = File (locus.file, "r");
@@ -96,11 +96,22 @@ class YmirException : Exception {
 	}
     }
 
+    ulong computeMid (ref string mid, string word, string line, ulong begin, ulong end) {
+	import std.algorithm;
+	auto end2 = begin;
+	foreach (it ; 0 .. min (word.length, end - begin)) {
+	    if (word [it] != line [begin + it]) break;
+	    else end2 ++;
+	}
+	mid = line [begin .. end2];
+	return end2;
+    }
+    
     /**
      Ajoute une ligne dans un buffer avec l'erreur en Jaune.
      Params:
      buf = le buffer a remplir
-     locus = l'emplacement
+     word = l'emplacement
      */
     void addLine (ref OutBuffer buf, Location locus) {
 	auto line = getLine (locus);
@@ -133,6 +144,50 @@ class YmirException : Exception {
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}
+    } 	
+	
+    
+    /**
+     Ajoute une ligne dans un buffer avec l'erreur en Jaune.
+     Params:
+     buf = le buffer a remplir
+     word = l'emplacement
+     */
+    void addLine (ref OutBuffer buf, Word word) {
+	auto locus = word.locus;
+	auto line = getLine (locus);
+	if (line.length > 0) {
+	    auto j = 0;
+	    auto leftLine = center (format ("%d", locus.line), 3, ' ');
+	    auto padd = center ("", leftLine.length, ' ');
+	    buf.writefln ("%s  --> %s:(%d,%d)%s\n%s%s | %s", Colors.BOLD.value, locus.file, locus.line, locus.column, Colors.RESET.value,
+			  Colors.BOLD.value,
+			  padd,
+			  Colors.RESET.value			  
+	    );
+	    
+	    string mid;
+	    auto end = computeMid (mid, word.str, line, locus.column - 1, locus.column + locus.length - 1);
+				   
+	    buf.writef ("%s%s | %s%s%s%s%s%s",
+			Colors.BOLD.value,
+			leftLine, 
+			Colors.RESET.value,
+			line [0 .. locus.column - 1],
+			Colors.YELLOW.value,
+			mid, 
+			Colors.RESET.value,
+			line [end .. $]);
+	    if (line[$-1] != '\n') buf.write ("\n");
+	    buf.writef ("%s%s | %s", Colors.BOLD.value, padd, Colors.RESET.value);
+	    foreach (it ; 0 .. locus.column - 1) {
+		if (line[it] == '\t') buf.write ('\t');
+		else buf.write (' ');
+	    }
+	    buf.writefln ("%s", rightJustify ("", end - locus.column + 1, '^'));
+	} else {
+	    buf.writeln ("Fin de fichier inattendue");
+	}
     } 
 
 
@@ -143,7 +198,8 @@ class YmirException : Exception {
      locus = le debut de l'emplacement
      locus2 = le deuxième emplacement
      */
-    protected void addLine (ref OutBuffer buf, Location locus, Location locus2) {
+    protected void addLine (ref OutBuffer buf, Word word, Word word2) {
+	auto locus = word.locus, locus2 = word2.locus;
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
@@ -154,6 +210,9 @@ class YmirException : Exception {
 			  padd, 
 			  Colors.RESET.value			  
 	    );
+	    string mid, mid2;
+	    auto end1 = computeMid (mid, word.str, line, locus.column - 1, locus.column + locus.length - 1);
+	    auto end2 = computeMid (mid2, word2.str, line, locus2.column - 1, locus2.column + locus2.length - 1);
 	    
 	    buf.writef ("%s%s | %s%s%s%s%s%s%s%s%s%s",
 			Colors.BOLD.value,
@@ -161,13 +220,13 @@ class YmirException : Exception {
 			Colors.RESET.value,
 			line[0 .. locus.column - 1],
 			Colors.YELLOW.value,
-			line[locus.column - 1 .. locus.column + locus.length - 1],
+			mid,
 			Colors.RESET.value,
-			line [locus.column + locus.length - 1 .. locus2.column - 1],
+			line [end1 .. locus2.column - 1],
 			Colors.YELLOW.value,
-			line [locus2.column - 1 .. locus2.column + locus2.length - 1],
+			mid2,
 			Colors.RESET.value,
-			line [locus2.column + locus2.length - 1 .. $]);
+			line [end2 .. $]);
 	    
 	    if (line[$-1] != '\n') buf.write ("\n");
 	    buf.writef ("%s%s | %s", Colors.BOLD.value, padd, Colors.RESET.value);
@@ -175,12 +234,12 @@ class YmirException : Exception {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writef ("%s", rightJustify ("", locus.length, '^'));
-	    foreach (it ; locus.column + locus.length - 1 .. locus2.column - 1) {
+	    buf.writef ("%s", rightJustify ("", end1 - locus.column + 1, '^'));
+	    foreach (it ; end1 .. locus2.column - 1) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writefln ("%s", rightJustify ("", locus2.length, '^'));
+	    buf.writefln ("%s", rightJustify ("", end2 - locus2.column + 1, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}
@@ -194,7 +253,8 @@ class YmirException : Exception {
      index = le decalage par rapport à l'emplacement
      lenght = la longueur de l'erreur
      */
-    void addLine (ref OutBuffer buf, Location locus, ulong index, ulong length) {
+    void addLine (ref OutBuffer buf, Word word, ulong index, ulong length) {
+	auto locus = word.locus;
 	auto line = getLine (locus);
 	if (line.length > 0) {
 	    auto j = 0;
@@ -205,6 +265,9 @@ class YmirException : Exception {
 			  padd, 
 			  Colors.RESET.value			  
 	    );
+
+	    string mid;
+	    auto end = computeMid (mid, word.str, line, locus.column + index, locus.column + index + length);
 	    
 	    buf.writef ("%s%s | %s%s%s%s%s%s",
 			Colors.BOLD.value,
@@ -212,16 +275,17 @@ class YmirException : Exception {
 			Colors.RESET.value,
 			line[0 .. locus.column + index],
 			Colors.YELLOW.value,
-			line[locus.column + index .. locus.column + index + length],
+			mid, 
 			Colors.RESET.value,
-			line[locus.column + index + length .. $]);
+			line[end .. $]);
+	    
 	    if (line[$-1] != '\n') buf.write ("\n");
 	    buf.writef ("%s%s | %s", Colors.BOLD.value, padd, Colors.RESET.value);
 	    foreach (it ; 0 .. locus.column + index) {
 		if (line[it] == '\t') buf.write ('\t');
 		else buf.write (' ');
 	    }
-	    buf.writefln ("%s", rightJustify ("", length, '^'));
+	    buf.writefln ("%s", rightJustify ("", end - locus.column + index + 1, '^'));
 	} else {
 	    buf.writeln ("Fin de fichier inattendue");
 	}

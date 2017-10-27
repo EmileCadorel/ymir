@@ -21,7 +21,7 @@ enum
 extern (C) SDL_Quit ();
 extern (C) SDL_Init (int) : int;
 extern (C) SDL_GL_SetAttribute (int, int);
-extern (C) SDL_CreateWindow (name : p!char, posx : int, posy : int, width : int, height : int, options : int) : p!void;
+extern (C) SDL_CreateWindow (const name : p!char, posx : int, posy : int, width : int, height : int, options : int) : p!void;
 
 extern (C) SDL_GL_CreateContext (win : p!void) : p!void;
 
@@ -38,7 +38,7 @@ struct
 -> SDL_Window;
 
 
-def createWindow (name : string, width : int, height : int) : SDL_Window {
+def createWindow (const name : string, width : int, height : int) : SDL_Window {
     if (SDL_Init (SDL_Cst::SDL_INIT_VIDEO) < 0) {
 	SDL_Quit ();
 	assert (false, "Init sdl failed");
@@ -69,7 +69,7 @@ struct
 | ctx : GL_Context
 -> Window;
 
-def initSDL (name : string, width : int, height : int) : Window {
+def initSDL (const name : string, width : int, height : int) : Window {
     import std.conv;
     let win = createWindow (name, width, height);
     let context = createContext (win);

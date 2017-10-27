@@ -1,4 +1,5 @@
 module ymir.semantic.impl.MethodInfo;
+import ymir.ast._;
 import ymir.semantic._;
 
 import std.container, std.outbuffer;
@@ -16,6 +17,10 @@ class MethodInfo : FunctionInfo {
 	super (space, name);
 	this.set (info);
 	super.alone = true;
+    }
+
+    override Expression toYmir () {
+	assert (false);
     }
     
     ref bool isOverride () {

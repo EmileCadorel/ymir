@@ -91,13 +91,13 @@ def println (T) (const i : T) {
     print ('\n');
 }
 
-def println (I, T...) (const i : I, next : T) {
+def println (I, T...) (const i : I, const next : T) {
     print (i);
     print (expand (next));
     print ('\n');
 }
 
-def print (I, T...) (const i : I, nexts : T) {
+def print (I, T...) (const i : I, const nexts : T) {
     print (i);
     print (expand (nexts));
 }

@@ -95,7 +95,7 @@ class Is : Expression {
 
     /**
      */
-    override Expression clone () {
+    override protected Expression onClone () {
 	if (this._type) 
 	    return new Is (this._token, this._left.clone (), this._type.clone ());
 	else

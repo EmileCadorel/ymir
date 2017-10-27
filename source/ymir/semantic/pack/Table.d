@@ -29,6 +29,11 @@ class Table {
     /** Le contexte courant */
     private Namespace _namespace;
 
+    /** Le contexte du programme */
+    private Namespace _programNamespace;
+
+    private Array!Global _globalVars;
+    
     private ulong _nbFrame = 0;
     
     private immutable __maxNbRec__ = 300;
@@ -87,6 +92,14 @@ class Table {
 	    throw new RecursiveExpansion (sym);
 	}
     }
+
+    void addGlobal (Global gl) {
+	this._globalVars.insertBack (gl);
+    }
+
+    Array!Global globalVars () {
+	return this._globalVars;
+    }
     
     /**
      On entre dans une nouvelle frame.
@@ -126,6 +139,10 @@ class Table {
      */
     Namespace globalNamespace () {
 	return this._namespace;
+    }
+
+    ref Namespace programNamespace () {
+	return this._programNamespace;
     }
 
     /++
@@ -171,6 +188,7 @@ class Table {
 	this._globalScope.clear ();
 	this._frameTable.clear ();
 	this._staticInits.clear ();
+	this._globalVars.clear ();
 	ExternFrame.clear ();
     }
 
@@ -198,7 +216,8 @@ class Table {
 	    }
 	}
 	
-	if (ret is null) ret = this._globalScope [name];
+
+	if (ret is null) ret = this._globalScope [name];	
 	if (ret is null) {
 	    auto mods = getAllMod (this.namespace ());
 	    foreach (it ; mods) {
@@ -206,6 +225,7 @@ class Table {
 		if (ret !is null) return ret;
 	    }
 	}
+
 	return ret;
     }    
 

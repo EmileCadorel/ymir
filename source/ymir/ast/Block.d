@@ -47,9 +47,8 @@ class Block : Instruction {
      */
     Block block () {
 	Table.instance.enterBlock ();
-	auto block = blockWithoutEnter ();
-	Table.instance.quitBlock ();
-	return block;
+	scope (exit) Table.instance.quitBlock ();
+	return blockWithoutEnter ();	
     }
 
     Block blockWithoutEnter () {

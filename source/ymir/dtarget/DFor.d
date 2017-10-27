@@ -13,6 +13,8 @@ class DFor : DInstruction {
     
     private DBlock _block;
 
+    private string _name;
+
     this (DVarDecl var, DExpression test, DExpression iter, DBlock bl) {
 	this._inits = var;
 	this._test = test;
@@ -28,14 +30,19 @@ class DFor : DInstruction {
 	static ulong __nb__ = 0;
 	return __nb__;
     }
+
+    ref string name () {
+	return this._name;
+    }
     
     override string toString () {
 	auto buf = new OutBuffer ();
 	this._block.nbIndent = this._father.nbIndent + 4;
 	this._inits.father = this._father;	
-	buf.writef ("%s%sfor (; %s ; %s) %s",		    
+	buf.writef ("{%s%s%sfor (; %s ; %s) %s}",		    
 		    this._inits.toString,
 		    rightJustify ("", this._father.nbIndent, ' '),
+		    this._name != "" ? this._name ~ ":" : "",
 		    this._test.toString,
 		    this._iter.toString,
 		    this._block.toString);

@@ -93,6 +93,12 @@ class StringValue : Value {
 	return "'" ~ this._value ~ "'";
     }    
 
+    override Expression toYmir (Symbol sym) {
+	auto ret = new String (this._value);
+	ret.info = sym;
+	return ret;
+    }
+    
     string value () const {
 	return this._value;
     }

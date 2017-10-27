@@ -322,6 +322,13 @@ class ArrayInfo : InfoType {
 	ret.value = this._value;
 	return ret;
     }
+    
+    override Expression toYmir () {
+	auto type = this._content.toYmir ();
+	auto ret = new ArrayVar (Word.eof, type);
+	ret.info = new Symbol (Word.eof, this.clone ());
+	return ret;
+    }
 
     /**
      Returns: Clone du type. Les informations de déstruction sont remisent à zéro.

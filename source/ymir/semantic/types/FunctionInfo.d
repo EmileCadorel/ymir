@@ -79,6 +79,10 @@ class FunctionInfo : InfoType {
 	return this;
     }
 
+    override Expression toYmir () {
+	assert (false);
+    }
+
     /**
      Throws: Assert, tout le temps.
      */
@@ -151,9 +155,6 @@ class FunctionInfo : InfoType {
 
 	    right.ret = info.type.type.cloneForParam ();
 	    right.ret.value = info.type.value;
-	    if (right.ret.value) {
-		std.stdio.writeln (right.ret, " ", right.ret.value);
-	    }
 	    if (cast (RefInfo) right.ret)
 		right.ret.isConst = false;
 	    return right;

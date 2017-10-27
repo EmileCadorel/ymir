@@ -1,0 +1,15 @@
+
+
+struct Test (T) {
+    a : int
+}
+
+def foo () : Test!int {
+    return Test!(int) (10);
+}
+
+
+def test (T) () : Test!(T) {
+    return Test!(T) (10);
+}
+

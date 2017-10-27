@@ -144,12 +144,12 @@ class RangeUtils {
 	    auto scd = new DAccess (cast (DExpression) rlist, new DDecimal (1));
 	    auto left = cast (DExpression) llist;
 	    return new DInsideIf (new DBinary (fst, scd, Tokens.INF),
-				  new DBinary (new DBinary (fst, left, Tokens.SUP_EQUAL),
-					       new DBinary (scd, left, Tokens.INF),
-					       Tokens.AND),
-				  new DBinary (new DBinary (fst, left, Tokens.INF_EQUAL),
-					       new DBinary (scd, left, Tokens.SUP),
-					       Tokens.AND)
+				  new DBinary (new DBinary (left, fst, Tokens.SUP_EQUAL),
+					       new DBinary (left, scd, Tokens.INF),
+					       Tokens.DAND),
+				  new DBinary (new DBinary (left, fst, Tokens.INF_EQUAL),
+					       new DBinary (left, scd, Tokens.SUP),
+					       Tokens.DAND)
 	    );
 	}
     }

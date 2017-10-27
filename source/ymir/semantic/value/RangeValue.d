@@ -76,6 +76,15 @@ class RangeValue : Value {
 	}
     }
 
+    override Expression toYmir (Symbol sym) {
+	auto rng = cast (RangeInfo) sym.type;
+	auto left = this._left.toYmir (new Symbol (Word.eof, rng.content.clone ()));
+	auto right = this._right.toYmir (new Symbol (Word.eof, rng.content.clone ()));
+	auto ret = new ConstRange (Word.eof, left, right);
+	ret.info = sym;
+	return ret;
+    }
+    
     Value left () {
 	return this._left;
     }

@@ -27,6 +27,10 @@ class UndefInfo : InfoType {
 	return new UndefInfo ();
     }
 
+    override Expression toYmir () {
+	assert (false);
+    }	
+
     override InfoType DotOp (Var var) {
 	if (var.templates.length != 0) return null;
 	if (var.token.str == "typeid") {

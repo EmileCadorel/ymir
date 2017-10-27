@@ -56,7 +56,7 @@ class Break : Instruction {
      BreakRefUndefined, Si l'indentifiant de boucle n'existe pas.
      */
     override Instruction instruction () {
-	auto aux = new Break (this._token);
+	auto aux = new Break (this._token, this._id);
 	Table.instance.retInfo.breaked ();
 	if (this._id.isEof ()) {
 	    auto nb = Table.instance.retInfo.rewind (["while", "for"]);

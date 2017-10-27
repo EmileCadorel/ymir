@@ -22,17 +22,29 @@ class Expand : Expression {
     /** Le debut de l'expand */
     private ulong _index;
 
-    this (Word begin, Expression expr) {
+    private ulong _id;
+
+    private static ulong __lastId__ = 0;
+    
+    this (Word begin, Expression expr, ulong id = 0) {
 	super (begin);
 	this._expr = expr;
 	this._expr.inside = this;
+	if (id == 0) {
+	    this._id = __lastId__ + 1;
+	    __lastId__ ++;
+	} else this._id = id;
     }
 
-    this (Word begin, Expression expr, ulong index) {
+    this (Word begin, Expression expr, ulong index, ulong id = 0) {
 	super (begin);
 	this._expr = expr;
 	this._expr.inside = this;
 	this._index = index;
+	if (id == 0) {
+	    this._id = __lastId__ + 1;
+	    __lastId__ ++;
+	} else this._id = id;
     }
     
     /**
@@ -51,8 +63,9 @@ class Expand : Expression {
 	
 	if (tuple) {
 	    foreach (it ; 0 .. tuple.params.length) {
-		auto exp = new Expand (this._token, expr, it);
+		auto exp = new Expand (this._token, expr, it, this._id);
 		exp.info = new Symbol (exp.token, tuple.params[it].clone);
+		exp.info.isConst = tuple.isConst;
 		params.insertBack (exp);
 	    }
 	}
@@ -67,7 +80,7 @@ class Expand : Expression {
 	return new Expand (this._token, expr);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new Expand (this._token, this._expr.clone ());
     }
     
@@ -82,6 +95,15 @@ class Expand : Expression {
 	return this._index;
     }
 
+    ulong id () {
+	return this._id;
+    }
+
+    static ulong lastId () {
+	__lastId__ ++;
+	return __lastId__ - 1;
+    }
+    
     override string prettyPrint () {
 	import std.format;
 	if (this._index == 0)

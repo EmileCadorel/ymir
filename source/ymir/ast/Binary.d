@@ -76,7 +76,8 @@ class Binary : Expression {
 	
 	if (aux._left.info.isConst) throw new NotLValue (aux._left.token, aux._left.info);
 	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
-	
+
+	writeln ("BIN : ", aux._right.info.type, " ", aux.prettyPrint);
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) {
 	    if (cast (UndefInfo) (aux._left.info.type)) {
@@ -88,7 +89,7 @@ class Binary : Expression {
 		aux._left.info.isConst = false;
 		aux._isRight = true;		
 	    } else 
-		  throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
+		throw new UndefinedOp (this._token, aux._left.info, aux._right.info);
 	}	
 	aux.info = new Symbol (aux._token, type);
 	Table.instance.retInfo.changed = true;
@@ -284,14 +285,12 @@ class Binary : Expression {
     }
     
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Expression left, right;
 	if (this._left) left = this._left.clone ();
 	if (this._right) right = this._right.clone ();
 	    
-	auto aux = new Binary (this._token, left, right);
-	aux.info = this._info;
-	return aux;
+	return new Binary (this._token, left, right);
     }
     
     /**

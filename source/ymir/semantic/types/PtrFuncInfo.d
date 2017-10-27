@@ -196,6 +196,16 @@ class PtrFuncInfo : InfoType {
 	return aux;
     }
 
+    override Expression toYmir () {
+	Array!Var vars;
+	foreach (it ; this._params) vars.insertBack (cast (Var) it.toYmir ());
+	auto w = Word.eof;
+	w.str = "fn";
+	auto ret = new FuncPtr (w, vars, cast (Var) this._ret.toYmir);
+	ret.info = new Symbol (w, this.clone ());
+	return ret;
+    }    
+
     /**
      Returns: une nouvelle instance de ptr!function, l'information de score est remise à zéro
      */

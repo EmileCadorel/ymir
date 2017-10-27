@@ -71,7 +71,7 @@ class BefUnary : Expression {
 	return new BefUnary (this._token, this._elem.templateExpReplace (values));
     }        
     
-    override Expression clone () {
+    override protected Expression onClone () {
 	auto aux = new BefUnary (this._token, this._elem.clone ());
 	aux.info = this._info;
 	return aux;
@@ -166,8 +166,12 @@ class AfUnary : Expression {
 	return new AfUnary (this._token, this._elem.templateExpReplace (values));
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new AfUnary (this._token, this._elem.clone ());
+    }
+
+    Expression elem () {
+	return this._elem;
     }
     
     /**

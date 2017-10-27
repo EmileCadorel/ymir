@@ -68,7 +68,7 @@ class ParamList : Expression {
 	return new ParamList (this._token, params);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	Array!Expression params;
 	params.length = this._params.length;
 	foreach (it ; 0 .. params.length)

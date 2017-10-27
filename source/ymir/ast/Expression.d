@@ -53,7 +53,15 @@ class Expression : Instruction {
 	assert (false, "TODO");
     }
 
-    Expression clone () {
+    final Expression clone () {
+	auto ret = this.onClone ();
+	if (this._info && ret !is this) {
+	    ret.info = new Symbol (this._info.sym, this._info.type ? this._info.type.clone () : null);
+	}
+	return ret;
+    }
+    
+    protected Expression onClone () {
 	return this;
     }
 

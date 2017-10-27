@@ -7,7 +7,7 @@ import ymir.ast._;
 import ymir.dtarget._;
 import ymir.compiler.Compiler;
 
-import std.container, std.stdio;
+import std.container, std.stdio, std.conv;
 
 class StructUtils {
     
@@ -176,23 +176,28 @@ class StructUtils {
     }
     
     static void createSimpleCstStruct (StructInfo info, string name) {
-	auto last = LReg.lastId;
-	LReg.lastId = 0;
-	Array!LReg regs;
-	auto retReg = new LReg (LSize.LONG);
-	auto entry = new LLabel (new LInstList), end = new LLabel;
+	if (COMPILER.isToLint) {
+	    auto last = LReg.lastId;
+	    LReg.lastId = 0;
+	    Array!LReg regs;
+	    auto retReg = new LReg (LSize.LONG);
+	    auto entry = new LLabel (new LInstList), end = new LLabel;
 
-       	auto interne = AssocBlockEmpty (info, retReg);
-	auto bin = cast (LBinop) interne.getFirst ();
-	auto size = bin.right;
+	    auto interne = AssocBlockEmpty (info, retReg);
+	    auto bin = cast (LBinop) interne.getFirst ();
+	    auto size = bin.right;
 	
-	entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);	
-	entry.insts += interne;
+	    entry.insts += new LSysCall ("alloc", make!(Array!LExp) ([size]), retReg);	
+	    entry.insts += interne;
 	
-	auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
-	fr.isStd = false;
-	LFrame.preCompiled [__CstNameEmpty__ ~ name] = fr;	
-	LReg.lastId = last;
+	    auto fr = new LFrame (__CstNameEmpty__ ~ name, entry, end, retReg, regs);
+	    fr.isStd = false;
+	    LFrame.preCompiled [__CstNameEmpty__ ~ name] = fr;	
+	    LReg.lastId = last;
+	} else {
+	    writeln ("ICIIIIIIIIII ", Mangler.mangle!"struct" (info));
+	    COMPILER.getLVisitor!(DVisitor).addStructToCst (info);
+	}
     }
     
     static LInstList InstCreateCst (bool _extern) (InfoType _type, Expression, Expression) {
@@ -208,8 +213,10 @@ class StructUtils {
 	    return inst;
 	} else {
 	    auto type = cast (StructInfo) _type;
-	    COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
-	    return new DVar (type.name);
+	    if (!_extern)
+		COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
+	    
+	    return new DVar (Mangler.mangle!"struct" (type));
 	}
     }
 
@@ -226,11 +233,12 @@ class StructUtils {
 	    return inst;
 	} else {
 	    auto type = cast (StructInfo) _type;
-	    COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
-	    return new DVar (type.name);	
+	    if (!_extern)
+		COMPILER.getLVisitor!(DVisitor).addStructToCst (type);
+	    return new DVar (Mangler.mangle!"struct" (type));	
 	}
     }
-    
+
     static LInstList InstCall (LInstList llist, Array!LInstList rlist) {
 	if (COMPILER.isToLint) {
 	    auto inst = new LInstList;
@@ -264,7 +272,7 @@ class StructUtils {
 	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	    return inst;
 	} else {
-	    return new DNew (new DPar (cast (DExpression) llist, new DParamList));
+	    return new DRealNew (new DPar (cast (DExpression) llist, new DParamList));
 	}
     }    
 
@@ -375,10 +383,14 @@ class StructUtils {
 	    }
 	    bool done = false; ulong nb = ret.toGet;
 	    return GetAttribFromAncestor (done, type, nb, ret.size);
-	} else {
+	} else {	    
 	    auto lexp = DVisitor.visitExpressionOutSide (left);
-	    auto attrib = (cast (StructInfo) left.info.type).attribs [ret.toGet];
-	    return new DDot (lexp, new DVar (attrib));
+	    auto _ref = cast (RefInfo) (left.info.type);
+	    auto type = cast (StructInfo) (left.info.type);
+	    
+	    if (_ref) type = cast (StructInfo) _ref.content;	    
+	    auto attrib = type.attribs [ret.toGet];
+	    return new DVar (attrib);
 	}
     }
     
@@ -391,7 +403,7 @@ class StructUtils {
 	    inst += new LRegRead (leftExp, size.begin, size.size);
 	    return inst;
 	} else {
-	    return sizeInst;
+	    return new DDot (cast (DExpression) left, cast (DVar) sizeInst);
 	}
     }
 
@@ -439,20 +451,29 @@ class StructUtils {
     }
     
     static LInstList GetMethod (InfoType ret, Expression left, Expression) {
-	auto _ref = cast (RefInfo) (left.info.type);
-	auto type = cast (StructInfo) (left.info.type);
-	if (_ref) type = cast (StructInfo) _ref.content;
-	bool done = false; ulong nb = ret.toGet;
-	return GetMethodFromAncestor (done, type, nb, ret.size);		
+	if (COMPILER.isToLint) {
+	    auto _ref = cast (RefInfo) (left.info.type);
+	    auto type = cast (StructInfo) (left.info.type);
+	    if (_ref) type = cast (StructInfo) _ref.content;
+	    bool done = false; ulong nb = ret.toGet;
+	    return GetMethodFromAncestor (done, type, nb, ret.size);
+	} else {
+	    auto lexp = DVisitor.visitExpressionOutSide (left);
+	    return new DVar ("__" ~ ret.toGet.to!string ~ "__");
+	}
     }
 
     static LInstList Method (LInstList sizeInst, LInstList left) {
-	auto inst = new LInstList;
-	auto leftExp = left.getFirst;
-	auto size = cast (LRegRead) sizeInst.getFirst;
-	inst += left;
-	inst += new LRegRead (leftExp, size.begin, size.size);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    auto leftExp = left.getFirst;
+	    auto size = cast (LRegRead) sizeInst.getFirst;
+	    inst += left;
+	    inst += new LRegRead (leftExp, size.begin, size.size);
+	    return inst;
+	} else {
+	    return new DDot (cast (DExpression) left, cast (DVar) sizeInst);
+	}
     }
         
     static LInstList InstEqual (LInstList llist, LInstList rlist) {

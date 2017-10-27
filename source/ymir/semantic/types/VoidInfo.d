@@ -20,7 +20,12 @@ class VoidInfo : InfoType {
     override bool isSame (InfoType other) {
 	return (cast (VoidInfo) other) !is null;
     }
+
     
+    override Expression toYmir () {
+	assert (false);
+    }	
+
     override InfoType clone () {
 	return new VoidInfo ();
     }

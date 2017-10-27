@@ -15,7 +15,6 @@ cp std/dub.json ${HOME}/libs/ymir_std/
 cd ${HOME}/libs/ymir_std/
 
 ymir --lint D std/stdio/*.yr std/algorithm/*.yr std/*.yr core/*.yr
-dub 
-
-#cp ~/gc/lib/libgc.a libs/libgc.a
+dub add-local .
+dub  
 

@@ -119,7 +119,7 @@ class ConstRange : Expression {
 	return new ConstRange (this._token, left, right);
     }
 
-    override Expression clone () {
+    override protected Expression onClone () {
 	return new ConstRange (this._token, this._left.clone, this._right.clone ());
     }
 

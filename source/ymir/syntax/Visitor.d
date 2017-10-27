@@ -169,7 +169,7 @@ class Visitor {
     private Impl visitImpl () {
 	auto ident = visitIdentifiant ();
 	Word what = Word.eof;
-	auto next = this._lex.next (Keys.FOR, Tokens.LACC);
+	auto next = this._lex.next (Keys.FROM, Tokens.LACC);
 	
 	if (next == Keys.FROM) {
 	    what = visitIdentifiant ();	
@@ -1617,10 +1617,19 @@ class Visitor {
     private Expression visitDot (Expression left) {
 	_lex.rewind ();
 	auto begin = _lex.next ();
-	Expression right = visitConstante ();
-	if (right is null) right = visitVar ();
-	auto retour = new Dot (begin, left, right);
-	auto next = _lex.next ();
+	auto next = this._lex.next ();
+	Expression retour;
+	if (next == Keys.EXPAND) {
+	    retour = new Expand (next, left);
+	} else if (next == Keys.TYPEOF) {
+	    retour = new TypeOf (next, left);
+	} else {
+	    this._lex.rewind ();
+	    Expression right = visitConstante ();
+	    if (right is null) right = visitVar ();
+	    retour = new Dot (begin, left, right);
+	}
+	next = _lex.next ();
 	if (find !"b == a" (_suiteElem, next) != [])
 	    return visitSuite (next, retour);
 	else if (find!"b == a" (_afUnary, next) != [])

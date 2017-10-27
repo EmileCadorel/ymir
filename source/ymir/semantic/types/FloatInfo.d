@@ -479,6 +479,12 @@ class FloatInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	auto w = Word.eof;
+	w.str = "float";
+	return new Type (w, this.clone ());	
+    }
+    
     /**
      Returns: une nouvelle instance de float
     */

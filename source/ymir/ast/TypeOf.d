@@ -45,8 +45,10 @@ class TypeOf : Expression {
 	return new TypeOf (this._token, left);
     }
 
-    override Expression clone () {
-	return new TypeOf (this._token, this._expr.clone ());
+    override protected Expression onClone () {
+	auto info = new Symbol (this._token, this._info.type.clone ());
+	auto ret = new TypeOf (this._token, this._expr.clone ());
+	return ret;
     }
 
     override string prettyPrint () {

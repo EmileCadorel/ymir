@@ -113,6 +113,14 @@ class EnumCstInfo : InfoType {
 	return this;
     }
 
+
+    override Expression toYmir () {
+	auto w = Word.eof;
+	w.str = this._name;
+	return new Type (w, this.clone ());	
+    }
+
+    
     override InfoType cloneForParam () {
 	assert (false, "Pas ici");
     }
@@ -148,7 +156,10 @@ class EnumInfo : InfoType {
     }
 
     override InfoType BinaryOpRight (Word token, Expression left) {
-	return left.info.type.BinaryOp (token, this._content);
+	if (cast (UndefInfo) left.info.type)
+	    return this._content.BinaryOpRight (token, left);
+	else
+	    return left.info.type.BinaryOp (token, this._content);
     }
 
     override InfoType AccessOp (Word token, ParamList params) {
@@ -216,6 +227,12 @@ class EnumInfo : InfoType {
 	return ret;
     }
 
+    override Expression toYmir () {
+	auto w = Word.eof;
+	w.str = this._name;
+	return new Type (w, this.clone ());	
+    }
+    
     override InfoType cloneForParam () {
 	return new EnumInfo (this.isConst, this._name, this._content.cloneForParam ());
     }

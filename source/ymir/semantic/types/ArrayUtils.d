@@ -235,22 +235,7 @@ class ArrayUtils {
     static LInstList InstCastTuple (LInstList, LInstList llist) {
 	return llist;
     }
-    
-    /**
-     Recupere le string qui contient le type du tableau.
-     Params:
-     left = l'expression du tableau.
-     Returns: les instructions lint.
-     */
-    static LInstList ArrayGetType (InfoType, Expression left, Expression) {
-	auto type = left.info;
-	auto inst = new LInstList;
-	inst += LVisitor.visitExpressionOutSide (left);
-	auto str = new String (Word.eof, type.typeString).expression;
-	inst += LVisitor.visitExpressionOutSide (str);
-	return inst;
-    }
-    
+        
     /**
      Création de la boucle d'itération du tableau.
      Params:
@@ -314,7 +299,7 @@ class ArrayUtils {
 	    else 
 		nVar.addExpression (
 		    new DBinary (right,
-				 new DAccess (new DAccess (rvar, new DDecimal (1)), var),
+				 new DBinary (new DAccess (rvar, new DDecimal (1)), var, Tokens.PLUS),
 				 Tokens.EQUAL
 		    )		    
 		);	    
@@ -348,11 +333,15 @@ class ArrayUtils {
      Returns: La liste d'instruction de récupération de l'adresse du tableau.
      */
     static LInstList InstAddr (LInstList llist) {
-	auto inst = new LInstList ();
-	auto exp = llist.getFirst ();
-	inst += llist;
-	inst += new LAddr (exp);
-	return inst;
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList ();
+	    auto exp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LAddr (exp);
+	    return inst;
+	} else {
+	    return new DBefUnary (cast (DExpression) llist, Tokens.AND);
+	}
     }
     
 

@@ -17,9 +17,9 @@ class DNew : DExpression {
 
     override string toString () {
 	if (!this._size) {
-	    return format ("(cast (byte*) GC.malloc (%s.sizeof))", this._what.toString);
+	    return format ("(cast (byte*) GC.calloc (%s.sizeof))", this._what.toString);
 	} else {
-	    return format ("(cast (%s) GC.malloc (%s))", this._what.toString, this._size.toString);
+	    return format ("(cast (%s) GC.calloc (%s))", this._what.toString, this._size.toString);
 	}
     }
     
