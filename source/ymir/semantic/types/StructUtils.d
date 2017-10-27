@@ -584,28 +584,48 @@ class StructUtils {
 					  size, Tokens.PLUS));
     }
 
+    static void GetTupleOfFromAncestorD (DExpression who, StructInfo info, ref DParamList params) {
+	if (info.ancestor) {
+	    GetTupleOfFromAncestorD (new DDot (who, new DVar ("_super_")),
+				     info.ancestor, params);
+	}
+	
+	foreach (it ; info.attribs) {
+	    params.addParam (new DBefUnary (new DDot (who, new DVar (it)), Tokens.AND));
+	}	
+    }
+
+    
     static LInstList GetTupleOf (InfoType ret, Expression left, Expression) {
 	auto _ref = cast (RefInfo) (left.info.type);
 	auto type = cast (StructInfo) (left.info.type);
 	if (_ref) type = cast (StructInfo) _ref.content;
-	auto inst = new LInstList;
-
-	ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
-	LExp size;
-	nbUlong += type.nbMethods;
-	if (type.ancestor) {
-	    auto aux = GetTupleOfFromAncestor (type.ancestor);
-	    size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
-			       aux.getFirst (), Tokens.PLUS);
-	} else {
-	    size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
-	}
+	if (COMPILER.isToLint) {
+	    auto inst = new LInstList;
+	    
+	    ulong nbLong, nbInt, nbShort, nbByte, nbFloat, nbDouble, nbUlong, nbUint, nbUshort, nbUbyte;
+	    LExp size;
+	    nbUlong += type.nbMethods;
+	    if (type.ancestor) {
+		auto aux = GetTupleOfFromAncestor (type.ancestor);
+		size = new LBinop (ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble),
+				   aux.getFirst (), Tokens.PLUS);
+	    } else {
+		size = ClassUtils.addAllSize (nbLong, nbUlong, nbInt, nbUint, nbShort, nbUshort, nbByte, nbUbyte, nbFloat, nbDouble);
+	    }
 	
-	auto llist = LVisitor.visitExpressionOutSide (left);
-	auto leftExp = llist.getFirst ();
-	inst += llist;
-	inst += new LBinop (leftExp, size, Tokens.PLUS);
-	return inst;		
+	    auto llist = LVisitor.visitExpressionOutSide (left);
+	    auto leftExp = llist.getFirst ();
+	    inst += llist;
+	    inst += new LBinop (leftExp, size, Tokens.PLUS);
+	    return inst;
+	} else {
+	    auto lexp = DVisitor.visitExpressionOutSide (left);
+	    auto paramList = new DParamList ();
+	    GetTupleOfFromAncestorD (lexp, type, paramList);
+	    
+	    return new DPar (new DVar (DVisitor.visitType (ret).name), paramList);
+	}
     }
     
     static LInstList InstTupleOf (LInstList llist, LInstList list) {

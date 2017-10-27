@@ -77,7 +77,6 @@ class Binary : Expression {
 	if (aux._left.info.isConst) throw new NotLValue (aux._left.token, aux._left.info);
 	if (cast(UndefInfo)(aux._right.info.type) !is null) throw new UninitVar (aux._right.token);
 
-	writeln ("BIN : ", aux._right.info.type, " ", aux.prettyPrint);
 	auto type = aux._left.info.type.BinaryOp (this._token, aux._right);
 	if (type is null) {
 	    if (cast (UndefInfo) (aux._left.info.type)) {

@@ -121,11 +121,13 @@ class FunctionInfo : InfoType {
 	    Array!Frame frames = getFrames ();
 	    foreach (it ; 0 .. frames.length)
 		total.insertBack (frames[it].isApplicable (params));
-	    
+
+	    writeln (func_token, " ", total.length);
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
-	    foreach (it ; 0 .. total.length) {
+	    foreach (it ; 0 .. total.length) {		
 		if (total [it] !is null) {
+		    writeln ("\t ", total [it].score);
 		    if (goods.length == 0 && total [it].score != 0) {
 			right = total[it];
 			goods.insertBack (frames [it]);
@@ -187,10 +189,12 @@ class FunctionInfo : InfoType {
 	    foreach (it ; 0 .. frames.length) 
 		total.insertBack (frames [it].isApplicable (params));	    
 
+	    writeln (func_token, " ", total.length);
 	    Array!Frame goods;
 	    ApplicationScore right = new ApplicationScore;
 	    foreach (it ; 0 .. total.length) {
 		if (total [it] !is null) {
+		    writeln ("\t ", total [it].score, " ", frames [it]);
 		    if (goods.length == 0 && total [it].score != 0) {
 			right = total[it];
 			goods.insertBack (frames [it]);

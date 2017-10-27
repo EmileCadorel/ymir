@@ -717,7 +717,7 @@ class DVisitor : LVisitor {
 	DExpression inside;
 	if (auto expr = expand.id in done) {
 	    inside = *expr;
-	} else {
+	} else {	    
 	    inside = visit (expand.expr);
 	    auto decl = new DVarDecl ();
 	    auto var = new DAuxVar ();

@@ -109,7 +109,7 @@ class Par : Expression {
 		if (cast (UndefInfo) type.ret && this._inside) {
 		    throw new TemplateInferType (aux._left.token, aux._score.token);
 		}
-		writeln ("LA : ", aux._info.type);
+		
 		if (!aux.info.value) Table.instance.retInfo.changed = true;
 		return aux;
 	    } catch (YmirException exp) {

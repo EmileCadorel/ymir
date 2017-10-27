@@ -4,15 +4,6 @@ extern (C) printf (const c : p!char, ...);
 def print (c : char) : void
     putchar (c);
 
-def print (s : string) : void {
-    if (s is null) {        
-        putchar ('n');
-        putchar ('u');
-        putchar ('l');
-        putchar ('l');
-    } else for (it in s) putchar (it);
-}
-
 def print (const s : string) : void {
     if (s is null) {        
         putchar ('n');
@@ -86,8 +77,19 @@ def print if (is (T : struct)) (T) (a : T) {
     print (a.to!string);
 }
 
+def println (T) (i : T) {
+    print (i);
+    print ('\n');
+}
+
 def println (T) (const i : T) {
     print (i);
+    print ('\n');
+}
+
+def println (I, T...) (i : I, next : T) {
+    print (i);
+    print (expand (next));
     print ('\n');
 }
 
@@ -95,6 +97,22 @@ def println (I, T...) (const i : I, const next : T) {
     print (i);
     print (expand (next));
     print ('\n');
+}
+
+def println (I, T...) (i : I, const next : T) {
+    print (i);
+    print (expand (next));
+    print ('\n');
+}
+
+def print (I, T...) (i : I, nexts : T) {
+    print (i);
+    print (expand (nexts));
+}
+
+def print (I, T...) (i : I, const nexts : T) {
+    print (i);
+    print (expand (nexts));
 }
 
 def print (I, T...) (const i : I, const nexts : T) {

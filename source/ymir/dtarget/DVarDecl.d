@@ -14,7 +14,10 @@ final class DVarDecl : DInstruction {
     }
 
     void addExpression (DExpression expr) {
-	this._expr.insertBack (expr);
+	if (auto bin = cast (DBinary) expr) {
+	    if (!bin.right) assert (false);
+	    this._expr.insertBack (expr);
+	} else assert (false);
     }
 
     string inOneLine () {

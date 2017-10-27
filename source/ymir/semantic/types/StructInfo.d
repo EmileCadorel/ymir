@@ -281,7 +281,6 @@ class StructCstInfo : InfoType {
 	auto str = FrameTable.instance.existStruct (name);
 	if (str) return str;
 	
-	writeln ("TEMPOP : ", Table.instance.globalNamespace);
 	auto ret = new StructCstInfo (Table.instance.programNamespace, name, make!(Array!Expression));
 	ret._oldTmps = types;
 	ret._isPublic = this._isPublic;
@@ -795,10 +794,16 @@ class StructInfo : InfoType {
 	return t;
     }
 
+    void computeTupleOf (ref Array!InfoType params) {
+	if (this._ancestor) this._ancestor.computeTupleOf (params);
+	foreach (it ; this._params)
+	    params.insertBack (new RefInfo (it.clone ()));
+    }
+    
     private InfoType TupleOf () {
 	Array!InfoType params;
-	foreach (it ; this._params)
-	    params.insertBack (it.clone ());
+	computeTupleOf (params);
+	
 	auto t = new TupleInfo (this.isConst);
 	t.params = params;
 	t.leftTreatment = &StructUtils.GetTupleOf;
@@ -945,6 +950,7 @@ class StructInfo : InfoType {
      Returns: le nom pour le mangling.
      */
     override string simpleTypeString () {
+	if (this.isConst) return format ("c%d%s%s", this._name.length, "ST", this._name);
 	return format ("%d%s%s", this._name.length, "ST", this._name);
     }    
 

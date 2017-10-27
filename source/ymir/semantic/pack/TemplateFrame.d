@@ -24,6 +24,13 @@ class TemplateFrame : Frame {
     
     /** Le protocole créé à la sémantique lorsque la frame est pure et extern */
     private FrameProto _fr;
+
+    static long CONST_SAME_TMP = 9;
+    static long SAME_TMP = 10;
+    static long CONST_AFF_TMP = 4;    
+    static long AFF_TMP = 5;
+    static long CONST_CHANGE_TMP = 6;    
+    static long CHANGE_TMP = 7;
     
     /**
      Params:
@@ -117,10 +124,14 @@ class TemplateFrame : Frame {
 		    if (type) type = type.ConstVerif (info);
 		    else return null;
 		    if (type && type.isSame (info)) {
-			score.score += this._changed ? CHANGE : SAME;
+			if (!args [it].isConst && info.isConst) score.score += this._changed ? CONST_CHANGE_TMP : CONST_SAME_TMP;
+			else if (args [it].isConst && !info.isConst) score.score += this._changed ? CONST_CHANGE_TMP : CONST_SAME_TMP;
+			else score.score += this._changed ? CHANGE_TMP : SAME_TMP;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {
-			score.score += AFF;
+			if (!args [it].isConst && info.isConst) score.score += CONST_AFF_TMP;
+			else if (args [it].isConst && !info.isConst) score.score += CONST_AFF_TMP;
+			else score.score += AFF_TMP;
 			score.treat.insertBack (type);
 		    } else return null;
 		} else {

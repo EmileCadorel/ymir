@@ -207,9 +207,7 @@ class StringUtils {
      Returns: la liste d'instruction de la transformation d'une string en array (llist);
      */
     static LInstList InstCastArray (LInstList llist) {
-	if (COMPILER.isToLint) 
-	    return llist;
-	else return new DCast (new DType ("const (char)[]"), cast (DExpression) llist);
+	return llist;
     }
 
     /**

@@ -24,11 +24,11 @@ class Frame {
 
     protected string _imutSpace;
     
-    static long CONST_SAME = 9;
-    static long SAME = 10;
-    static long CONST_AFF = 4;    
-    static long AFF = 5;
-    static long CHANGE = 7;
+    static long CONST_SAME = 18;
+    static long SAME = 20;
+    static long CONST_AFF = 8;    
+    static long AFF = 10;
+    static long CHANGE = 14;
 
     protected int _currentScore;
         
@@ -297,15 +297,18 @@ class Frame {
 		auto param = attrs [it];
 		if (auto tvar = cast (TypedVar) param !is null) {
 		    info = (cast(TypedVar) param).getType ().clone ();
+		    
 		    auto type = args [it].CompOp (info);
 		    if (type) type = type.ConstVerif (info);
 		    else return null;
 		    if (type && type.isSame (info)) {
 			if (!args [it].isConst && info.isConst) score.score += CONST_SAME;
+			else if (args [it].isConst && !info.isConst) score.score += CONST_SAME;
 			else score.score += SAME;
 			score.treat.insertBack (type);
 		    } else if (type !is null) {
 			if (!args [it].isConst && info.isConst) score.score += CONST_AFF;
+			else if (args [it].isConst && !info.isConst) score.score += CONST_AFF;
 			else score.score += AFF;
 			score.treat.insertBack (type);
 		    } else return null;
