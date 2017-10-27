@@ -59,7 +59,6 @@ class DFrame : LFrame {
     override string toString () {	
 	auto buf = new OutBuffer ();	
 	buf.writef ("%s %s (", this._type.toString, this._name);
-	std.stdio.writeln (buf.toString);
 	foreach (it ; this._params) {
 	    buf.writef ("%s%s", it, it is this._params [$ - 1] ? "" : ", ");
 	}

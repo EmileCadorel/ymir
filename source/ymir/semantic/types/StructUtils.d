@@ -373,6 +373,23 @@ class StructUtils {
 	}
 	return inst;
     }
+
+    static DExpression GetAttribFromAncestorD (StructInfo info, ref ulong nb) {
+	DExpression ret;
+	if (info.ancestor) {
+	    ret = GetAttribFromAncestorD (info.ancestor, nb);
+	    if (ret) return ret;
+	}
+
+	auto toGet = nb < info.params.length ? nb : info.params.length;
+	if (toGet == nb && nb < info.params.length) {
+	    ret = new DVar (info.attribs [nb]);
+	} else {
+	    nb -= toGet;
+	}
+	
+	return ret;
+    }
     
     static LInstList GetAttrib (InfoType ret, Expression left, Expression) {
 	if (COMPILER.isToLint) {
@@ -389,8 +406,7 @@ class StructUtils {
 	    auto type = cast (StructInfo) (left.info.type);
 	    
 	    if (_ref) type = cast (StructInfo) _ref.content;	    
-	    auto attrib = type.attribs [ret.toGet];
-	    return new DVar (attrib);
+	    return GetAttribFromAncestorD (type, ret.toGet);
 	}
     }
     
@@ -449,6 +465,25 @@ class StructUtils {
 	}
 	return inst;	
     }
+
+    static DExpression GetMethodFromAncestorD (StructInfo info, ref ulong nb) {
+	DExpression ret;
+	if (info.ancestor) {
+	    ret = GetMethodFromAncestorD (info.ancestor, nb);
+	    if (ret) return ret;
+	}
+	
+	auto toGet = nb < info.methods.length ? nb : info.methods.length;
+	if (toGet == nb && nb < info.methods.length) {
+	    auto proto = info.methods [nb].frame.validate ();
+	    return new DVar (proto.name () ~ nb.to!string);
+	} else {
+	    nb -= toGet;
+	}
+	
+	return ret;
+    }
+    
     
     static LInstList GetMethod (InfoType ret, Expression left, Expression) {
 	if (COMPILER.isToLint) {
@@ -459,7 +494,11 @@ class StructUtils {
 	    return GetMethodFromAncestor (done, type, nb, ret.size);
 	} else {
 	    auto lexp = DVisitor.visitExpressionOutSide (left);
-	    return new DVar ("__" ~ ret.toGet.to!string ~ "__");
+	    auto _ref = cast (RefInfo) (left.info.type);
+	    auto type = cast (StructInfo) (left.info.type);
+	    if (_ref) type = cast (StructInfo) _ref.content;
+	    
+	    return GetMethodFromAncestorD (type, ret.toGet);
 	}
     }
 
@@ -471,8 +510,12 @@ class StructUtils {
 	    inst += left;
 	    inst += new LRegRead (leftExp, size.begin, size.size);
 	    return inst;
-	} else {
-	    return new DDot (cast (DExpression) left, cast (DVar) sizeInst);
+	} else {	    
+	    if (auto d = cast (DDot) sizeInst) {
+		return new DDot (cast (DExpression) left, cast (DDot) sizeInst);
+	    } else {
+		return new DDot (cast (DExpression) left, cast (DVar) sizeInst);
+	    }
 	}
     }
         
@@ -608,8 +651,12 @@ class StructUtils {
     }
 
 
+    static LInstList InstGetSuperS (LInstList left) {
+	return new DDot (cast (DExpression) left, new DVar ("_super_"));
+    }
+    
     static LInstList InstGetSuper (LInstList, LInstList left) {
-	return left;
+	return new DDot (cast (DExpression) left, new DVar ("_super_"));
     }
 
 

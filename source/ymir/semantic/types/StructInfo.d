@@ -684,13 +684,14 @@ class StructInfo : InfoType {
 
 	foreach (it ; 0 .. this._methods.length) {
 	    if (var.token.str == this._methods [it].name) {
-		if (!this._methods [it].isOverride)
-		    return GetMethod (it);
+		return GetMethod (it);
 	    }
 	}
 
-	if (this._ancestor) {
-	    return this._ancestor.DotOp (var);
+	if (this._ancestor) {	    
+	    auto ret = this._ancestor.DotOp (var);
+	    //if (ret) ret.lintInstS.insertBack (&StructUtils.InstGetSuperS);
+	    return ret;
 	} else 	
 	    return null;
     }
@@ -729,12 +730,14 @@ class StructInfo : InfoType {
 	}
 	
 	if (this._ancestor) {
-	    if (auto type = this._ancestor.CompOp (other))
+	    if (auto type = this._ancestor.CompOp (other)) {
+		type.lintInstS.insertBack (&StructUtils.InstGetSuperS);
 		return type;
-	    else if (auto type = other.CompOp (this._ancestor))
+	    } else if (auto type = other.CompOp (this._ancestor)) {
+		type.lintInstS.insertBack (&StructUtils.InstGetSuperS);
 		return type;
-	    
-	}
+	    }
+	}	
 	return null;
     }
 
@@ -861,9 +864,8 @@ class StructInfo : InfoType {
 	}
 
 	type.toGet = nb;
-	if (this._ancestor) {
-	    type.toGet += this._ancestor.getNbAttrib;
-	}
+	if (this._ancestor)
+	    type.toGet += this._ancestor.getNbAttrib ();
 	
 	type.lintInst = &StructUtils.Attrib;
 	type.leftTreatment = &StructUtils.GetAttrib;
@@ -872,9 +874,9 @@ class StructInfo : InfoType {
     }    
 
     private ulong getNbAttrib () {
-	if (this._ancestor) {
-	    return this._params.length + this._ancestor.getNbAttrib ();
-	} else return this._params.length;
+    	if (this._ancestor) {
+    	    return this._params.length + this._ancestor.getNbAttrib ();
+    	} else return this._params.length;
     }
     
     private InfoType GetMethod (ulong nb) {
@@ -885,7 +887,8 @@ class StructInfo : InfoType {
 	    foreach (it ; proto.vars) infos.insertBack (it.info.type);
 	    ret.params = infos;
 	    ret.ret = proto.type.type;
-	    ret.toGet = computeMethPos (nb);
+	    
+	    ret.toGet = nb;
 	    if (this._ancestor)
 		ret.toGet += this._ancestor.getNbMethod ();
 	    
@@ -900,23 +903,13 @@ class StructInfo : InfoType {
     }
 
     ulong nbMethods () {
-	return computeMethPos (this._methods.length);
-    }
-    
-    private ulong computeMethPos (ulong nb) {
-	ulong ret = 0;
-	foreach (it ; 0 .. nb) {
-	    if (cast (PureFrame) this._methods [it].frame
-		&& !this._methods [it].isOverride
-	    ) ret ++;
-	}
-	return ret;
+	return this._methods.length;
     }
     
     private ulong getNbMethod () {
 	if (this._ancestor) {
-	    return computeMethPos (this._methods.length) + this._ancestor.getNbMethod ();
-	} else return computeMethPos (this._methods.length);
+	    return this._methods.length + this._ancestor.getNbMethod ();
+	} else return this._methods.length;
     }
     
     /**

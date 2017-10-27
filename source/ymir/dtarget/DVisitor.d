@@ -165,10 +165,6 @@ class DVisitor : LVisitor {
 
     ulong createMethod (ref DExpression [ulong] meth, StructInfo info) {
 	ulong nb = 0;
-	if (info.ancestor) {
-	    nb = createMethod (meth, info.ancestor);
-	}
-
 	foreach (fr ; info.methods) {
 	    if (cast (PureFrame) fr.frame) {
 		auto proto = fr.frame.validate ();
@@ -178,18 +174,10 @@ class DVisitor : LVisitor {
 		    buf.writef ("%s%s", visitType (it.info.type), it
 				is proto.vars [$ - 1] ? "" : ", ");
 		}
-		
-		buf.writef (")");
-		if (fr.isOverride) {
-		    auto nbAnc = info.ancestor.DotOp (new Var (fr.frame.ident));
-		    buf.writef (" __%d__", nbAnc.toGet);
-		    meth [nbAnc.toGet] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
-		} else {
-		    buf.writef (" __%d__", nb);
-		    nb ++;
-		    meth [nb] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
-		}
-		
+			    
+		buf.writef (") %s%d", proto.name (), nb);
+		meth [nb] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
+		nb ++;				
 	    }
 	}
 	
@@ -206,6 +194,11 @@ class DVisitor : LVisitor {
 	DExpression [ulong] methods;
 	createMethod (methods, info);
 
+	if (info.ancestor) {
+	    auto ancName =  Mangler.mangle!"struct" (info.ancestor);
+	    buf.writefln ("\t%s* _super_ = new %s ();", ancName, ancName);
+	}
+	
 	foreach (value ; methods) {
 	    buf.writefln ("\t%s;", value.toString ());
 	}
@@ -292,15 +285,17 @@ class DVisitor : LVisitor {
     
     public void addImport (Namespace space) {
 	bool hasAlready = false;
-	if (this._currentFrame.space.isSubOf (space)) hasAlready = true;
-	foreach (it ; this._currentFrame.imports) {
-	    if (it == space) {
-		hasAlready = true;
-		break;
+	if (Table.instance.isModule (space)) {
+	    if (this._currentFrame.space.isSubOf (space)) hasAlready = true;
+	    foreach (it ; this._currentFrame.imports) {
+		if (it == space) {
+		    hasAlready = true;
+		    break;
+		}
 	    }
+	    if (!hasAlready)
+		this._currentFrame.imports.insertBack (space);
 	}
-	if (!hasAlready)
-	    this._currentFrame.imports.insertBack (space);	
     }
 
     private DTypeVar visit (Global gl) {

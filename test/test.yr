@@ -1,9 +1,68 @@
-import test.signal;
 
-static A : Signal!(t!(int));
+struct A {
+    a : int
+}
+
+struct B {
+    a : int
+}
+
+struct C {
+    a : int
+}
+
+impl A {
+
+    def new () {
+        let a = A ();
+        a.cst ();
+        return a;
+    }
+    
+    def cst (self) {
+        self.a = 10;
+    }
+    
+    def foo (self) {
+        println (self.a);
+    }
+
+}
+
+impl B from A {
+
+    def new () {
+        let b =  B ();
+        b.cst ();
+        return b;
+    }
+
+    over foo (self) {
+        println ("B (", self.super.a, ")");
+    }    
+    
+}
+
+impl C from A {
+
+    def new () {
+        let b =  B ();
+        b.cst ();
+        return b;
+    }
+
+    over foo (self) {
+        println ("B (", self.super.a, ")");
+    }    
+    
+}
+
+
 
 def main () {    
-    A = Signal!(t!(int));
-    let b = 12;
-    let c = 13;
+    let a = B::new ();
+    a.super.a = 134;
+    a.foo ();
+    a.cst ();
+    a.foo ();
 }

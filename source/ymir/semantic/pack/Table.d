@@ -399,6 +399,19 @@ class Table {
        	
 	return alls;
     }
+
+    bool isModule (Namespace space) {
+	foreach (it ; this._foreigns) {
+	    if (it == space) return true;
+	}
+
+	foreach (it ; this._importation) {
+	    if (it.space == space) return true;
+	}
+	
+	return false;       	
+    }
+    
     
     /++
      Ouvre le module de namespace from pour le module de namespace to.

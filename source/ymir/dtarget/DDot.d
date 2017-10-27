@@ -8,15 +8,34 @@ class DDot : DExpression {
 
     private DExpression _who;
 
-    private DVar _where;
+    private DExpression _where;
 
     this (DExpression who, DVar where) {
 	this._who = who;
 	this._where = where;
     }
 
+    this (DExpression who, DDot where) {
+	this._who = who;
+	this._where = where;
+    }
+        
+    DExpression where () {
+	return this._where;
+    }
+
+    private string toSimpleString () {
+	if (auto d = cast (DDot) this._where) {
+	    return format ("%s.%s", this._who, d.toSimpleString);
+	} else 
+	    return format ("%s.%s", this._who.toString, this._where.toString);
+    }
+
     override string toString () {
-	return format ("(%s).%s", this._who.toString, this._where.toString);
+	if (auto d = cast (DDot) this._where) {
+	    return format ("(%s).%s", this._who, d.toSimpleString);
+	} else 
+	    return format ("(%s).%s", this._who.toString, this._where.toString);
     }
     
 }
