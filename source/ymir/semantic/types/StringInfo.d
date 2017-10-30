@@ -36,7 +36,9 @@ class StringInfo : InfoType {
 		aux.lintInstS.insertBack (&StringUtils.InstAddr);
 		return aux;
 	    }
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

@@ -241,7 +241,9 @@ class BoolInfo : InfoType {
 	    auto bl = new BoolInfo (this.isConst);
 	    bl.lintInst = &BoolUtils.InstAffect;
 	    return bl;
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

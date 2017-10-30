@@ -1,2 +1,2 @@
 all:
-	ymir app.yr lex.yr
+	ymir -g -o a.out app.yr lex.yr

@@ -1,13 +1,12 @@
+import std.array;
+import std.file;
 
-struct Test {}
-
-def print (s : string) {
-    let const other = s;
-    print (other);
-    print ("SI");
+struct A {
+    a : int
 }
 
-def main () {    
-    let a = "salut";
-    println (a, " ");
+
+def main (name) {
+    let a = A (10);
+    println (a);    
 }

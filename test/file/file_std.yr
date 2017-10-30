@@ -1,10 +1,10 @@
 import std.math;
-import std.stdio;
+import std.stdio._;
 
-def main () {
-    let file = fopen ("Makefile", "r");
+def main (files) {
+    let file = fopen (files [1], "r");
     let line = fread (file, 1024u);
-
+    
     println (line);
     
     fclose (file);    

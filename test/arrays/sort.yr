@@ -1,6 +1,5 @@
-import std.stdio;
 import std.array;
-import std.algorithm;
+import std.algorithm._;
 import std.conv;
 
 struct
@@ -18,7 +17,7 @@ def main () {
     a.sort (
         (a : Test, b : Test) => a.b < b.b	
     );
-
+    
     print ('[');
     for it in 0U .. a.length {
         print (a [it]);

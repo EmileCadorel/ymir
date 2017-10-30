@@ -39,7 +39,7 @@ class ConstArray : Expression  {
     /**
      Returns: Les casters de l'expression
      */
-    Array!InfoType casters () {
+    ref Array!InfoType casters () {
 	return this._casters;
     }
 

@@ -1,3 +1,5 @@
+import std.string;
+
 extern (C) putchar (const c : char);
 extern (C) printf (const c : p!char, ...);
 
@@ -15,56 +17,56 @@ def print (const s : string) : void {
 
 
 def print (i : long) : void {
-    printf (("%ld").ptr, i);
+    printf (("%ld".toStringz).ptr, i);
 }
 
 def print (i : int) : void {
-    printf (("%d").ptr, i);
+    printf (("%d".toStringz).ptr, i);
 }
 
 def print (i : short) : void {
-    printf (("%hd").ptr, i);
+    printf (("%hd".toStringz).ptr, i);
 }
 
 def print (i : byte) : void {
-    printf (("%hhx").ptr, i);
+    printf (("%hhx".toStringz).ptr, i);
 }
 
 def print (i : ulong) : void {
-    printf (("%lu").ptr, i);
+    printf (("%lu".toStringz).ptr, i);
 }
 
 def print (i : p!void) : void {
-    printf (("%lu").ptr, i);
+    printf (("%lu".toStringz).ptr, i);
 }
 
 def print (T) (i : p!T) : void {
-    printf (("%lu").ptr, i);
+    printf (("%lu".toStringz).ptr, i);
 }
 
 def print (i : uint) : void {
-    printf (("%u").ptr, i);
+    printf (("%u".toStringz).ptr, i);
 }
 
 def print (i : ushort) : void {
-    printf (("%hu").ptr, i);
+    printf (("%hu".toStringz).ptr, i);
 }
 
 def print (i : ubyte) : void {
-    printf (("%hhx").ptr, i);
+    printf (("%hhx".toStringz).ptr, i);
 }
 
 def print (a : float, prec : long) {
-    printf (('%.*lf').ptr, prec, a);
+    printf (("%.*lf".toStringz).ptr, prec, a);
 }
 
 def print (f : float) {
-    printf (('%lf').ptr, f);
+    printf (("%lf".toStringz).ptr, f);
 }
 
 def print (b : bool) {
-    if (b) print ('true');
-    else print ('false');
+    if (b) print ("true");
+    else print ("false");
 }
 
 def print (T of [U], U) (a : T) {
@@ -125,11 +127,11 @@ def println (T...) (f : float, i : T) {
     print ('\n');
 }
 
-def printf (T...) (str : string, nexts : T) {
+def printf (T...) (const str : string, nexts : T) {
     printf (str.ptr, expand (nexts));
 }
 
-def printfln (T...) (str : string, nexts : T) {
+def printfln (T...) (const str : string, nexts : T) {
     printf (str.ptr, expand (nexts));
     putchar ('\n');
 }

@@ -175,7 +175,9 @@ class FloatInfo : InfoType {
 		aux.lintInstS.insertBack (&FloatUtils.InstAddr);
 		return aux;
 	    }
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

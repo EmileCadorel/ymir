@@ -94,7 +94,9 @@ class TupleInfo : InfoType {
 	    auto tu = this.clone ();
 	    tu.lintInst = &TupleUtils.InstAffectRight;
 	    return tu;
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

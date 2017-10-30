@@ -23,6 +23,7 @@ def indexOf (str : string, what : char) : ulong {
    Returns: l'index ou str.length
 */
 def indexOf (str : string, what : string) : ulong {
+    if (str.length < what.length - 1ul) return str.length;
     for (it in 0ul .. (str.length - (what.length - 1ul))) {
 	let eq = true;
 	for (it2 in 0ul .. what.length) {

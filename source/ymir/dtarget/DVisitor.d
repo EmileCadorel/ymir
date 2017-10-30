@@ -24,10 +24,15 @@ class DVisitor : LVisitor {
     private LFrame [string] _preCompiled;
 
     private DVarDecl _globalVars = new DVarDecl ();
+
+    private Array!Namespace _imports;
     
     override Array!LFrame visit () {
 	Array!LFrame frames;
-
+	foreach (it ; Table.instance.getAllMod (Table.instance.globalNamespace)) {
+	    addImport (it.space);
+	}
+	
 	foreach (it ; ExternFrame.frames) {
 	    if (it.proto !is null && it.isFromC)
 		frames.insertBack (this.visit (it));
@@ -111,17 +116,15 @@ class DVisitor : LVisitor {
 		}
 	    }
 
-	    foreach (ip ; dframe.imports) {
-		auto name = toDNamespace (ip).toString;
-		if (toImports[].find (name).empty)
-		    toImports.insertBack (name);
-	    }
-
 	    funcs.writef ("\n%s\n", dframe.toString);
 	}
 
-	foreach (it ; toImports) {
+	foreach (it; toImports) {
 	    imports.writefln ("import %s;", it);
+	}
+	
+	foreach (it ; this._imports) {
+	    imports.writefln ("import %s;", toDNamespace (it));
 	}
 		
 	file.writef ("%s\n\n%s\n\n%s", imports.toString, this._globalVars, funcs.toString);
@@ -162,48 +165,93 @@ class DVisitor : LVisitor {
     string extension () {
 	return ".d";
     }
-
-    ulong createMethod (ref DExpression [ulong] meth, StructInfo info) {
-	ulong nb = 0;
+        
+    void createMethod (ref DExpression [string] meth, ref Array!string protos, StructInfo info) {	
 	foreach (fr ; info.methods) {
 	    if (cast (PureFrame) fr.frame) {
 		auto proto = fr.frame.validate ();
-		auto buf = new OutBuffer ();
-		buf.writef ("%s function(", visitType (proto.type.type));
-		foreach (it ; proto.vars) {
-		    buf.writef ("%s%s", visitType (it.info.type), it
-				is proto.vars [$ - 1] ? "" : ", ");
+		auto name = Mangler.mangle!"methodInside" (fr.name, proto);
+		if (!fr.isOverride) {
+		    auto buf = new OutBuffer ();
+		    buf.writef ("%s function(", visitType (proto.type.type));
+		    foreach (it ; proto.vars) {
+			buf.writef ("%s%s", visitType (it.info.type), it
+				    is proto.vars [$ - 1] ? "" : ", ");
+		    }
+		    
+		    buf.writef (") %s;", name);
+		    protos.insertBack (buf.toString ());		
+		    meth [name] = new DBinary (new DDot (new DVar ("self"), new DVar (name)), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
+		} else {		    
+		    auto nb = info.hasMethod (name, fr.name);
+		    DExpression current = new DVar ("self");
+		    foreach (it ; 0 .. nb) {
+			current = new DDot (current, new DVar ("_super_"));
+		    }
+		    current = new DDot (current, new DVar (name));
+		    auto params = new DParamList ();
+		    params.addParam (current);
+		    meth [name] = new DBinary (current, new DCast (new DType (new DPar (new DVar ("typeof"), params).toString),
+								   new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND)), Tokens.EQUAL);
 		}
-			    
-		buf.writef (") %s%d", proto.name (), nb);
-		meth [nb] = new DBinary (new DVar (buf.toString ()), new DBefUnary (new DVar (Mangler.mangle!"function" (proto.name, proto)), Tokens.AND), Tokens.EQUAL);
-		nb ++;				
 	    }
-	}
-	
-	return nb;	
+	}       
     }
     
     private string toDStruct (string name, StructInfo info) {
 	auto buf = new OutBuffer ();
 	buf.writef ("struct %s {\n", name);
+
+	if (info.ancestor) {
+	    auto ancName =  Mangler.mangle!"struct" (info.ancestor);
+	    buf.writefln ("\t%s _super_;", ancName, ancName);
+	}
+	
 	foreach (it ; 0 .. info.params.length) {
 	    buf.writefln ("\t%s %s; ", visitType (info.params [it]).name, info.attribs [it]);
 	}
 
-	DExpression [ulong] methods;
-	createMethod (methods, info);
+	DExpression [string] methods;
+	Array!string protos;
+	createMethod (methods, protos, info);
+	
+	foreach (value ; protos) {
+	    buf.writefln ("\t%s;", value);
+	}
 
+	buf.writefln ("\n\tstatic %s* cstNew () {\n\t\tauto self = new %s ();", name, name);
 	if (info.ancestor) {
-	    auto ancName =  Mangler.mangle!"struct" (info.ancestor);
-	    buf.writefln ("\t%s* _super_ = new %s ();", ancName, ancName);
+	    buf.writefln ("\t\tself._super_.cst ();");
 	}
+	buf.writefln ("\t\tself.cst ();");
+	buf.writefln ("\t\treturn self;\n\t}");
+
 	
+	if (info.params.length != 0) {
+	    buf.writef ("\n\tstatic %s* cstNew (", name);
+	    foreach (it ; 0 .. info.params.length) {
+		buf.writef ("%s %s%s", visitType (info.params [it]).name, info.attribs [it], it == info.params.length - 1 ? "" : ", ");
+	    }
+	    
+	    buf.writefln (") {\n\t\tauto self = new %s ();", name, name);
+	    if (info.ancestor) {
+		buf.writefln ("\t\tself._super_.cst ();");
+	    }		
+	    buf.writefln ("\t\tself.cst ();");
+	    foreach (it ; 0 .. info.params.length) {
+		buf.writefln ("\t\tself.%s = %s;", info.attribs [it], info.attribs [it]);
+	    }	
+	    buf.writefln ("\t\treturn self;\n\t}");
+	}
+
+	
+	buf.writefln ("\n\tvoid cst () {\n\t\talias self = this;", name, name);
 	foreach (value ; methods) {
-	    buf.writefln ("\t%s;", value.toString ());
+	    buf.writefln ("\t\t%s;", value);
 	}
+	buf.writefln ("\t}");	
 	
-	buf.writef ("}\n");
+	buf.writef ("\n}\n");
 	return buf.toString;
     }
 
@@ -244,25 +292,36 @@ class DVisitor : LVisitor {
 	this._currentFrame = frame;
 	frame.type = this.visitType (semFrame.type.type);
 	
-	foreach (it ; semFrame.vars) {
-	    frame.addVar (this.visitParam (it));
-	}
-
 	DAuxVar.reset ();
-	
 	frame.block = this.visitBlock (semFrame.block);
 	
 	if (semFrame.name == Keys.MAIN.descr) {
 	    auto bl = DBlock.open ();
-	    foreach (it ; Table.instance.modulesAndForeigns) {
-		addImport (it);
-		auto namespace = new Namespace (it, "self");
+	    if (semFrame.vars.length != 0) {
+		auto var = new DVar (semFrame.vars [0].token.str);
+		auto aux = new DAuxVar ();
+		frame.addVar (new DTypeVar (new DType ("string[]"), aux));
+		auto vdecl = new DVarDecl ();
+		auto type = visitType (semFrame.vars [0].info.type);
+		vdecl.addVar (new DTypeVar (type, var));
+		vdecl.addExpression (new DBinary (var, new DBefUnary (new DCast (new DType (type.name ~ "*"), new DBefUnary (aux, Tokens.AND)), Tokens.STAR), Tokens.EQUAL));
+		bl.addInst (vdecl);
+	    }
+
+	    foreach (it ; Table.instance.modulesAndForeigns) {		
+	    	addImport (it);
+	    	auto namespace = new Namespace (it, "self");
 		bl.addInst (new DPar (new DVar (Mangler.mangle!"function" (namespace)), new DParamList ()));
 	    }
+	    
 	    foreach (it ; frame.block.instructions) {
-		bl.addInst (it);
+	    	bl.addInst (it);
 	    }
 	    frame.block = bl;
+	} else {
+	    foreach (it ; semFrame.vars) {
+		frame.addVar (this.visitParam (it));
+	    }
 	}
 	
 	return frame;
@@ -286,15 +345,14 @@ class DVisitor : LVisitor {
     public void addImport (Namespace space) {
 	bool hasAlready = false;
 	if (Table.instance.isModule (space)) {
-	    if (this._currentFrame.space.isSubOf (space)) hasAlready = true;
-	    foreach (it ; this._currentFrame.imports) {
+	    foreach (it ; this._imports) {
 		if (it == space) {
 		    hasAlready = true;
 		    break;
 		}
 	    }
 	    if (!hasAlready)
-		this._currentFrame.imports.insertBack (space);
+		this._imports.insertBack (space);
 	}
     }
 
@@ -513,7 +571,7 @@ class DVisitor : LVisitor {
 	auto param = new DParamList ();
 	auto size = visit (all.size);
 	param.addParam (size);
-	param.addParam (new DNew (new DVar (type.name ~ "*"), new DBinary (new DDot (new DVar (type.name), new DVar ("sizeof")), size, Tokens.STAR)));
+	param.addParam (new DNew (new DVar (type.name),  size));
 	return new DPar (new DVar ("tuple"), param);
     }
 
@@ -576,46 +634,10 @@ class DVisitor : LVisitor {
     }
 
     public DExpression visit (String st) {
-	auto space = this._currentFrame.space;
-	auto name = Mangler.mangle!"function" (new Namespace (space, "0CstString"));
-	auto fr = name in this._preCompiled;
-	if (fr is null) {
-	    auto frame = new DFrame (name);
-	    auto ptr = new DVar ("ptr"), len = new DVar ("len");
-	    frame.type = new DType ("Tuple!(ulong, char*)");
-	    frame.addVar (new DTypeVar (new DType (Dlang.ULONG), len));
-	    frame.addVar (new DTypeVar (new DType ("const (char)*"), ptr));
-	    auto bl = DBlock.open ();
-	    auto iter = new DAuxVar (), res = new DAuxVar;
-	    auto decl = new DVarDecl ();
-	    
-	    decl.addVar (new DTypeVar (new DType (Dlang.ULONG), iter));
-	    decl.addExpression (new DBinary (iter, new DDecimal (0), Tokens.EQUAL));
-	    decl.addVar (new DTypeVar (new DType ("char*"), res));
-	    decl.addExpression (new DBinary (res, new DNew (new DVar ("char*"), len), Tokens.EQUAL));
-	    bl.addInst (decl);
-	    
-	    auto test = new DBinary (new DBefUnary (ptr, Tokens.STAR), new DDecimal (0), Tokens.NOT_EQUAL);
-	    auto inside = DBlock.open ();
-	    inside.addInst (new DBinary (new DAccess (res, iter), new DBefUnary (ptr, Tokens.STAR), Tokens.EQUAL));
-	    inside.addInst (new DBefUnary (ptr, Tokens.DPLUS));
-	    inside.addInst (new DBefUnary (iter, Tokens.DPLUS));
-	    inside.close ();
-	    
-	    bl.addInst (new DWhile (test, inside));
-	    auto paramList = new DParamList ();
-	    paramList.addParam (new DCast (new DType (Dlang.ULONG), iter));
-	    paramList.addParam (res);
-	    
-	    bl.addInst (new DReturn (new DPar (new DVar ("tuple"), paramList)));
-	    bl.close ();
-	    frame.block = bl;
-	    this._preCompiled [name] = frame;
-	}
 	auto paramList = new DParamList ();
 	paramList.addParam (new DDecimal (st.content.length));
-	paramList.addParam (new DDot (new DString (st.content), new DVar ("ptr")));
-	return new DPar (new DVar (name), paramList);
+	paramList.addParam (new DCast (new DType ("char*"), new DDot (new DString (st.content), new DVar ("ptr"))));
+	return new DPar (new DVar ("Tuple!(ulong, char*)"), paramList);
     }
 
     private DExpression visit (Bool bl) {
@@ -630,15 +652,15 @@ class DVisitor : LVisitor {
 	auto ca = new DConstArray ();
 	auto length = cr.params.length;
 	auto type = cast (ArrayInfo) cr.info.type;
-	auto dtype = new DType (visitType (type.content).name ~ "*");	
-	auto array = new DNew (new DVar (dtype.name), new DBinary (new DDecimal (length), new DDecimal (type.content.size), Tokens.STAR));
+	auto dtype = visitType (type.content);	
+	auto array = new DNew (new DVar (dtype.name), new DDecimal (length));
 
 	auto bl = DBlock.current ();
 
 	auto decl = new DVarDecl ();	
 	auto aux = new DAuxVar ();
 
-	decl.addVar (new DTypeVar (dtype, aux));
+	decl.addVar (new DTypeVar (new DType (dtype.name ~ "*"), aux));
 	decl.addExpression (new DBinary (aux, array, Tokens.EQUAL));
 	
 	bl.addInst (decl);
@@ -808,12 +830,17 @@ class DVisitor : LVisitor {
 	
 	foreach (it ; 0 .. pm.params.length) {
 	    auto exp = pm.params [it];	    
-	    auto elist = visit (exp);
+	    DExpression elist;
+	   	    
 	    if (treat [it]) {
+		if (treat [it].leftTreatment)
+		    elist = cast (DExpression) treat [it].leftTreatment (treat [it], exp, null);
+		else elist = visit (exp);
+		
 		for (long nb = treat [it].lintInstS.length - 1 ; nb >= 0 ; nb --) {
 		    elist = cast (DExpression) treat [it].lintInst (elist, nb);
 		}
-	    }
+	    } else elist = visit (exp);
 
 	    params.addParam (elist);
 	}	
@@ -833,11 +860,6 @@ class DVisitor : LVisitor {
 		if (par.dotCall) {
 		    auto leftTreat = cast (DExpression) par.dotCall.info.type.leftTreatment (par.dotCall.info.type, par.dotCall.left, null);
 		    auto left = params.params [0];
-		    if (par.dotCall.info.type.lintInstS.length > 0) {
-			for (long nb = par.dotCall.info.type.lintInstS.length - 1 ; nb >= 0 ; nb --)
-			    left = cast (DExpression) par.dotCall.info.type.lintInst (left, nb);
-		    }		    
-		
 		    auto res = cast (DExpression) par.dotCall.info.type.lintInst (leftTreat, left);
 		    return new DPar (res, params);
 		} else {

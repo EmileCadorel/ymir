@@ -623,6 +623,7 @@ class StructInfo : InfoType {
 	} else if (_st) {
 	    if (_st.ancestor) {
 		if (auto type = _st.ancestor.CompOp (this)) {
+		    type.rightTreatment = &StructUtils.InstCastSuperRight;
 		    type.lintInst = &StructUtils.InstAffect;
 		    return type;
 		} 		    
@@ -674,7 +675,7 @@ class StructInfo : InfoType {
 	    else if (var.token.str == "sizeof") return SizeOf ();
 	    else if (var.token.str == "super") return Super ();
 	}
-	
+
 	foreach (it ; 0 .. this._attribs.length) {
 	    if (var.token.str == this._attribs [it]) {
 		return GetAttrib (it);
@@ -682,14 +683,14 @@ class StructInfo : InfoType {
 	}
 
 	foreach (it ; 0 .. this._methods.length) {
-	    if (var.token.str == this._methods [it].name) {
+	    if (var.token.str == this._methods [it].name && !this._methods [it].isOverride) {
 		return GetMethod (it);
 	    }
 	}
 
 	if (this._ancestor) {	    
 	    auto ret = this._ancestor.DotOp (var);
-	    //if (ret) ret.lintInstS.insertBack (&StructUtils.InstGetSuperS);
+	    if (ret) ret.lintInstS.insertBack (&StructUtils.InstGetSuperS);
 	    return ret;
 	} else 	
 	    return null;
@@ -726,14 +727,16 @@ class StructInfo : InfoType {
 		aux.lintInstS.insertBack (&StructUtils.InstAddr);
 		return aux;
 	    }
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	
 	if (this._ancestor) {
 	    if (auto type = this._ancestor.CompOp (other)) {
-		type.lintInstS.insertBack (&StructUtils.InstGetSuperS);
+		type.leftTreatment = (&StructUtils.InstCastSuper);
 		return type;
 	    } else if (auto type = other.CompOp (this._ancestor)) {
-		type.lintInstS.insertBack (&StructUtils.InstGetSuperS);
+		type.leftTreatment = (&StructUtils.InstCastSuper);
 		return type;
 	    }
 	}	
@@ -908,13 +911,17 @@ class StructInfo : InfoType {
     }
 
     ulong nbMethods () {
-	return this._methods.length;
+	ulong nb = 0;
+	foreach (it ; this._methods) {
+	    if (!it.isOverride) nb++;
+	}
+	return nb;
     }
     
     private ulong getNbMethod () {
 	if (this._ancestor) {
-	    return this._methods.length + this._ancestor.getNbMethod ();
-	} else return this._methods.length;
+	    return this.nbMethods () + this._ancestor.getNbMethod ();
+	} else return this.nbMethods ();
     }
     
     /**
@@ -995,4 +1002,21 @@ class StructInfo : InfoType {
 	return LSize.ULONG;
     }
    
+    long hasMethod (ref string valName, string name) {
+	foreach (it ; this._methods) {	    
+	    if (it.name == name && !it.isOverride) {
+		auto proto = it.frame.validate ();
+		valName = Mangler.mangle!"methodInside" (it.name, proto);
+		return 0;
+	    }
+	}
+
+	if (this._ancestor) {
+	    auto it = this._ancestor.hasMethod (valName, name);
+	    if (it != -1) return it + 1;
+	}
+	
+	return -1;	
+    }
+    
 }

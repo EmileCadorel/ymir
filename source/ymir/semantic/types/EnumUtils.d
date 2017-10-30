@@ -68,13 +68,15 @@ class EnumUtils {
 	    inst += aux;
 	    return inst;
 	} else {
+	    auto array = new ConstArray (Word.eof, make!(Array!Expression));
 	    auto type = cast (EnumCstInfo) left.info.type;
-	    auto array = new DConstArray ();
 	    foreach (it ; 0 .. type.values.length) {
-		auto right = DVisitor.visitExpressionOutSide (type.values [it]);
-		array.addValue (right);
+		array.params.insertBack (type.values [it]);
+		array.casters.insertBack (null);
 	    }
-	    return array;
+	    
+	    array.info = new Symbol (Word.eof, ret);
+	    return DVisitor.visitExpressionOutSide (array);
 	}
     }
 

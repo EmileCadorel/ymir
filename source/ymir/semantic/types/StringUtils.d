@@ -27,7 +27,7 @@ class StringUtils {
     static immutable string __PlusStringChar__ = "_Y4core6string14opBinaryNG43GNFcsaZcs";
 
     /** Le nom de la fonction '==' de deux string */
-    static immutable string __EqualString__ = "_Y4core6string8opEqualsFssZb";
+    static immutable string __EqualString__ = "_Y4core6string8opEqualsFcscsZb";
     
 
     /**

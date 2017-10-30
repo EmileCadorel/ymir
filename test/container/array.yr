@@ -1,5 +1,5 @@
 import std.array;
-import std.stdio;
+//import std.stdio;
 
 def Array (T) () {
     struct

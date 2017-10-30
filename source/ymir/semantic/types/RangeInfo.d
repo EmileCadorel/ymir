@@ -354,7 +354,9 @@ class RangeInfo : InfoType {
 	    ra.value = null;
 	    ra.lintInst = &RangeUtils.InstAffectRight;
 	    return ra;
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

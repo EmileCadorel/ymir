@@ -121,10 +121,7 @@ class RefInfo : InfoType {
      Returns: le type résultat ou null.
     */
     override InfoType DotOp (Var var) {
-	if (var.token.str == "data") {
-	    return Unref ();
-	} else 
-	    return addUnref (this._content.DotOp (var));
+	return addUnref (this._content.DotOp (var));
     }
 
     private InfoType Unref () {

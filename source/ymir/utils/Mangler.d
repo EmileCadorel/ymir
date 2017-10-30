@@ -54,6 +54,18 @@ class Mangler {
 	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
 	return buf.toString;
     }       
+
+    static string mangle (string type : "methodInside") (string name, FrameProto frame) {
+	if (name == Keys.MAIN.descr || frame.externC) return name;
+	auto namespace = frame.namespace.toString;
+	auto buf = new OutBuffer ();
+	buf.writef ("M%sPM", mangle!"namespace" (name));
+	foreach (it ; frame.vars) {
+	    buf.write (mangle!"type" (it.info.type.simpleTypeString));
+	}
+	buf.writef ("Z%s", mangle!"type" (frame.type.type.simpleTypeString));
+	return buf.toString;
+    }       
     
     static string mangle (string type : "struct") (StructCstInfo str) {
 	auto buf = new OutBuffer ();

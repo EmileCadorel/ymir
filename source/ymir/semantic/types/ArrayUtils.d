@@ -217,7 +217,7 @@ class ArrayUtils {
 	    return LVisitor.visitExpressionOutSide (left);
 	} else {
 	    string type;
-	    if (auto arr = cast (ArrayInfo) array) type = arr.content.typeString;    
+	    if (auto arr = cast (ArrayInfo) array) type = DVisitor.visitType (arr.content).name;  
 	    else type = "char";
 	    auto params = new DParamList ();
 	    params.addParam (new DCast (new DType (Dlang.ULONG), new DDecimal (0)));
@@ -225,7 +225,7 @@ class ArrayUtils {
 	    return new DPar (new DVar ("Tuple!(ulong, " ~ type ~ "*)"), params);
 	}
     }    
-
+    
     /**
      Transforme le tableau en tuple.
      Params:

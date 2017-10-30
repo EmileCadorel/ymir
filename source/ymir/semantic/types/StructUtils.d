@@ -195,7 +195,6 @@ class StructUtils {
 	    LFrame.preCompiled [__CstNameEmpty__ ~ name] = fr;	
 	    LReg.lastId = last;
 	} else {
-	    writeln ("ICIIIIIIIIII ", Mangler.mangle!"struct" (info));
 	    COMPILER.getLVisitor!(DVisitor).addStructToCst (info);
 	}
     }
@@ -259,7 +258,7 @@ class StructUtils {
 	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	    return inst;
 	} else {
-	    return new DRealNew (new DPar (cast (DExpression) llist, cast (DParamList) rlist [0])); 
+	    return new DPar (new DDot (cast (DExpression) llist, new DVar ("cstNew")), cast (DParamList) (rlist [0])); 
 	}
     }
 
@@ -272,7 +271,7 @@ class StructUtils {
 	    inst += new LCall ((cast (LConstFunc) leftExp).name, params, LSize.LONG);
 	    return inst;
 	} else {
-	    return new DRealNew (new DPar (cast (DExpression) llist, new DParamList));
+	    return new DPar (new DDot (cast (DExpression) llist, new DVar ("cstNew")), new DParamList);
 	}
     }    
 
@@ -401,11 +400,10 @@ class StructUtils {
 	    bool done = false; ulong nb = ret.toGet;
 	    return GetAttribFromAncestor (done, type, nb, ret.size);
 	} else {	    
-	    auto lexp = DVisitor.visitExpressionOutSide (left);
 	    auto _ref = cast (RefInfo) (left.info.type);
-	    auto type = cast (StructInfo) (left.info.type);
+	    auto type = cast (StructInfo) (left.info.type);	    
+	    if (_ref) type = cast (StructInfo) _ref.content;
 	    
-	    if (_ref) type = cast (StructInfo) _ref.content;	    
 	    return GetAttribFromAncestorD (type, ret.toGet);
 	}
     }
@@ -473,12 +471,14 @@ class StructUtils {
 	    if (ret) return ret;
 	}
 	
-	auto toGet = nb < info.methods.length ? nb : info.methods.length;
-	if (toGet == nb && nb < info.methods.length) {
-	    auto proto = info.methods [nb].frame.validate ();
-	    return new DVar (proto.name () ~ nb.to!string);
-	} else {
-	    nb -= toGet;
+	foreach (it ; info.methods) {
+	    if (!it.isOverride) {
+		if (nb == 0) {
+		    auto proto = it.frame.validate ();
+		    auto name = Mangler.mangle!"methodInside" (it.name, proto);
+		    return new DVar (name);
+		} else nb --;	    
+	    }
 	}
 	
 	return ret;
@@ -497,7 +497,7 @@ class StructUtils {
 	    auto _ref = cast (RefInfo) (left.info.type);
 	    auto type = cast (StructInfo) (left.info.type);
 	    if (_ref) type = cast (StructInfo) _ref.content;
-	    
+
 	    return GetMethodFromAncestorD (type, ret.toGet);
 	}
     }
@@ -672,11 +672,25 @@ class StructUtils {
 
 
     static LInstList InstGetSuperS (LInstList left) {
-	return new DDot (cast (DExpression) left, new DVar ("_super_"));
+	return new DBefUnary (new DDot (cast (DExpression) left, new DVar ("_super_")), Tokens.AND);
     }
+
+    static LInstList InstCastSuper (InfoType info, Expression left, Expression) {
+	auto lexp = DVisitor.visitExpressionOutSide (left);
+	auto type = DVisitor.visitType (info);
+	return new DCast (type, lexp);
+    }
+
+
+    static LInstList InstCastSuperRight (InfoType info, Expression, Expression left) {
+	auto lexp = DVisitor.visitExpressionOutSide (left);
+	auto type = DVisitor.visitType (info);
+	return new DCast (type, lexp);
+    }
+
     
     static LInstList InstGetSuper (LInstList, LInstList left) {
-	return new DDot (cast (DExpression) left, new DVar ("_super_"));
+	return new DBefUnary (new DDot (cast (DExpression) left, new DVar ("_super_")), Tokens.AND);
     }
 
 

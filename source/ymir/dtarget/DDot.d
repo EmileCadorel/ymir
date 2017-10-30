@@ -19,7 +19,11 @@ class DDot : DExpression {
 	this._who = who;
 	this._where = where;
     }
-        
+
+    ref DExpression who () {
+	return this._who;
+    }
+    
     DExpression where () {
 	return this._where;
     }

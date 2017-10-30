@@ -243,7 +243,9 @@ class CharInfo : InfoType {
 	    auto ch = new CharInfo (this.isConst);
 	    ch.lintInst = &CharUtils.InstAffect;
 	    return ch;
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
     

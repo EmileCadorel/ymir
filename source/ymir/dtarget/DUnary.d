@@ -16,7 +16,7 @@ class DBefUnary : DExpression {
     }
 
     override string toString () {
-	return format ("(%s%s)", this._op.descr, this._expr.toString);
+	return format ("(%s(%s))", this._op.descr, this._expr.toString);
     }   
 } 
 
@@ -33,7 +33,7 @@ class DAfUnary : DExpression {
     }
 
     override string toString () {
-	return format ("(%s%s)", this._expr.toString, this._op.descr);
+	return format ("((%s)%s)", this._expr.toString, this._op.descr);
     }   
 
 } 

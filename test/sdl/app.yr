@@ -20,7 +20,6 @@ def test (a : t!(ubyte, int, int, ubyte)) : void {
     println (x, ' ', y);
 }
 
-
 def main () {       
     keyboard (SDL_Keycode::SDLK_ESCAPE).connect (&end);
     

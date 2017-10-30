@@ -141,6 +141,7 @@ class EnumInfo : InfoType {
 	super (isConst);
 	this._name = name;
 	this._content = content;
+	this._content.isConst = this.isConst;
     }
 
     string name () {

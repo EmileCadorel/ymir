@@ -209,7 +209,9 @@ class DecimalInfo : InfoType {
 		ret.lintInst = &DecimalUtils.InstAffect;
 		return ret;				    
 	    }
-	}
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
+	} 
 	return null;
     }
 

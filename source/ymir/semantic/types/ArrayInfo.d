@@ -370,6 +370,7 @@ class ArrayInfo : InfoType {
 	    return ret;
 	} else if (type && cast (VoidInfo) this._content) {
 	    auto ret = other.clone ();
+	    ret.leftTreatment = &ArrayUtils.InstCastFromNull;
 	    ret.lintInst = &ClassUtils.InstAffectRight;
 	    return ret;
 	} else if (auto _ref = cast (RefInfo) other) {
@@ -380,6 +381,8 @@ class ArrayInfo : InfoType {
 		    return aux;
 		}
 	    }
+	} else if (auto en = cast (EnumInfo) other) {
+	    return this.CompOp (en.content);
 	} else if (cast (NullInfo) other) {
 	    auto ret = new ArrayInfo (true, this._content.clone ());
 	    return this.clone ();

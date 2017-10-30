@@ -24,7 +24,7 @@ struct
 | content : p!void
 -> File;
 
-def fopen (filename : string, mode : string) : File {
+def fopen (const filename : string, const mode : string) : File {
     let file = fopen (filename.ptr, mode.ptr);
     if (file is null) return null;
     return File (file);

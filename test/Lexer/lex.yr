@@ -31,7 +31,7 @@ struct Lexer {
 }
 
 impl Lexer {
-    def new (str : string) {
+    def new (const str : string) {        
         return Lexer (str, 0UL);
     }
 

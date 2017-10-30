@@ -58,7 +58,9 @@ def opBinary ('+') (const a : string , b : char) {
     return a + cast:string ([b]);
 }
 
+
 def opBinary ('+') (const a : string , const b : string) : string {
+    if (a.length + b.length == 0UL) return null;
     let aux = [char ; a.length + b.length];
     for it in 0U .. a.length
         aux [it] = a [it];
