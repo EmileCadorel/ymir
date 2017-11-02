@@ -37,6 +37,7 @@ enum OptionEnum : Option {
 	/** On compile la std*/
 	STD_COMPILATION = Option ("std_compil", "--std", "--std", 0, "Ajoute les fonctions précompilé du langage à la solution"),
 	LINT = Option ("lint", "-l", "--lint", 1, "choisis le langage intermidiaire utilisé"),
+	OUTLINT = Option ("outlint", "-ol", "--outlint", 0, "Génère le fichier de langage intermediaire"),
 	VERBOSE = Option ("verbose", "--verbose", "--verbose", 0, "mode verbose"),
 	OUTFILE = Option ("outfile", "-o", "--outfile", 1, "fichier de sortie")
 	}

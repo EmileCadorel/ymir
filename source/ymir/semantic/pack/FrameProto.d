@@ -32,7 +32,7 @@ class FrameProto {
     private Array!Expression _tmps;
 
     /++ Fonction externe C qui ne doit pas être manglé +/
-    private bool _externC;
+    private string _extern;    
     
     this (string name, Namespace space, Symbol type, Array!Var params, Array!Expression tmps) {
 	this._name = name;
@@ -70,8 +70,8 @@ class FrameProto {
 	return this._vars;
     }       
 
-    ref bool externC () {
-	return this._externC;
+    ref string externName () {
+	return this._extern;
     }
     
     /++

@@ -14,7 +14,7 @@ cp std/dub.json ${HOME}/libs/ymir_std/
 
 cd ${HOME}/libs/ymir_std/
 
-ymir --lint D std/stdio/*.yr std/algorithm/*.yr std/*.yr core/*.yr
+ymir -ol std/stdio/*.yr std/algorithm/*.yr std/*.yr core/*.yr
 dub add-local .
 dub  
 

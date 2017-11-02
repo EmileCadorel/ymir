@@ -34,7 +34,7 @@ class DVisitor : LVisitor {
 	}
 	
 	foreach (it ; ExternFrame.frames) {
-	    if (it.proto !is null && it.isFromC)
+	    if (it.proto !is null && !it.isFromY)
 		frames.insertBack (this.visit (it));
 	}
 
@@ -135,14 +135,17 @@ class DVisitor : LVisitor {
 	string [] options;
 	if (Options.instance.isOn (OptionEnum.ASSEMBLE))
 	    options ~= ["-c"];
-	else {
+	else if (!Options.instance.isOn (OptionEnum.OUTLINT)) {	    
 	    if (Options.instance.isOn (OptionEnum.OUTFILE))
 		options = ["-of=" ~ Options.instance.getOption (OptionEnum.OUTFILE)];
 	    else
-		return;
-	}
+		options = ["-of=a.out"];
+	} else return;
 	
-	options ~= ["-I=" ~ buildPath (Options.instance.getPath (), "out/")] ~ Options.instance.libs ~ buildPath (Options.instance.getPath(), "libymir.a");
+	options ~= ["-I=" ~ buildPath (Options.instance.getPath (), "out/")] ~ buildPath (Options.instance.getPath(), "libymir.a");
+	foreach (it ;  Options.instance.libs) {
+	    options ~= ["../" ~ it];
+	}
 
 	foreach (it ; Options.instance.links) {
 	    options ~= ["-L=" ~ it];
@@ -158,6 +161,8 @@ class DVisitor : LVisitor {
 
 	if (Options.instance.isOn (OptionEnum.OUTFILE)) {
 	    copy (Options.instance.getOption (OptionEnum.OUTFILE), "../" ~ Options.instance.getOption (OptionEnum.OUTFILE), Yes.preserveAttributes);
+	} else {
+	    copy ("a.out", "../a.out", Yes.preserveAttributes);
 	}
 	chdir ("../");
     }
@@ -270,7 +275,7 @@ class DVisitor : LVisitor {
 
     
     LFrame visit (ExternFrame extFrame) {
-	auto frame = new DProto (extFrame.name);
+	auto frame = new DProto (Mangler.mangle!"function" (extFrame.name, extFrame.proto), extFrame.from);
 	frame.space = extFrame.namespace;
 	this._currentFrame = frame;
 	frame.type = this.visitType (extFrame.proto.type.type);

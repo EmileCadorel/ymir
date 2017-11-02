@@ -27,6 +27,8 @@ class Proto : Declaration {
     /// 
     private Word _from;
 
+    private string _space;
+    
     private bool _isVariadic;
     
     this (Word ident, Array!Var params, bool isVariadic) {
@@ -35,11 +37,12 @@ class Proto : Declaration {
 	this._isVariadic = isVariadic;
     }
     
-    this (Word ident, Var type, Array!Var params, bool isVariadic) {
+    this (Word ident, Var type, Array!Var params, string space, bool isVariadic) {
 	this._ident = ident;
 	this._type = type;
 	this._params = params;
 	this._isVariadic = isVariadic;
+	this._space = space;
     }
     
     ref Word from () {
@@ -80,13 +83,18 @@ class Proto : Declaration {
      Throws: NeedAllType, si il n'y a pas tout les types.
      */
     override void declare () {
-	auto space = Table.instance.namespace ();
-	foreach (it ; 0 .. this._params.length) {
-	    if (cast (TypedVar) this._params [it] is null) {
-		this._params [it] = new TypedVar (Word (this._params [it].token.locus, "_", false), this._params [it]);
+	Namespace space;
+	if (this._space != "") {
+	    space = new Namespace (this._space);
+	} else {
+	    space = Table.instance.namespace ();
+	    foreach (it ; 0 .. this._params.length) {
+		if (cast (TypedVar) this._params [it] is null) {
+		    this._params [it] = new TypedVar (Word (this._params [it].token.locus, "_", false), this._params [it]);
+		}
 	    }
 	}
-		
+	
 	auto fr = new ExternFrame (space, this._from.str, this);
 	auto fun = new FunctionInfo (space, this._ident.str);
 	fun.set (fr);
@@ -97,7 +105,10 @@ class Proto : Declaration {
      Declare le prototype dans la table des symboles, si l'élément est déclaré comme publique.     
      */
     override void declareAsExtern (Module mod) {
-	auto space = mod.space;
+	Namespace space;
+	if (this._space == "") space = mod.space;
+	else space = new Namespace (this._space);
+	
 	foreach (it ; 0 .. this._params.length) {
 	    if (cast (TypedVar) this._params [it] is null) {
 		this._params [it] = new TypedVar (Word (this._params [it].token.locus, "_", false), this._params [it]);
@@ -119,7 +130,7 @@ class Proto : Declaration {
 	Array!Var params;
 	foreach (it ; this._params)
 	    params.insertBack(cast (Var) it.templateExpReplace (values));
-	auto ret = new Proto (this._ident, type, params, this._isVariadic);
+	auto ret = new Proto (this._ident, type, params, this._space, this._isVariadic);
 	ret.from = this._from;
 	return ret;
     }

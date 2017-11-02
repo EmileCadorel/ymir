@@ -9,8 +9,11 @@ class DProto : DFrame {
 
     private bool _isVariadic;
     
-    this (string name) {
+    private string _from;
+
+    this (string name, string from) {
 	super (name);
+	this._from = from;
     }
 
     ref isVariadic () {

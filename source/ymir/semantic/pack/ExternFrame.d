@@ -101,7 +101,8 @@ class ExternFrame : Frame {
 	}
 	    
 	this._fr = new FrameProto (this._name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
-	if (this._from == "C") this._fr.externC = true;
+	
+	this._fr.externName = this._from;
 	Table.instance.quitFrame ();
 	Table.instance.programNamespace = ancpSpace;
 	return this._fr;
@@ -127,7 +128,8 @@ class ExternFrame : Frame {
 	
 	this._fr = new FrameProto (this._name, this._namespace, Table.instance.retInfo.info, finalParams, this._tempParams);
 	
-	if (this._from == "C") this._fr.externC = true;
+	this._fr.externName = this._from;
+	
 	Table.instance.quitFrame ();
 	Table.instance.programNamespace = ancpSpace;
 	return this._fr;
@@ -167,6 +169,18 @@ class ExternFrame : Frame {
     
     bool isFromC () {
 	return this._from == "C";
+    }
+
+    bool isFromD () {
+	return this._from == "D";
+    }
+
+    bool isFromY () {
+	return  this._from == "";
+    }
+
+    string from () {
+	return this._from;
     }
 
     FrameProto proto () {

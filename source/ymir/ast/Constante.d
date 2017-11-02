@@ -16,14 +16,14 @@ struct DecType {
 }
 
 enum DecimalConst : DecType {
-    BYTE = DecType ("byte", "bd", 0),
-    UBYTE = DecType ("ubyte", "ub", 1),
-    SHORT = DecType ("short", "sd", 2),
-    USHORT = DecType ("ushort", "us", 3),
+    BYTE = DecType ("byte", "g", 0),
+    UBYTE = DecType ("ubyte", "h", 1),
+    SHORT = DecType ("short", "s", 2),
+    USHORT = DecType ("ushort", "t", 3),
     INT = DecType ("int", "i", 4),
-    UINT = DecType ("uint", "ui", 5),
+    UINT = DecType ("uint", "k", 5),
     LONG = DecType ("long", "l", 6),
-    ULONG = DecType ("ulong", "ul", 7)
+    ULONG = DecType ("ulong", "m", 7)
 }
 
 

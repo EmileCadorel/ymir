@@ -323,6 +323,19 @@ class Visitor {
 	    return new Global (ident, null, type);
 	}
     }
+
+    private string visitSpace () {
+	auto buf = new OutBuffer ();
+	while (true) {	    
+	    auto next = visitIdentifiant ();
+	    buf.writef ("%s", next.str);
+	    auto nt = this._lex.next ();
+	    if (nt == Tokens.DOT) buf.write (".");
+	    else break;
+	}
+	this._lex.rewind ();
+	return buf.toString ();
+    }    
     
     /**
      import := 'import' (Identifiant ('.' Identifiant)*) (',' Identifiant ('.' Identifiant))* ';'
@@ -541,10 +554,15 @@ class Visitor {
 	auto word = _lex.next ();
 	bool isVariadic = false;
 	Word from = Word.eof;
+	string space = "";
 	if (word == Tokens.LPAR) {
 	    from = visitIdentifiant ();
-	    word = _lex.next ();
-	    if (word != Tokens.RPAR) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+	    word = _lex.next (Tokens.COMA, Tokens.RPAR);
+	    if (word == Tokens.COMA) {
+		if (from.str != Keys.DLANG.descr) throw new SyntaxError (word, [Tokens.RPAR.descr]);
+		space = visitSpace ();
+		_lex.next (Tokens.RPAR);
+	    }
 	} else _lex.rewind ();
 	auto ident = visitIdentifiant ();
 	Array!Var exps;
@@ -577,7 +595,7 @@ class Visitor {
 	}
 	
 	if (word != Tokens.SEMI_COLON) throw new SyntaxError (word, [Tokens.SEMI_COLON.descr]);	
-	auto ret = new Proto (ident, type, exps, isVariadic);
+	auto ret = new Proto (ident, type, exps, space, isVariadic);
 	ret.from = from;
 	return ret;
     }

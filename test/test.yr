@@ -1,12 +1,13 @@
-import std.array;
-import std.file;
 
-struct A {
-    a : int
-}
+extern (D, test.test) test (a : float) : float;
+extern (D, test.test) test (ref a : [int]);
 
 
 def main (name) {
-    let a = A (10);
+    println (test (10.));
+    let a = [1, 2, 3];
+    test (a);
     println (a);    
 }
+
+

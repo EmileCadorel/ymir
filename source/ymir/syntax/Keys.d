@@ -54,5 +54,6 @@ enum Keys  {
     IMPL = Token ("impl", 59),
     TUPLE = Token ("tuple", 60),
     OVER = Token ("over", 61),
-    FROM = Token ("from", 62)
+    FROM = Token ("from", 62),
+    DLANG = Token ("D", 63)
 }
