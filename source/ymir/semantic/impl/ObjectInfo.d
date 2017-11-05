@@ -15,6 +15,8 @@ class ObjectCstInfo : InfoType {
     // La structure dérivé
     private StructCstInfo _impl;
 
+    private Array!ConstructorInfo _csts;
+
     // Les méthodes de l'implémentation
     private Array!MethodInfo _methods;
 
@@ -44,6 +46,10 @@ class ObjectCstInfo : InfoType {
 	this._methods = infos;
     }
 
+    void setConstructs (Array!ConstructorInfo infos) {
+	this._csts = infos;
+    }
+    
     void setAncestor (ObjectCstInfo ancestor) {
 	this._ancestor = ancestor;
     }

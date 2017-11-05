@@ -178,12 +178,16 @@ class Visitor {
 	
 	next = this._lex.next (Tokens.RACC, Keys.DEF, Keys.OVER);
 	Array!Function methods; Array!bool herit;
+	Array!Constructor csts;
 	bool isOver = (next == Keys.OVER);
 	if (isOver && what.isEof) throw new SyntaxError (next, [Tokens.RACC.descr, Keys.DEF.descr]);
 	if (next != Tokens.RACC) {
 	    while (true) {
-		methods.insertBack (visitFunctionImpl ());
-		herit.insertBack (isOver);
+		auto meth = visitFunctionImpl ();
+		if (auto fn = cast (Function) meth) {
+		    methods.insertBack (fn);
+		    herit.insertBack (isOver);
+		} else csts.insertBack (cast (Constructor) meth);
 		next = this._lex.next (Tokens.RACC, Keys.DEF, Keys.OVER);
 		if (next == Tokens.RACC) break;
 		else if (next == Keys.OVER) {
@@ -193,16 +197,33 @@ class Visitor {
 	    }
 	}
 	if (what.isEof) 
-	    return new Impl (ident, methods);
+	    return new Impl (ident, methods, csts);
 	else
-	    return new Impl (what, ident, methods, herit);
+	    return new Impl (what, ident, methods, herit, csts);
     }
 
-    private Function visitFunctionImpl () {
+    private Constructor visitConstructor () {
+	auto begin = this._lex.next (Keys.SELF);
+	Array!Var params;
+	while (true) {
+	    auto next = this._lex.next (Tokens.COMA, Tokens.RPAR);
+	    if (next == Tokens.RPAR) break;
+	    else {
+		params.insertBack (visitVarDeclaration ());
+	    }
+	}
+	return new Constructor (begin, params, visitBlock ());
+    }
+    
+    private Declaration visitFunctionImpl () {
+	auto begin = this._lex.rewind ().next ();       
+	auto next = this._lex.next ();
+	if (next == Tokens.LPAR && begin == Keys.DEF) return visitConstructor ();
+	else this._lex.rewind ();
 	auto ident = visitIdentifiant ();
 	Array!Var params;
 	this._lex.next (Tokens.LPAR);
-	auto next = this._lex.next ();	
+	next = this._lex.next ();	
 	if (next != Tokens.RPAR) {
 	    this._lex.rewind ();
 	    while (true) {

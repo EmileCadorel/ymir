@@ -1,13 +1,19 @@
 
-extern (D, test.test) test (a : float) : float;
-extern (D, test.test) test (ref a : [int]);
+struct S {
+    b : int
+}
+
+impl S  {
+
+    def (self, a, b) {
+        
+    }
+    
+}
 
 
 def main (name) {
-    println (test (10.));
-    let a = [1, 2, 3];
-    test (a);
-    println (a);    
+
 }
 
 

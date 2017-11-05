@@ -31,9 +31,9 @@ class Mangler {
     static string mangleD (string type : "struct") (StructInfo info) {
 	auto space = info.namespace.toString;
 	auto buf = new OutBuffer ();
-	buf.writef ("S%s", mangle!"namespace" (space));
-	auto name = mangle!"struct" (info);
-	buf.writef ("%d%s", name.length, name);
+	buf.writef ("KS%s", mangle!"namespace" (space));
+	//auto name = mangle!"struct" (info);
+	buf.writef ("%d%s", info.name.length, info.name);
 	return buf.toString ();
     }
 
@@ -74,7 +74,6 @@ class Mangler {
 	auto buf = new OutBuffer ();
 	buf.writef ("_D%s%sF", mangle!"namespace" (namespace), mangle!"namespace" (name));
 	foreach (it ; frame.vars) {
-	    std.stdio.writeln (it.info.type, " ", mangleD!"type" (it.info.type));
 	    buf.write (mangleD!"type" (it.info.type));
 	}
 	buf.writef ("Z%s", mangleD!"type" (frame.type.type));

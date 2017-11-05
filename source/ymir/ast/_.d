@@ -10,6 +10,7 @@ public import ymir.ast.Cast;
 public import ymir.ast.Constante;
 public import ymir.ast.ConstArray;
 public import ymir.ast.ConstRange;
+public import ymir.ast.Constructor;
 public import ymir.ast.DColon;
 public import ymir.ast.Declaration;
 public import ymir.ast.Dot;

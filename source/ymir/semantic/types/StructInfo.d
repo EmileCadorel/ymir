@@ -30,6 +30,8 @@ class StructCstInfo : InfoType {
 
     /++ Les méthodes implémenté par un impl +/
     private Array!MethodInfo _methods;
+
+    private Array!ConstructorInfo _csts;
     
     private static StructInfo [string] __doings__;
     
@@ -73,6 +75,10 @@ class StructCstInfo : InfoType {
      +/
     ref Array!MethodInfo methods () {
 	return this._methods;
+    }
+
+    ref Array!ConstructorInfo csts () {
+	return this._csts;
     }
     
     /** 
